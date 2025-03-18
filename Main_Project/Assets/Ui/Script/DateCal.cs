@@ -7,7 +7,7 @@ public class DateCal : MonoBehaviour
 {   
     //GameObject.Find("DataSaver").GetComponent<Money>().month;
     //GameObject.Find("DataSaver").GetComponent<Money>().date;
-    List<int> Month1 = new List<int> {1,3,5,7,8,10,12};
+    List<int> Month1 = new List<int> {1,3,5,7,8,10};
     List<int> Month2 = new List<int> {4,6,9,11};
 
     public void next()
@@ -28,7 +28,7 @@ public class DateCal : MonoBehaviour
             GameObject.Find("DataSaver").GetComponent<Money>().month += 1;
             GameObject.Find("DataSaver").GetComponent<Money>().date -= 28;
         }
-        if (GameObject.Find("DataSaver").GetComponent<Money>().month >= 13)
+        if (GameObject.Find("DataSaver").GetComponent<Money>().month >= 12 && GameObject.Find("DataSaver").GetComponent<Money>().date >= 32)
         {
              GameObject.Find("DataSaver").GetComponent<Money>().month = 1;
             GameObject.Find("DataSaver").GetComponent<Money>().date -= 31;
