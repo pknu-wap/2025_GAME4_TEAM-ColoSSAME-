@@ -10,6 +10,7 @@ public class Player : MonoBehaviour
     public LayerMask enemyLayer;
     public LayerMask teammateLayer;
     public Transform initialTarget;
+    public int strategyType;
 
     private Rigidbody2D rb;
     private TargetingSystem targeting;

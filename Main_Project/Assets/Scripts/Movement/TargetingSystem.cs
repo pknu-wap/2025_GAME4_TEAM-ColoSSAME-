@@ -3,8 +3,11 @@ using System.Collections;
 
 public class TargetingSystem : MonoBehaviour
 {
-    private Transform target;
-    private LayerMask enemyLayer;
+    public Transform target;
+    public LayerMask enemyLayer;
+    public NearestTargeting nearest;
+    public RandomTargeting randomenemy;
+    public Player player;
 
     public void Initialize(LayerMask enemyLayer)
     {
@@ -13,16 +16,41 @@ public class TargetingSystem : MonoBehaviour
 
     public void StartTargeting()
     {
-        StartCoroutine(AutoTargeting());
+        player = GetComponent<Player>();
+        if (player != null)
+        {
+            if (player.strategyType == 1)
+            {
+                StartCoroutine(NearestTargeting());
+            }
+            else if(player.strategyType == 2)
+            {
+                StartCoroutine(RandomTargeting());
+            }
+        }
     }
 
-    private IEnumerator AutoTargeting()     //Å¸°ÙÆÃ
+    private IEnumerator NearestTargeting()     //Å¸°ÙÆÃ
     {
         while (true)
         {
             if (target == null)
             {
-                FindNearestTarget();
+                nearest = GetComponent<NearestTargeting>();
+                nearest.FindNearestTarget();
+            }
+            yield return new WaitForSeconds(1f);
+        }
+    }
+
+    private IEnumerator RandomTargeting()     //Å¸°ÙÆÃ
+    {
+        while (true)
+        {
+            if (target == null)
+            {
+                randomenemy = GetComponent<RandomTargeting>();
+                randomenemy.FindRandomTarget();
             }
             yield return new WaitForSeconds(1f);
         }
@@ -33,39 +61,21 @@ public class TargetingSystem : MonoBehaviour
         return target;
     }
 
-    private void FindNearestTarget()        //Å¸°Ù ¼³Á¤
-    {
-        Collider2D[] enemies = Physics2D.OverlapCircleAll(transform.position, 10f, enemyLayer);
-        float shortestDistance = Mathf.Infinity;
-        Transform nearestEnemy = null;
-
-        Debug.Log("Å¸°Ù Ã£´Â Áß..."); //½ÇÇà ¿©ºÎ È®ÀÎ
-
-        foreach (Collider2D enemy in enemies)
-        {
-            float distance = Vector2.Distance(transform.position, enemy.transform.position);
-            if (distance < shortestDistance)
-            {
-                shortestDistance = distance;
-                nearestEnemy = enemy.transform;
-            }
-        }
-
-        if (nearestEnemy != null)
-        {
-            target = nearestEnemy;
-            Debug.Log("Å¸°Ù ¼³Á¤µÊ: " + target.name); //Å¸°Ù ¼³Á¤ È®ÀÎ
-        }
-        else
-        {
-            Debug.Log("Å¸°Ù ¾øÀ½!");
-        }
-    }
-
     public void FaceTarget(Vector2 targetPosition)
     {
         Vector2 direction = (targetPosition - (Vector2)transform.position).normalized;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, 10f); // Å¸°Ù Å½»ö ¹üÀ§
+        if (target != null)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(transform.position, target.position); // Å¸°Ù°úÀÇ ¼±
+        }
     }
 }
