@@ -25,7 +25,7 @@ public class BattleAI : MonoBehaviour
         StartCoroutine(AutoBattleAI());
     }
 
-    private IEnumerator AutoBattleAI()          //자동전투
+    private IEnumerator AutoBattleAI()          // 자동 전투
     {
         while (true)
         {
