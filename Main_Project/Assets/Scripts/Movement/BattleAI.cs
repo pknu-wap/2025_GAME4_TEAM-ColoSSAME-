@@ -15,6 +15,9 @@ public class BattleAI : MonoBehaviour
     private float retreatDistance;                // 후퇴 거리
     private float speed;                          // 이동 속도
     private bool isAttacking = false;             // 공격 중인지 여부
+    private Player player;
+    
+    public bool isFacingRight;
 
     /// <summary>
     /// 외부에서 초기값을 설정하는 함수
@@ -28,6 +31,7 @@ public class BattleAI : MonoBehaviour
         this.attackDelay = attackDelay;
         this.retreatDistance = retreatDistance;
         this.speed = speed;
+
     }
 
     /// <summary>
@@ -57,7 +61,7 @@ public class BattleAI : MonoBehaviour
                 float distance = Vector2.Distance(transform.position, target.position);           // 타겟과의 거리 계산
                 Vector2 direction = (target.position - transform.position).normalized;           // 타겟을 향한 방향 벡터 계산
                 direction = movement.AvoidTeammates(direction);                                  // 아군 피하기
-                targeting.FaceTarget(target.position);                                           // 타겟 방향 바라보기
+                FaceTargetHorizontally(target.position);                                         // 타겟 방향 바라보기
 
                 if (distance > attackRange)
                 {
@@ -79,6 +83,32 @@ public class BattleAI : MonoBehaviour
             yield return null;
         }
     }
+    
+    // 방향 전환 함수
+    private void Flip()
+    {
+        isFacingRight = !isFacingRight;
+
+        Vector3 scale = transform.localScale;
+        scale.x *= -1; // x만 반전
+        transform.localScale = scale;
+    }
+
+    // 타겟 방향에 따라 스프라이트 좌우반전
+    private void FaceTargetHorizontally(Vector3 targetPos)
+    {
+        if (targetPos.x < transform.position.x && isFacingRight)
+        {
+            // 왼쪽으로 방향 전환
+            Flip();
+        }
+        else if (targetPos.x > transform.position.x && !isFacingRight)
+        {
+            // 오른쪽으로 방향 전환
+            Flip();
+        }
+    }
+
 
     /// <summary>
     /// 공격 및 후퇴 시퀀스 처리 코루틴
@@ -87,7 +117,7 @@ public class BattleAI : MonoBehaviour
     {
         isAttacking = true;
         rb.velocity = Vector2.zero;
-        targeting.FaceTarget(target.position);             // 공격 시 타겟 바라보기
+        FaceTargetHorizontally(target.position);             // 공격 시 타겟 바라보기
 
         Debug.Log("공격!");
 
