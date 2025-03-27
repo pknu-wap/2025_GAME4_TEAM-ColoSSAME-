@@ -33,5 +33,10 @@ public class DateCal : MonoBehaviour
              GameObject.Find("DataSaver").GetComponent<Data>().month = 1;
             GameObject.Find("DataSaver").GetComponent<Data>().date -= 31;
         }
+        for (int i=0; i<GameObject.Find("DataSaver").GetComponent<Data>().attack.Count; i++)
+        {
+            GameObject.Find("DataSaver").GetComponent<Data>().attack[i] += GameObject.Find("DataSaver").GetComponent<Data>().attackTraining[i];
+            GameObject.Find("DataSaver").GetComponent<Data>().attackTraining[i]=0;
+        }    
     }
 }
