@@ -9,6 +9,6 @@ public class Date : MonoBehaviour
     public Text dateText;
     void Update()
     {
-        dateText.text=$"{GameObject.Find("DataSaver").GetComponent<Data>().month}월 {GameObject.Find("DataSaver").GetComponent<Data>().date}일";
+        dateText.text=$"{GameObject.Find("DataSaver").GetComponent<Money>().month}월 {GameObject.Find("DataSaver").GetComponent<Money>().date}일";
     }
 }
