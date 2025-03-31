@@ -4,13 +4,13 @@ using UnityEngine;
 using TMPro;
 //돈 표시
 
-public class DataChange : MonoBehaviour
+public class MoneyChange : MonoBehaviour
 {   
     //텍스트 지정
-    public TextMeshProUGUI DataText;
+    public TextMeshProUGUI moneyText;
 
     void Update()
     {
-        DataText.text=$"돈 : {GameObject.Find("DataSaver").GetComponent<Data>().money}원";
+        moneyText.text=$"돈 : {GameObject.Find("DataSaver").GetComponent<Money>().money}원";
     }
 }
