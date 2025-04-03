@@ -1,35 +1,28 @@
 using UnityEngine;
-using System.Collections;
 
-public class Player : MonoBehaviour
+namespace Character.Movement
 {
-    public float speed = 5f;
-    public float attackRange = 2f;
-    public float retreatDistance = 3f;
-    public float attackDelay = 1f;
-    public LayerMask enemyLayer;
-    public LayerMask teammateLayer;
-    public Transform initialTarget;
-    public int strategyType;
-    
-
-    private Rigidbody2D rb;
-    private TargetingSystem targeting;
-    private BattleAI battleAI;
-    private MovementSystem movement;
-
-    void Start()
+    public class Player : MonoBehaviour
     {
-        rb = GetComponent<Rigidbody2D>();
-        targeting = GetComponent<TargetingSystem>();
-        battleAI = GetComponent<BattleAI>();
-        movement = GetComponent<MovementSystem>();
+        public int strategyType = 1; // 기본값: 가장 가까운 적 타겟팅
+        private TargetingSystem targetingSystem;
 
-        targeting.Initialize(enemyLayer);
-        movement.teammateLayer = teammateLayer;
-        battleAI.Initialize(rb, targeting, movement, attackRange, attackDelay, retreatDistance, speed);
+        private void Awake()
+        {
+            targetingSystem = GetComponent<TargetingSystem>();
+            
+            if (targetingSystem == null)
+            {
+                Debug.LogError("❌ TargetingSystem을 찾을 수 없습니다! 타겟팅이 비활성화될 수 있습니다.");
+            }
+        }
 
-        targeting.StartTargeting();
-        battleAI.StartBattle();
+        private void Start()
+        {
+            if (targetingSystem != null)
+            {
+                targetingSystem.StartTargeting();
+            }
+        }
     }
 }

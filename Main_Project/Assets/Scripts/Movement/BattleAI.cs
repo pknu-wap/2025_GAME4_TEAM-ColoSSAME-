@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using Character.Movement;
 
 /// <summary>
 /// 적 자동 전투 AI 클래스
