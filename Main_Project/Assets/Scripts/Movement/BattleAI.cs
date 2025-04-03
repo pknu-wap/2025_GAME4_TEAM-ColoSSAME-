@@ -21,6 +21,7 @@ public class BattleAI : MonoBehaviour
     public bool isFacingRight;
     
     private CharAnimator charAnimator;
+    public GameObject healthBar; 
 
     private void Awake()
     {
@@ -47,6 +48,8 @@ public class BattleAI : MonoBehaviour
     /// </summary>
     public void StartBattle()
     {
+        if (isFacingRight)
+            healthBar.GetComponent<HealthBarFixDirection>().ForceFix();
         StartCoroutine(AutoBattleAI());
     }
 
@@ -101,6 +104,13 @@ public class BattleAI : MonoBehaviour
         Vector3 scale = transform.localScale;
         scale.x *= -1; // x만 반전
         transform.localScale = scale;
+        
+        // 체력바 방향 고정 호출
+        if (healthBar != null)
+        {
+            healthBar.GetComponent<HealthBarFixDirection>().ForceFix();
+        }
+        
     }
 
     // 타겟 방향에 따라 스프라이트 좌우반전
