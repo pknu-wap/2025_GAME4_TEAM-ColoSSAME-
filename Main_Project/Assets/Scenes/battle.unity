@@ -460,6 +460,14 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 6194015696605001386, guid: a9823d640c8424348bf599518c19d05e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6194015696605001386, guid: a9823d640c8424348bf599518c19d05e, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 6256023182237157374, guid: a9823d640c8424348bf599518c19d05e, type: 3}
       propertyPath: m_Layer
       value: 3
@@ -633,6 +641,11 @@ MonoBehaviour:
     m_Bits: 8
   healthBar: {fileID: 1852650208}
   isFacingRight: 1
+  enemytag: 
+  characterValue: {fileID: 0}
+  capsule: {fileID: 0}
+  isTakingDamage: 0
+  targeting: {fileID: 0}
   weaponCollider: {fileID: 0}
 --- !u!114 &42896387
 MonoBehaviour:
@@ -702,7 +715,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -748,6 +761,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   teammateLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  wallLayer:
     serializedVersion: 2
     m_Bits: 0
 --- !u!114 &42896393
@@ -886,7 +902,7 @@ GameObject:
   - component: {fileID: 108468799}
   - component: {fileID: 108468798}
   - component: {fileID: 108468800}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: 9-Sliced (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1095,6 +1111,11 @@ MonoBehaviour:
     m_Bits: 64
   healthBar: {fileID: 1619557690}
   isFacingRight: 1
+  enemytag: 
+  characterValue: {fileID: 0}
+  capsule: {fileID: 0}
+  isTakingDamage: 0
+  targeting: {fileID: 0}
   weaponCollider: {fileID: 0}
 --- !u!114 &138199548
 MonoBehaviour:
@@ -1183,6 +1204,9 @@ MonoBehaviour:
   teammateLayer:
     serializedVersion: 2
     m_Bits: 0
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!114 &138199554
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1252,7 +1276,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -1526,6 +1550,10 @@ PrefabInstance:
     - target: {fileID: 5510382206488389914, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
       propertyPath: m_Layer
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5510382206488389914, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5697273362229997445, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
       propertyPath: m_Layer
@@ -1882,7 +1910,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 425370152687368559, guid: a9823d640c8424348bf599518c19d05e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.05
       objectReference: {fileID: 0}
     - target: {fileID: 425370152687368559, guid: a9823d640c8424348bf599518c19d05e, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1902,11 +1930,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 425370152687368559, guid: a9823d640c8424348bf599518c19d05e, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 5
+      value: 2.31
       objectReference: {fileID: 0}
     - target: {fileID: 425370152687368559, guid: a9823d640c8424348bf599518c19d05e, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 2
+      value: 0.42
       objectReference: {fileID: 0}
     - target: {fileID: 425370152687368559, guid: a9823d640c8424348bf599518c19d05e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -2107,6 +2135,10 @@ PrefabInstance:
     - target: {fileID: 6194015696605001386, guid: a9823d640c8424348bf599518c19d05e, type: 3}
       propertyPath: m_Layer
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6194015696605001386, guid: a9823d640c8424348bf599518c19d05e, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 6256023182237157374, guid: a9823d640c8424348bf599518c19d05e, type: 3}
       propertyPath: m_Layer
@@ -2548,7 +2580,7 @@ GameObject:
   - component: {fileID: 206348113}
   - component: {fileID: 206348112}
   - component: {fileID: 206348111}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: 9-Sliced (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3036,6 +3068,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 5510382206488389914, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5697273362229997445, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
       propertyPath: m_Layer
       value: 6
@@ -3507,6 +3543,11 @@ MonoBehaviour:
     m_Bits: 8
   healthBar: {fileID: 1739026612}
   isFacingRight: 1
+  enemytag: 
+  characterValue: {fileID: 0}
+  capsule: {fileID: 0}
+  isTakingDamage: 0
+  targeting: {fileID: 0}
   weaponCollider: {fileID: 0}
 --- !u!114 &322786809
 MonoBehaviour:
@@ -3576,7 +3617,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -3622,6 +3663,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   teammateLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  wallLayer:
     serializedVersion: 2
     m_Bits: 0
 --- !u!114 &322786815
@@ -3944,6 +3988,9 @@ MonoBehaviour:
   teammateLayer:
     serializedVersion: 2
     m_Bits: 0
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!114 &483151820
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4013,7 +4060,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -4072,7 +4119,12 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   healthBar: {fileID: 455112334}
-  isFacingRight: 1
+  isFacingRight: 0
+  enemytag: 
+  characterValue: {fileID: 0}
+  capsule: {fileID: 0}
+  isTakingDamage: 0
+  targeting: {fileID: 0}
   weaponCollider: {fileID: 0}
 --- !u!1 &534333047 stripped
 GameObject:
@@ -4132,7 +4184,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -4179,7 +4231,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teammateLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!114 &534333054
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4211,7 +4266,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c99d1f6b929c44f4daa736d9b87b6496, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  strategyType: 2
+  strategyType: 1
 --- !u!114 &534333058
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4252,7 +4307,26 @@ MonoBehaviour:
     m_Bits: 8
   healthBar: {fileID: 896387255}
   isFacingRight: 1
+  enemytag: Enemy
+  characterValue: {fileID: 0}
+  capsule: {fileID: 0}
+  isTakingDamage: 0
+  targeting: {fileID: 0}
   weaponCollider: {fileID: 0}
+--- !u!114 &534333063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 534333047}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 077e2810acf71d7418d0fb20e033a9dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponColliderTransform: {fileID: 966521699}
+  offsetDistance: 1
 --- !u!1 &537580692
 GameObject:
   m_ObjectHideFlags: 0
@@ -4566,6 +4640,10 @@ PrefabInstance:
     - target: {fileID: 5510382206488389914, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
       propertyPath: m_Layer
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5510382206488389914, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5697273362229997445, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
       propertyPath: m_Layer
@@ -4885,6 +4963,11 @@ MonoBehaviour:
     m_Bits: 64
   healthBar: {fileID: 1250656673}
   isFacingRight: 1
+  enemytag: 
+  characterValue: {fileID: 0}
+  capsule: {fileID: 0}
+  isTakingDamage: 0
+  targeting: {fileID: 0}
   weaponCollider: {fileID: 0}
 --- !u!114 &592714050
 MonoBehaviour:
@@ -4973,6 +5056,9 @@ MonoBehaviour:
   teammateLayer:
     serializedVersion: 2
     m_Bits: 0
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!114 &592714056
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5042,7 +5128,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -5407,6 +5493,14 @@ PrefabInstance:
     - target: {fileID: 6194015696605001386, guid: a9823d640c8424348bf599518c19d05e, type: 3}
       propertyPath: m_Layer
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6194015696605001386, guid: a9823d640c8424348bf599518c19d05e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6194015696605001386, guid: a9823d640c8424348bf599518c19d05e, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
       objectReference: {fileID: 0}
     - target: {fileID: 6256023182237157374, guid: a9823d640c8424348bf599518c19d05e, type: 3}
       propertyPath: m_Layer
@@ -5894,6 +5988,14 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 6194015696605001386, guid: a9823d640c8424348bf599518c19d05e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6194015696605001386, guid: a9823d640c8424348bf599518c19d05e, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 6256023182237157374, guid: a9823d640c8424348bf599518c19d05e, type: 3}
       propertyPath: m_Layer
       value: 3
@@ -6330,6 +6432,14 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 6194015696605001386, guid: a9823d640c8424348bf599518c19d05e, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6194015696605001386, guid: a9823d640c8424348bf599518c19d05e, type: 3}
+      propertyPath: m_TagString
+      value: Enemy
+      objectReference: {fileID: 0}
     - target: {fileID: 6256023182237157374, guid: a9823d640c8424348bf599518c19d05e, type: 3}
       propertyPath: m_Layer
       value: 3
@@ -6668,7 +6778,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.7266854, y: 0.21009003}
+  m_Offset: {x: -0.4164862, y: -0.030085325}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -6679,8 +6789,25 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.40954328, y: 0.39568028}
+  m_Size: {x: 1.1462121, y: 1.3725977}
   m_EdgeRadius: 0
+--- !u!114 &966521698
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 966521694}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e604f951ef004da41a3e8779b46d3de2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &966521699 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2285550731289086147, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
+  m_PrefabInstance: {fileID: 1666690356}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &977502098
 GameObject:
   m_ObjectHideFlags: 0
@@ -6794,6 +6921,11 @@ MonoBehaviour:
     m_Bits: 8
   healthBar: {fileID: 2049860204}
   isFacingRight: 1
+  enemytag: 
+  characterValue: {fileID: 0}
+  capsule: {fileID: 0}
+  isTakingDamage: 0
+  targeting: {fileID: 0}
   weaponCollider: {fileID: 0}
 --- !u!114 &988447875
 MonoBehaviour:
@@ -6863,7 +6995,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -6909,6 +7041,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   teammateLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  wallLayer:
     serializedVersion: 2
     m_Bits: 0
 --- !u!114 &988447881
@@ -6973,6 +7108,11 @@ MonoBehaviour:
     m_Bits: 64
   healthBar: {fileID: 1494877014}
   isFacingRight: 1
+  enemytag: 
+  characterValue: {fileID: 0}
+  capsule: {fileID: 0}
+  isTakingDamage: 0
+  targeting: {fileID: 0}
   weaponCollider: {fileID: 0}
 --- !u!114 &1000017047
 MonoBehaviour:
@@ -7061,6 +7201,9 @@ MonoBehaviour:
   teammateLayer:
     serializedVersion: 2
     m_Bits: 0
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!114 &1000017053
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7130,7 +7273,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -7492,6 +7635,10 @@ PrefabInstance:
     - target: {fileID: 5510382206488389914, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
       propertyPath: m_Layer
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5510382206488389914, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5697273362229997445, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
       propertyPath: m_Layer
@@ -7862,7 +8009,7 @@ GameObject:
   - component: {fileID: 1250722282}
   - component: {fileID: 1250722281}
   - component: {fileID: 1250722280}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: 9-Sliced (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8536,6 +8683,11 @@ MonoBehaviour:
     m_Bits: 8
   healthBar: {fileID: 113308036}
   isFacingRight: 1
+  enemytag: 
+  characterValue: {fileID: 0}
+  capsule: {fileID: 0}
+  isTakingDamage: 0
+  targeting: {fileID: 0}
   weaponCollider: {fileID: 0}
 --- !u!114 &1609071200
 MonoBehaviour:
@@ -8605,7 +8757,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -8651,6 +8803,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   teammateLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  wallLayer:
     serializedVersion: 2
     m_Bits: 0
 --- !u!114 &1609071206
@@ -8948,6 +9103,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 5510382206488389914, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
     - target: {fileID: 5697273362229997445, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
       propertyPath: m_Layer
       value: 6
@@ -9058,7 +9217,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7448375094655010986, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: -0.02
       objectReference: {fileID: 0}
     - target: {fileID: 7448375094655010986, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
       propertyPath: m_LocalRotation.w
@@ -9078,11 +9237,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7448375094655010986, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -1.81
+      value: -0.33
       objectReference: {fileID: 0}
     - target: {fileID: 7448375094655010986, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 3.63
+      value: -0.03
       objectReference: {fileID: 0}
     - target: {fileID: 7448375094655010986, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -9234,12 +9393,18 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5510382206488389914, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 534333061}
+    - targetCorrespondingSourceObject: {fileID: 5510382206488389914, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 534333063}
     - targetCorrespondingSourceObject: {fileID: 7140148431914824187, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1588462792}
     - targetCorrespondingSourceObject: {fileID: 676730434064587404, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
       insertIndex: -1
       addedObject: {fileID: 966521696}
+    - targetCorrespondingSourceObject: {fileID: 676730434064587404, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 966521698}
   m_SourcePrefab: {fileID: 100100000, guid: a77f2796fd776459c9b84d0b63c90e3a, type: 3}
 --- !u!1 &1704085300
 GameObject:
@@ -9625,7 +9790,7 @@ GameObject:
   - component: {fileID: 1868258706}
   - component: {fileID: 1868258705}
   - component: {fileID: 1868258704}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: EventSystem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9799,6 +9964,11 @@ MonoBehaviour:
     m_Bits: 64
   healthBar: {fileID: 296419949}
   isFacingRight: 1
+  enemytag: 
+  characterValue: {fileID: 0}
+  capsule: {fileID: 0}
+  isTakingDamage: 0
+  targeting: {fileID: 0}
   weaponCollider: {fileID: 0}
 --- !u!114 &1899179226
 MonoBehaviour:
@@ -9887,6 +10057,9 @@ MonoBehaviour:
   teammateLayer:
     serializedVersion: 2
     m_Bits: 0
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!114 &1899179232
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9956,7 +10129,7 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -10066,7 +10239,7 @@ GameObject:
   - component: {fileID: 1964216499}
   - component: {fileID: 1964216498}
   - component: {fileID: 1964216497}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: 9-Sliced
   m_TagString: Untagged
   m_Icon: {fileID: 0}

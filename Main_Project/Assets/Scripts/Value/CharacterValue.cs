@@ -11,7 +11,6 @@ public class CharacterValue : MonoBehaviour
     {
         currentHp = maxHp;
         healthBar.SetHealth(currentHp, maxHp);
-        TakeDamage(20);
     }
 
     public void TakeDamage(float dmg)

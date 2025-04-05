@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace Character.Movement.State
+namespace Movement.State
 {
     public class AttackState : IState
     {
@@ -36,7 +36,7 @@ namespace Character.Movement.State
 
         public void ExitState()
         {
-            ai.DisableWeaponCollider(); // ✅ 상태 종료 시 무기 콜라이더 비활성화
+            
         }
     }
 }

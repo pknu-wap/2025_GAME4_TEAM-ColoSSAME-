@@ -1,8 +1,11 @@
 using System.Collections;
 
-public interface IState
+namespace Movement.State
 {
-    void EnterState();
-    IEnumerator ExecuteState();
-    void ExitState();
+    public interface IState
+    {
+        void EnterState();
+        IEnumerator ExecuteState();
+        void ExitState();
+    }
 }

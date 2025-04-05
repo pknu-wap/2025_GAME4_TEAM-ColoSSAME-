@@ -1,21 +1,24 @@
 using System.Collections;
 
-public class StateMachine
+namespace Movement.State
 {
-    private IState currentState;
-
-    public void ChangeState(IState newState)
+    public class StateMachine
     {
-        currentState?.ExitState();
-        currentState = newState;
-        currentState.EnterState();
-    }
+        private IState currentState;
 
-    public IEnumerator ExecuteState()
-    {
-        if (currentState != null)
+        public void ChangeState(IState newState)
         {
-            yield return currentState.ExecuteState();
+            currentState?.ExitState();
+            currentState = newState;
+            currentState.EnterState();
+        }
+
+        public IEnumerator ExecuteState()
+        {
+            if (currentState != null)
+            {
+                yield return currentState.ExecuteState();
+            }
         }
     }
 }

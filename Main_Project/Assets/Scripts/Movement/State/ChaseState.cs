@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace Character.Movement.State
+namespace Movement.State
 {
     public class ChaseState : IState
     {
@@ -22,6 +22,7 @@ namespace Character.Movement.State
 
         public void EnterState()
         {
+            ai.FaceTargetHorizontally(target.transform.position);
             ai.GetCharAnimator().Move();
         }
 
@@ -38,7 +39,6 @@ namespace Character.Movement.State
 
                 float distance = Vector2.Distance(ai.transform.position, target.position);
                 Vector2 direction = (target.position - ai.transform.position).normalized;
-                direction = movement.AvoidTeammates(direction);
 
                 rb.velocity = direction * ai.speed;
 
