@@ -143,9 +143,13 @@ namespace Movement.State
 
         public void KillThis()
         {
-            Destroy(gameObject);
+            Invoke(nameof(kill), 0.5f);
             Debug.Log("사망처리 실행됨");
         }
-    
+
+        private void kill()
+        {
+            Destroy(gameObject);
+        }
     }
 }

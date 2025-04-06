@@ -1,4 +1,5 @@
 using System.Collections;
+using UnityEditor.Timeline.Actions;
 using UnityEngine;
 
 namespace Movement.State
@@ -16,15 +17,14 @@ namespace Movement.State
 
         public void EnterState()
         {
-            
+            Debug.Log("사망처리 판정 시작");
+            ai.GetCharAnimator().Death();
+            ai.KillThis();
         }
 
         public IEnumerator ExecuteState()
         {
-            Debug.Log("사망처리 판정 시작");
-            ai.GetCharAnimator().Death();
-            yield return new WaitForSeconds(1f);
-            ai.KillThis();
+            yield return null;
         }
 
         public void ExitState()
