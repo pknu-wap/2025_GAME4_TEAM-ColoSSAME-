@@ -24,7 +24,7 @@ public class WeaponTrigger : MonoBehaviour
             BattleAI2 enemy = other.GetComponent<BattleAI2>();
             if (enemy != null)
             {
-                enemy.TakeDamage();
+                enemy.TakeDamage(ai.damage);
             }
         }
     }

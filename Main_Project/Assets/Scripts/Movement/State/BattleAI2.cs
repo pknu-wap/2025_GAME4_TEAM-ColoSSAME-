@@ -8,10 +8,10 @@ namespace Movement.State
         public float speed = 3f;
         public float attackRange = 1.5f;
         public float attackDelay = 1.0f;
+        public float damage = 1f;
         public LayerMask enemyLayer;
         public GameObject healthBar; 
         public bool isFacingRight = true;
-        public string enemytag;
         public CharacterValue characterValue;
         public CapsuleCollider2D capsule;
         public bool isTakingDamage = false;
@@ -134,16 +134,17 @@ namespace Movement.State
                 Flip();
             }
         }
-        public void TakeDamage()
+        public void TakeDamage(float damage)
         {
             if (isTakingDamage) return;
             isTakingDamage = true;
-            stateMachine.ChangeState(new DamageState(this, stateMachine));
+            stateMachine.ChangeState(new DamageState(this, stateMachine, damage));
         }
+
 
         public void KillThis()
         {
-            Invoke(nameof(kill), 0.5f);
+            Invoke(nameof(kill), 1f);
             Debug.Log("사망처리 실행됨");
         }
 

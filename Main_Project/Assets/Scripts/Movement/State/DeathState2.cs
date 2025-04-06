@@ -15,8 +15,8 @@ public class DeathState2 : IState
     }
     public void EnterState()
     {
-        Debug.unityLogger.Log("Entered DeathState2");
         ai.GetCharAnimator().Death();
+        Debug.unityLogger.Log("Entered DeathState2");
     }
 
     public IEnumerator ExecuteState()
