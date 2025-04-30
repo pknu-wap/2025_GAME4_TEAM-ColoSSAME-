@@ -16,6 +16,9 @@ public class CalculatorManager : MonoBehaviour
 
     public TextMeshProUGUI resultText;
     
+    private bool hasAddedMoney = false;
+    
+    [SerializeField] private MoneyManager moneyManager;
     public void SetOperand(int value){
         Debug.Log("SetOperand 함수 들어옴");
         if (!isFirstSet)
@@ -57,5 +60,28 @@ public class CalculatorManager : MonoBehaviour
         isFirstSet = false;
         isSecondSet = false;
         isOperatorSet = false;
+        hasAddedMoney = false;
+        
+        if (CanAddMoney() && moneyManager != null)
+        {
+            moneyManager.AddMoney(result);
+            MarkAsAdded();
+        }
+
     }
+    public bool CanAddMoney()
+    {
+        return !hasAddedMoney;
+    }
+
+    public void MarkAsAdded()
+    {
+        hasAddedMoney = true;
+    }
+
+    public void ResetStatus()
+    {
+        hasAddedMoney = false;
+    }
+    
 }
