@@ -6,34 +6,24 @@ using TMPro;
 
 public class Hide : MonoBehaviour
 {
-    public GameObject targetObject;
-    public GameObject startObject;
-    public GameObject otherObject1;
-    public GameObject otherObject2;
-    public GameObject otherObject3;
-    public GameObject otherObject4;
+    public GameObject[] allPanels; //ui 설정
+    public TextMeshProUGUI[] allTexts; //글자 설정
 
-    //글꼴 변경
-    public TextMeshProUGUI mainText;
-    public TextMeshProUGUI text1;
-    public TextMeshProUGUI text2;
-    public TextMeshProUGUI text3;
-    public TextMeshProUGUI text4;
-
-    public void hide()
+    public void ShowPanel(GameObject panelToShow)//ui 창 변경
     {
-        targetObject.SetActive(true);
-        startObject.SetActive(false);
-        otherObject1.SetActive(false);
-        otherObject2.SetActive(false);
-        otherObject3.SetActive(false);
-        otherObject4.SetActive(false);
-        
-        //글꼴 변경
-        mainText.fontSize = 30;
-        text1.fontSize = 25;
-        text2.fontSize = 25;
-        text3.fontSize = 25;
-        text4.fontSize = 25;
+        foreach (GameObject panel in allPanels)
+        {
+            panel.SetActive(false);
+        }
+        panelToShow.SetActive(true);
+    }
+
+    public void ChangeText(TextMeshProUGUI textToChange)//클릭 시 글씨 크기 변경
+    {
+        foreach (TextMeshProUGUI text in allTexts)
+        {
+            text.fontSize = 25;
+        }
+        textToChange.fontSize = 30;
     } 
 }

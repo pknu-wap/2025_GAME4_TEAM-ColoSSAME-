@@ -5,10 +5,10 @@ using UnityEngine;
 
 public class Data : MonoBehaviour
 {
-    public int money;
+    public int money;//돈 저장
 
-    public int month;
-    public int date;
+    public int month;//월(날짜) 저장
+    public int date;//일(날짜) 저장
 
     //선수 구분
     public int playerCount;

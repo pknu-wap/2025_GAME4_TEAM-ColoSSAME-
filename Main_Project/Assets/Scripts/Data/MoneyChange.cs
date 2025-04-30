@@ -7,10 +7,15 @@ using TMPro;
 public class MoneyChange : MonoBehaviour
 {   
     //텍스트 지정
-    public TextMeshProUGUI moneyText;
+    public TextMeshProUGUI DataText;
+    
+    void Start()
+    {
+        //money = GameObject.Find("DataSaver").GetComponent<Data>().money;
+    }
 
     void Update()
     {
-        moneyText.text=$"돈 : {GameObject.Find("DataSaver").GetComponent<Money>().money}원";
+        //DataText.text=$"돈 : {money}원";
     }
 }
