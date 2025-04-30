@@ -11,8 +11,8 @@ public class DateCal : MonoBehaviour
     
     public Text dateText;//텍스트 지정
 
-    public int month;//월 변수 선언
-    public int date;//일 변수 선언
+    int month;//월 변수 선언
+    int date;//일 변수 선언
 
     void Start()
     {
