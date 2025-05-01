@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using Character.Movement;
 
 /// <summary>
 /// 적 자동 전투 AI 클래스
@@ -16,8 +17,17 @@ public class BattleAI : MonoBehaviour
     private float speed;                          // 이동 속도
     private bool isAttacking = false;             // 공격 중인지 여부
     private Player player;
+    public BoxCollider2D weaponCollider;
     
     public bool isFacingRight;
+    
+    private CharAnimator charAnimator;
+    public GameObject healthBar; 
+
+    private void Awake()
+    {
+        charAnimator = GetComponentInChildren<CharAnimator>();
+    }
 
     /// <summary>
     /// 외부에서 초기값을 설정하는 함수
@@ -39,6 +49,8 @@ public class BattleAI : MonoBehaviour
     /// </summary>
     public void StartBattle()
     {
+        if (isFacingRight)
+            healthBar.GetComponent<HealthBarFixDirection>().ForceFix();
         StartCoroutine(AutoBattleAI());
     }
 
@@ -49,7 +61,7 @@ public class BattleAI : MonoBehaviour
     {
         while (true)
         {
-            Transform target = targeting.GetTarget();     // 타겟 가져오기
+            Transform target = targeting.GetTarget();     // 타겟 가져오기 <- 여기서 오류 발생? 이상한 점: 객체가 5개 이상일 시 오류 발생
 
             if (target == null)
             {
@@ -66,6 +78,7 @@ public class BattleAI : MonoBehaviour
                 if (distance > attackRange)
                 {
                     // 사거리 밖이면 이동
+                    charAnimator.Move();
                     rb.velocity = direction * speed;
                 }
                 else if (!isAttacking)
@@ -92,6 +105,13 @@ public class BattleAI : MonoBehaviour
         Vector3 scale = transform.localScale;
         scale.x *= -1; // x만 반전
         transform.localScale = scale;
+        
+        // 체력바 방향 고정 호출
+        if (healthBar != null)
+        {
+            healthBar.GetComponent<HealthBarFixDirection>().ForceFix();
+        }
+        
     }
 
     // 타겟 방향에 따라 스프라이트 좌우반전
@@ -108,21 +128,27 @@ public class BattleAI : MonoBehaviour
             Flip();
         }
     }
-
+    
+    
 
     /// <summary>
     /// 공격 및 후퇴 시퀀스 처리 코루틴
     /// </summary>
     private IEnumerator AttackSequence(Transform target)
     {
+        weaponCollider.enabled = true;
+        charAnimator.Idle();
         isAttacking = true;
         rb.velocity = Vector2.zero;
         FaceTargetHorizontally(target.position);             // 공격 시 타겟 바라보기
 
         Debug.Log("공격!");
+        charAnimator.Idle();
+        charAnimator.Attack();
 
-        yield return new WaitForSeconds(attackDelay);      // 공격 후 대기
-
+        yield return new WaitForSeconds(attackDelay/2);      //판정 대기
+        weaponCollider.enabled = false;                      // 공격 후 판정 제거
+        yield return new WaitForSeconds(attackDelay/2);      // 공격 후 대기
         Vector2 retreatDirection = movement.GetRetreatDirection(transform.position, target.position);   // 후퇴 방향 계산
         float retreatTime = retreatDistance / speed;       // 후퇴 시간 계산
 

@@ -1,5 +1,7 @@
+using System;
 using UnityEngine;
 using System.Collections;
+using Character.Movement;
 
 /// <summary>
 /// 타겟팅 시스템: 전략 유형에 따라 적을 자동으로 탐색하고 타겟 설정
@@ -20,13 +22,16 @@ public class TargetingSystem : MonoBehaviour
         this.enemyLayer = enemyLayer;
     }
 
+    private void Start()
+    {
+        player = GetComponent<Player>();
+    }
+
     /// <summary>
     /// 플레이어의 전략 유형에 따라 타겟팅 방식 선택
     /// </summary>
     public void StartTargeting()
     {
-        player = GetComponent<Player>();
-
         if (player != null)
         {
             if (player.strategyType == 1)
