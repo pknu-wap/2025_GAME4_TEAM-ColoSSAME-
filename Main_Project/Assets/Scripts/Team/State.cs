@@ -35,27 +35,27 @@ public class State : MonoBehaviour
     public void fighter1()//어떤 선수를 골랐는지
     {
         fighterCount = 0;
-        fighterButtons[fighterCount].transform.position = new Vector3(70f, 450f, 0f);
+        fighterButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector3(-275f, 80f);
     }
     public void fighter2()
     {
         fighterCount = 1;
-        fighterButtons[fighterCount].transform.position = new Vector3(70f, 450f, 0f);
+        fighterButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector3(-275f, 80f);
     }
     public void fighter3()
     {
         fighterCount = 2;
-        fighterButtons[fighterCount].transform.position = new Vector3(70f, 450f, 0f);
+        fighterButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector3(-275f, 80f);
     }
     public void fighter4()
     {
         fighterCount = 3;
-        fighterButtons[fighterCount].transform.position = new Vector3(70f, 450f, 0f);
+        fighterButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector3(-275f, 80f);
     }
     public void fighter5()
     {
         fighterCount = 4;
-        fighterButtons[fighterCount].transform.position = new Vector3(70f, 450f, 0f);
+        fighterButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector3(-275f, 80f);
     }
 
     public void week1()//1일차 훈련
@@ -171,11 +171,11 @@ public class State : MonoBehaviour
     {
         attackTraining = attackTraining.ConvertAll(x => 0);//리스트 안 값 다시 0으로 변경
         defenseTraining = defenseTraining.ConvertAll(x => 0);//리스트 안 값 다시 0으로 변경
-        fighterButtons[0].transform.position = new Vector3(336f, 356f, 0f);
-        fighterButtons[1].transform.position = new Vector3(436f, 356f, 0f);
-        fighterButtons[2].transform.position = new Vector3(336f, 256f, 0f);
-        fighterButtons[3].transform.position = new Vector3(436f, 256f, 0f);
-        fighterButtons[4].transform.position = new Vector3(336f, 156f, 0f);
+        fighterButtons[0].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, 0f);//선수 위치 원래대로
+        fighterButtons[1].GetComponent<RectTransform>().anchoredPosition = new Vector2(90f, 0f);
+        fighterButtons[2].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, -100f);
+        fighterButtons[3].GetComponent<RectTransform>().anchoredPosition = new Vector2(90f, -100f);
+        fighterButtons[4].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, -200f);
     }
 
     public void nextWeek()//다음주로 넘김
