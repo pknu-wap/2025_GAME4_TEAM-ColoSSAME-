@@ -5,6 +5,7 @@ using Character.Movement;
 
 /// <summary>
 /// 타겟팅 시스템: 전략 유형에 따라 적을 자동으로 탐색하고 타겟 설정
+/// 그러나 중간발표 당시 발표한 내용을 생각하면 이 스크립트 전반적인 수정이 필요함. (캐릭터마다 전략이 다름. + 팀 단위로 배치에 따라 전략 달라짐.)
 /// </summary>
 public class TargetingSystem : MonoBehaviour
 {

@@ -16,8 +16,8 @@ public class BattleAI : MonoBehaviour
     private float retreatDistance;                // 후퇴 거리
     private float speed;                          // 이동 속도
     private bool isAttacking = false;             // 공격 중인지 여부
-    private Player player;
-    public BoxCollider2D weaponCollider;
+    private Player player;                        // 플레이어
+    public BoxCollider2D weaponCollider;          // 무기 콜라이더
     
     public bool isFacingRight;
     

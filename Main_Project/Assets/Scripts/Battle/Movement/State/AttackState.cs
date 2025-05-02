@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace Movement.State
+namespace Battle.Movement.State
 {
     public class AttackState : IState
     {
@@ -9,32 +9,32 @@ namespace Movement.State
         private StateMachine stateMachine;
         private Transform target;
 
-        public AttackState(BattleAI2 ai, StateMachine stateMachine, Transform target)
+        public AttackState(BattleAI2 ai, StateMachine stateMachine, Transform target)  //변수 참조
         {
             this.ai = ai;
             this.stateMachine = stateMachine;
             this.target = target;
         }
 
-        public void EnterState()
+        public void EnterState()  //상태 시작
         {
             ai.StopMoving(); // ✅ 이동 정지
-            ai.GetCharAnimator().Attack(); // ✅ 공격 애니메이션 실행
-            ai.EnableWeaponCollider(); // ✅ 공격 판정 활성화
+            ai.GetCharAnimator().Attack(); //공격 애니메이션 실행
+            ai.EnableWeaponCollider(); //공격 판정 활성화
         }
 
         public IEnumerator ExecuteState()
         {
-            // ✅ 공격 애니메이션이 끝나는 시간을 기다리되, 너무 길지 않도록 설정
-            yield return new WaitForSeconds(0.3f); // 필요하면 조정 가능
+            
+            yield return new WaitForSeconds(0.3f); // 공격 애니메이션 딜레이
 
-            ai.DisableWeaponCollider(); // ✅ 공격 판정 비활성화
+            ai.DisableWeaponCollider(); //공격 판정 비활성화(중복 판정 예방)
 
-            // ✅ 공격 후 즉시 후퇴 상태로 전환 (Idle 거치지 않음)
+            //공격 후 즉시 후퇴 상태로 전환 (Idle 거치지 않음)-임시
             stateMachine.ChangeState(new RetreatState(ai, stateMachine));
         }
 
-        public void ExitState()
+        public void ExitState()  //상태 종료
         {
             
         }

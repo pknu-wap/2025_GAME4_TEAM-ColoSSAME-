@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace Movement.State
+namespace Battle.Movement.State
 {
     public class DamageState : IState
     {
@@ -22,24 +22,31 @@ namespace Movement.State
         public void EnterState()
         {
             ai.StopMoving();
-            ai.GetCharAnimator().Idle(); // 피격 애니메이션 (없다면 Idle로 대체)
-            Debug.Log("공격받았습니다.");
-            Debug.Log(ai);
-            CharacterValue.TakeDamage(damage);
-            Debug.Log(CharacterValue.currentHp);
-            if (CharacterValue.currentHp <= 0)
+            ai.GetCharAnimator().Idle(); // 피격 애니메이션
+            Debug.Log("공격받았습니다.");  // 피격 판정 확인
+            Debug.Log(ai);  //데미지 입은 캐릭터 확인
+            CharacterValue.TakeDamage(damage);  //데미지 계산 호출
+            Debug.Log(CharacterValue.currentHp);  //현재 hp 확인
+            if (CharacterValue.currentHp <= 0)  //사망 판정
             {
-                stateMachine.ChangeState(new DeathState(ai, stateMachine));
+                stateMachine.ChangeState(new DeathState(ai));  //사망 상태 호출
             }
-            stateMachine.ChangeState(new IdleState(ai, stateMachine));
         }
 
-        public IEnumerator ExecuteState()
+        public IEnumerator ExecuteState()  //문제가 되는 부분
         {
+            Debug.Log("공격받았습니다.");  // 피격 판정 확인
+            Debug.Log(ai);  //데미지 입은 캐릭터 확인
+            CharacterValue.TakeDamage(damage);  //데미지 계산 호출
+            Debug.Log(CharacterValue.currentHp);  //현재 hp 확인
+            if (CharacterValue.currentHp <= 0)  //사망 판정
+            {
+                stateMachine.ChangeState(new DeathState(ai));  //사망 상태 호출
+            }
             yield return null;
         }
 
-        public void ExitState()
+        public void ExitState()  //상태 탈출
         {
             ai.isTakingDamage = false;
         }

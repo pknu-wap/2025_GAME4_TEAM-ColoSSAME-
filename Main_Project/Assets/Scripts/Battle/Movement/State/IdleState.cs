@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace Movement.State
+namespace Battle.Movement.State
 {
     public class IdleState : IState
     {

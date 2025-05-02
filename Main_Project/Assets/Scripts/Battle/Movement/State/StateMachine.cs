@@ -1,6 +1,6 @@
 using System.Collections;
 
-namespace Movement.State
+namespace Battle.Movement.State
 {
     public class StateMachine
     {

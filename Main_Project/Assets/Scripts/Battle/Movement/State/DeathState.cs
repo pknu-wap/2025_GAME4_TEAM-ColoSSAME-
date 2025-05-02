@@ -1,17 +1,15 @@
 using System.Collections;
-using UnityEditor.Timeline.Actions;
+using Battle.Value;
 using UnityEngine;
 
-namespace Movement.State
+namespace Battle.Movement.State
 {
     public class DeathState : IState
     {
         private BattleAI2 ai;
-        private StateMachine stateMachine;
 
-        public DeathState(BattleAI2 ai, StateMachine stateMachine)
+        public DeathState(BattleAI2 ai)
         {
-            this.stateMachine = stateMachine;
             this.ai = ai;
         }
 

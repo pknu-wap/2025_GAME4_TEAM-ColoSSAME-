@@ -13,7 +13,7 @@ namespace Character.Movement
             
             if (targetingSystem == null)
             {
-                Debug.LogError("❌ TargetingSystem을 찾을 수 없습니다! 타겟팅이 비활성화될 수 있습니다.");
+                Debug.LogError("TargetingSystem을 찾을 수 없음");
             }
         }
 

@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-using Movement.State;
+using Battle.Movement.State;
 
 public class WeaponTrigger : MonoBehaviour
 {

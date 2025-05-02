@@ -1,6 +1,6 @@
 using System;
 using System.Numerics;
-using Movement.State;
+using Battle.Movement.State;
 using UnityEngine;
 using Random = UnityEngine.Random;
 using Vector2 = UnityEngine.Vector2;

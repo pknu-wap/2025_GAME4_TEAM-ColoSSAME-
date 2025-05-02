@@ -1,33 +1,32 @@
 using System.Collections;
-using System.Collections.Generic;
-using Movement.State;
 using UnityEngine;
 
-public class DeathState2 : IState
+namespace Battle.Movement.State
 {
-    private BattleAI2 ai;
-    private StateMachine stateMachine;
+    public class DeathState2 : IState
+    {
+        private BattleAI2 ai;
 
-    public DeathState2(BattleAI2 ai, StateMachine stateMachine)
-    {
-        this.ai = ai;
-        this.stateMachine = stateMachine;
-    }
-    public void EnterState()
-    {
-        ai.GetCharAnimator().Death();
-        Debug.unityLogger.Log("Entered DeathState2");
-    }
+        public DeathState2(BattleAI2 ai, StateMachine stateMachine)
+        {
+            this.ai = ai;
+        }
+        public void EnterState()
+        {
+            ai.GetCharAnimator().Death();
+            Debug.unityLogger.Log("Entered DeathState2");
+        }
 
-    public IEnumerator ExecuteState()
-    {
-        Debug.unityLogger.Log("Executed DeathState2");
-        yield return new WaitForSeconds(1f);
-        ai.KillThis();
-    }
+        public IEnumerator ExecuteState()  //문제가 되는 부분
+        {
+            Debug.unityLogger.Log("Executed DeathState2");
+            yield return new WaitForSeconds(1f);
+            ai.KillThis();
+        }
 
-    public void ExitState()
-    {
+        public void ExitState()
+        {
         
+        }
     }
 }
