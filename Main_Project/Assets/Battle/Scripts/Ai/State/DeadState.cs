@@ -1,8 +1,7 @@
-using System.Collections;
 using Battle.Scripts.StateCore;
+using System.Collections;
 using UnityEngine;
-
-namespace Battle.Scripts.Ai.State
+namespace Battle.Ai.State
 {
     public class DeadState : IState
     {

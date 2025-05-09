@@ -1,9 +1,7 @@
 using Pathfinding;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
-
-namespace Battle.Scripts.Ai
+namespace Battle.Ai
 {
     [CanEditMultipleObjects]
     [CustomEditor(typeof(BattleAI))]
@@ -44,7 +42,6 @@ namespace Battle.Scripts.Ai
                 battleAI.aiAnimator.ChooseWeapon();
             }
         }
-
         private void AddWeapon(BattleAI battleAI)
         {
             Transform existing = battleAI.transform.Find("Weapon");

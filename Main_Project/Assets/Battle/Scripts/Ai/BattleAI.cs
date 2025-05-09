@@ -1,17 +1,18 @@
-using System.Collections;
+using Battle.Ai.State;
+using Battle.Ai.Weapon;
+using Battle.Scripts.Ai;
 using Battle.Scripts.Ai.State;
-using Battle.Scripts.Ai.Weapon;
-using Battle.Scripts.StateCore;
 using Battle.Scripts.Value;
 using Battle.Value;
 using Pathfinding;
+using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Serialization;
-
-namespace Battle.Scripts.Ai
+using StateMachine = Battle.Scripts.StateCore.StateMachine;
+namespace Battle.Ai
 {
     public enum TeamType { Player, Enemy }
-    public enum WeaponType { Sword = 0, LongSpear = 66, Axe = 100, shortSword = 83 }
+    public enum WeaponType { Sword = 0, LongSpear = 66, TwoHanded = 100, shortSword = 83 }
 
     [RequireComponent(typeof(Rigidbody2D))]
     [RequireComponent(typeof(CircleCollider2D))]
@@ -19,7 +20,13 @@ namespace Battle.Scripts.Ai
     public class BattleAI : MonoBehaviour
     {
         public StateMachine StateMachine { get; private set; }
+        
         public Transform CurrentTarget;
+        public Transform tempTarget;
+        public Transform Retreater;
+        
+        public Vector2 retreatAreaMin = new Vector2(-8f, -4f);  // 좌하단 모서리
+        public Vector2 retreatAreaMax = new Vector2(8f, 4f);    // 우상단 모서리
 
         public TeamType team;
         public WeaponType weaponType;
@@ -29,8 +36,11 @@ namespace Battle.Scripts.Ai
         public float moveSpeed = 2f;
         public float hp = 100f;
         public float damage = 1f;
+        public float retreatDistance = 3f;
+        public float waitTime = 0.25f;
+        public float stunTime = 0f;
 
-        [Min(0.5f)] public float AttackDelay = 0.5f;
+        [Min(0.25f)] public float AttackDelay = 0.5f;
 
         private float lastAttackTime;
 
@@ -53,6 +63,8 @@ namespace Battle.Scripts.Ai
         public AIPath aiPath;
         public AIDestinationSetter destinationSetter;
         
+        public LayerMask obstacleMask;
+        
         public IsWinner isWinner;
 
         private void Awake()
@@ -60,7 +72,6 @@ namespace Battle.Scripts.Ai
             Targeting = new Targeting(this);
             StateMachine = new StateMachine();
             characterValue = GetComponent<CharacterValue>();
-            isWinner = FindObjectOfType<IsWinner>();
 
             // HealthBar 자동 연결
             Transform hb = transform.Find("UnitRoot/HealthBar");
@@ -76,12 +87,19 @@ namespace Battle.Scripts.Ai
 
         private void Start()
         {
+            isWinner = IsWinner.Instance;
+            StartCoroutine(DelayedStart());
+        }
+
+        private IEnumerator DelayedStart()
+        {
+            yield return new WaitForSeconds(Random.Range(0f, 0.5f)); // 0~0.5초 사이 랜덤 대기
             if (weaponTrigger != null)
             {
                 weaponTrigger.Initialize(this);
             }
-
-            StateMachine.ChangeState(new IdleState(this));
+            StateMachine.ChangeState(new IdleState(this, true, 0f));
+            Debug.Log($"{gameObject.name}의 BattleAI에서 IdleState");
         }
 
         private void Update()
@@ -102,7 +120,6 @@ namespace Battle.Scripts.Ai
             aiAnimator.StopMove();
             return Time.time >= lastAttackTime + AttackDelay;
         }
-
         public void RecordAttackTime() => lastAttackTime = Time.time;
 
         public bool IsInAttackRange()
@@ -113,17 +130,26 @@ namespace Battle.Scripts.Ai
 
         public void MoveTo(Vector3 target)
         {
-            Vector2 direction = (target - transform.position).normalized;
             aiPath.canMove = true;
-
+            ResumeMoving(target);
+        }
+        
+        public void ResumeMoving(Vector3 target)
+        {
+            Vector2 direction = (target - transform.position).normalized;
             transform.localScale = new Vector3(direction.x > 0 ? -1f : 1f, 1f, 1f);
             HealthBar?.GetComponent<HealthBarFixDirection>()?.ForceFix();
-
-            if (Vector2.Distance(transform.position, target) <= attackRange)
-                aiPath.canMove = false;
         }
 
-        public void StopMoving() => rb.velocity = Vector2.zero;
+        public void StopMoving()
+        {
+            destinationSetter.target = gameObject.transform;
+            rb.velocity = Vector2.zero;
+        }
+
+        public bool IsInRetreatDistance() {
+            return Vector2.Distance(transform.position, Retreater.position) <= 0.1f;
+        }
 
         public void UseSkill() => Debug.Log($"{gameObject.name} UseSkill");
 
@@ -173,12 +199,13 @@ namespace Battle.Scripts.Ai
         public void Kill()
         {
             isWinner.Winner(gameObject);
+            Destroy(Retreater.gameObject);
             gameObject.SetActive(false);
             Destroy(gameObject);
         }
 
-        // warrior 설정창
-        [ContextMenu("Setup Warrior Components Automatically")]
+        // AI 설정창
+        [ContextMenu("Setup AI Components Automatically")]
         public void SetupComponents()
         {
             characterValue = GetComponent<CharacterValue>();
@@ -187,6 +214,7 @@ namespace Battle.Scripts.Ai
             rb = GetComponent<Rigidbody2D>();
             PlayerCollider = GetComponent<CircleCollider2D>();
 
+            // Weapon 연결
             Weapon = transform.Find("Weapon");
             if (Weapon != null)
             {
@@ -194,6 +222,14 @@ namespace Battle.Scripts.Ai
                 {
                     weaponTrigger = Weapon.gameObject.AddComponent<WeaponTrigger>();
                 }
+            }
+            // Retreater 생성 및 연결
+            if (Retreater == null)
+            {
+                GameObject retreatObj = new GameObject(this.gameObject.name + "Retreat");
+                var retreatTarget = retreatObj.AddComponent<RetreatTarget>();
+                retreatTarget.ai = this;
+                Retreater = retreatObj.transform;
             }
             
             // UnitRoot 연결
@@ -217,7 +253,7 @@ namespace Battle.Scripts.Ai
 
             // Collider 설정
             PlayerCollider.isTrigger = true;
-            PlayerCollider.radius = 0.25f;
+            PlayerCollider.radius = 0.1f;
             PlayerCollider.offset = new Vector2(0f, 0f);
 
             // HealthBar 연결

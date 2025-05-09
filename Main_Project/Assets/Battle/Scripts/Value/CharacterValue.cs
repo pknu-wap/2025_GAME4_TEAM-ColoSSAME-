@@ -1,4 +1,4 @@
-using Battle.Scripts.Ai;
+using Battle.Ai;
 using UnityEngine;
 
 namespace Battle.Scripts.Value
