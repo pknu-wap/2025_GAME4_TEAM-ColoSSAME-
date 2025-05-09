@@ -99,7 +99,7 @@ namespace Battle.Ai
                 weaponTrigger.Initialize(this);
             }
             StateMachine.ChangeState(new IdleState(this, true, 0f));
-            Debug.Log($"{gameObject.name}의 BattleAI에서 IdleState");
+            Debug.Log($"{gameObject.name}의 BattleAI에서 IdleState 이걸 한 번 바꿔보겠습니다.");
         }
 
         private void Update()
