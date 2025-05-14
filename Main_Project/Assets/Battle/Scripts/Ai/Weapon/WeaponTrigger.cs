@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Battle.Scripts.Ai.State;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Battle.Scripts.Ai.Weapon
@@ -22,16 +23,18 @@ namespace Battle.Scripts.Ai.Weapon
         public void Initialize(BattleAI ai)
         {
             ownerAI = ai;
-            //weaponCollider.radius = ownerAI.attackRange + 0.5f;
         }
 
         public void ActivateCollider()
         {
             weaponCollider.enabled = true;
+        }
+
+        public void ColliderMove()
+        {
             transform.position = ownerAI.CurrentTarget.transform.position;
             ResetHitTargets();
         }
-
         public void DeactivateCollider()
         {
             weaponCollider.enabled = false;
@@ -51,7 +54,7 @@ namespace Battle.Scripts.Ai.Weapon
             alreadyHit.Add(targetAI);
 
             // 피격 처리: 데미지 전달
-            targetAI.StateMachine.ChangeState(new DamageState(targetAI, ownerAI.damage));
+            targetAI.StateMachine.ChangeState(new DamageState(targetAI, ownerAI.damage, ownerAI.stunTime));
         }
     }
 }

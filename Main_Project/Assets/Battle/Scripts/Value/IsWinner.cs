@@ -1,22 +1,33 @@
-using System.Linq;
+using Battle.Scripts.UI;
 using UnityEngine;
 
-namespace Battle.Value
+namespace Battle.Scripts.Value
 {
     
     public class IsWinner : MonoBehaviour
     {
+        public static IsWinner Instance { get; private set; }
+
+        private void Awake()
+        {
+            Instance = this;
+        }
+        
         public int playersNumber;
         public int enemiesNumber;
-        private SceneChanger sceneChanger;
         private GameObject[] exitevent;
+        public WinnerText winnerText;
+        public NextScene nextScene;
+        GameObject[] players;
+        GameObject[] enemies;
+        GameObject Ai;
         private void Start()
         {
-           sceneChanger = FindObjectOfType<SceneChanger>();
-            GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+            Ai = GameObject.FindGameObjectWithTag("Ai");
+            players = GameObject.FindGameObjectsWithTag("Player");
             playersNumber = players.Length;
             Debug.Log("플레이어 수 : " + playersNumber);
-            GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+            enemies = GameObject.FindGameObjectsWithTag("Enemy");
             enemiesNumber = enemies.Length;
             Debug.Log("적 수 : " + enemiesNumber);
             exitevent = GameObject.FindGameObjectsWithTag("Exitevent");
@@ -32,8 +43,14 @@ namespace Battle.Value
             if(tags.CompareTag("Enemy")) enemiesNumber--;
             if (playersNumber == 0 || enemiesNumber == 0)
             {
-                Debug.Log(playersNumber == 0 ? "플레이어 패배" : "플레이어 승리");
-                sceneChanger.ChangeScene();
+                Ai.SetActive(false);
+                winnerText.gameObject.SetActive(true);
+                nextScene.ButtonOn();
+                if (playersNumber < enemiesNumber) {
+                    winnerText.Lose();
+                } else {
+                    winnerText.Win();
+                }
                 gameObject.SetActive(false);
             }
             foreach (GameObject obj in exitevent)

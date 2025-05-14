@@ -1,11 +1,16 @@
+using Battle.Scripts.Ai;
+using UnityEngine;
+
 namespace Battle.Scripts.StateCore
 {
     public class StateMachine
     {
-        private IState currentState;
+        public IState currentState { get; private set; }
+        public IState previousState { get; private set; }
 
         public void ChangeState(IState newState)
         {
+            previousState = currentState;
             currentState?.ExitState();
             currentState = newState;
             currentState.EnterState();
