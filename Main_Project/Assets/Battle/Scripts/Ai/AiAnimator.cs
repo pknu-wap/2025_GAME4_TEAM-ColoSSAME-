@@ -1,4 +1,5 @@
 using UnityEngine;
+
 namespace Battle.Scripts.Ai
 {
     public class AiAnimator : MonoBehaviour
@@ -25,7 +26,7 @@ namespace Battle.Scripts.Ai
         public void Reset()
         {
             animator.SetBool(isDead, false);
-            animator.SetBool(Moving, false);
+            animator.SetBool(Moving, true);
             animator.ResetTrigger(Attacking);
             animator.ResetTrigger(Damage);
             animator.ResetTrigger(Death);
@@ -33,7 +34,6 @@ namespace Battle.Scripts.Ai
 
         public void ChooseWeapon()
         {
-            Debug.Log(NormalState);
             if (animator == null)
                 animator = GetComponent<Animator>();
 
@@ -55,7 +55,6 @@ namespace Battle.Scripts.Ai
         public void Move()
         {
             animator.SetBool(Moving, true);
-            Debug.Log("move 성공");
         }
 
         public void StopMove()
