@@ -14,6 +14,8 @@ public class CalculatorManager : MonoBehaviour
     public bool isSecondSet = false;
     public bool isOperatorSet = false;
 
+    public InvestorEvent investorRef;
+    
     public TextMeshProUGUI resultText;
     
     private bool hasAddedMoney = false;
@@ -83,5 +85,8 @@ public class CalculatorManager : MonoBehaviour
     {
         hasAddedMoney = false;
     }
-    
+    public void OnPuzzleComplete()
+    {
+        investorRef.FinishPuzzle(); // 👈 완료 신호 보냄
+    }
 }
