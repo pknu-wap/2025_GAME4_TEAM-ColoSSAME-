@@ -50,7 +50,6 @@ namespace Battle.Scripts.Ai.Weapon
         {
             BattleAI targetAI = other.GetComponent<BattleAI>();
             if (targetAI == null || targetAI.team == ownerAI.team) return;
-            Destroy(gameObject);
 
             // 피격 처리: 데미지 전달
             targetAI.StateMachine.ChangeState(new DamageState(targetAI, ownerAI.damage, ownerAI.stunTime));

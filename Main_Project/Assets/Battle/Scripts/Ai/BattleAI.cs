@@ -6,6 +6,7 @@ using Pathfinding;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using Screen = UnityEngine.Device.Screen;
 using StateMachine = Battle.Scripts.StateCore.StateMachine;
 namespace Battle.Scripts.Ai
 {
@@ -33,6 +34,7 @@ namespace Battle.Scripts.Ai
         public float attackRange = 0.5f;
         public float moveSpeed = 2f;
         public float hp = 100f;
+        public float defense = 1f;
         public float damage = 1f;
         public float retreatDistance = 3f;
         public float waitTime = 0.25f;
@@ -54,7 +56,7 @@ namespace Battle.Scripts.Ai
         public Targeting Targeting;
         public Rigidbody2D rb;
         private CircleCollider2D PlayerCollider;
-        private CharacterValue characterValue;
+        public CharacterValue characterValue;
 
         private Transform child;
         private Transform Weapon;
