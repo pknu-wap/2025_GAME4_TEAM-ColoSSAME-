@@ -12,50 +12,79 @@ public class State : MonoBehaviour
     public int fighterCount;//어떤 선수 선택했는지
     public int day;//몇 일에 훈련 선택
 
-    public List<Button> attackButtons;//공격 버튼 지정
-    public List<Button> defenseButtons;//방어 버튼 지정
-
     public List<Button> fighterButtons;//선수 지정
 
-    public List<int> attack;//공격력
-    public List<int> defense;//방어력
+    public List<int> playerState;//능력치
 
-    public List<int> attackTraining;//공격력 훈련 시 얼마나 추가 될지
-    public List<int> defenseTraining;//방어력 훈련 시 얼마나 추가 될지
+    public List<TextMeshProUGUI> trainShow;//훈련 창에서 선택한 훈련 보여줌
+    public List<int> trainSelect;//훈련 종류 저장
+    public List<int> trainResult;//훈련 결과 저장
+    public List<string> trainSelectSave;//훈련 선택 저장
+    public List<string> trainList = new List<string>{ "공격력", "수비력", "체력" };//선수 훈련 종류
 
-    public List<int> attackTrainingSave;//공격력 훈련 양 저장
-    public List<int> defenseTrainingSave;//방어력 훈련 양 저장
+    public int playerCount = 5;//선수 몇명인지
 
+    public TextMeshProUGUI trainResultText;//선수 훈련 값 텍스트
+    public List<int> trainAdd = new List<int>{0,0,0};//훈련 더한 값 일시적 저장
+
+    public System.Random trains = new System.Random();//선수 훈련 값 랜덤
+
+    void Start()
+    {
+        trainSelect = trainSelect.ConvertAll(x => 0);
+        trainSelectSave = trainSelectSave.ConvertAll(x => "공격력");
+    }
 
     void Update()
     {
-        stateText.text = $"공격력 : {attack[fighterCount]} + <color=#00ffff>{attackTrainingSave[fighterCount]}</color>  방어력{defense[fighterCount]} + <color=#00ffff>{defenseTrainingSave[fighterCount]}</color>";//공격력, 방어력 표시
+        stateText.text = $"공격력 : {playerState[(fighterCount)*3]} \n방어력 : {playerState[(fighterCount)*3+1]} \n체력 : {playerState[(fighterCount)*3+2]}";//공격력, 방어력 표시
+        trainShow[0].text = $"{trainSelectSave[0+fighterCount*7]}";//훈련 할 능력치
+        trainShow[1].text = $"{trainSelectSave[1+fighterCount*7]}";
+        trainShow[2].text = $"{trainSelectSave[2+fighterCount*7]}";
+        trainShow[3].text = $"{trainSelectSave[3+fighterCount*7]}";
+        trainShow[4].text = $"{trainSelectSave[4+fighterCount*7]}";
+        trainShow[5].text = $"{trainSelectSave[5+fighterCount*7]}";
+        trainShow[6].text = $"{trainSelectSave[6+fighterCount*7]}";
+
+        trainResultText.text = $"공격력 : {playerState[(fighterCount)*3]} + <color=#00ffff>{trainResult[fighterCount*3]}</color> \n방어력 : {playerState[(fighterCount)*3+1]} + <color=#00ffff>{trainResult[fighterCount*3+1]}</color>  \n체력    : {playerState[(fighterCount)*3+2]} + <color=#00ffff>{trainResult[fighterCount*3+2]}</color> ";//주넘기시 후 표시할 선수 능력치
     }
 
     public void fighter1()//어떤 선수를 골랐는지
     {
         fighterCount = 0;
-        fighterButtons[fighterCount].transform.position = new Vector3(70f, 450f, 0f);
+        Debug.Log(trainResult[fighterCount*3]);
+        trainAdd = trainAdd.ConvertAll(x => 0);
+        fighterButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector3(-90f, -10f);
     }
     public void fighter2()
     {
         fighterCount = 1;
-        fighterButtons[fighterCount].transform.position = new Vector3(70f, 450f, 0f);
+        trainAdd = trainAdd.ConvertAll(x => 0);
+        fighterButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector3(-90f, -10f);
     }
     public void fighter3()
     {
         fighterCount = 2;
-        fighterButtons[fighterCount].transform.position = new Vector3(70f, 450f, 0f);
+        trainAdd = trainAdd.ConvertAll(x => 0);
+        fighterButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector3(-90f, -10f);
     }
     public void fighter4()
     {
         fighterCount = 3;
-        fighterButtons[fighterCount].transform.position = new Vector3(70f, 450f, 0f);
+        trainAdd = trainAdd.ConvertAll(x => 0);
+        fighterButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector3(-90f, -10f);
     }
     public void fighter5()
     {
         fighterCount = 4;
-        fighterButtons[fighterCount].transform.position = new Vector3(70f, 450f, 0f);
+        trainAdd = trainAdd.ConvertAll(x => 0);
+        fighterButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector3(-90f, -10f);
+    }
+    public void fighter6()
+    {
+        fighterCount = 5;
+        trainAdd = trainAdd.ConvertAll(x => 0);
+        fighterButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector3(-90f, -10f);
     }
 
     public void week1()//1일차 훈련
@@ -93,101 +122,78 @@ public class State : MonoBehaviour
         day = 6;
     }
 
-    public void attackClick()//공격 훈련 클릭
-    {
-        attackTraining[day] = 3;
-        defenseTraining[day] = 0;
-        attackTrainingSave[fighterCount]=attackTraining.Sum();//공격 훈련 양 저장
-        defenseTrainingSave[fighterCount]=defenseTraining.Sum();//방어 훈련 양 저장
-        
-        //공격 버튼 클릭 시 버튼색 변경
-        Color gray = new Color(143f / 255f, 143f / 255f, 143f / 255f);
-        ColorBlock grayBlock = new ColorBlock //회색 컬러 블럭
+    public void leftClick()//훈련 왼쪽 클릭
+    {   
+        if (trainSelect[day] == 0)
         {
-            normalColor = gray, //회색으로
-            highlightedColor = gray,
-            pressedColor = gray,
-            selectedColor = gray,
-            disabledColor = Color.gray,
-            colorMultiplier = 1f,
-            fadeDuration = 0.1f
-
-        };
-        //공격 버튼 회색
-        attackButtons[day].colors = grayBlock;
-
-        //방어 버튼 색 원래대로
-        Color white = Color.white;
-        ColorBlock whiteBlock = new ColorBlock//흰색 컬러 블럭
+            trainSelect[day] = 2;
+        }
+        else
         {
-            normalColor = white,//흰색으로
-            highlightedColor = white,
-            pressedColor = white,
-            selectedColor = white,
-            disabledColor = Color.gray,
-            colorMultiplier = 1f,
-            fadeDuration = 0.1f
-        };
-        defenseButtons[day].colors = whiteBlock;//방어 흰색으로 변경
+            trainSelect[day] -= 1;
+        }
+        trainSelectSave[day+fighterCount*7] = trainList[trainSelect[day]];
     }
 
-    public void defenseClick()//방어 훈련 클릭
+    public void rightClick()//오른쪽 클릭
     {
-        attackTraining[day] = 0;
-        defenseTraining[day] = 3;
-        attackTrainingSave[fighterCount]=attackTraining.Sum();//공격 훈련 양 저장
-        defenseTrainingSave[fighterCount]=defenseTraining.Sum();//방어 훈련 양 저장
-        //방어 버튼 색 변경
-        Color gray = new Color(143f / 255f, 143f / 255f, 143f / 255f);
-        ColorBlock grayBlock = new ColorBlock //회색 컬러 블럭
+           if (trainSelect[day] == 2)
         {
-            normalColor = gray, //회색으로
-            highlightedColor = gray,
-            pressedColor = gray,
-            selectedColor = gray,
-            disabledColor = Color.gray,
-            colorMultiplier = 1f,
-            fadeDuration = 0.1f
-
-        };
-        //방어 버튼 회색
-        defenseButtons[day].colors = grayBlock;
-        //공격 버튼 색 원래대로
-        Color white = Color.white;
-        ColorBlock whiteBlock = new ColorBlock//흰색 컬러 블럭
+            trainSelect[day] = 0;
+        }
+        else
         {
-            normalColor = white,//흰색으로
-            highlightedColor = white,
-            pressedColor = white,
-            selectedColor = white,
-            disabledColor = Color.gray,
-            colorMultiplier = 1f,
-            fadeDuration = 0.1f
-        };
-        attackButtons[day].colors = whiteBlock;//방어 흰색으로 변경
+            trainSelect[day] += 1;
+        }
+        trainSelectSave[day+fighterCount*7] = trainList[trainSelect[day]];
     }
 
     public void trainBack()
-    {
-        attackTraining = attackTraining.ConvertAll(x => 0);//리스트 안 값 다시 0으로 변경
-        defenseTraining = defenseTraining.ConvertAll(x => 0);//리스트 안 값 다시 0으로 변경
-        fighterButtons[0].transform.position = new Vector3(336f, 356f, 0f);
-        fighterButtons[1].transform.position = new Vector3(436f, 356f, 0f);
-        fighterButtons[2].transform.position = new Vector3(336f, 256f, 0f);
-        fighterButtons[3].transform.position = new Vector3(436f, 256f, 0f);
-        fighterButtons[4].transform.position = new Vector3(336f, 156f, 0f);
-    }
+    {   
+        foreach (int s in trainSelect)
+        {
+            trainAdd[s] += trains.Next(4);
+            trainResult[s+3*(fighterCount)] = trainAdd[s];
+        }
+        
+        trainSelect = trainSelect.ConvertAll(x => 0);//리스트 안 값 다시 0으로 변경
+        trainSelectSave = trainSelectSave.ConvertAll(x => "공격력");
+        
+        fighterButtons[0].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, 0f);//선수 위치 원래대로
+        fighterButtons[1].GetComponent<RectTransform>().anchoredPosition = new Vector2(90f, 0f);
+        fighterButtons[2].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, -100f);
+        fighterButtons[3].GetComponent<RectTransform>().anchoredPosition = new Vector2(90f, -100f);
+        fighterButtons[4].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, -200f);
+        if (playerCount > 5)
+        {
+            fighterButtons[5].GetComponent<RectTransform>().anchoredPosition = new Vector2(90f, -200f);
+        }
+    }   
 
     public void nextWeek()//다음주로 넘김
     {
-        for (int i = 0; i < attack.Count; i ++)
+        //for (int i = 0; i < playerState.Count; i ++)
         {
-            attack[i] += attackTrainingSave[i];//주를 넘겨 공격력 더해줌
-            defense[i] += defenseTrainingSave[i];//주를 넘겨 방어력 더해줌
-            attackTrainingSave[i]=0;//공격 훈련값 초기화
-            defenseTrainingSave[i]=0;//방어 훈련값 초기화
-            attackTraining = attackTraining.ConvertAll(x => 0);//리스트 안 값 다시 0으로 변경
-            defenseTraining = defenseTraining.ConvertAll(x => 0);//리스트 안 값 다시 0으로 변경
+           // playerState[i] += attackTrainingSave[i];//주를 넘겨 훈련량량 더해줌
         }
+        //trainSelect = trainSelect.ConvertAll(x => 0);//리스트 안 값 다시 0으로 변경
+        //trainSelectSave = trainSelectSave.ConvertAll(x => "공격력");
+    }
+
+    public void goHome()//넘어가기
+    {
+        foreach (int s in trainResult)
+        {
+            playerState[s] = trainResult[s];
+        }
+        fighterButtons[0].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, 0f);//선수 위치 원래대로
+        fighterButtons[1].GetComponent<RectTransform>().anchoredPosition = new Vector2(90f, 0f);
+        fighterButtons[2].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, -100f);
+        fighterButtons[3].GetComponent<RectTransform>().anchoredPosition = new Vector2(90f, -100f);
+        fighterButtons[4].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, -200f);
+    }
+    public void playerGoodChoice()
+    {
+        playerCount += 1;
     }
 }
