@@ -15,7 +15,6 @@ namespace Battle.Scripts.Ai.Weapon
         public void Initialize(BattleAI ai, GameObject arrow)
         {
             ownerAI = ai;
-            Debug.Log("ai대입 성공");
             this.arrowPrefab = arrow;
         }
         

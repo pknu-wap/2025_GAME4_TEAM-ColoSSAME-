@@ -13,12 +13,13 @@ namespace Battle.Scripts.Ai.State
             Debug.Log($"{ai} : {ai.StateMachine.currentState}");
             ai.aiAnimator.Reset();
             ai.aiAnimator.Move();
-            ai.aiPath.canMove = true;
         }
         
         public void UpdateState()
         {
+            //Ai's attack-cool-time is true, target is in Range -> AttackState
             if (ai.IsInAttackRange() && ai.CanAttack()) ai.StateMachine.ChangeState(new AttackState(ai));
+            
             if (ai.CurrentTarget != null)
             {
                 ai.destinationSetter.target = ai.CurrentTarget;

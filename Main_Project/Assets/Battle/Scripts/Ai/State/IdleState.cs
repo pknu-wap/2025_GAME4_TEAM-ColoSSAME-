@@ -27,6 +27,7 @@ namespace Battle.Scripts.Ai.State
             ai.StartCoroutine(Wait(waitTime));
         }
 
+        
         private IEnumerator Wait (float time)
         {
             yield return new WaitForSeconds(time);
@@ -35,26 +36,23 @@ namespace Battle.Scripts.Ai.State
 
         public void UpdateState()
         {
-            if (canMove)
+            if (!canMove) return;
+            
+            if (isChase)
             {
-                if (isChase)
+                if (!ai.HasEnemyInSight()) return;
+                
+                ai.destinationSetter.target = ai.CurrentTarget;
+                if (ai.IsInAttackRange())
                 {
-                    if (ai.HasEnemyInSight())
-                    {
-                        ai.destinationSetter.target = ai.CurrentTarget;
-                        if (ai.IsInAttackRange())
-                        {
-                            if (ai.CanAttack()) ai.StateMachine.ChangeState(new AttackState(ai));
-                        } else
-                        {
-                            ai.StateMachine.ChangeState(new ChaseState(ai));
-                        }
-                    }
+                    if (ai.CanAttack()) ai.StateMachine.ChangeState(new AttackState(ai));
                 } else
                 {
-                    Debug.LogWarning($"{ai.name}가 RetreatState를 시도함");
-                    ai.StateMachine.ChangeState(new RetreatState(ai));
+                    ai.StateMachine.ChangeState(new ChaseState(ai));
                 }
+            } else
+            {
+                ai.StateMachine.ChangeState(new RetreatState(ai));
             }
         }
 

@@ -592,18 +592,19 @@ MonoBehaviour:
   CurrentTarget: {fileID: 0}
   tempTarget: {fileID: 0}
   Retreater: {fileID: 726949171}
-  retreatAreaMin: {x: -7, y: -3}
-  retreatAreaMax: {x: 7, y: 3}
+  retreatAreaMin: {x: -4.9, y: -4}
+  retreatAreaMax: {x: 4.9, y: 1}
   team: 0
   weaponType: 33
   sightRange: 20
   attackRange: 7
-  moveSpeed: 2
+  moveSpeed: 5
   hp: 100
   damage: 1
   retreatDistance: 3
-  waitTime: 0.25
+  waitTime: 0
   stunTime: 0
+  IsRetreating: 0
   arrowPrefab: {fileID: 1584435313}
   AttackDelay: 0.5
   aiAnimator: {fileID: 1957796565}
@@ -703,7 +704,7 @@ MonoBehaviour:
   radius: 0.5
   height: 2
   canMove: 1
-  maxSpeed: 2
+  maxSpeed: 5
   gravity: {x: NaN, y: NaN, z: NaN}
   groundMask:
     serializedVersion: 2
@@ -1051,8 +1052,8 @@ MonoBehaviour:
   CurrentTarget: {fileID: 0}
   tempTarget: {fileID: 0}
   Retreater: {fileID: 1371424676}
-  retreatAreaMin: {x: -5, y: -4.2}
-  retreatAreaMax: {x: 5, y: 1.2}
+  retreatAreaMin: {x: -4.9, y: -4}
+  retreatAreaMax: {x: 4.9, y: 1}
   team: 1
   weaponType: 100
   sightRange: 20
@@ -1060,9 +1061,10 @@ MonoBehaviour:
   moveSpeed: 2
   hp: 100
   damage: 1
-  retreatDistance: 3
-  waitTime: 0.25
+  retreatDistance: 0
+  waitTime: 0
   stunTime: 0
+  IsRetreating: 0
   arrowPrefab: {fileID: 0}
   AttackDelay: 0.42
   aiAnimator: {fileID: 307273120}
@@ -3778,8 +3780,8 @@ MonoBehaviour:
   CurrentTarget: {fileID: 0}
   tempTarget: {fileID: 0}
   Retreater: {fileID: 662973665}
-  retreatAreaMin: {x: -8, y: -3}
-  retreatAreaMax: {x: 8, y: 3}
+  retreatAreaMin: {x: -4.9, y: -4}
+  retreatAreaMax: {x: 4.9, y: 1}
   team: 0
   weaponType: 66
   sightRange: 20
@@ -3790,6 +3792,7 @@ MonoBehaviour:
   retreatDistance: 3
   waitTime: 0.25
   stunTime: 0
+  IsRetreating: 0
   arrowPrefab: {fileID: 0}
   AttackDelay: 0.3
   aiAnimator: {fileID: 1710228411}
@@ -4343,6 +4346,10 @@ PrefabInstance:
     - target: {fileID: 6311861856165175232, guid: 22278203e8d524358894260c10cb0a79, type: 3}
       propertyPath: m_Name
       value: Archer
+      objectReference: {fileID: 0}
+    - target: {fileID: 6311861856165175232, guid: 22278203e8d524358894260c10cb0a79, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6311861856165175232, guid: 22278203e8d524358894260c10cb0a79, type: 3}
       propertyPath: m_TagString
@@ -5050,8 +5057,8 @@ MonoBehaviour:
   CurrentTarget: {fileID: 0}
   tempTarget: {fileID: 0}
   Retreater: {fileID: 977037001}
-  retreatAreaMin: {x: -8, y: -3}
-  retreatAreaMax: {x: 8, y: 3}
+  retreatAreaMin: {x: -4.9, y: -4}
+  retreatAreaMax: {x: 4.9, y: 1}
   team: 0
   weaponType: 66
   sightRange: 20
@@ -5062,6 +5069,7 @@ MonoBehaviour:
   retreatDistance: 1
   waitTime: 0.5
   stunTime: 0
+  IsRetreating: 0
   arrowPrefab: {fileID: 0}
   AttackDelay: 0.3
   aiAnimator: {fileID: 600283170}
@@ -5865,52 +5873,6 @@ SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 806257478056923464, guid: cf1554094a2d572478cce8092a4ac3ca, type: 3}
   m_PrefabInstance: {fileID: 1226053900}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1298018732
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1298018733}
-  - component: {fileID: 1298018734}
-  m_Layer: 0
-  m_Name: ArcherRetreat
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1298018733
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1298018732}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1298018734
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1298018732}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 82084e371a1ec45458f88f9c1ece6bf2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ai: {fileID: 0}
-  retreatPos: {x: 0, y: 0}
 --- !u!212 &1299597135 stripped
 SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 8819126551340863732, guid: 672092d6fae854c9da73ae8124fb85bc, type: 3}
@@ -6104,8 +6066,8 @@ MonoBehaviour:
   CurrentTarget: {fileID: 0}
   tempTarget: {fileID: 0}
   Retreater: {fileID: 1709336027}
-  retreatAreaMin: {x: -8, y: -3}
-  retreatAreaMax: {x: 8, y: 3}
+  retreatAreaMin: {x: -4.9, y: -4}
+  retreatAreaMax: {x: 4.9, y: 1}
   team: 0
   weaponType: 83
   sightRange: 20
@@ -6116,6 +6078,7 @@ MonoBehaviour:
   retreatDistance: 0.5
   waitTime: 0.25
   stunTime: 0
+  IsRetreating: 0
   arrowPrefab: {fileID: 0}
   AttackDelay: 0.25
   aiAnimator: {fileID: 2079039088}
@@ -6519,8 +6482,8 @@ MonoBehaviour:
   CurrentTarget: {fileID: 0}
   tempTarget: {fileID: 0}
   Retreater: {fileID: 626172739}
-  retreatAreaMin: {x: -5, y: -4.2}
-  retreatAreaMax: {x: 5, y: 1.2}
+  retreatAreaMin: {x: -4.9, y: -4}
+  retreatAreaMax: {x: 4.9, y: 1}
   team: 0
   weaponType: 16
   sightRange: 20
@@ -6531,6 +6494,7 @@ MonoBehaviour:
   retreatDistance: 3
   waitTime: 0
   stunTime: 0
+  IsRetreating: 0
   arrowPrefab: {fileID: 13871287}
   AttackDelay: 0.5
   aiAnimator: {fileID: 521037950}
@@ -7123,11 +7087,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 863013891949211286, guid: b1d1b587ef04c4b78accd9412b85b135, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 2
+      value: -2.86
       objectReference: {fileID: 0}
     - target: {fileID: 863013891949211286, guid: b1d1b587ef04c4b78accd9412b85b135, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -1.26
       objectReference: {fileID: 0}
     - target: {fileID: 863013891949211286, guid: b1d1b587ef04c4b78accd9412b85b135, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -7147,7 +7111,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1880616072713439741, guid: b1d1b587ef04c4b78accd9412b85b135, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1880616072713439741, guid: b1d1b587ef04c4b78accd9412b85b135, type: 3}
       propertyPath: m_TagString
@@ -8202,8 +8166,8 @@ MonoBehaviour:
   CurrentTarget: {fileID: 0}
   tempTarget: {fileID: 0}
   Retreater: {fileID: 2059199268}
-  retreatAreaMin: {x: -8, y: -3}
-  retreatAreaMax: {x: 8, y: 3}
+  retreatAreaMin: {x: -4.9, y: -4}
+  retreatAreaMax: {x: 4.9, y: 1}
   team: 1
   weaponType: 100
   sightRange: 20
@@ -8214,6 +8178,7 @@ MonoBehaviour:
   retreatDistance: 3
   waitTime: 0.25
   stunTime: 0
+  IsRetreating: 0
   arrowPrefab: {fileID: 0}
   AttackDelay: 1
   aiAnimator: {fileID: 24508415}
@@ -8795,8 +8760,8 @@ MonoBehaviour:
   CurrentTarget: {fileID: 0}
   tempTarget: {fileID: 0}
   Retreater: {fileID: 1787571576}
-  retreatAreaMin: {x: -8, y: -3}
-  retreatAreaMax: {x: 8, y: 3}
+  retreatAreaMin: {x: -4.9, y: -4}
+  retreatAreaMax: {x: 4.9, y: 1}
   team: 1
   weaponType: 100
   sightRange: 20
@@ -8807,6 +8772,7 @@ MonoBehaviour:
   retreatDistance: 1
   waitTime: 0.25
   stunTime: 0
+  IsRetreating: 0
   arrowPrefab: {fileID: 0}
   AttackDelay: 2.5
   aiAnimator: {fileID: 2088988653}
@@ -9515,6 +9481,5 @@ SceneRoots:
   - {fileID: 1787571576}
   - {fileID: 2059199268}
   - {fileID: 1709336027}
-  - {fileID: 1298018733}
   - {fileID: 726949171}
   - {fileID: 626172739}

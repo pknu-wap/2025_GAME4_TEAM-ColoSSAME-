@@ -38,6 +38,8 @@ namespace Battle.Scripts.Ai
         public float waitTime = 0.25f;
         public float stunTime = 0f;
         
+        public bool IsRetreating = false;
+        
         public GameObject arrowPrefab;
 
         [Min(0.25f)] public float AttackDelay = 0.5f;
