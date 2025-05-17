@@ -1,28 +1,29 @@
+using System;
 using System.Collections.Generic;
 using Battle.Scripts.Ai;
+using Battle.Scripts.Strategy;
 using UnityEngine;
 
 namespace Battle.Scripts.Value
 {
     public class DataManager : MonoBehaviour
     {
-        
-        List<BattleAI> aiList = new List<BattleAI>();
-        public void CharacterSetting()
+        public GameObject[] Players;
+        public Vector3[] playersTransform;
+        public StrategyManager strategy;
+        private void Awake()
         {
-            foreach (var Character in aiList)
+            DontDestroyOnLoad(gameObject);
+            strategy = FindObjectOfType<StrategyManager>();
+            GetStrategy();
+        }
+
+        public void GetStrategy()
+        {
+            for (int i = 0; i < strategy.players.Length; i++)
             {
-                int Job = Random.Range(0, 6);
-                switch (Job)
-                {
-                    //Knight
-                    case 0:
-                        Character.hp = 100;
-                        Character.defense = 3;
-                        Character.damage = Random.Range(2, 5);
-                        Character.AttackDelay = Random.Range(0.3f, 0.5f);
-                        break;
-                }
+                Players[i] = strategy.players[i];
+                playersTransform[i] = strategy.transforms[i];
             }
         }
     }

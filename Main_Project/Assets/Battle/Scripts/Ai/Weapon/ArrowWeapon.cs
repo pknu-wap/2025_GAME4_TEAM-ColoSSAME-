@@ -39,7 +39,7 @@ namespace Battle.Scripts.Ai.Weapon
             {
                 elapsed += Time.deltaTime;
                 transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
-                yield return null; // 💥 프레임 분할
+                yield return null; //프레임 분할
             }
 
             transform.position = targetPos;

@@ -31,7 +31,6 @@ namespace Battle.Scripts.ImageManager
         private void Awake()
         {
             savePath = $"Battle/Images";
-            TakeTransparentScreenshots();
         }
 
         private IEnumerator ProcessAllTargets()
@@ -43,30 +42,13 @@ namespace Battle.Scripts.ImageManager
                 yield return CaptureScreenshot(target, pannel);
             }
         }
-
-        private Bounds CalculateBounds(GameObject target)
-        {
-            Renderer[] renderers = target.GetComponentsInChildren<Renderer>();
-            if (renderers.Length == 0) return new Bounds(target.transform.position, Vector3.zero);
-
-            Bounds bounds = renderers[0].bounds;
-            foreach (Renderer r in renderers)
-            {
-                bounds.Encapsulate(r.bounds);
-            }
-            return bounds;
-        }
-
         private IEnumerator CaptureScreenshot(GameObject Target, GameObject Pannel)
         {
             string fileName = $"{Target.name}.png";
 
-            Bounds bounds = CalculateBounds(Target);
-            Vector3 center = bounds.center;
-
             captureCamera.orthographic = true;
-            captureCamera.orthographicSize = Mathf.Max(bounds.extents.x, bounds.extents.y) * 1.2f;
-            captureCamera.transform.position = new Vector3(center.x, center.y, -1f);
+            captureCamera.orthographicSize = 0.8f;
+            captureCamera.transform.position = new Vector3(Target.transform.position.x, Target.transform.position.y + 0.3f, -1f);
 
             var originalClearFlags = captureCamera.clearFlags;
             var originalBackgroundColor = captureCamera.backgroundColor;
@@ -107,19 +89,35 @@ namespace Battle.Scripts.ImageManager
             EditorApplication.delayCall += () =>
             {
                 AssetDatabase.Refresh();
+                string relativePath = $"Assets/{savePath}/{Target.tag}/{fileName}";
                 EditorApplication.delayCall += () =>
                 {
-                    var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(relativePath);
-                    if (sprite != null && Pannel != null && Pannel.TryGetComponent(out SpriteRenderer renderer))
+                    AssetDatabase.Refresh();
+
+                    TextureImporter importer = AssetImporter.GetAtPath(relativePath) as TextureImporter;
+                    if (importer != null)
                     {
-                        renderer.sprite = sprite;
-                        Debug.Log($"✅ SpriteRenderer에 '{sprite.name}' 적용 완료");
+                        importer.textureType = TextureImporterType.Sprite;
+                        importer.spriteImportMode = SpriteImportMode.Single;
+                        importer.spritePivot = new Vector2(0.58f, 0.5f); // ✅ Pivot 중심으로 설정
+                        importer.SaveAndReimport();
                     }
-                    else
+
+                    EditorApplication.delayCall += () =>
                     {
-                        Debug.LogWarning("❌ Sprite를 불러오지 못했거나 SpriteRenderer가 없습니다.");
-                    }
+                        var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(relativePath);
+                        if (sprite != null && Pannel != null && Pannel.TryGetComponent(out SpriteRenderer renderer))
+                        {
+                            renderer.sprite = sprite;
+                            Debug.Log($"✅ SpriteRenderer에 '{sprite.name}' 적용 완료 (Pivot Center)");
+                        }
+                        else
+                        {
+                            Debug.LogWarning("❌ Sprite를 불러오지 못했거나 SpriteRenderer가 없습니다.");
+                        }
+                    };
                 };
+
             };
     #endif
             yield return null;

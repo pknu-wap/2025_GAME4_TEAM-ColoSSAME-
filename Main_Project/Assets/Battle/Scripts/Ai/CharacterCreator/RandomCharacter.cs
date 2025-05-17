@@ -97,7 +97,7 @@ namespace Battle.Scripts.Ai.CharacterCreator
             string weaponType = "";
             if (!hasDagger)
             {
-                int Weapon = rand.Next(5, 6);
+                int Weapon = rand.Next(0, 8);
                 hasWeapon = true;
                 switch (Weapon)
                 {
