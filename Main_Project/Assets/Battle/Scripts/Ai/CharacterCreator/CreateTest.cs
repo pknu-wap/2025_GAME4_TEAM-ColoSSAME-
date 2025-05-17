@@ -4,14 +4,6 @@ using UnityEngine;
 namespace Battle.Scripts.Ai.CharacterCreator {
     public class CreateTest : MonoBehaviour
     {
-        public GameObject Tester;
-        // Start is called before the first frame update
-        void Start()
-        {
-            Debug.Log(Tester.GetComponent<SPUM_Prefabs>().ImageElement[2].Structure);
-            Tester.GetComponent<SPUM_Prefabs>().ImageElement[2].ItemPath = "Addons/Legacy/0_Unit/0_Sprite/1_Body/Devil_1";
-            RerenderAllParts(gameObject);
-        }
         public void RerenderAllParts(GameObject character)
         {
             var spum = character.GetComponent<SPUM_Prefabs>();
