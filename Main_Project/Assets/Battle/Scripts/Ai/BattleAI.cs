@@ -2,6 +2,7 @@ using System.Collections;
 using Battle.Scripts.Ai.State;
 using Battle.Scripts.Ai.Weapon;
 using Battle.Scripts.Value;
+using Battle.Scripts.Value.HpBar;
 using Pathfinding;
 using Unity.VisualScripting;
 using UnityEngine;

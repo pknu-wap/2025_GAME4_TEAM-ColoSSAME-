@@ -17,7 +17,7 @@ namespace Battle.Scripts.Strategy
         private void Awake()
         {
             players = GameObject.FindGameObjectsWithTag("Position");
-            characters = GameObject.FindGameObjectsWithTag("Player");
+            characters = GameObject.FindGameObjectsWithTag("Character");
             DontDestroyOnLoad(gameObject);
         }
 
