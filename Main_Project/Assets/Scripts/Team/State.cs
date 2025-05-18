@@ -19,8 +19,11 @@ public class State : MonoBehaviour
     public List<TextMeshProUGUI> trainShow;//훈련 창에서 선택한 훈련 보여줌
     public List<int> trainSelect;//훈련 종류 저장
     public List<int> trainResult;//훈련 결과 저장
-    public List<string> trainSelectSave;//훈련 선택 저장
+    public List<int> trainSelectSave;//훈련 선택 저장
     public List<string> trainList = new List<string>{ "공격력", "수비력", "체력" };//선수 훈련 종류
+
+    public List<int> getPlayer;//선수 영입 능력치
+    public TextMeshProUGUI getPlayerStateText;//영입에 뜨는 선수 능력치 텍스트 표시시
 
     public int playerCount = 5;//선수 몇명인지
 
@@ -32,21 +35,25 @@ public class State : MonoBehaviour
     void Start()
     {
         trainSelect = trainSelect.ConvertAll(x => 0);
-        trainSelectSave = trainSelectSave.ConvertAll(x => "공격력");
+        trainSelectSave = trainSelectSave.ConvertAll(x => 0);
+
+        getPlayer = new List<int>{ trains.Next(11), trains.Next(11),trains.Next(11) };
     }
 
     void Update()
     {
         stateText.text = $"공격력 : {playerState[(fighterCount)*3]} \n방어력 : {playerState[(fighterCount)*3+1]} \n체력 : {playerState[(fighterCount)*3+2]}";//공격력, 방어력 표시
-        trainShow[0].text = $"{trainSelectSave[0+fighterCount*7]}";//훈련 할 능력치
-        trainShow[1].text = $"{trainSelectSave[1+fighterCount*7]}";
-        trainShow[2].text = $"{trainSelectSave[2+fighterCount*7]}";
-        trainShow[3].text = $"{trainSelectSave[3+fighterCount*7]}";
-        trainShow[4].text = $"{trainSelectSave[4+fighterCount*7]}";
-        trainShow[5].text = $"{trainSelectSave[5+fighterCount*7]}";
-        trainShow[6].text = $"{trainSelectSave[6+fighterCount*7]}";
+        trainShow[0].text = $"{trainList[trainSelectSave[0+fighterCount*7]]}";//훈련 할 능력치
+        trainShow[1].text = $"{trainList[trainSelectSave[1+fighterCount*7]]}";
+        trainShow[2].text = $"{trainList[trainSelectSave[2+fighterCount*7]]}";
+        trainShow[3].text = $"{trainList[trainSelectSave[3+fighterCount*7]]}";
+        trainShow[4].text = $"{trainList[trainSelectSave[4+fighterCount*7]]}";
+        trainShow[5].text = $"{trainList[trainSelectSave[5+fighterCount*7]]}";
+        trainShow[6].text = $"{trainList[trainSelectSave[6+fighterCount*7]]}";
 
         trainResultText.text = $"공격력 : {playerState[(fighterCount)*3]} + <color=#00ffff>{trainResult[fighterCount*3]}</color> \n방어력 : {playerState[(fighterCount)*3+1]} + <color=#00ffff>{trainResult[fighterCount*3+1]}</color>  \n체력    : {playerState[(fighterCount)*3+2]} + <color=#00ffff>{trainResult[fighterCount*3+2]}</color> ";//주넘기시 후 표시할 선수 능력치
+    
+        getPlayerStateText.text = $"공격력 : {getPlayer[0]} \n방어력 : {getPlayer[1]} \n체력 : {getPlayer[2]}";//공격력, 방어력 표시
     }
 
     public void fighter1()//어떤 선수를 골랐는지
@@ -83,6 +90,24 @@ public class State : MonoBehaviour
     public void fighter6()
     {
         fighterCount = 5;
+        trainAdd = trainAdd.ConvertAll(x => 0);
+        fighterButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector3(-90f, -10f);
+    }
+    public void fighter7()
+    {
+        fighterCount = 6;
+        trainAdd = trainAdd.ConvertAll(x => 0);
+        fighterButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector3(-90f, -10f);
+    }
+    public void fighter8()
+    {
+        fighterCount = 7;
+        trainAdd = trainAdd.ConvertAll(x => 0);
+        fighterButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector3(-90f, -10f);
+    }
+    public void fighter9()
+    {
+        fighterCount = 8;
         trainAdd = trainAdd.ConvertAll(x => 0);
         fighterButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector3(-90f, -10f);
     }
@@ -132,7 +157,8 @@ public class State : MonoBehaviour
         {
             trainSelect[day] -= 1;
         }
-        trainSelectSave[day+fighterCount*7] = trainList[trainSelect[day]];
+        trainSelectSave[day+fighterCount*7] = trainSelect[day];
+
     }
 
     public void rightClick()//오른쪽 클릭
@@ -145,7 +171,7 @@ public class State : MonoBehaviour
         {
             trainSelect[day] += 1;
         }
-        trainSelectSave[day+fighterCount*7] = trainList[trainSelect[day]];
+        trainSelectSave[day+fighterCount*7] = trainSelect[day];
     }
 
     public void trainBack()
@@ -157,7 +183,6 @@ public class State : MonoBehaviour
         }
         
         trainSelect = trainSelect.ConvertAll(x => 0);//리스트 안 값 다시 0으로 변경
-        trainSelectSave = trainSelectSave.ConvertAll(x => "공격력");
         
         fighterButtons[0].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, 0f);//선수 위치 원래대로
         fighterButtons[1].GetComponent<RectTransform>().anchoredPosition = new Vector2(90f, 0f);
@@ -167,6 +192,22 @@ public class State : MonoBehaviour
         if (playerCount > 5)
         {
             fighterButtons[5].GetComponent<RectTransform>().anchoredPosition = new Vector2(90f, -200f);
+        }
+        if (playerCount > 6)
+        {
+            fighterButtons[6].GetComponent<RectTransform>().anchoredPosition = new Vector2(10f, -300f);
+        }
+        if (playerCount > 7)
+        {
+            fighterButtons[7].GetComponent<RectTransform>().anchoredPosition = new Vector2(90f, -300f);
+        }
+        if (playerCount > 8)
+        {
+            fighterButtons[8].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, -400f);
+        }
+        if (playerCount > 9)
+        {
+            fighterButtons[9].GetComponent<RectTransform>().anchoredPosition = new Vector2(90f, -400f);
         }
     }   
 
@@ -182,10 +223,14 @@ public class State : MonoBehaviour
 
     public void goHome()//넘어가기
     {
-        foreach (int s in trainResult)
+        for (int i = 0; i < trainResult.Count; i++)
         {
-            playerState[s] = trainResult[s];
+            playerState[i] += trainResult[i];
         }
+
+        trainSelectSave = trainSelectSave.ConvertAll(x => 0);
+
+        trainResult = trainResult.ConvertAll(x => 0);
         fighterButtons[0].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, 0f);//선수 위치 원래대로
         fighterButtons[1].GetComponent<RectTransform>().anchoredPosition = new Vector2(90f, 0f);
         fighterButtons[2].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, -100f);
@@ -195,5 +240,10 @@ public class State : MonoBehaviour
     public void playerGoodChoice()
     {
         playerCount += 1;
+
+        playerState[(playerCount-1)*3] = getPlayer[0];
+        playerState[(playerCount-1)*3+1] = getPlayer[1];
+        playerState[(playerCount-1)*3+2] = getPlayer[2];
+        
     }
 }
