@@ -8,14 +8,26 @@ namespace Battle.Scripts.Value.Data
 {
     public class SaveManager : MonoBehaviour
     {
-        private string savePath => Application.persistentDataPath + "/save.json";
-        public string targetTag = "Player"; // 저장할 대상 태그
+        public string targetTag = "Player"; // 저장 대상 태그 ("Player" or "Enemy")
+
+        private string SaveFileName => $"{targetTag}Save.json";
+        private string savePath => Path.Combine(Application.persistentDataPath, SaveFileName);
+
+        public void TargetPlayer ()
+        {
+            targetTag = "Player";
+        }
+
+        public void TargetEnemy ()
+        {
+            targetTag = "Enemy";
+        }
 
         public void Save(CharacterData data)
         {
             string json = JsonConvert.SerializeObject(data, Formatting.Indented);
             File.WriteAllText(savePath, json);
-            Debug.Log("저장 완료: " + savePath);
+            Debug.Log($"{targetTag} 저장 완료: {savePath}");
         }
 
         public CharacterData Load()
@@ -24,10 +36,10 @@ namespace Battle.Scripts.Value.Data
             {
                 string json = File.ReadAllText(savePath);
                 CharacterData data = JsonConvert.DeserializeObject<CharacterData>(json);
-                Debug.Log("불러오기 완료");
+                Debug.Log($"{targetTag} 불러오기 완료");
                 return data;
             }
-            Debug.LogWarning("저장 파일 없음");
+            Debug.LogWarning($"{targetTag} 저장 파일 없음");
             return new CharacterData();
         }
 
@@ -46,7 +58,6 @@ namespace Battle.Scripts.Value.Data
                 {
                     characterKey = id.characterKey,
                     name = obj.name,
-
                     bodyPath1 = spum.ImageElement[0].ItemPath,
                     bodyPath2 = spum.ImageElement[1].ItemPath,
                     bodyPath3 = spum.ImageElement[2].ItemPath,
@@ -127,7 +138,7 @@ namespace Battle.Scripts.Value.Data
                 createTest?.RerenderAllParts(obj);
             }
 
-            Debug.Log("모든 캐릭터 로드 완료");
+            Debug.Log($"{targetTag} 캐릭터 로드 완료");
         }
     }
 }

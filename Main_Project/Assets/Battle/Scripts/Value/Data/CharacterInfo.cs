@@ -5,9 +5,13 @@ namespace Battle.Scripts.Value.Data
     [System.Serializable]
     public class CharacterInfo
     {
+        //character 고유 번호
         public string characterKey;
+        
+        //character 이름
         public string name;
 
+        //character 생김새
         public string bodyPath1, bodyPath2, bodyPath3, bodyPath4, bodyPath5, bodyPath6;
         public string eyePath1, eyePath2;
         public SerializableColor eyeColor;
@@ -28,5 +32,11 @@ namespace Battle.Scripts.Value.Data
         public string backPath;
 
         public string weaponPath1, weaponPath2;
+        
+        //character 스탯
+        //...
+        
+        //character 위치
+        public Vector3 position;
     }
 }

@@ -64,6 +64,7 @@ namespace Battle.Scripts.Ai.CharacterCreator
             racePath = "";
             PathReset();
             hasWeapon = false;
+            hasShield = false;
             ClearWeapons();
             createTest.RerenderAllParts(Tester);
         }
@@ -123,12 +124,10 @@ namespace Battle.Scripts.Ai.CharacterCreator
         private void ClearWeapons()
         {
             // 오른손 무기 (20)
-            spum.ImageElement[20].Structure = "Weapons";
             spum.ImageElement[20].ItemPath = "";
             spum.ImageElement[20].Color = Color.white;
 
             // 왼손 무기 (21)
-            spum.ImageElement[21].Structure = "Weapons";
             spum.ImageElement[21].ItemPath = "";
             spum.ImageElement[21].Color = Color.white;
         }
@@ -162,7 +161,6 @@ namespace Battle.Scripts.Ai.CharacterCreator
             if (!hasWeapon)
             {
                 Debug.Log("무기 생성");
-                hasWeapon = true;
                 if (asset < 7)
                 {
                     switch (asset)
@@ -200,6 +198,7 @@ namespace Battle.Scripts.Ai.CharacterCreator
                             weaponType = "Wand";
                             break;
                         case 5:
+                            if(hasShield) break;
                             if (type == 0) type = RandAsset(1, 3);
                             Dagger(type);
                             return;
@@ -215,6 +214,7 @@ namespace Battle.Scripts.Ai.CharacterCreator
                 {
                     Shield(shieldType);
                 }
+                hasWeapon = true;
             }
             Tester.GetComponent<SPUM_Prefabs>().ImageElement[index].PartSubType = weaponType;
             ApplySpritePath(index, index + 1, WeaponPath);

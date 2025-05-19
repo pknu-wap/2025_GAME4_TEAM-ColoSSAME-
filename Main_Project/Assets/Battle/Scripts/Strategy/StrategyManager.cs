@@ -18,7 +18,6 @@ namespace Battle.Scripts.Strategy
         {
             players = GameObject.FindGameObjectsWithTag("Position");
             characters = GameObject.FindGameObjectsWithTag("Character");
-            DontDestroyOnLoad(gameObject);
         }
 
         private void Start()
@@ -65,6 +64,13 @@ namespace Battle.Scripts.Strategy
             {
                 players[i].transform.position = new Vector2(i-1.5f,transform.position.y); 
             }
+        }
+
+        public void ResetCharacter ()
+        {
+            hasCharacter = false;
+            ClickedCharacter.GetComponent<SpriteRenderer>().material.color = Color.white;
+            ClickedCharacter = null;
         }
 
         public void Move()

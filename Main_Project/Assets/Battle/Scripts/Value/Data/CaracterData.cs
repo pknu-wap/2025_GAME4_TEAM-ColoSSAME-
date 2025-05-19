@@ -6,5 +6,6 @@ namespace Battle.Scripts.Value.Data
     public class CharacterData
     {
         public Dictionary<string, CharacterInfo> characters = new();
+        public Dictionary<string, PositionData> positions = new();
     }
 }

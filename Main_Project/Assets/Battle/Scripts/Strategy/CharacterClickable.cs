@@ -10,14 +10,22 @@ namespace Battle.Scripts.Strategy
 
         public void OnPointerClick(PointerEventData eventData)
         {
+            gameObject.GetComponent<SpriteRenderer>().material.color = Color.gray;
+            
             if (strategyManager != null)
             {
-                strategyManager.ClickedCharacter = transform;
-                Debug.Log("🖱 클릭된 오브젝트: " + gameObject.name);
-                strategyManager.hasCharacter = true;
-                if(strategyManager.hasPlayer) strategyManager.Move();
+                if (!strategyManager.hasCharacter)
+                {
+                    strategyManager.ClickedCharacter = transform;
+                    Debug.Log("🖱 클릭된 오브젝트: " + gameObject.name);
+                    strategyManager.hasCharacter = true;
+                    if (strategyManager.hasPlayer) strategyManager.Move();
+                } else
+                {
+                    strategyManager.ResetCharacter();
+                    gameObject.GetComponent<SpriteRenderer>().material.color = Color.white;
+                }
             }
-            gameObject.GetComponent<SpriteRenderer>().material.color = Color.gray;
         }
     }
 }
