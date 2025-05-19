@@ -24,14 +24,16 @@ namespace Battle.Scripts.Value.Data
 			CharacterData data = JsonConvert.DeserializeObject<CharacterData>(json);
 
 			// 2. 현재 씬의 해당 캐릭터들 순회
-			GameObject[] characters = GameObject.FindGameObjectsWithTag(targetTag);
+			GameObject[] characters = GameObject.FindGameObjectsWithTag("Character");
 			foreach (var obj in characters)
 			{
 				var id = obj.GetComponent<CharacterID>();
 				if (id == null || !data.characters.ContainsKey(id.characterKey)) continue;
 
 				// 3. 현재 위치를 기존 데이터에 반영
-				data.characters[id.characterKey].position = obj.transform.position;
+				data.characters[id.characterKey].x = obj.transform.position.x;
+				data.characters[id.characterKey].y = obj.transform.position.y;
+				data.characters[id.characterKey].z = obj.transform.position.z;
 			}
 
 			// 4. 수정된 전체 데이터를 다시 저장

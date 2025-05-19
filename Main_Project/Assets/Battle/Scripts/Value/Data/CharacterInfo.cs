@@ -37,6 +37,6 @@ namespace Battle.Scripts.Value.Data
         //...
         
         //character 위치
-        public Vector3 position;
+        public float x, y, z;
     }
 }
