@@ -11,11 +11,15 @@ namespace Battle.Scripts.Ai.State
 
         public void EnterState()
         {
+            Debug.Log($"{ai} : {ai.StateMachine.currentState}");
+            
             ai.StopMoving();
+            
             ai.aiAnimator.Reset();
             ai.aiAnimator.Move();
-            ai.Retreater.GetComponent<RetreatTarget>().SetRetreatTarget();
-            Debug.Log($"{ai} : {ai.StateMachine.currentState}");
+            
+            if(!ai.IsRetreating) ai.Retreater.GetComponent<RetreatTarget>().SetRetreatTarget();
+            ai.IsRetreating = true;
         }
 
         public void UpdateState()
@@ -23,6 +27,7 @@ namespace Battle.Scripts.Ai.State
             ai.MoveTo(ai.Retreater.position);
             if (ai.IsInRetreatDistance())
             {
+                ai.IsRetreating = false;
                 ai.StateMachine.ChangeState(new IdleState(ai, true, ai.waitTime));
             }
         }

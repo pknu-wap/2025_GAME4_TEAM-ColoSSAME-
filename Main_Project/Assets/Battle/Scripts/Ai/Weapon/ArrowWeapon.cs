@@ -15,7 +15,6 @@ namespace Battle.Scripts.Ai.Weapon
         public void Initialize(BattleAI ai, GameObject arrow)
         {
             ownerAI = ai;
-            Debug.Log("ai대입 성공");
             this.arrowPrefab = arrow;
         }
         
@@ -40,7 +39,7 @@ namespace Battle.Scripts.Ai.Weapon
             {
                 elapsed += Time.deltaTime;
                 transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
-                yield return null; // 💥 프레임 분할
+                yield return null; //프레임 분할
             }
 
             transform.position = targetPos;
@@ -51,7 +50,6 @@ namespace Battle.Scripts.Ai.Weapon
         {
             BattleAI targetAI = other.GetComponent<BattleAI>();
             if (targetAI == null || targetAI.team == ownerAI.team) return;
-            Destroy(gameObject);
 
             // 피격 처리: 데미지 전달
             targetAI.StateMachine.ChangeState(new DamageState(targetAI, ownerAI.damage, ownerAI.stunTime));

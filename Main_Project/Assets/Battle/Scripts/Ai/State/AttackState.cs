@@ -11,12 +11,16 @@ namespace Battle.Scripts.Ai.State
 
         public void EnterState()
         {
-            ai.StopMoving();
-            ai.Flip(ai.CurrentTarget.position);
             Debug.Log($"{ai} : {ai.StateMachine.currentState}");
+            
+            ai.StopMoving();
+            
+            ai.Flip(ai.CurrentTarget.position);
             ai.aiAnimator.Reset();
             ai.aiAnimator.Attack();
-            if (ai.weaponType == WeaponType.Bow || ai.weaponType == WeaponType.Magic)
+            
+            //Weapon: Bow or Magic -> RangedAttack, X -> MeleeAttack
+            if (ai.weaponType is WeaponType.Bow or WeaponType.Magic)
             {
                 RangedAttack();
             }
@@ -29,6 +33,7 @@ namespace Battle.Scripts.Ai.State
         void MeleeAttack()
         {
             ai.weaponTrigger.ActivateCollider();
+            
             ai.RecordAttackTime();
             ai.StartCoroutine(AttackDelay());
         }
@@ -47,12 +52,15 @@ namespace Battle.Scripts.Ai.State
 
         private IEnumerator AttackDelay()
         {
-            yield return new WaitForSeconds(ai.AttackDelay / 2); // 이 숫자 변수로 받을수도?
-            ai.aiAnimator.StopMove();
             ai.weaponTrigger.ColliderMove();
+            yield return new WaitForSeconds(ai.AttackDelay / 2);
+            
+            ai.aiAnimator.StopMove();
             ai.weaponTrigger.DeactivateCollider();
             yield return new WaitForSeconds(ai.AttackDelay / 2);
-            ai.StateMachine.ChangeState(new IdleState(ai,false,ai.waitTime));
+            
+            if(ai.weaponType == WeaponType.ShortSword) ai.StateMachine.ChangeState(new IdleState(ai,false,ai.waitTime));
+            else ai.StateMachine.ChangeState(new IdleState(ai,true,ai.waitTime));
         }
 
         public void UpdateState() { }

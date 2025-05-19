@@ -20,13 +20,16 @@ namespace Battle.Scripts.Ai.State
         public void EnterState()
         {
             Debug.Log($"{ai} : {ai.StateMachine.currentState}");
+            
             ai.TakeDamage(damage);
+            
             ai.FlashRedTransparent(0.8f, 0.1f);
             ai.StartCoroutine(EndDamageRoutine());
         }
         
         private IEnumerator EndDamageRoutine()
         {
+            //Ai's CurrentHp <= 0 -> DeadState
             if (ai.IsDead()) ai.StateMachine.ChangeState(new DeadState(ai));
             else
             {
@@ -34,7 +37,16 @@ namespace Battle.Scripts.Ai.State
                 {
                     stun += ai.AttackDelay;
                 }
-                ai.StateMachine.ChangeState(new IdleState(ai, true, stun));
+                //Weapon: Bow or Magic -> Idle(RetreatState), X -> Idle(ChaseState)
+                if (ai.weaponType is WeaponType.Bow or WeaponType.Magic)
+                {
+                    ai.StateMachine.ChangeState(new IdleState(ai, false, stun));
+                    yield return null;
+                }
+                else
+                {
+                    ai.StateMachine.ChangeState(new IdleState(ai, true, stun));
+                }
             }
             yield return null;
         }

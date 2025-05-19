@@ -135,6 +135,7 @@ namespace Battle.Scripts.Ai
             instance.transform.localPosition = new Vector3(0f, 0f, 0.15f); // 캐릭터 위쪽에 배치
             instance.name = "HealthBar";
             instance.transform.localScale = new Vector3(1f, 1f, 1f);
+            instance.layer = LayerMask.NameToLayer("Hp");
 
             Debug.Log($"HealthBar가 {battleAI.name}에 추가되었습니다.");
         }
