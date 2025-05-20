@@ -931,6 +931,8 @@ MonoBehaviour:
   retreatDistance: 3
   waitTime: 0
   stunTime: 0
+  Class: 0
+  attackSound: {fileID: 0}
   IsRetreating: 0
   arrowPrefab: {fileID: 1584435313}
   AttackDelay: 0.5
@@ -1486,6 +1488,8 @@ MonoBehaviour:
   retreatDistance: 0
   waitTime: 0
   stunTime: 0
+  Class: 0
+  attackSound: {fileID: 0}
   IsRetreating: 0
   arrowPrefab: {fileID: 0}
   AttackDelay: 0.42
@@ -2440,6 +2444,86 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 277313137}
   m_CullTransparentMesh: 1
+--- !u!1 &279680073
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 279680074}
+  - component: {fileID: 279680076}
+  - component: {fileID: 279680075}
+  m_Layer: 8
+  m_Name: ShortSword
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &279680074
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 279680073}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1343228896}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &279680075
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 279680073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b38e469e91a1864eaca6fb578f4425c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!58 &279680076
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 279680073}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 0.5
 --- !u!212 &282161743 stripped
 SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 7672836447254701182, guid: b1d1b587ef04c4b78accd9412b85b135, type: 3}
@@ -4673,6 +4757,8 @@ MonoBehaviour:
   retreatDistance: 3
   waitTime: 0.25
   stunTime: 0
+  Class: 0
+  attackSound: {fileID: 0}
   IsRetreating: 0
   arrowPrefab: {fileID: 0}
   AttackDelay: 0.3
@@ -6959,6 +7045,8 @@ MonoBehaviour:
   retreatDistance: 1
   waitTime: 0.5
   stunTime: 0
+  Class: 0
+  attackSound: {fileID: 0}
   IsRetreating: 0
   arrowPrefab: {fileID: 0}
   AttackDelay: 0.3
@@ -7550,6 +7638,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 9092026567351912021, guid: cf1554094a2d572478cce8092a4ac3ca, type: 3}
       insertIndex: -1
       addedObject: {fileID: 294131452}
+    - targetCorrespondingSourceObject: {fileID: 9092026567351912021, guid: cf1554094a2d572478cce8092a4ac3ca, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 279680074}
     - targetCorrespondingSourceObject: {fileID: 5320374883469277381, guid: cf1554094a2d572478cce8092a4ac3ca, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1855198457}
@@ -8037,15 +8128,17 @@ MonoBehaviour:
   retreatDistance: 0.5
   waitTime: 0.25
   stunTime: 0
+  Class: 0
+  attackSound: {fileID: 0}
   IsRetreating: 0
   arrowPrefab: {fileID: 0}
   AttackDelay: 0.25
   aiAnimator: {fileID: 2079039088}
-  weaponTrigger: {fileID: 294131453}
+  weaponTrigger: {fileID: 279680075}
   arrowWeaponTrigger: {fileID: 0}
   HealthBar: {fileID: 1855198454}
   rb: {fileID: 1343228894}
-  characterValue: {fileID: 0}
+  characterValue: {fileID: 1343228892}
   renderers:
   - {fileID: 2048186667}
   - {fileID: 288626688}
@@ -8157,7 +8250,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 0.1
+  m_Radius: 0.5
 --- !u!50 &1343228894
 Rigidbody2D:
   serializedVersion: 4
@@ -8685,6 +8778,8 @@ MonoBehaviour:
   retreatDistance: 3
   waitTime: 0
   stunTime: 0
+  Class: 0
+  attackSound: {fileID: 0}
   IsRetreating: 0
   arrowPrefab: {fileID: 13871287}
   AttackDelay: 0.5
@@ -10143,6 +10238,8 @@ MonoBehaviour:
   retreatDistance: 3
   waitTime: 0.25
   stunTime: 0
+  Class: 0
+  attackSound: {fileID: 0}
   IsRetreating: 0
   arrowPrefab: {fileID: 0}
   AttackDelay: 0.5
@@ -10977,6 +11074,8 @@ MonoBehaviour:
   retreatDistance: 3
   waitTime: 0.25
   stunTime: 0
+  Class: 0
+  attackSound: {fileID: 0}
   IsRetreating: 0
   arrowPrefab: {fileID: 0}
   AttackDelay: 1
@@ -11735,6 +11834,8 @@ MonoBehaviour:
   retreatDistance: 1
   waitTime: 0.25
   stunTime: 0
+  Class: 0
+  attackSound: {fileID: 0}
   IsRetreating: 0
   arrowPrefab: {fileID: 0}
   AttackDelay: 2.5

@@ -2,10 +2,12 @@ using System.Collections;
 using Battle.Scripts.Ai.State;
 using Battle.Scripts.Ai.Weapon;
 using Battle.Scripts.Value;
+using Battle.Scripts.Value.Data.Class;
 using Battle.Scripts.Value.HpBar;
 using Pathfinding;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
 using Screen = UnityEngine.Device.Screen;
 using StateMachine = Battle.Scripts.StateCore.StateMachine;
@@ -40,6 +42,30 @@ namespace Battle.Scripts.Ai
         public float retreatDistance = 3f;
         public float waitTime = 0.25f;
         public float stunTime = 0f;
+        public ClassType Class;
+        public AudioClip attackSound;
+        public void ApplyJobSettings()
+        {
+            if (!ClassDataBase.ClassStatsMap.TryGetValue(Class, out var stats))
+            {
+                Debug.LogError($"[BattleAI] 존재하지 않는 직업: {Class}");
+                return;
+            }
+
+            hp = stats.hp;
+            damage = stats.attack;
+            defense = stats.defense;
+            moveSpeed = stats.moveSpeed;
+            attackRange = stats.attackRange;
+            AttackDelay = stats.attackDelay;
+            weaponType = stats.weaponType;
+
+            characterValue.maxHp = stats.hp;
+            characterValue.currentHp = stats.hp;
+
+            aiPath.maxSpeed = moveSpeed;
+        }
+
         
         public bool IsRetreating = false;
         
@@ -72,13 +98,15 @@ namespace Battle.Scripts.Ai
         public LayerMask obstacleMask;
         
         public IsWinner isWinner;
-
+        private AddPrefab addPrefab;
         private void Awake()
         {
             Targeting = new Targeting(this);
             StateMachine = new StateMachine();
             characterValue = GetComponent<CharacterValue>();
-
+            addPrefab = GetComponent<AddPrefab>();
+            addPrefab.AddWeapon(this);
+            addPrefab.LoadHpPrefab();
             // HealthBar 자동 연결
             Transform hb = transform.Find("UnitRoot/HealthBar");
             if (hb != null)
@@ -301,6 +329,11 @@ namespace Battle.Scripts.Ai
             if (hb != null) HealthBar = hb.gameObject;
 
             // A* 알고리즘 연결
+            if (GetComponent<AIPath>() == null)
+            {
+                gameObject.AddComponent<AIPath>();
+                Debug.Log("AIPath 컴포넌트를 추가했습니다.");
+            }
             aiPath = GetComponent<AIPath>();
             destinationSetter = GetComponent<AIDestinationSetter>();
             

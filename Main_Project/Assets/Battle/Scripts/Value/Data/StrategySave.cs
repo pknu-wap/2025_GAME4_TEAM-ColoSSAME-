@@ -7,6 +7,7 @@ namespace Battle.Scripts.Value.Data
 	public class StrategySave : MonoBehaviour
 	{
 		public string targetTag = "Player"; // or "Enemy"
+		public string targetSeatTag = "seat";
 
 		private string SaveFileName => $"{targetTag}Save.json";
 		private string savePath => Path.Combine(Application.persistentDataPath, SaveFileName);
@@ -24,7 +25,8 @@ namespace Battle.Scripts.Value.Data
 			CharacterData data = JsonConvert.DeserializeObject<CharacterData>(json);
 
 			// 2. 현재 씬의 해당 캐릭터들 순회
-			GameObject[] characters = GameObject.FindGameObjectsWithTag("Character");
+			targetSeatTag = targetTag + "Seat";
+			GameObject[] characters = GameObject.FindGameObjectsWithTag(targetSeatTag);
 			foreach (var obj in characters)
 			{
 				var id = obj.GetComponent<CharacterID>();

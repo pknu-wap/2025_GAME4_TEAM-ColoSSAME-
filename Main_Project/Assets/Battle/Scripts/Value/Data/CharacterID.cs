@@ -1,3 +1,4 @@
+using Battle.Scripts.Ai;
 using UnityEngine;
 
 namespace Battle.Scripts.Value.Data

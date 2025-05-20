@@ -1,5 +1,6 @@
 using System.IO;
 using System.Collections.Generic;
+using Battle.Scripts.Ai;
 using Battle.Scripts.Ai.CharacterCreator;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -9,10 +10,8 @@ namespace Battle.Scripts.Value.Data
     public class SaveManager : MonoBehaviour
     {
         public string targetTag = "Player"; // 저장 대상 태그 ("Player" or "Enemy")
-
         private string SaveFileName => $"{targetTag}Save.json";
         private string savePath => Path.Combine(Application.persistentDataPath, SaveFileName);
-
         public void TargetPlayer ()
         {
             targetTag = "Player";
@@ -23,14 +22,14 @@ namespace Battle.Scripts.Value.Data
             targetTag = "Enemy";
         }
 
-        public void Save(CharacterData data)
+        private void Save(CharacterData data)
         {
             string json = JsonConvert.SerializeObject(data, Formatting.Indented);
             File.WriteAllText(savePath, json);
             Debug.Log($"{targetTag} 저장 완료: {savePath}");
         }
 
-        public CharacterData Load()
+        private CharacterData Load()
         {
             if (File.Exists(savePath))
             {
@@ -52,6 +51,7 @@ namespace Battle.Scripts.Value.Data
             {
                 var spum = obj.GetComponent<SPUM_Prefabs>();
                 var id = obj.GetComponent<CharacterID>();
+                BattleAI ai = obj.GetComponent<BattleAI>();
                 if (spum == null || id == null) continue;
 
                 var info = new CharacterInfo
@@ -83,8 +83,14 @@ namespace Battle.Scripts.Value.Data
                     armorPath2 = spum.ImageElement[17].ItemPath,
                     armorPath3 = spum.ImageElement[18].ItemPath,
                     backPath = spum.ImageElement[19].ItemPath,
+                    weaponType1 = spum.ImageElement[20].PartSubType,
                     weaponPath1 = spum.ImageElement[20].ItemPath,
-                    weaponPath2 = spum.ImageElement[21].ItemPath
+                    weaponType2 = spum.ImageElement[21].PartSubType,
+                    weaponPath2 = spum.ImageElement[21].ItemPath,
+                    ATK = ai.damage,
+                    CON = ai.hp,
+                    classType = ai.Class,
+                    weaponType = ai.weaponType
                 };
 
                 data.characters[id.characterKey] = info;
@@ -103,6 +109,8 @@ namespace Battle.Scripts.Value.Data
                 var id = obj.GetComponent<CharacterID>();
                 var spum = obj.GetComponent<SPUM_Prefabs>();
                 var createTest = obj.GetComponent<CreateTest>();
+                BattleAI ai = obj.GetComponent<BattleAI>();
+                obj.GetComponent<RandomCharacter>().Reset();
                 if (id == null || spum == null || !loaded.characters.ContainsKey(id.characterKey)) continue;
 
                 var info = loaded.characters[id.characterKey];
@@ -132,8 +140,14 @@ namespace Battle.Scripts.Value.Data
                 spum.ImageElement[17].ItemPath = info.armorPath2;
                 spum.ImageElement[18].ItemPath = info.armorPath3;
                 spum.ImageElement[19].ItemPath = info.backPath;
+                spum.ImageElement[20].PartSubType = info.weaponType1;
                 spum.ImageElement[20].ItemPath = info.weaponPath1;
+                spum.ImageElement[21].PartSubType = info.weaponType2;
                 spum.ImageElement[21].ItemPath = info.weaponPath2;
+                ai.damage = info.ATK;
+                ai.hp = info.CON;
+                ai.Class = info.classType;
+                ai.weaponType = info.weaponType;
 
                 createTest?.RerenderAllParts(obj);
             }
