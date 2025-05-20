@@ -52,6 +52,7 @@ namespace Battle.Scripts.Ai.CharacterCreator
         private bool hasWeapon;
         private bool hasShield;
         private Random rand = new();
+        private string weaponType = "";
 
         private void Start()
         {
@@ -140,7 +141,6 @@ namespace Battle.Scripts.Ai.CharacterCreator
             hasWeapon = false;
             Tester.GetComponent<SPUM_Prefabs>().ImageElement[21].PartSubType = "Shield";
             ApplySpritePath(21, 22, ShieldPath);
-            SetWeapon(20, RandAsset(0,2), 0,0);
         }
 
         private void Dagger(int type)
@@ -152,13 +152,12 @@ namespace Battle.Scripts.Ai.CharacterCreator
             WeaponPath = DaggerFolder;
             WeaponPath += "/Dagger_" + type;
             Tester.GetComponent<SPUM_Prefabs>().ImageElement[21].PartSubType = "Dagger";
-            Debug.Log($"{gameObject.name} has Dagger");
             ApplySpritePath(21, 22, WeaponPath);
         }
         private void SetWeapon(int index, int asset, int type, int shieldType)
         {
             spum.ImageElement[index].Structure = "Weapons";
-            string weaponType = "";
+            weaponType = "";
             if (!hasWeapon)
             {
                 if (asset < 7)
@@ -170,21 +169,18 @@ namespace Battle.Scripts.Ai.CharacterCreator
                             if (type == 0) type = RandAsset(1, 4);
                             WeaponPath += "/Sword_" + type;
                             weaponType = "Sword";
-                            Debug.Log($"{gameObject.name} has {weaponType}");
                             break;
                         case 1:
                             WeaponPath = SpearFolder;
                             if (type == 0) type = RandAsset(1, 4);
                             WeaponPath += "/Spear_" + type;
                             weaponType = "Spear";
-                            Debug.Log($"{gameObject.name} has {weaponType}");
                             break;
                         case 2:
                             WeaponPath = AxeFolder;
                             if (type == 0) type = RandAsset(1, 3);
                             WeaponPath += "/Axe_" + type;
                             weaponType = "Axe";
-                            Debug.Log($"{gameObject.name} has {weaponType}");
                             break;
                         case 3:
                             if(hasShield) break;
@@ -192,7 +188,6 @@ namespace Battle.Scripts.Ai.CharacterCreator
                             if (type == 0) type = RandAsset(1, 3);
                             WeaponPath += "/Bow_" + type;
                             weaponType = "Bow";
-                            Debug.Log($"{gameObject.name} has {weaponType}");
                             break;
                         case 4:
                             if(hasShield) break;
@@ -200,7 +195,6 @@ namespace Battle.Scripts.Ai.CharacterCreator
                             if (type == 0) type = RandAsset(1, 2);
                             WeaponPath += "/Wand_" + type;
                             weaponType = "Wand";
-                            Debug.Log($"{gameObject.name} has {weaponType}");
                             break;
                         case 5:
                             if(hasShield) break;
@@ -218,6 +212,7 @@ namespace Battle.Scripts.Ai.CharacterCreator
                 else
                 {
                     Shield(shieldType);
+                    SetWeapon(20, RandAsset(0,2), 0,0);
                 }
                 hasWeapon = true;
             }
