@@ -62,7 +62,7 @@ namespace Battle.Scripts.Ai
 
             characterValue.maxHp = stats.hp;
             characterValue.currentHp = stats.hp;
-
+            addPrefab.AddWeapon(this);
             aiPath.maxSpeed = moveSpeed;
         }
 
@@ -86,7 +86,7 @@ namespace Battle.Scripts.Ai
         public CharacterValue characterValue;
 
         private Transform child;
-        private Transform Weapon;
+        public GameObject Weapon;
         
         public SpriteRenderer[] renderers;
         public Color[] originalColors;
@@ -106,17 +106,8 @@ namespace Battle.Scripts.Ai
             characterValue = GetComponent<CharacterValue>();
             addPrefab = GetComponent<AddPrefab>();
             addPrefab.AddWeapon(this);
-            addPrefab.LoadHpPrefab();
+            addPrefab.LoadHpPrefab(this);
             // HealthBar 자동 연결
-            Transform hb = transform.Find("UnitRoot/HealthBar");
-            if (hb != null)
-            {
-                HealthBar = hb.gameObject;
-            }
-            else
-            {
-                Debug.LogWarning($"{name}의 HealthBar를 찾을 수 없습니다.");
-            }
             Transform arrow = transform.Find("Bow"); //원거리 기본 무기: 활
             
             if (weaponType == WeaponType.Magic) arrow = transform.Find("Magic"); //마법사일 경우: 마법
@@ -205,8 +196,11 @@ namespace Battle.Scripts.Ai
             return Vector2.Distance(transform.position, Retreater.position) <= 0.1f;
         }
 
-        public void UseSkill() => Debug.Log($"{gameObject.name} UseSkill");
-
+        public void UseSkill()
+        {
+            
+        }
+        
         public void TakeDamage(float amount)
         {
             characterValue.TakeDamage(amount);
@@ -269,7 +263,6 @@ namespace Battle.Scripts.Ai
             PlayerCollider = GetComponent<CircleCollider2D>();
 
             // Weapon 연결
-            Weapon = transform.Find(weaponType.ToString());
             if (Weapon != null)
             {
                 if (weaponType != WeaponType.Bow && weaponType != WeaponType.Magic)
@@ -323,10 +316,6 @@ namespace Battle.Scripts.Ai
             PlayerCollider.isTrigger = true;
             PlayerCollider.radius = 0.5f;
             PlayerCollider.offset = new Vector2(0f, 0f);
-
-            // HealthBar 연결
-            Transform hb = transform.Find("UnitRoot/HealthBar");
-            if (hb != null) HealthBar = hb.gameObject;
 
             // A* 알고리즘 연결
             if (GetComponent<AIPath>() == null)

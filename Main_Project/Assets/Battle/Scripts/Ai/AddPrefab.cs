@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Battle.Scripts.Ai.Weapon;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -7,14 +8,36 @@ namespace Battle.Scripts.Ai
 {
     public class AddPrefab : MonoBehaviour
     {
-        public string HpPrefabAddress = "Prefabs/HealthBar/HealthBar1";
+        public string HpPrefabAddress = "Prefabs/HealthBar/";
         public string WeaponPrefabAddress = "Prefabs/Weapon/";
 
         private Dictionary<string, Transform> weaponCache = new();
 
-        public void LoadHpPrefab()
+        public void LoadHpPrefab(BattleAI battleAI)
         {
-            Addressables.LoadAssetAsync<GameObject>(HpPrefabAddress).Completed += OnHpPrefabLoaded;
+            string fullAddress = HpPrefabAddress + gameObject.tag;
+
+            Addressables.LoadAssetAsync<GameObject>(fullAddress).Completed += handle =>
+            {
+                if (handle.Status == AsyncOperationStatus.Succeeded)
+                {
+                    GameObject prefab = handle.Result;
+                    GameObject instance = Instantiate(prefab, gameObject.transform);
+
+                    instance.name = "HealthBar";
+
+                    Vector3 pos = instance.transform.localPosition;
+                    pos.y -= 1.2f;
+                    instance.transform.localPosition = pos;
+
+                    battleAI.HealthBar = instance;
+                    Debug.Log($"[{battleAI.name}] HealthBar 연결 완료: {instance.name}");
+                }
+                else
+                {
+                    Debug.LogError($"[{battleAI.name}] HP 프리팹 로드 실패: {fullAddress}");
+                }
+            };
         }
 
         public void AddWeapon(BattleAI battleAI)
@@ -22,15 +45,21 @@ namespace Battle.Scripts.Ai
             string weaponName = battleAI.weaponType.ToString();
             string fullAddress = WeaponPrefabAddress + weaponName;
 
-            // ✅ 캐시에 있는 무기 제거
-            if (weaponCache.TryGetValue(weaponName, out var existing))
+            // ✅ 이전 무기 제거
+            if (battleAI.Weapon != null)
             {
-                Destroy(existing.gameObject);
-                weaponCache.Remove(weaponName);
-                Debug.Log($"기존 무기 제거: {weaponName}");
+                Destroy(battleAI.Weapon);
+                Debug.Log($"[{battleAI.name}] 이전 무기 제거 완료");
             }
 
-            // ✅ Addressable로 무기 로드
+            // ✅ 참조 초기화
+            battleAI.Weapon = null;
+            battleAI.weaponTrigger = null;
+            battleAI.arrowWeaponTrigger = null;
+            battleAI.arrowWeaponTrigger = null;
+            weaponCache.Remove(weaponName);
+
+            // ✅ Addressable 로드
             Addressables.LoadAssetAsync<GameObject>(fullAddress).Completed += handle =>
             {
                 if (handle.Status == AsyncOperationStatus.Succeeded)
@@ -43,30 +72,37 @@ namespace Battle.Scripts.Ai
                     instance.transform.localRotation = Quaternion.identity;
                     instance.layer = LayerMask.NameToLayer("Hidden");
 
-                    // ✅ 캐시 갱신
+                    // ✅ 연결 및 캐시
+                    battleAI.Weapon = instance;
                     weaponCache[weaponName] = instance.transform;
 
-                    Debug.Log($"무기 생성 완료: {weaponName}");
+                    // ✅ 무기 타입에 따라 스크립트 연결
+                    if (battleAI.weaponType is WeaponType.Bow or WeaponType.Magic)
+                    {
+                        battleAI.arrowWeaponTrigger = instance.GetComponent<ArrowWeapon>();
+                        if (battleAI.arrowWeaponTrigger != null)
+                        {
+                            battleAI.arrowWeaponTrigger.Initialize(battleAI, instance);
+                            Debug.Log($"[{battleAI.name}] 원거리 무기 초기화 완료");
+                        }
+                    }
+                    else
+                    {
+                        battleAI.weaponTrigger = instance.GetComponent<WeaponTrigger>();
+                        if (battleAI.weaponTrigger != null)
+                        {
+                            battleAI.weaponTrigger.Initialize(battleAI);
+                            Debug.Log($"[{battleAI.name}] 근접 무기 초기화 완료");
+                        }
+                    }
+
+                    Debug.Log($"[{battleAI.name}] 무기 연결 완료: {weaponName}");
                 }
                 else
                 {
-                    Debug.LogError($"무기 프리팹 로드 실패: {fullAddress}");
+                    Debug.LogError($"[{battleAI.name}] 무기 프리팹 로드 실패: {fullAddress}");
                 }
             };
-        }
-
-        private void OnHpPrefabLoaded(AsyncOperationHandle<GameObject> handle)
-        {
-            if (handle.Status == AsyncOperationStatus.Succeeded)
-            {
-                GameObject prefab = handle.Result;
-                Instantiate(prefab, Vector3.zero, Quaternion.identity);
-                Debug.Log("HP 프리팹 인스턴스 생성 완료");
-            }
-            else
-            {
-                Debug.LogError($"HP 프리팹 로드 실패: {HpPrefabAddress}");
-            }
         }
     }
 }

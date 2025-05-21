@@ -152,18 +152,6 @@ namespace Battle.Scripts.Ai.CharacterCreator
             spum.ImageElement[21].ItemPath = "";
             spum.ImageElement[21].Color = Color.white;
         }
-
-        private void Shield(int type)
-        {
-            selectedClass = ClassType.Warrior;
-            var ShieldPath = ShieldFolder;
-            ShieldPath += "/Shield_" + type;
-            hasShield = true;
-            hasWeapon = false;
-            spum.ImageElement[21].PartSubType = "Shield";
-            ApplySpritePath(21, 22, ShieldPath);
-        }
-
         private void Dagger(int type)
         {
             WeaponPath = DaggerFolder;

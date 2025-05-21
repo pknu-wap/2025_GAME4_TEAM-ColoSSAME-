@@ -128,6 +128,7 @@ namespace Battle.Scripts.ImageManager
 
             // 👉 Pannel에서 Target.name과 일치하는 객체의 tag를 가져와 저장 폴더 결정
             string matchingTag = GetMatchingPannelTag(Target.name);
+            Debug.Log(matchingTag);
             string folderPath = Path.Combine(baseSavePath, matchingTag);
             if (!Directory.Exists(folderPath))
                 Directory.CreateDirectory(folderPath);
