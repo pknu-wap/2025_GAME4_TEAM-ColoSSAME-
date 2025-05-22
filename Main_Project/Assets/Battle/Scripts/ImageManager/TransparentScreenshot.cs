@@ -42,6 +42,7 @@ namespace Battle.Scripts.ImageManager
 
                 string tag = pannel.tag;
                 string folderPath = Path.Combine(baseSavePath, tag);
+                Debug.Log($"tag : {tag} path : {baseSavePath}");
                 if (!Directory.Exists(folderPath))
                 {
                     Debug.LogWarning($"폴더가 존재하지 않음: {folderPath}");
