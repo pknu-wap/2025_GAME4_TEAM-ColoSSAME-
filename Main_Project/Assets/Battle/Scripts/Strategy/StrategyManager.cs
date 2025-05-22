@@ -28,7 +28,7 @@ namespace Battle.Scripts.Strategy
                 Debug.Log(characters[i].name);
                 transforms[i] = characters[i].transform.position;
             }
-            OneOneOneOne();
+            TwoTwo();
         }
 
         private void ResetCharacters()
@@ -46,7 +46,7 @@ namespace Battle.Scripts.Strategy
             }
         }
 
-        private void OneTwoOne()
+        public void OneTwoOne()
         {
             ActivePlayer();
             ResetCharacters();
@@ -56,14 +56,24 @@ namespace Battle.Scripts.Strategy
             players[3].transform.position = new Vector2(2, 0);
         }
 
-        private void OneOneOneOne()
+        public void TwoTwo()
         {
             ActivePlayer();
             ResetCharacters();
-            for (int i = 0; i < players.Length; i++)
-            {
-                players[i].transform.position = new Vector2(i-1.5f,transform.position.y); 
-            }
+            players[0].transform.position = new Vector2(-1, -1);
+            players[1].transform.position = new Vector2(-1, 1);
+            players[2].transform.position = new Vector2(1, -1);
+            players[3].transform.position = new Vector2(1, 1);
+        }
+
+        public void OneOneTwo ()
+        {
+            ActivePlayer();
+            ResetCharacters();
+            players[0].transform.position = new Vector2(-1.5f, 0);
+            players[1].transform.position = new Vector2(0, 0);
+            players[2].transform.position = new Vector2(1, -1);
+            players[3].transform.position = new Vector2(1, 1);
         }
 
         public void ResetCharacter ()

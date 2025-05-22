@@ -44,9 +44,12 @@ namespace Battle.Scripts.Value.Data
 
         public void SaveFromButton()
         {
-            CharacterData data = new CharacterData();
+            // 1. 기존 저장 데이터 불러오기
+            CharacterData data = Load();
+        
+            // 2. 현재 씬의 대상 캐릭터 찾기
             GameObject[] characters = GameObject.FindGameObjectsWithTag(targetTag);
-
+        
             foreach (var obj in characters)
             {
                 var spum = obj.GetComponent<SPUM_Prefabs>();
@@ -54,10 +57,18 @@ namespace Battle.Scripts.Value.Data
                 BattleAI ai = obj.GetComponent<BattleAI>();
                 if (spum == null || id == null) continue;
 
+                // ✅ characterKey가 10 이상이면 저장하지 않음
+                if (int.TryParse(id.characterKey, out int keyAsInt) && keyAsInt >= 10)
+                {
+                    Debug.Log($"Character ID {keyAsInt}는 저장되지 않음 (10 이상)");
+                    continue;
+                }
+
                 var info = new CharacterInfo
                 {
                     characterKey = id.characterKey,
                     name = obj.name,
+                    // ... 이하 동일
                     bodyPath1 = spum.ImageElement[0].ItemPath,
                     bodyPath2 = spum.ImageElement[1].ItemPath,
                     bodyPath3 = spum.ImageElement[2].ItemPath,
@@ -92,12 +103,15 @@ namespace Battle.Scripts.Value.Data
                     classType = ai.Class,
                     weaponType = ai.weaponType
                 };
-
+        
+                // 3. 기존에 있으면 덮어쓰기, 없으면 추가
                 data.characters[id.characterKey] = info;
             }
-
+        
+            // 4. 저장
             Save(data);
         }
+
 
         public void LoadFromButton()
         {

@@ -4,11 +4,22 @@ using UnityEngine;
 
 namespace Battle.Scripts.Value.Data
 {
-    public class CharacterTransform : MonoBehaviour
-    {
-        public string targetTag = "Player"; // or "Enemy"
+    public class CharacterTransform : MonoBehaviour {
+        public string targetTag;
 
         private string SaveFileName => $"{targetTag}Save.json";
+        
+        public void TargetPlayer ()
+        {
+            targetTag = "Player";
+        }
+
+        public void TargetEnemy ()
+        {
+            targetTag = "Enemy";
+        }
+        
+        
         private string savePath => Path.Combine(Application.persistentDataPath, SaveFileName);
 
         public void LoadTransform()
@@ -18,13 +29,13 @@ namespace Battle.Scripts.Value.Data
                 Debug.LogWarning("불러올 위치 파일이 존재하지 않습니다.");
                 return;
             }
-
+            Debug.Log(savePath);
             // 1. JSON 파일 불러오기
             string json = File.ReadAllText(savePath);
             CharacterData data = JsonConvert.DeserializeObject<CharacterData>(json);
 
             // 2. 씬의 모든 캐릭터 순회
-            GameObject[] characters = GameObject.FindGameObjectsWithTag("Player");
+            GameObject[] characters = GameObject.FindGameObjectsWithTag(targetTag);
             foreach (var obj in characters)
             {
                 var id = obj.GetComponent<CharacterID>();

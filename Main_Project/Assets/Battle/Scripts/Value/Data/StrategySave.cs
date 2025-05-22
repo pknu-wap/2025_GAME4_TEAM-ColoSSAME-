@@ -29,6 +29,7 @@ namespace Battle.Scripts.Value.Data
 			GameObject[] characters = GameObject.FindGameObjectsWithTag(targetSeatTag);
 			foreach (var obj in characters)
 			{
+				Debug.Log(obj.name);
 				var id = obj.GetComponent<CharacterID>();
 				if (id == null || !data.characters.ContainsKey(id.characterKey)) continue;
 
