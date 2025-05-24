@@ -1,14 +1,32 @@
-using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class NegoController : MonoBehaviour
 {
-    public Action OnPuzzleComplete;
+    public delegate void PuzzleCompleteAction();
+    public event PuzzleCompleteAction OnPuzzleComplete;
 
-    public void CompletePuzzle()
+    public Button showPanelsButton; // negotiationPanel 안에 있는 버튼
+    private PuzzleManager manager;
+    private GameObject ownerInvestor;
+    private GameObject[] panelsToShow;
+
+    public void Init(PuzzleManager manager, GameObject investor, GameObject[] panelsToRestore)
     {
-        // 이 메서드를 퍼즐 3단계 완료 시 호출
+        this.manager = manager;
+        this.ownerInvestor = investor;
+        this.panelsToShow = panelsToRestore;
+
+        showPanelsButton.onClick.AddListener(() =>
+        {
+            foreach (var panel in panelsToShow)
+                panel.SetActive(true);
+            manager.ShowOtherInvestors(ownerInvestor);
+        });
+    }
+
+    public void Complete()
+    {
         OnPuzzleComplete?.Invoke();
-        gameObject.SetActive(false); // UI 닫기
     }
 }

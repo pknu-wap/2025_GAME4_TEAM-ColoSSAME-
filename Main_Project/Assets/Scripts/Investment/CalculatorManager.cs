@@ -7,14 +7,12 @@ public class CalculatorManager : MonoBehaviour
 {
     public int firstOperand;
     public int secondOperand;
-    public string operatorSymbol;
+    public char operatorSymbol;
     public int result;
 
     public bool isFirstSet = false;
     public bool isSecondSet = false;
     public bool isOperatorSet = false;
-
-    public InvestorEvent investorRef;
     
     public TextMeshProUGUI resultText;
     
@@ -35,7 +33,7 @@ public class CalculatorManager : MonoBehaviour
             Debug.Log("두 번째 숫자 : " +  secondOperand);
         }
     }
-    public void SetOperator(string op)
+    public void SetOperator(char op)
     {
         operatorSymbol = op;
         isOperatorSet = true;
@@ -49,10 +47,10 @@ public class CalculatorManager : MonoBehaviour
         {
             switch (operatorSymbol)
             {
-                case "+": result = firstOperand + secondOperand; break;
-                case "-": result = firstOperand - secondOperand; break;
-                case "*": result = firstOperand * secondOperand; break;
-                case "/": result = firstOperand / secondOperand; break;
+                case '+': result = firstOperand + secondOperand; break;
+                case '-': result = firstOperand - secondOperand; break;
+                case '*': result = firstOperand * secondOperand; break;
+                case '/': result = firstOperand / secondOperand; break;
             } // first, second 정수에 '0'은 들어가지 않으므로 그냥 나눈다.
         }
 
@@ -84,9 +82,5 @@ public class CalculatorManager : MonoBehaviour
     public void ResetStatus()
     {
         hasAddedMoney = false;
-    }
-    public void OnPuzzleComplete()
-    {
-        investorRef.FinishPuzzle(); // 👈 완료 신호 보냄
     }
 }
