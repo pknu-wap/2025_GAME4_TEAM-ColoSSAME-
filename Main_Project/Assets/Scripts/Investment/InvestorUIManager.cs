@@ -23,4 +23,6 @@ public class InvestorUImanager : MonoBehaviour
             panel.SetActive(true);
         }
     }
+    
+    
 }
