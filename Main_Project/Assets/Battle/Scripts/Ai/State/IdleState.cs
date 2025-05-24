@@ -20,7 +20,6 @@ namespace Battle.Scripts.Ai.State
         public void EnterState()
         {
             ai.StopMoving();
-            Debug.Log($"{ai} : {ai.StateMachine.currentState}");
             ai.aiAnimator.Reset();
             ai.aiAnimator.StopMove();
             canMove = false;
@@ -41,7 +40,7 @@ namespace Battle.Scripts.Ai.State
             if (isChase)
             {
                 if (!ai.HasEnemyInSight()) return;
-                
+                Debug.Log($"{ai} : {ai.StateMachine.currentState}");
                 ai.destinationSetter.target = ai.CurrentTarget;
                 if (ai.IsInAttackRange())
                 {

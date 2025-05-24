@@ -59,8 +59,7 @@ namespace Battle.Scripts.Ai.State
             ai.weaponTrigger.DeactivateCollider();
             yield return new WaitForSeconds(ai.AttackDelay / 2);
             
-            if(ai.weaponType == WeaponType.ShortSword) ai.StateMachine.ChangeState(new IdleState(ai,false,ai.waitTime));
-            else ai.StateMachine.ChangeState(new IdleState(ai,true,ai.waitTime));
+            ai.StateMachine.ChangeState(new IdleState(ai,false,ai.waitTime));
         }
 
         public void UpdateState() { }

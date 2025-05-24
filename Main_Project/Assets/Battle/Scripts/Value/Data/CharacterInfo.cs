@@ -45,5 +45,7 @@ namespace Battle.Scripts.Value.Data
         
         //character 위치
         public float x, y, z;
+        //character 출전여부
+        public bool IsDeployed;
     }
 }

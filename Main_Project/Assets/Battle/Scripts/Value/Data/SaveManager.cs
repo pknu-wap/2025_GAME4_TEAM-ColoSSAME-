@@ -57,13 +57,6 @@ namespace Battle.Scripts.Value.Data
                 BattleAI ai = obj.GetComponent<BattleAI>();
                 if (spum == null || id == null) continue;
 
-                // ✅ characterKey가 10 이상이면 저장하지 않음
-                if (int.TryParse(id.characterKey, out int keyAsInt) && keyAsInt >= 10)
-                {
-                    Debug.Log($"Character ID {keyAsInt}는 저장되지 않음 (10 이상)");
-                    continue;
-                }
-
                 var info = new CharacterInfo
                 {
                     characterKey = id.characterKey,
@@ -101,7 +94,8 @@ namespace Battle.Scripts.Value.Data
                     ATK = ai.damage,
                     CON = ai.hp,
                     classType = ai.Class,
-                    weaponType = ai.weaponType
+                    weaponType = ai.weaponType,
+                    IsDeployed = false
                 };
         
                 // 3. 기존에 있으면 덮어쓰기, 없으면 추가
@@ -117,14 +111,14 @@ namespace Battle.Scripts.Value.Data
         {
             CharacterData loaded = Load();
             GameObject[] characters = GameObject.FindGameObjectsWithTag(targetTag);
-
             foreach (var obj in characters)
             {
                 var id = obj.GetComponent<CharacterID>();
                 var spum = obj.GetComponent<SPUM_Prefabs>();
                 var createTest = obj.GetComponent<CreateTest>();
+                var resetCharacter = obj.GetComponent<RandomCharacter>();
                 BattleAI ai = obj.GetComponent<BattleAI>();
-                obj.GetComponent<RandomCharacter>().Reset();
+                resetCharacter?.Reset();
                 if (id == null || spum == null || !loaded.characters.ContainsKey(id.characterKey)) continue;
 
                 var info = loaded.characters[id.characterKey];
@@ -164,6 +158,15 @@ namespace Battle.Scripts.Value.Data
                 ai.weaponType = info.weaponType;
 
                 createTest?.RerenderAllParts(obj);
+                if (targetTag == "Player")
+                {
+                    ai.FlipToRight();
+                }
+                else
+                {
+                    ai.FlipToLeft();
+                }
+                ai.SetupComponents();
             }
 
             Debug.Log($"{targetTag} 캐릭터 로드 완료");

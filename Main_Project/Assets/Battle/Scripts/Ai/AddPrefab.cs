@@ -40,10 +40,10 @@ namespace Battle.Scripts.Ai
                     pos.y -= 1.2f;
                     instance.transform.localPosition = pos;
 
-                    // ✅ BattleAI에 연결
+                    // BattleAI에 연결
                     battleAI.HealthBar = instance;
 
-                    // ✅ CharacterValue에도 HealthBar 컴포넌트 연결
+                    // CharacterValue에도 HealthBar 컴포넌트 연결
                     var characterValue = battleAI.GetComponent<CharacterValue>();
                     if (characterValue != null)
                     {
@@ -74,21 +74,21 @@ namespace Battle.Scripts.Ai
             string weaponName = battleAI.weaponType.ToString();
             string fullAddress = WeaponPrefabAddress + weaponName;
 
-            // ✅ 이전 무기 제거
+            // 이전 무기 제거
             if (battleAI.Weapon != null)
             {
                 Destroy(battleAI.Weapon);
                 Debug.Log($"[{battleAI.name}] 이전 무기 제거 완료");
             }
 
-            // ✅ 참조 초기화
+            // 참조 초기화
             battleAI.Weapon = null;
             battleAI.weaponTrigger = null;
             battleAI.arrowWeaponTrigger = null;
             battleAI.arrowWeaponTrigger = null;
             weaponCache.Remove(weaponName);
 
-            // ✅ Addressable 로드
+            // Addressable 로드
             Addressables.LoadAssetAsync<GameObject>(fullAddress).Completed += handle =>
             {
                 if (handle.Status == AsyncOperationStatus.Succeeded)
@@ -101,11 +101,11 @@ namespace Battle.Scripts.Ai
                     instance.transform.localRotation = Quaternion.identity;
                     instance.layer = LayerMask.NameToLayer("Hidden");
 
-                    // ✅ 연결 및 캐시
+                    // 연결 및 캐시
                     battleAI.Weapon = instance;
                     weaponCache[weaponName] = instance.transform;
 
-                    // ✅ 무기 타입에 따라 스크립트 연결
+                    // 무기 타입에 따라 스크립트 연결
                     if (battleAI.weaponType is WeaponType.Bow or WeaponType.Magic)
                     {
                         battleAI.arrowWeaponTrigger = instance.GetComponent<ArrowWeapon>();

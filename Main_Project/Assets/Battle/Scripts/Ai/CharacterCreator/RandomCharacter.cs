@@ -59,7 +59,7 @@ namespace Battle.Scripts.Ai.CharacterCreator
         public ClassType selectedClass;
         private BattleAI ai;
 
-        private void Start()
+        private void Awake()
         {
             ai = GetComponent<BattleAI>();
             spum = GetComponent<SPUM_Prefabs>();
@@ -114,6 +114,8 @@ namespace Battle.Scripts.Ai.CharacterCreator
         public void Randomize()
         {
             Reset();
+            if(ai.team == TeamType.Player) ai.FlipToRight();
+            else ai.FlipToLeft();
 
             // 1. 무작위 직업 선택
             Array values = Enum.GetValues(typeof(ClassType));

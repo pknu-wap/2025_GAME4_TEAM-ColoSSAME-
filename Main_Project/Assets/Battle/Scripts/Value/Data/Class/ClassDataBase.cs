@@ -6,15 +6,55 @@ using Battle.Scripts.Ai;
 
 namespace Battle.Scripts.Value.Data.Class
 {
+    public struct ClassRandomRange
+    {
+        public float hpRange;
+        public float attackRange;
+        public float defenseRange;
+        public float moveSpeedRange;
+        public float attackDelayRange;
+    }
     public static class ClassDataBase
     {
+        public static readonly Dictionary<ClassType, ClassRandomRange> ClassRandomRanges = new()
+        {
+            { ClassType.Warrior, new ClassRandomRange {
+                hpRange = 25,
+                attackRange = 4.5f,
+                defenseRange = 0,
+                moveSpeedRange = 0,
+                attackDelayRange = 0
+            }},
+            { ClassType.Thief, new ClassRandomRange {
+                hpRange = 25,
+                attackRange = 4.5f,
+                defenseRange = 0,
+                moveSpeedRange = 0.2f,
+                attackDelayRange = 0
+            }},
+            { ClassType.Archer, new ClassRandomRange {
+                hpRange = 10,
+                attackRange = 4.5f,
+                defenseRange = 0,
+                moveSpeedRange = 0,
+                attackDelayRange = 0.1f
+            }},
+            { ClassType.Magician, new ClassRandomRange {
+                hpRange = 10,
+                attackRange = 4.5f,
+                defenseRange = 0,
+                moveSpeedRange = 0,
+                attackDelayRange = 0.2f
+            }},
+        };
+
         public static readonly Dictionary<ClassType, ClassStat> ClassStatsMap = new()
         {
             { ClassType.Warrior,
                 new ClassStat
                 {
-                    hp = 200,
-                    attack = 20,
+                    hp = 75,
+                    attack = 5.5f,
                     defense = 10,
                     moveSpeed = 2f,
                     attackRange = 1.2f,
@@ -26,8 +66,8 @@ namespace Battle.Scripts.Value.Data.Class
             { ClassType.Thief,
                 new ClassStat
                 { 
-                    hp = 120,
-                    attack = 30,
+                    hp = 75,
+                    attack = 5.5f,
                     defense = 5,
                     moveSpeed = 3f,
                     attackRange = 1.5f,
@@ -39,8 +79,8 @@ namespace Battle.Scripts.Value.Data.Class
             { ClassType.Archer,
                 new ClassStat
                 {
-                    hp = 100,
-                    attack = 25,
+                    hp = 40,
+                    attack = 5.5f,
                     defense = 5,
                     moveSpeed = 2.5f,
                     attackRange = 7f,
@@ -52,8 +92,8 @@ namespace Battle.Scripts.Value.Data.Class
             { ClassType.Magician,
                 new ClassStat
                 {
-                    hp = 80,
-                    attack = 35,
+                    hp = 40,
+                    attack = 5.5f,
                     defense = 3,
                     moveSpeed = 1.8f,
                     attackRange = 6f,

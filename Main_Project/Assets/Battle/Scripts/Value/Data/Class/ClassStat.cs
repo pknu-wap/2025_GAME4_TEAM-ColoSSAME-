@@ -13,6 +13,7 @@ namespace Battle.Scripts.Value.Data.Class
         public float moveSpeed;
         public float attackRange;
         public float attackDelay;
+        public float retreatDistance;
         public WeaponType weaponType;
         public string attackSoundPath;
     }

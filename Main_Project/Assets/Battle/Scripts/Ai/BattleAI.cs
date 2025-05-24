@@ -52,20 +52,46 @@ namespace Battle.Scripts.Ai
                 return;
             }
 
-            hp = stats.hp;
-            damage = stats.attack;
-            defense = stats.defense;
-            moveSpeed = stats.moveSpeed;
-            attackRange = stats.attackRange;
-            AttackDelay = stats.attackDelay;
-            weaponType = stats.weaponType;
+            if (!ClassDataBase.ClassRandomRanges.TryGetValue(Class, out var range))
+            {
+                Debug.LogError($"[BattleAI] {Class}의 랜덤 범위 없음");
+                return;
+            }
 
-            characterValue.maxHp = stats.hp;
-            characterValue.currentHp = stats.hp;
+            hp = RandomInRangeInt(stats.hp, range.hpRange);
+            damage = RandomInRangeFloat(stats.attack, range.attackRange);
+            defense = RandomInRangeInt(stats.defense, range.defenseRange);
+            moveSpeed = RandomInRangeFloat(stats.moveSpeed, range.moveSpeedRange);
+            attackRange = stats.attackRange;
+            AttackDelay = RandomInRangeFloat(stats.attackDelay, range.attackDelayRange);
+            weaponType = stats.weaponType;
+            retreatDistance = stats.retreatDistance;
+
+            characterValue.maxHp = hp;
+            characterValue.currentHp = hp;
+
             addPrefab.AddWeapon(this);
+            addPrefab.LoadHpPrefab(this);
             aiPath.maxSpeed = moveSpeed;
+            HealthBar?.GetComponent<HealthBarFixDirection>()?.ForceFix();
         }
 
+        private float RandomInRangeFloat(float baseValue, float range)
+        {
+            return range > 0 ? Mathf.Round(Random.Range(baseValue - range, baseValue + range) * 10f) / 10f : baseValue;
+        }
+        
+        private float RandomInRangeInt(float baseValue, float range)
+        {
+            if (range <= 0) return Mathf.Round(baseValue); // 또는 (int)baseValue
+
+            float min = baseValue - range;
+            float max = baseValue + range;
+
+            int result = Random.Range(Mathf.CeilToInt(min), Mathf.FloorToInt(max + 1)); // 정수 범위
+
+            return result; // float으로 반환되지만 값은 항상 정수 (예: 117.0f)
+        }
         
         public bool IsRetreating = false;
 
@@ -103,11 +129,6 @@ namespace Battle.Scripts.Ai
             StateMachine = new StateMachine();
             characterValue = GetComponent<CharacterValue>();
             addPrefab = GetComponent<AddPrefab>();
-            SetupComponents();
-        }
-
-        private void Start()
-        {
             isWinner = IsWinner.Instance;
             StartCoroutine(DelayedStart());
         }
@@ -122,15 +143,17 @@ namespace Battle.Scripts.Ai
             }
             
             StateMachine.ChangeState(new IdleState(this, true, 0f));
-            Debug.Log("시작");
+        }
+
+        public void BattleStart()
+        {
+            StateMachine.ChangeState(new IdleState(this, true, 0f));
         }
 
         private void Update()
         {
             StateMachine.Update();
         }
-        
-        
 
         public bool HasEnemyInSight()
         {
@@ -161,8 +184,18 @@ namespace Battle.Scripts.Ai
         public void Flip(Vector3 target)
         {
             Vector2 direction = (target - transform.position).normalized;
-            transform.localScale = new Vector3(direction.x > 0 ? -1f : 1f, 1f, 1f);
+            transform.localScale = new Vector3(direction.x > 0 ? -0.8f : 0.8f, 0.8f, 0.8f);
             HealthBar?.GetComponent<HealthBarFixDirection>()?.ForceFix();
+        }
+        
+        public void FlipToRight()
+        {
+            Flip(transform.position + Vector3.right);
+        }
+
+        public void FlipToLeft()
+        {
+            Flip(transform.position + Vector3.left);
         }
 
         public void StopMoving()
@@ -236,17 +269,11 @@ namespace Battle.Scripts.Ai
         [ContextMenu("Setup AI Components Automatically")]
         public void SetupComponents()
         {
-            // HealthBar 자동 연결
-            addPrefab.LoadHpPrefab(this);
-            
             characterValue = GetComponent<CharacterValue>();
             characterValue.StartSetting();
 
             rb = GetComponent<Rigidbody2D>();
             PlayerCollider = GetComponent<CircleCollider2D>();
-
-            // Weapon 연결
-            addPrefab.AddWeapon(this);
             
             // Retreater 생성 및 연결
             if (Retreater == null)
@@ -295,6 +322,8 @@ namespace Battle.Scripts.Ai
             aiPath.orientation = OrientationMode.YAxisForward;
             aiPath.whenCloseToDestination = CloseToDestinationMode.ContinueToExactDestination;
             aiPath.enableRotation = false;
+            
+            ApplyJobSettings();
         }
     }
 }
