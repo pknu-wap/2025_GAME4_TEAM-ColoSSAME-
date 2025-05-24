@@ -8,13 +8,13 @@ namespace Battle.Scripts.Ai.State
     {
 
         private BattleAI ai;
-        public DeadState(BattleAI ai)
-        {
-            this.ai = ai;
-        }
+        public DeadState(BattleAI ai) { this.ai = ai; }
         public void EnterState()
         {
+            Debug.Log($"{ai} : {ai.StateMachine.currentState}");
+            
             ai.aiAnimator.Dead();
+            
             ai.StartCoroutine(Dead());
         }
 

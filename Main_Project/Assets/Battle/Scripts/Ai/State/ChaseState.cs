@@ -1,6 +1,5 @@
 using Battle.Scripts.StateCore;
 using UnityEngine;
-
 namespace Battle.Scripts.Ai.State
 {
     public class ChaseState : IState
@@ -11,23 +10,28 @@ namespace Battle.Scripts.Ai.State
 
         public void EnterState()
         {
+            Debug.Log($"{ai} : {ai.StateMachine.currentState}");
+            ai.aiAnimator.Reset();
             ai.aiAnimator.Move();
         }
-
+        
         public void UpdateState()
         {
-            Debug.Log(ai.IsInAttackRange());
+            //Ai's attack-cool-time is true, target is in Range -> AttackState
             if (ai.IsInAttackRange() && ai.CanAttack()) ai.StateMachine.ChangeState(new AttackState(ai));
+            
             if (ai.CurrentTarget != null)
             {
+                ai.destinationSetter.target = ai.CurrentTarget;
                 ai.MoveTo(ai.CurrentTarget.position);
             }
             else
             {
                 ai.Targeting.FindNearestEnemy();
+                ai.StateMachine.ChangeState(new IdleState(ai, true,ai.waitTime));
             }
         }
 
-        public void ExitState() => ai.StopMoving();
+        public void ExitState(){}
     }
 }

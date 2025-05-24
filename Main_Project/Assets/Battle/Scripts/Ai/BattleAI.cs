@@ -1,17 +1,18 @@
 using System.Collections;
 using Battle.Scripts.Ai.State;
 using Battle.Scripts.Ai.Weapon;
-using Battle.Scripts.StateCore;
 using Battle.Scripts.Value;
-using Battle.Value;
+using Battle.Scripts.Value.HpBar;
 using Pathfinding;
+using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Serialization;
-
+using UnityEngine.UI;
+using Screen = UnityEngine.Device.Screen;
+using StateMachine = Battle.Scripts.StateCore.StateMachine;
 namespace Battle.Scripts.Ai
 {
     public enum TeamType { Player, Enemy }
-    public enum WeaponType { Sword = 0, LongSpear = 66, Axe = 100, shortSword = 83 }
+    public enum WeaponType { Sword = 0, LongSpear = 66, TwoHanded = 100, ShortSword = 83, Bow = 16, Magic = 33,}
 
     [RequireComponent(typeof(Rigidbody2D))]
     [RequireComponent(typeof(CircleCollider2D))]
@@ -19,7 +20,13 @@ namespace Battle.Scripts.Ai
     public class BattleAI : MonoBehaviour
     {
         public StateMachine StateMachine { get; private set; }
+        
         public Transform CurrentTarget;
+        public Transform tempTarget;
+        public Transform Retreater;
+        
+        public Vector2 retreatAreaMin = new Vector2(-7f, -3f);  // 좌하단 모서리
+        public Vector2 retreatAreaMax = new Vector2(7f, 3f);    // 우상단 모서리
 
         public TeamType team;
         public WeaponType weaponType;
@@ -28,20 +35,29 @@ namespace Battle.Scripts.Ai
         public float attackRange = 0.5f;
         public float moveSpeed = 2f;
         public float hp = 100f;
+        public float defense = 1f;
         public float damage = 1f;
+        public float retreatDistance = 3f;
+        public float waitTime = 0.25f;
+        public float stunTime = 0f;
+        
+        public bool IsRetreating = false;
+        
+        public GameObject arrowPrefab;
 
-        [Min(0.5f)] public float AttackDelay = 0.5f;
+        [Min(0.25f)] public float AttackDelay = 0.5f;
 
         private float lastAttackTime;
 
         public AiAnimator aiAnimator;
         public WeaponTrigger weaponTrigger;
+        public ArrowWeapon arrowWeaponTrigger;
         public GameObject HealthBar;
 
         public Targeting Targeting;
         public Rigidbody2D rb;
         private CircleCollider2D PlayerCollider;
-        private CharacterValue characterValue;
+        public CharacterValue characterValue;
 
         private Transform child;
         private Transform Weapon;
@@ -53,6 +69,8 @@ namespace Battle.Scripts.Ai
         public AIPath aiPath;
         public AIDestinationSetter destinationSetter;
         
+        public LayerMask obstacleMask;
+        
         public IsWinner isWinner;
 
         private void Awake()
@@ -60,7 +78,6 @@ namespace Battle.Scripts.Ai
             Targeting = new Targeting(this);
             StateMachine = new StateMachine();
             characterValue = GetComponent<CharacterValue>();
-            isWinner = FindObjectOfType<IsWinner>();
 
             // HealthBar 자동 연결
             Transform hb = transform.Find("UnitRoot/HealthBar");
@@ -72,16 +89,41 @@ namespace Battle.Scripts.Ai
             {
                 Debug.LogWarning($"{name}의 HealthBar를 찾을 수 없습니다.");
             }
+            Transform arrow = transform.Find("Bow"); //원거리 기본 무기: 활
+            
+            if (weaponType == WeaponType.Magic) arrow = transform.Find("Magic"); //마법사일 경우: 마법
+            
+            if (arrow != null)
+            {
+                if (arrowWeaponTrigger != null) // 원거리 무기 설정
+                {
+                    Debug.Log("원거리 무기 설정 시작");
+                    arrowWeaponTrigger.Initialize(this, arrow.gameObject);
+                }
+                arrowPrefab = arrow.gameObject;
+            }
+            else
+            {
+                Debug.LogWarning($"{name}의 원거리 무기를 찾을 수 없습니다.");
+            }
         }
 
         private void Start()
         {
-            if (weaponTrigger != null)
+            isWinner = IsWinner.Instance;
+            StartCoroutine(DelayedStart());
+        }
+
+        private IEnumerator DelayedStart()
+        {
+            yield return new WaitForSeconds(Random.Range(0f, 0.5f)); // 0~0.5초 사이 랜덤 대기
+            
+            if (weaponTrigger != null) // 근접 무기 설정
             {
                 weaponTrigger.Initialize(this);
             }
-
-            StateMachine.ChangeState(new IdleState(this));
+            
+            StateMachine.ChangeState(new IdleState(this, true, 0f));
         }
 
         private void Update()
@@ -102,28 +144,38 @@ namespace Battle.Scripts.Ai
             aiAnimator.StopMove();
             return Time.time >= lastAttackTime + AttackDelay;
         }
-
         public void RecordAttackTime() => lastAttackTime = Time.time;
 
         public bool IsInAttackRange()
         {
             if (CurrentTarget == null) return false;
+            StopMoving();
             return Vector2.Distance(transform.position, CurrentTarget.position) <= attackRange;
         }
 
         public void MoveTo(Vector3 target)
         {
-            Vector2 direction = (target - transform.position).normalized;
             aiPath.canMove = true;
-
-            transform.localScale = new Vector3(direction.x > 0 ? -1f : 1f, 1f, 1f);
-            HealthBar?.GetComponent<HealthBarFixDirection>()?.ForceFix();
-
-            if (Vector2.Distance(transform.position, target) <= attackRange)
-                aiPath.canMove = false;
+            Flip(target);
         }
 
-        public void StopMoving() => rb.velocity = Vector2.zero;
+        public void Flip(Vector3 target)
+        {
+            Vector2 direction = (target - transform.position).normalized;
+            transform.localScale = new Vector3(direction.x > 0 ? -1f : 1f, 1f, 1f);
+            HealthBar?.GetComponent<HealthBarFixDirection>()?.ForceFix();
+        }
+
+        public void StopMoving()
+        {
+            destinationSetter.target = null;
+            rb.velocity = Vector2.zero;
+            aiPath.canMove = false;
+        }
+
+        public bool IsInRetreatDistance() {
+            return Vector2.Distance(transform.position, Retreater.position) <= 0.1f;
+        }
 
         public void UseSkill() => Debug.Log($"{gameObject.name} UseSkill");
 
@@ -173,12 +225,13 @@ namespace Battle.Scripts.Ai
         public void Kill()
         {
             isWinner.Winner(gameObject);
+            Destroy(Retreater.gameObject);
             gameObject.SetActive(false);
             Destroy(gameObject);
         }
 
-        // warrior 설정창
-        [ContextMenu("Setup Warrior Components Automatically")]
+        // AI 설정창
+        [ContextMenu("Setup AI Components Automatically")]
         public void SetupComponents()
         {
             characterValue = GetComponent<CharacterValue>();
@@ -187,13 +240,36 @@ namespace Battle.Scripts.Ai
             rb = GetComponent<Rigidbody2D>();
             PlayerCollider = GetComponent<CircleCollider2D>();
 
-            Weapon = transform.Find("Weapon");
+            // Weapon 연결
+            Weapon = transform.Find(weaponType.ToString());
             if (Weapon != null)
             {
-                if (!Weapon.TryGetComponent(out weaponTrigger))
+                if (weaponType != WeaponType.Bow && weaponType != WeaponType.Magic)
                 {
-                    weaponTrigger = Weapon.gameObject.AddComponent<WeaponTrigger>();
+                    if (!Weapon.TryGetComponent(out weaponTrigger))
+                    {
+                        weaponTrigger = Weapon.gameObject.AddComponent<WeaponTrigger>();
+                    }
                 }
+                else
+                {
+                    if (!Weapon.TryGetComponent(out arrowWeaponTrigger))
+                    {
+                        Transform arrow = transform.Find("Bow");
+                        if(weaponType == WeaponType.Magic) arrow = transform.Find("Magic");
+                        arrowWeaponTrigger = Weapon.gameObject.AddComponent<ArrowWeapon>();
+                        if(arrow != null) arrowPrefab = arrow.gameObject;
+                    }
+                }
+            }
+            
+            // Retreater 생성 및 연결
+            if (Retreater == null)
+            {
+                GameObject retreatObj = new GameObject(this.gameObject.name + "Retreat");
+                var retreatTarget = retreatObj.AddComponent<RetreatTarget>();
+                retreatTarget.ai = this;
+                Retreater = retreatObj.transform;
             }
             
             // UnitRoot 연결
@@ -217,7 +293,7 @@ namespace Battle.Scripts.Ai
 
             // Collider 설정
             PlayerCollider.isTrigger = true;
-            PlayerCollider.radius = 0.25f;
+            PlayerCollider.radius = 0.5f;
             PlayerCollider.offset = new Vector2(0f, 0f);
 
             // HealthBar 연결
@@ -236,6 +312,7 @@ namespace Battle.Scripts.Ai
             
             // 태그 설정
             gameObject.tag = team.ToString();
+            
             Debug.Log("Warrior 설정이 완료되었습니다.");
         }
     }
