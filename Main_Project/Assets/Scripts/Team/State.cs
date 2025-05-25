@@ -6,6 +6,11 @@ using TMPro;
 using System.Linq;
 using Newtonsoft.Json;
 using System.IO;
+using Battle.Scripts.Value.Data;
+using UnityEngine.EventSystems;
+
+//battle ai 값바꾸기(느림)
+//json직접 변경(난이도 높음, 그러나 빠름)
 
 public class State : MonoBehaviour
 {
@@ -32,13 +37,16 @@ public class State : MonoBehaviour
     public TextMeshProUGUI trainResultText;//선수 훈련 값 텍스트
     public List<int> trainAdd = new List<int>{0,0,0};//훈련 더한 값 일시적 저장
 
-    public List<int> playerRole = new List<int>{0,0,0,0,0};//선수 직업
+    public List<int> playerRole;//선수 직업
     
+    public GameObject EnemyStatusText;
+
     private string SaveFileName => $"playerStateSave.json";
     private string savePath => Path.Combine(Application.persistentDataPath, SaveFileName);
 
    // public RandomCharacter randomcharacter;
     //public SaveManager savemanage;
+    public CharacterID characterid;
 
     void Start()
     {
@@ -53,9 +61,9 @@ public class State : MonoBehaviour
         trainSelect = trainSelect.ConvertAll(x => 0);
         trainSelectSave = trainSelectSave.ConvertAll(x => 0);
 
-        playerRole = new List<int>{ Random.Range(0,4), Random.Range(0,4), Random.Range(0,4), Random.Range(0,4), Random.Range(0,4),Random.Range(0,4),Random.Range(0,4),Random.Range(0,4) };//선수 직업
+        playerRole = new List<int>{ Random.Range(0,4), Random.Range(0,4), Random.Range(0,4), Random.Range(0,4), Random.Range(0,4),Random.Range(0,4),Random.Range(0,4),Random.Range(0,4),Random.Range(0,4)};//선수 직업
 
-        for (int i = 0; i < 8; i++)
+        for (int i = 0; i < 9; i++)
         {
             if (playerRole[i] == 0)//전사
             {
@@ -93,7 +101,7 @@ public class State : MonoBehaviour
 
     void Update()
     {
-        stateText.text = $"공격력 : {playerState[(fighterCount)*3]} \n방어력 : {playerState[(fighterCount)*3+1]} \n체력 : {playerState[(fighterCount)*3+2]}";//공격력, 방어력 표시
+        //stateText.text = $"공격력 : {playerState[(fighterCount)*3]} \n방어력 : {playerState[(fighterCount)*3+1]} \n체력 : {playerState[(fighterCount)*3+2]}";//공격력, 방어력 표시
         trainShow[0].text = $"{trainList[trainSelectSave[0+fighterCount*7]]}";//훈련 할 능력치
         trainShow[1].text = $"{trainList[trainSelectSave[1+fighterCount*7]]}";
         trainShow[2].text = $"{trainList[trainSelectSave[2+fighterCount*7]]}";
@@ -101,7 +109,6 @@ public class State : MonoBehaviour
         trainShow[4].text = $"{trainList[trainSelectSave[4+fighterCount*7]]}";
         trainShow[5].text = $"{trainList[trainSelectSave[5+fighterCount*7]]}";
         trainShow[6].text = $"{trainList[trainSelectSave[6+fighterCount*7]]}";
-
         trainResultText.text = $"공격력 : {playerState[(fighterCount)*3]} + <color=#00ffff>{trainResult[fighterCount*3]}</color> \n방어력 : {playerState[(fighterCount)*3+1]} + <color=#00ffff>{trainResult[fighterCount*3+1]}</color>  \n체력    : {playerState[(fighterCount)*3+2]} + <color=#00ffff>{trainResult[fighterCount*3+2]}</color> ";//주넘기시 후 표시할 선수 능력치
     
         getPlayerStateText.text = $"공격력 : {getPlayer[0]} \n방어력 : {getPlayer[1]} \n체력 : {getPlayer[2]}";//공격력, 방어력 표시
@@ -112,8 +119,9 @@ public class State : MonoBehaviour
         fighterCount = playerIndex;
         trainAdd = trainAdd.ConvertAll(x => 0);
         fighterButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector3(-90f, -10f);
+        EnemyStatusText.GetComponentInChildren<CharacterID>().characterKey = (fighterCount + 1).ToString();
     }
-
+    
     public void selectWeek(int dayIndex)//훈련 날짜
     {
         day = dayIndex;
