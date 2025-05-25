@@ -20,8 +20,8 @@ public class TournamentController : MonoBehaviour
         {
             currentTournament.quarterFinals.Add(new Match
             {
-                player1Key = characterKeys[i * 2],
-                player2Key = characterKeys[i * 2 + 1]
+                player1Key = FormatKey(characterKeys[i * 2]),
+                player2Key = FormatKey(characterKeys[i * 2 + 1])
             });
         }
 
@@ -34,7 +34,7 @@ public class TournamentController : MonoBehaviour
         currentTournament.quarterFinals[matchIndex].winnerKey = winnerKey;
         Debug.Log($"✅ 8강 {matchIndex + 1}경기 승자: {winnerKey}");
 
-        // 4강 준비 (자동 생성)
+        // 4강 자동 구성
         if (currentTournament.semiFinals.Count < 2 && AllMatchesFinished(currentTournament.quarterFinals))
         {
             for (int i = 0; i < 2; i++)
@@ -56,7 +56,7 @@ public class TournamentController : MonoBehaviour
         currentTournament.semiFinals[matchIndex].winnerKey = winnerKey;
         Debug.Log($"✅ 4강 {matchIndex + 1}경기 승자: {winnerKey}");
 
-        // 결승 준비
+        // 결승 구성
         if (currentTournament.finalMatch == null && AllMatchesFinished(currentTournament.semiFinals))
         {
             currentTournament.finalMatch = new Match
@@ -93,5 +93,13 @@ public class TournamentController : MonoBehaviour
     public TournamentData GetTournamentData()
     {
         return currentTournament;
+    }
+
+    // ✅ 숫자 키 → TeamXX 형식 보정 (오직 StartTournament()에서만 사용)
+    private string FormatKey(string key)
+    {
+        if (key.StartsWith("Team"))
+            return key;
+        return $"Team{key.PadLeft(2, '0')}";
     }
 }
