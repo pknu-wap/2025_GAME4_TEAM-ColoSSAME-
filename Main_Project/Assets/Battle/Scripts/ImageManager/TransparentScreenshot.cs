@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Battle.Scripts.Value.Data;
+using Newtonsoft.Json;
 using UnityEngine;
 
 namespace Battle.Scripts.ImageManager
@@ -20,7 +22,6 @@ namespace Battle.Scripts.ImageManager
         private void Awake()
         {
             baseSavePath = Path.Combine(Application.dataPath, "Battle/Resources/Images");
-            LoadAllSprites(); // 실행 시 자동 로드
         }
 
         [ContextMenu("사진만 저장")]
@@ -34,19 +35,11 @@ namespace Battle.Scripts.ImageManager
         {
             foreach (var pannel in Pannels)
             {
-                if (pannel == null)
-                {
-                    Debug.LogWarning("Pannel 리스트에 null이 있음.");
-                    continue;
-                }
+                if (pannel == null) continue;
 
                 string tag = pannel.tag;
                 string folderPath = Path.Combine(baseSavePath, tag);
-                if (!Directory.Exists(folderPath))
-                {
-                    Debug.LogWarning($"폴더가 존재하지 않음: {folderPath}");
-                    continue;
-                }
+                if (!Directory.Exists(folderPath)) continue;
 
                 string[] files = Directory.GetFiles(folderPath, "*.png");
                 bool matched = false;
@@ -54,9 +47,8 @@ namespace Battle.Scripts.ImageManager
                 foreach (var file in files)
                 {
                     string fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
-                    if (fileNameWithoutExt.Equals(pannel.name, StringComparison.OrdinalIgnoreCase))
+                    if (fileNameWithoutExt.Equals(pannel.GetComponent<CharacterID>().characterKey, StringComparison.OrdinalIgnoreCase))
                     {
-                        Debug.Log($"✅ 일치하는 이미지 찾음: {file} → {pannel.name}");
                         ApplySpriteToPannel(pannel, file);
                         matched = true;
                         break;
@@ -65,7 +57,93 @@ namespace Battle.Scripts.ImageManager
 
                 if (!matched)
                 {
-                    Debug.LogWarning($"❌ {pannel.name}에 대응하는 PNG 파일이 {folderPath}에 없음");
+                    Debug.LogWarning($"❌ {pannel.GetComponent<CharacterID>().characterKey}에 대응하는 PNG 파일이 {folderPath}에 없음");
+                }
+            }
+        }
+        
+        public void LoadSpriteForSingle(GameObject target, string path)
+        {
+            if (target == null) return;
+    
+            var id = target.GetComponent<CharacterID>();
+            if (id == null)
+            {
+                Debug.LogWarning("CharacterID 컴포넌트가 없습니다.");
+                return;
+            }
+
+            string folderPath = Path.Combine(baseSavePath, path); // 고정 경로
+            if (!Directory.Exists(folderPath))
+            {
+                Debug.LogWarning("지정된 폴더가 존재하지 않습니다: " + folderPath);
+                return;
+            }
+
+            string[] files = Directory.GetFiles(folderPath, "*.png");
+            foreach (var file in files)
+            {
+                string fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
+                if (fileNameWithoutExt.Equals(id.characterKey, StringComparison.OrdinalIgnoreCase))
+                {
+                    ApplySpriteToPannel(target, file);
+                    Debug.Log($"✅ 개별 이미지 적용 완료: {file}");
+                    return;
+                }
+            }
+
+            Debug.LogWarning($"❌ {id.characterKey}에 해당하는 이미지가 {folderPath}에 없음");
+        }
+
+        [ContextMenu("출전한 캐릭터 이미지만 불러오기")]
+        public void LoadOnlyDeployedSprites()
+        {
+            string filePath = Path.Combine(Application.persistentDataPath, "PlayerSave.json");
+
+            if (!File.Exists(filePath))
+            {
+                Debug.LogWarning("저장된 JSON 파일이 없습니다.");
+                return;
+            }
+
+            string json = File.ReadAllText(filePath);
+            CharacterData data = JsonConvert.DeserializeObject<CharacterData>(json);
+
+            HashSet<string> deployedKeys = new HashSet<string>();
+            foreach (var pair in data.characters)
+            {
+                if (pair.Value.IsDeployed)
+                    deployedKeys.Add(pair.Key);
+            }
+
+            if (deployedKeys.Count == 0)
+            {
+                Debug.Log("출전한 캐릭터가 없습니다.");
+                return;
+            }
+
+            foreach (var pannel in Pannels)
+            {
+                if (pannel == null) continue;
+                var id = pannel.GetComponent<CharacterID>();
+                if (id == null) continue;
+
+                if (!deployedKeys.Contains(id.characterKey)) continue;
+
+                string tag = pannel.tag;
+                string folderPath = Path.Combine(baseSavePath, tag);
+                if (!Directory.Exists(folderPath)) continue;
+
+                string[] files = Directory.GetFiles(folderPath, "*.png");
+                foreach (var file in files)
+                {
+                    string fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
+                    if (fileNameWithoutExt.Equals(id.characterKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        ApplySpriteToPannel(pannel, file);
+                        Debug.Log($"✅ 출전 캐릭터 이미지 적용됨: {file}");
+                        break;
+                    }
                 }
             }
         }
@@ -95,7 +173,7 @@ namespace Battle.Scripts.ImageManager
 
         private IEnumerator CaptureAndSaveSingle(GameObject Target)
         {
-            string fileName = $"{Target.name}.png";
+            string fileName = $"{Target.GetComponent<CharacterID>().characterKey}.png";
 
             captureCamera.orthographic = true;
             captureCamera.orthographicSize = 0.8f;
@@ -126,8 +204,7 @@ namespace Battle.Scripts.ImageManager
             captureCamera.backgroundColor = originalBackgroundColor;
             captureCamera.cullingMask = originalCullingMask;
 
-            // 👉 Pannel에서 Target.name과 일치하는 객체의 tag를 가져와 저장 폴더 결정
-            string matchingTag = GetMatchingPannelTag(Target.name);
+            string matchingTag = Target.tag + "Character";
             string folderPath = Path.Combine(baseSavePath, matchingTag);
             if (!Directory.Exists(folderPath))
                 Directory.CreateDirectory(folderPath);
@@ -143,26 +220,6 @@ namespace Battle.Scripts.ImageManager
 #endif
 
             yield return null;
-        }
-
-        /// <summary>
-        /// Target.name과 일치하거나 포함된 Pannel의 tag를 찾아 반환합니다.
-        /// 없으면 Untagged 반환
-        /// </summary>
-        private string GetMatchingPannelTag(string targetName)
-        {
-            foreach (var pannel in Pannels)
-            {
-                if (pannel == null) continue;
-                if (pannel.name.Equals(targetName, StringComparison.OrdinalIgnoreCase)
-                    || targetName.Contains(pannel.name)
-                    || pannel.name.Contains(targetName))
-                {
-                    return pannel.tag;
-                }
-            }
-
-            return "Untagged";
         }
     }
 }

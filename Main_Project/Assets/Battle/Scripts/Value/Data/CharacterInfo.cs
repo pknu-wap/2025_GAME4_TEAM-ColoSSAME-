@@ -1,3 +1,5 @@
+using Battle.Scripts.Ai;
+using Battle.Scripts.Value.Data.Class;
 using UnityEngine;
 
 namespace Battle.Scripts.Value.Data
@@ -32,11 +34,18 @@ namespace Battle.Scripts.Value.Data
         public string backPath;
 
         public string weaponPath1, weaponPath2;
+        public string weaponType1, weaponType2;
         
         //character 스탯
-        //...
+        public float CON;
+        public float ATK;
+        public float DEF;
+        public WeaponType weaponType;
+        public ClassType classType;
         
         //character 위치
-        public Vector3 position;
+        public float x, y, z;
+        //character 출전여부
+        public bool IsDeployed;
     }
 }

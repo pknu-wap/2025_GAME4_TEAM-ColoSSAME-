@@ -44,7 +44,7 @@ namespace Battle.Scripts.Ai
             }
         }
         
-        private void AddWeapon(BattleAI battleAI)
+        public void AddWeapon(BattleAI battleAI)
         {
             string weaponName = battleAI.weaponType.ToString(); // 예: "bow", "sword", "axe"
             Transform existing = battleAI.transform.Find(weaponName);
@@ -55,7 +55,7 @@ namespace Battle.Scripts.Ai
                 return;
             }
 
-            GameObject weaponObject = null;
+            GameObject weaponObject;
 
             if (battleAI.weaponType == WeaponType.Bow)
             {

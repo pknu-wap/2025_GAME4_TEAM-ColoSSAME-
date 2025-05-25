@@ -1,17 +1,20 @@
 using System;
+using Battle.Scripts.Value.Data.Class;
 using Pathfinding;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
 using Random = System.Random;
+using Battle.Scripts.Ai;
+using Battle.Scripts.Value.Data;
+
 
 namespace Battle.Scripts.Ai.CharacterCreator
 {
     public class RandomCharacter : MonoBehaviour
     {
-        
-        private GameObject Tester;
         private SPUM_Prefabs spum;
+
         //종족 외형
         public string DevilBodyFolder = "Sprites/0_Devil/Devil_1";
         public string HumanBodyFolder = "Sprites/1_Human";
@@ -52,11 +55,15 @@ namespace Battle.Scripts.Ai.CharacterCreator
         private bool hasWeapon;
         private bool hasShield;
         private Random rand = new();
+        private string weaponSubType = "";
+        public ClassType selectedClass;
+        private BattleAI ai;
 
-        private void Start()
+        private void Awake()
         {
-            Tester = gameObject;
+            ai = GetComponent<BattleAI>();
             spum = GetComponent<SPUM_Prefabs>();
+            selectedClass = (ClassType)rand.Next(0, Enum.GetValues(typeof(ClassType)).Length);
         }
 
         public void Reset()
@@ -66,7 +73,7 @@ namespace Battle.Scripts.Ai.CharacterCreator
             hasWeapon = false;
             hasShield = false;
             ClearWeapons();
-            createTest.RerenderAllParts(Tester);
+            createTest.RerenderAllParts(gameObject);
         }
 
         private void PathReset()
@@ -107,6 +114,18 @@ namespace Battle.Scripts.Ai.CharacterCreator
         public void Randomize()
         {
             Reset();
+            if(ai.team == TeamType.Player) ai.FlipToRight();
+            else ai.FlipToLeft();
+
+            // 1. 무작위 직업 선택
+            Array values = Enum.GetValues(typeof(ClassType));
+            selectedClass = (ClassType)values.GetValue(rand.Next(values.Length));
+
+            // 2. BattleAI에 적용
+            ai.Class = selectedClass;
+            ai.ApplyJobSettings(); // 능력치, 사운드, 무기타입 적용
+
+            // 3. 외형 설정
             SetBody(RandAsset(0, 4));
             SetEyes(RandAsset(0,11));
             hair = RandAsset(1,40);
@@ -117,8 +136,12 @@ namespace Battle.Scripts.Ai.CharacterCreator
             SetPants(RandAsset(1,12));
             SetArmors(RandAsset(1,11));
             SetBack(RandAsset(1,3));
-            SetWeapon(20, RandAsset(0,7), 0, RandAsset(1,3));
-            createTest.RerenderAllParts(Tester);
+
+            // 4. 무기 타입에 맞게 설정 (BattleAI.weaponType 기준)
+            SetWeaponByClass(ai.weaponType);
+
+            // 5. 렌더링
+            createTest.RerenderAllParts(gameObject);
         }
         
         private void ClearWeapons()
@@ -131,74 +154,86 @@ namespace Battle.Scripts.Ai.CharacterCreator
             spum.ImageElement[21].ItemPath = "";
             spum.ImageElement[21].Color = Color.white;
         }
-
-        private void Shield(int type)
-        {
-            var ShieldPath = ShieldFolder;
-            ShieldPath += "/Shield_" + type;
-            hasShield = true;
-            hasWeapon = false;
-            Tester.GetComponent<SPUM_Prefabs>().ImageElement[21].PartSubType = "Shield";
-            ApplySpritePath(21, 22, ShieldPath);
-            SetWeapon(20, RandAsset(0,6), 0,0);
-        }
-
         private void Dagger(int type)
         {
             WeaponPath = DaggerFolder;
             WeaponPath += "/Dagger_" + type;
-            Tester.GetComponent<SPUM_Prefabs>().ImageElement[20].PartSubType = "Dagger";
+            spum.ImageElement[20].PartSubType = "Dagger";
             ApplySpritePath(20, 21, WeaponPath);
             WeaponPath = DaggerFolder;
             WeaponPath += "/Dagger_" + type;
-            Tester.GetComponent<SPUM_Prefabs>().ImageElement[21].PartSubType = "Dagger";
+            spum.ImageElement[21].PartSubType = "Dagger";
             ApplySpritePath(21, 22, WeaponPath);
         }
-        private void SetWeapon(int index, int asset, int type, int shieldType)
+        
+        private void SetWeaponByClass(WeaponType weaponType)
+        {
+            switch (weaponType)
+            {
+                case WeaponType.Sword:
+                    SetWeapon(20, 0, RandAsset(1, 4), 0, RandAsset(0, 1));
+                    break;
+                case WeaponType.LongSpear:
+                    SetWeapon(20, 1, RandAsset(1, 3), 0, 0);
+                    break;
+                case WeaponType.TwoHanded:
+                    SetWeapon(20, 2, RandAsset(1, 3), 0, 0);
+                    break;
+                case WeaponType.ShortSword:
+                    Dagger(RandAsset(1, 3));
+                    break;
+                case WeaponType.Bow:
+                    SetWeapon(20, 3, RandAsset(1, 3), 0, 0);
+                    break;
+                case WeaponType.Magic:
+                    SetWeapon(20, 4, RandAsset(1, 2), 0, 0);
+                    break;
+                default:
+                    SetWeapon(20, 0, RandAsset(1, 4), 0, 0);
+                    break;
+            }
+        }
+        private void SetWeapon(int index, int asset, int type, int shieldType, int HasShield)
         {
             spum.ImageElement[index].Structure = "Weapons";
-            string weaponType = "";
+            ApplySpritePath(index, index + 1, WeaponPath);
+            weaponSubType = "";
+            spum.ImageElement[index].PartSubType = weaponSubType;
             if (!hasWeapon)
             {
-                Debug.Log("무기 생성");
-                if (asset < 7)
-                {
-                    switch (asset)
+                switch (asset)
                     {
                         case 0:
                             WeaponPath = SwordFolder;
                             if (type == 0) type = RandAsset(1, 4);
                             WeaponPath += "/Sword_" + type;
-                            weaponType = "Sword";
+                            weaponSubType = "Sword";
                             break;
                         case 1:
                             WeaponPath = SpearFolder;
                             if (type == 0) type = RandAsset(1, 4);
                             WeaponPath += "/Spear_" + type;
-                            weaponType = "Spear";
+                            weaponSubType = "Spear";
                             break;
                         case 2:
                             WeaponPath = AxeFolder;
                             if (type == 0) type = RandAsset(1, 3);
                             WeaponPath += "/Axe_" + type;
-                            weaponType = "Axe";
+                            weaponSubType = "Axe";
                             break;
                         case 3:
-                            if(hasShield) break;
                             WeaponPath = BowFolder;
                             if (type == 0) type = RandAsset(1, 3);
                             WeaponPath += "/Bow_" + type;
-                            weaponType = "Bow";
+                            weaponSubType = "Bow";
                             break;
                         case 4:
-                            if(hasShield) break;
                             WeaponPath = WandFolder;
                             if (type == 0) type = RandAsset(1, 2);
                             WeaponPath += "/Wand_" + type;
-                            weaponType = "Wand";
+                            weaponSubType = "Wand";
                             break;
                         case 5:
-                            if(hasShield) break;
                             if (type == 0) type = RandAsset(1, 3);
                             Dagger(type);
                             return;
@@ -206,18 +241,22 @@ namespace Battle.Scripts.Ai.CharacterCreator
                             WeaponPath = MaceFolder;
                             type = 1;
                             WeaponPath += "/Mace_" + type;
-                            weaponType = "Mace";
+                            weaponSubType = "Mace";
                             break;
                     }
-                }
-                else
-                {
-                    Shield(shieldType);
-                }
                 hasWeapon = true;
             }
-            Tester.GetComponent<SPUM_Prefabs>().ImageElement[index].PartSubType = weaponType;
+            spum.ImageElement[index].PartSubType = weaponSubType;
             ApplySpritePath(index, index + 1, WeaponPath);
+            
+            if (HasShield == 0) return;
+            WeaponPath = ShieldFolder;
+            if(shieldType == 0) shieldType = RandAsset(1, 4);
+            WeaponPath += "/Shield_" + shieldType;
+            weaponSubType = "Shield";
+            spum.ImageElement[21].PartSubType = weaponSubType;
+            hasShield = false;
+            ApplySpritePath(21, 22, WeaponPath);
         }
 
         private void SetBack(int asset)
@@ -246,18 +285,17 @@ namespace Battle.Scripts.Ai.CharacterCreator
 
         private void SetHelmet(int asset)
         {
-            Tester.GetComponent<SPUM_Prefabs>().ImageElement[10].MaskIndex = 0;
-            Debug.Log(hair);
+            spum.ImageElement[10].MaskIndex = 0;
             if (hair <= 25)
             {
-                Tester.GetComponent<SPUM_Prefabs>().ImageElement[10].MaskIndex = 1;
+                spum.ImageElement[10].MaskIndex = 1;
                 HelmetFolder = "";
                 ApplySpritePath(10,11, HelmetFolder);
                 return;
             }
             
-            Tester.GetComponent<SPUM_Prefabs>().ImageElement[8].MaskIndex = 1;
-            Tester.GetComponent<SPUM_Prefabs>().ImageElement[10].MaskIndex = 0;
+            spum.ImageElement[8].MaskIndex = 1;
+            spum.ImageElement[10].MaskIndex = 0;
             
             HelmetFolder += "/New_Helmet_" + asset;
             ApplySpritePath(10,11, HelmetFolder);  //10번 : helmet
@@ -277,7 +315,7 @@ namespace Battle.Scripts.Ai.CharacterCreator
             if(hair >= 21) HairFolder = "";
             ApplySpritePath(8, 9, HairFolder);   //8번: 머리카락 관련 에셋
             RandomColor(8,9);
-            Tester.GetComponent<SPUM_Prefabs>().ImageElement[8].MaskIndex = 0;
+            spum.ImageElement[8].MaskIndex = 0;
         }
         
         private void SetEyes(int asset)
@@ -297,13 +335,13 @@ namespace Battle.Scripts.Ai.CharacterCreator
         {
             for (int i = start; i < end; i++)
             {
-                Tester.GetComponent<SPUM_Prefabs>().ImageElement[i].ItemPath = Path;
+                spum.ImageElement[i].ItemPath = Path;
             }
         }
 
         private void RandomColor(int start, int end)
         {
-            var spum = Tester.GetComponent<SPUM_Prefabs>();
+            var spum = this.spum;
             Color randomColor = new Color(rand.Next(0, 100) / 100f, rand.Next(0, 100) / 100f, rand.Next(0, 100) / 100f);
             for (int i = start; i < end; i++)
             {

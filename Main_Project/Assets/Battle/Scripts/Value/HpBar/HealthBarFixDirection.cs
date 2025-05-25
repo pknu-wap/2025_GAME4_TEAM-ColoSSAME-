@@ -4,18 +4,24 @@ namespace Battle.Scripts.Value.HpBar
 {
     public class HealthBarFixDirection : MonoBehaviour
     {
+        private Vector3 originalScale;
+
+        private void Awake()
+        {
+            originalScale = transform.localScale;
+        }
+
         public void ForceFix()
         {
-            // 부모 포함 실제 화면에 적용된 최종 스케일 계산
-            float worldScaleX = transform.lossyScale.x;
+            float parentScaleX = transform.parent.lossyScale.x;
+            float fixDirection = parentScaleX >= 0 ? -1f : 1f;
 
-            if (worldScaleX < 0)
-            {
-                // 부모가 뒤집혔으면, 자식 스케일을 반전해서 중화시킴
-                Vector3 scale = transform.localScale;
-                scale.x *= -1;
-                transform.localScale = scale;
-            }
+            // x축만 방향 보정, 나머지는 그대로
+            transform.localScale = new Vector3(
+                Mathf.Abs(originalScale.x) * fixDirection,
+                originalScale.y,
+                originalScale.z
+            );
         }
     }
 }
