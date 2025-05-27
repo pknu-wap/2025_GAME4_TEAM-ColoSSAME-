@@ -25,7 +25,6 @@ namespace Battle.Scripts.UI
         {
             if (id == null || string.IsNullOrEmpty(id.characterKey))
             {
-                Debug.LogWarning("StatText: CharacterID가 설정되지 않았습니다.");
                 return;
             }
 

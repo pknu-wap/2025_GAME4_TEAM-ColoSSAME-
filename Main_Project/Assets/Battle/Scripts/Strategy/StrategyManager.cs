@@ -79,7 +79,6 @@ namespace Battle.Scripts.Strategy
 
                     characters[index].transform.localPosition = new Vector3(-0.3f + (i * 0.15f), 0.2f - (j * 0.2f), 0);
                     characters[index].layer = 0;
-                    Debug.Log(characters[index].name);
                 }
             }
             
@@ -187,12 +186,10 @@ namespace Battle.Scripts.Strategy
                     MaxArea.y >= characterPos.y)
                 {
                     character.layer = 10;
-                    Debug.Log(character.name + " is deployed");
                 }
                 else
                 {
                     character.layer = 0;
-                    Debug.Log(character.name + " is not deployed");
                 }
             }
         }

@@ -20,6 +20,7 @@ namespace Battle.Scripts.Ai.Weapon
         
         public void FireArrow()
         {
+            if(ownerAI.CurrentTarget == null) return;
             GameObject arrow = Instantiate(arrowPrefab, ownerAI.transform.position, ownerAI.transform.rotation);
             arrow.layer = LayerMask.NameToLayer("Default");
     

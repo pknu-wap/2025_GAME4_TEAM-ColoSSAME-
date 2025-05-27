@@ -40,7 +40,6 @@ namespace Battle.Scripts.Ai.State
             if (isChase)
             {
                 if (!ai.HasEnemyInSight()) return;
-                Debug.Log($"{ai} : {ai.StateMachine.currentState}");
                 ai.destinationSetter.target = ai.CurrentTarget;
                 if (ai.IsInAttackRange())
                 {

@@ -59,6 +59,7 @@ namespace Battle.Scripts.Value.Data.Class
                     moveSpeed = 2f,
                     attackRange = 1.2f,
                     attackDelay = 0.6f,
+                    retreatDistance = 0.1f,
                     weaponType = GetRandomWarriorWeaponType(),
                     attackSoundPath = "Sounds/Warrior/Swing"
                 }
@@ -72,6 +73,7 @@ namespace Battle.Scripts.Value.Data.Class
                     moveSpeed = 3f,
                     attackRange = 1.5f,
                     attackDelay = 0.4f,
+                    retreatDistance = 1f,
                     weaponType = WeaponType.ShortSword,
                     attackSoundPath = "Sounds/Thief/Slash"
                 }
@@ -85,6 +87,7 @@ namespace Battle.Scripts.Value.Data.Class
                     moveSpeed = 2.5f,
                     attackRange = 7f,
                     attackDelay = 1f,
+                    retreatDistance = 2f,
                     weaponType = WeaponType.Bow,
                     attackSoundPath = "Sounds/Archer/Shoot"
                 }
@@ -98,6 +101,7 @@ namespace Battle.Scripts.Value.Data.Class
                     moveSpeed = 1.8f,
                     attackRange = 6f,
                     attackDelay = 1.2f,
+                    retreatDistance = 2f,
                     weaponType = WeaponType.Magic,
                     attackSoundPath = "Sounds/Magician/MagicBlast"
                 }

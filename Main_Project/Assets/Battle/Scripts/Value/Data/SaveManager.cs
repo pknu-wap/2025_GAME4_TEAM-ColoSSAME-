@@ -95,7 +95,8 @@ namespace Battle.Scripts.Value.Data
                     CON = ai.hp,
                     classType = ai.Class,
                     weaponType = ai.weaponType,
-                    IsDeployed = false
+                    IsDeployed = false,
+                    team = ai.team
                 };
         
                 // 3. 기존에 있으면 덮어쓰기, 없으면 추가
@@ -156,6 +157,7 @@ namespace Battle.Scripts.Value.Data
                 ai.hp = info.CON;
                 ai.Class = info.classType;
                 ai.weaponType = info.weaponType;
+                ai.team = info.team;
 
                 createTest?.RerenderAllParts(obj);
                 if (targetTag == "Player")

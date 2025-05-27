@@ -47,5 +47,7 @@ namespace Battle.Scripts.Value.Data
         public float x, y, z;
         //character 출전여부
         public bool IsDeployed;
+        //character 팀
+        public TeamType team;
     }
 }

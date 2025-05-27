@@ -21,7 +21,8 @@ namespace Battle.Scripts.Value
         GameObject[] players;
         GameObject[] enemies;
         GameObject Ai;
-        private void Start()
+
+        public void startSetting()
         {
             Ai = GameObject.FindGameObjectWithTag("Ai");
             players = GameObject.FindGameObjectsWithTag("Player");
@@ -36,14 +37,13 @@ namespace Battle.Scripts.Value
                 obj.SetActive(false);
             }
         }
-
+        
         public void Winner(GameObject tags)
         {
             if(tags.CompareTag("Player")) playersNumber--;
             if(tags.CompareTag("Enemy")) enemiesNumber--;
             if (playersNumber == 0 || enemiesNumber == 0)
             {
-                Ai.SetActive(false);
                 winnerText.gameObject.SetActive(true);
                 nextScene.ButtonOn();
                 if (playersNumber < enemiesNumber) {

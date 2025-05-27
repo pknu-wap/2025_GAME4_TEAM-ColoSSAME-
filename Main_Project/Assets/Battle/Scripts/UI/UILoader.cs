@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Battle.Scripts.Ai;
 using Battle.Scripts.ImageManager;
+using Battle.Scripts.Value;
 using Battle.Scripts.Value.Data;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -85,6 +86,7 @@ namespace Battle.Scripts.UI
                 }
 
                 start++;
+                spawned.GetComponent<BattleAI>().isWinner = FindObjectOfType<IsWinner>();
             }
 
             // 4. StatText 재활성화 및 연결
@@ -93,6 +95,7 @@ namespace Battle.Scripts.UI
                 text.gameObject.SetActive(true);
                 text.StatConnect();
             }
+            FindObjectOfType<IsWinner>().startSetting();
         }
         
     }

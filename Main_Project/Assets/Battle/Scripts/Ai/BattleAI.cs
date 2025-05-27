@@ -44,8 +44,11 @@ namespace Battle.Scripts.Ai
         public float stunTime = 0f;
         public ClassType Class;
         public AudioClip attackSound;
+        
+        private bool isDead;
         public void ApplyJobSettings()
         {
+            isDead = false;
             if (!ClassDataBase.ClassStatsMap.TryGetValue(Class, out var stats))
             {
                 Debug.LogError($"[BattleAI] 존재하지 않는 직업: {Class}");
@@ -136,13 +139,13 @@ namespace Battle.Scripts.Ai
         private IEnumerator DelayedStart()
         {
             yield return new WaitForSeconds(Random.Range(0f, 0.5f)); // 0~0.5초 사이 랜덤 대기
-            
             if (weaponTrigger != null) // 근접 무기 설정
             {
                 weaponTrigger.Initialize(this);
             }
             
             StateMachine.ChangeState(new IdleState(this, true, 0f));
+            Debug.LogWarning("idlestate로 전환되어야함");
         }
 
         public void BattleStart()
@@ -157,8 +160,11 @@ namespace Battle.Scripts.Ai
 
         public bool HasEnemyInSight()
         {
-            if (CurrentTarget != null) return CurrentTarget;
-            return Targeting.FindNearestEnemy();
+            if (CurrentTarget == null)
+            {
+                CurrentTarget = Targeting.FindNearestEnemy();
+            }
+            return CurrentTarget != null;
         }
 
         public bool CanAttack()
@@ -259,6 +265,8 @@ namespace Battle.Scripts.Ai
 
         public void Kill()
         {
+            if(isDead) return;
+            isDead = true;
             isWinner.Winner(gameObject);
             Destroy(Retreater.gameObject);
             gameObject.SetActive(false);
