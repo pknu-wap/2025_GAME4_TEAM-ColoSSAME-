@@ -14,7 +14,6 @@ namespace Battle.Scripts.Strategy
             if (strategyManager != null)
             {
                 strategyManager.ClickedPlayer = transform;
-                Debug.Log("🖱 클릭된 오브젝트: " + gameObject.name);
                 strategyManager.hasPlayer = true;
                 if (strategyManager.hasCharacter)
                 {

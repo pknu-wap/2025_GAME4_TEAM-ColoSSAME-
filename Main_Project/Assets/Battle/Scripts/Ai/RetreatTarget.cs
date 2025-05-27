@@ -9,7 +9,7 @@ namespace Battle.Scripts.Ai
 
         public void SetRetreatTarget()
         {
-            const int maxAttempts = 10; // 최대 재시도 횟수
+            const int maxAttempts = 100; // 최대 재시도 횟수
             Vector2 origin = ai.transform.position;
 
             for (int i = 0; i < maxAttempts; i++)

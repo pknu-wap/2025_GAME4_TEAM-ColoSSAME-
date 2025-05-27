@@ -53,7 +53,6 @@ namespace Battle.Scripts.Ai.CharacterCreator
         private string WeaponPath;
         private int hair;
         private bool hasWeapon;
-        private bool hasShield;
         private Random rand = new();
         private string weaponSubType = "";
         public ClassType selectedClass;
@@ -71,7 +70,6 @@ namespace Battle.Scripts.Ai.CharacterCreator
             racePath = "";
             PathReset();
             hasWeapon = false;
-            hasShield = false;
             ClearWeapons();
             createTest.RerenderAllParts(gameObject);
         }
@@ -255,7 +253,6 @@ namespace Battle.Scripts.Ai.CharacterCreator
             WeaponPath += "/Shield_" + shieldType;
             weaponSubType = "Shield";
             spum.ImageElement[21].PartSubType = weaponSubType;
-            hasShield = false;
             ApplySpritePath(21, 22, WeaponPath);
         }
 

@@ -145,7 +145,6 @@ namespace Battle.Scripts.Ai
             }
             
             StateMachine.ChangeState(new IdleState(this, true, 0f));
-            Debug.LogWarning("idlestate로 전환되어야함");
         }
 
         public void BattleStart()
@@ -155,6 +154,7 @@ namespace Battle.Scripts.Ai
 
         private void Update()
         {
+            ValidateTarget();
             StateMachine.Update();
         }
 
@@ -183,6 +183,14 @@ namespace Battle.Scripts.Ai
 
         public void MoveTo(Vector3 target)
         {
+            float distance = Vector2.Distance(transform.position, target);
+
+            if (distance < 0.1f)  // ← 너무 가까우면 이동하지 않도록
+            {
+                StopMoving();
+                return;
+            }
+
             aiPath.canMove = true;
             Flip(target);
         }
@@ -206,7 +214,6 @@ namespace Battle.Scripts.Ai
 
         public void StopMoving()
         {
-            destinationSetter.target = null;
             rb.velocity = Vector2.zero;
             aiPath.canMove = false;
         }
@@ -218,6 +225,21 @@ namespace Battle.Scripts.Ai
         public void UseSkill()
         {
             
+        }
+        
+        private void ValidateTarget()
+        {
+            if (CurrentTarget == null || CurrentTarget.Equals(null))
+            {
+                CurrentTarget = null;
+                StopMoving();
+            }
+
+            if (destinationSetter.target == null || destinationSetter.target.Equals(null))
+            {
+                destinationSetter.target = null;
+                StopMoving();
+            }
         }
         
         public void TakeDamage(float amount)

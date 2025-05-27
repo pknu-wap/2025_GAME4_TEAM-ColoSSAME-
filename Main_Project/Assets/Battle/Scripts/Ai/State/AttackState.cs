@@ -18,7 +18,7 @@ namespace Battle.Scripts.Ai.State
             ai.Flip(ai.CurrentTarget.position);
             ai.aiAnimator.Reset();
             ai.aiAnimator.Attack();
-            
+            if(ai.CurrentTarget == null) ai.StateMachine.ChangeState(new IdleState(ai, true, 0f));
             //Weapon: Bow or Magic -> RangedAttack, X -> MeleeAttack
             if (ai.weaponType is WeaponType.Bow or WeaponType.Magic)
             {
@@ -40,6 +40,7 @@ namespace Battle.Scripts.Ai.State
 
         void RangedAttack()
         {
+            if(!ai.CurrentTarget || !ai.destinationSetter.target) ai.StateMachine.ChangeState(new IdleState(ai, true, ai.waitTime));
             ai.StartCoroutine(RangedAttackDelay());
         }
 
@@ -62,7 +63,10 @@ namespace Battle.Scripts.Ai.State
             ai.StateMachine.ChangeState(new IdleState(ai,false,ai.waitTime));
         }
 
-        public void UpdateState() { }
+        public void UpdateState()
+        {
+            
+        }
 
         public void ExitState() { }
     }

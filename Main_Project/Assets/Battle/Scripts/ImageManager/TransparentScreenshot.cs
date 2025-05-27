@@ -54,11 +54,6 @@ namespace Battle.Scripts.ImageManager
                         break;
                     }
                 }
-
-                if (!matched)
-                {
-                    Debug.LogWarning($"❌ {pannel.GetComponent<CharacterID>().characterKey}에 대응하는 PNG 파일이 {folderPath}에 없음");
-                }
             }
         }
         
@@ -87,12 +82,11 @@ namespace Battle.Scripts.ImageManager
                 if (fileNameWithoutExt.Equals(id.characterKey, StringComparison.OrdinalIgnoreCase))
                 {
                     ApplySpriteToPannel(target, file);
-                    Debug.Log($"✅ 개별 이미지 적용 완료: {file}");
                     return;
                 }
             }
 
-            Debug.LogWarning($"❌ {id.characterKey}에 해당하는 이미지가 {folderPath}에 없음");
+            Debug.LogWarning($"{id.characterKey}에 해당하는 이미지가 {folderPath}에 없음");
         }
 
         [ContextMenu("출전한 캐릭터 이미지만 불러오기")]
@@ -141,7 +135,7 @@ namespace Battle.Scripts.ImageManager
                     if (fileNameWithoutExt.Equals(id.characterKey, StringComparison.OrdinalIgnoreCase))
                     {
                         ApplySpriteToPannel(pannel, file);
-                        Debug.Log($"✅ 출전 캐릭터 이미지 적용됨: {file}");
+                        Debug.Log($"출전 캐릭터 이미지 적용됨: {file}");
                         break;
                     }
                 }
@@ -158,7 +152,6 @@ namespace Battle.Scripts.ImageManager
             if (pannel.TryGetComponent(out SpriteRenderer renderer))
             {
                 renderer.sprite = sprite;
-                Debug.Log($"🖼️ 적용 완료: {Path.GetFileName(filePath)}");
             }
         }
 
@@ -213,7 +206,7 @@ namespace Battle.Scripts.ImageManager
             byte[] pngData = screenshot.EncodeToPNG();
             File.WriteAllBytes(fullPath, pngData);
 
-            Debug.Log($"📸 저장 완료: {fullPath}");
+            Debug.Log($"저장 완료: {fullPath}");
 
 #if UNITY_EDITOR
             UnityEditor.AssetDatabase.Refresh();

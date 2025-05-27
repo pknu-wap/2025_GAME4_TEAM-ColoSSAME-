@@ -96,6 +96,7 @@ namespace Battle.Scripts.UI
                 text.StatConnect();
             }
             FindObjectOfType<IsWinner>().startSetting();
+            gameObject.SetActive(false);
         }
         
     }

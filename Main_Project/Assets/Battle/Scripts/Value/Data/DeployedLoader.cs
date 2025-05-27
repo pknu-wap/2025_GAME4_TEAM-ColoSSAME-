@@ -34,7 +34,7 @@ namespace Battle.Scripts.Value.Data
                 if (!info.IsDeployed) continue;
 
                 GameObject obj = Instantiate(characterPrefab, new Vector3(info.x, info.y, info.z), Quaternion.identity);
-                obj.name = info.name;
+                obj.name = "basic" + info.team + info.characterKey;
                 obj.tag = fileTag;
 
                 var id = obj.GetComponent<CharacterID>();

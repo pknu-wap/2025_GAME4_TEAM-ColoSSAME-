@@ -32,8 +32,7 @@ namespace Battle.Scripts.Value.Data
             foreach (var obj in allObjects)
             {
                 if (obj.layer != targetLayer) continue;
-
-                Debug.Log(obj.name);
+                
                 var id = obj.GetComponent<CharacterID>();
                 if (id == null || !data.characters.ContainsKey(id.characterKey)) continue;
 
@@ -42,7 +41,6 @@ namespace Battle.Scripts.Value.Data
                 data.characters[id.characterKey].x = obj.transform.position.x + 2.6f;
                 data.characters[id.characterKey].y = obj.transform.position.y + 0.8f;
                 data.characters[id.characterKey].z = obj.transform.position.z;
-                Debug.Log(JsonConvert.SerializeObject(data.characters[id.characterKey], Formatting.Indented));
             }
 
             // 5. JSON 파일로 다시 저장
