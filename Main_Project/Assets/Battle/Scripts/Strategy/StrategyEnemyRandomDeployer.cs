@@ -65,10 +65,9 @@ namespace Battle.Scripts.Strategy
 
             for (int i = 0; i < selectedKeys.Count; i++)
             {
-                string key = selectedKeys[i];
-                if (!data.characters.ContainsKey(key)) continue;
+                string fullKey = selectedKeys[i];  // ex: "Team02_1"
+                if (!data.characters.TryGetValue(fullKey, out var character)) continue;
 
-                var character = data.characters[key];
                 character.IsDeployed = true;
                 character.x = formation[i].x;
                 character.y = formation[i].y;

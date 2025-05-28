@@ -183,7 +183,7 @@ namespace Battle.Scripts.Strategy
                     MinArea.y <= characterPos.y &&
                     MaxArea.y >= characterPos.y)
                 {
-                    character.layer = 10;
+                    character.layer = 9;
                 }
                 else
                 {

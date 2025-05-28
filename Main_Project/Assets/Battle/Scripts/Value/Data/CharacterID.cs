@@ -5,6 +5,8 @@ namespace Battle.Scripts.Value.Data
 {
     public class CharacterID : MonoBehaviour
     {
-        public string characterKey;
+        public string characterTeamKey;
+        public string characterKey; 
+        public string GetFullKey() => $"{characterTeamKey}_{characterKey}";
     }
 }

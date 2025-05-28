@@ -7,6 +7,8 @@ namespace Battle.Scripts.Value.Data
     [System.Serializable]
     public class CharacterInfo
     {
+        //character 고유 팀 번호
+        public string characterTeamKey;
         //character 고유 번호
         public string characterKey;
         

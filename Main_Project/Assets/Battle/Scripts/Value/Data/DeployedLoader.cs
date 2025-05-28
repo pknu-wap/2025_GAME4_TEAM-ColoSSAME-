@@ -39,13 +39,17 @@ namespace Battle.Scripts.Value.Data
 
                 var id = obj.GetComponent<CharacterID>();
                 if (id != null)
+                {
                     id.characterKey = info.characterKey;
+                    id.characterTeamKey = info.characterTeamKey; // ✅ 팀 키도 설정
+                }
 
                 spawnedCharacters.Add(obj); // 리스트에 추가
             }
 
             saveManager.LoadFromButton();
         }
+
         public void ClearAllIsDeployedFlags()
         {
             if (!File.Exists(FilePath)) return;

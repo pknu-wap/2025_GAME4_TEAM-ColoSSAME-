@@ -132,23 +132,16 @@ namespace Battle.Scripts.Ai
             StateMachine = new StateMachine();
             characterValue = GetComponent<CharacterValue>();
             addPrefab = GetComponent<AddPrefab>();
-            isWinner = IsWinner.Instance;
-            StartCoroutine(DelayedStart());
         }
 
-        private IEnumerator DelayedStart()
+        public void BattleStart()
         {
-            yield return new WaitForSeconds(Random.Range(0f, 0.5f)); // 0~0.5초 사이 랜덤 대기
+            isWinner = IsWinner.Instance;
             if (weaponTrigger != null) // 근접 무기 설정
             {
                 weaponTrigger.Initialize(this);
             }
             
-            StateMachine.ChangeState(new IdleState(this, true, 0f));
-        }
-
-        public void BattleStart()
-        {
             StateMachine.ChangeState(new IdleState(this, true, 0f));
         }
 
