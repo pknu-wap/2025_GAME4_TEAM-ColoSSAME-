@@ -121,7 +121,7 @@ namespace Battle.Scripts.Ai.CharacterCreator
 
             // 2. BattleAI에 적용
             ai.Class = selectedClass;
-            ai.ApplyJobSettings(); // 능력치, 사운드, 무기타입 적용
+            ai.ApplyRandomJobSettings(); // 능력치, 사운드, 무기타입 적용
 
             // 3. 외형 설정
             SetBody(RandAsset(0, 4));

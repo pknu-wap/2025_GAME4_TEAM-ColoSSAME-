@@ -155,11 +155,7 @@ namespace Battle.Scripts.Value.Data
                 spum.ImageElement[20].ItemPath = info.weaponPath1;
                 spum.ImageElement[21].PartSubType = info.weaponType2;
                 spum.ImageElement[21].ItemPath = info.weaponPath2;
-                ai.damage = info.ATK;
-                ai.hp = info.CON;
-                ai.Class = info.classType;
-                ai.weaponType = info.weaponType;
-                ai.team = info.team;
+                ai.ApplyLoadedStats(info);
 
                 createTest?.RerenderAllParts(obj);
                 if (targetTag == "Player")
