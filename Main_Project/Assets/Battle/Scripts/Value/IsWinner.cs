@@ -7,17 +7,18 @@ namespace Battle.Scripts.Value
     public class IsWinner : MonoBehaviour
     {
         public static IsWinner Instance { get; private set; }
-
-        private void Awake()
-        {
-            Instance = this;
-        }
-        
         public int playersNumber;
         public int enemiesNumber;
         GameObject[] players;
         GameObject[] enemies;
         public GameObject Result;
+        public BattleSceneManager BattleSceneManager;
+
+        private void Awake()
+        {
+            Instance = this;
+            BattleSceneManager = FindObjectOfType<BattleSceneManager>();
+        }
 
         public void startSetting()
         {
@@ -37,9 +38,9 @@ namespace Battle.Scripts.Value
             if (playersNumber == 0 || enemiesNumber == 0)
             {
                 if (playersNumber < enemiesNumber) {
-                    
+                    BattleSceneManager.OnLose();
                 } else {
-                    
+                    BattleSceneManager.OnWin();
                 }
                 gameObject.SetActive(false);
                 Result.SetActive(true);
