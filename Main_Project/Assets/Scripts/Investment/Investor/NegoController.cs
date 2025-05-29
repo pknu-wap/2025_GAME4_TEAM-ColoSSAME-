@@ -10,7 +10,7 @@ public class NegoController : MonoBehaviour
     private PuzzleManager manager;
     private GameObject ownerInvestor;
     private GameObject[] panelsToShow;
-
+    public Button completeButton;
     public void Init(PuzzleManager manager, GameObject investor, GameObject[] panelsToRestore)
     {
         this.manager = manager;
@@ -23,10 +23,19 @@ public class NegoController : MonoBehaviour
                 panel.SetActive(true);
             manager.ShowOtherInvestors(ownerInvestor);
         });
+        if (completeButton != null)
+        {
+            completeButton.onClick.AddListener(() =>
+            {
+                Debug.Log("[NegoController] 협상 완료 버튼 클릭 → Complete 호출");
+                Complete();
+            });
+        }
     }
 
     public void Complete()
     {
+        Debug.Log("NegoController 퍼즐 완료됨 → 이벤트 호출");
         OnPuzzleComplete?.Invoke();
     }
 }

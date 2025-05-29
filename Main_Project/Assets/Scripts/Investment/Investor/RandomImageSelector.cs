@@ -13,12 +13,6 @@ public class RandomImageSelector : MonoBehaviour
     // 중복 없는 랜덤 인덱스 반환
     public int GetUniqueRandomIndex()
     {
-        if (sprites == null || sprites.Length == 0)
-        {
-            Debug.LogWarning("Sprites array is empty or null.");
-            return -1;
-        }
-
         if (usedIndices.Count >= sprites.Length)
         {
             // 모든 인덱스를 사용한 경우 초기화(재사용 가능하도록)
