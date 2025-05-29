@@ -8,6 +8,8 @@ using Newtonsoft.Json;
 using System.IO;
 using Battle.Scripts.Value.Data;
 using UnityEngine.EventSystems;
+using Battle.Scripts.Ai;
+using Battle.Scripts.Value.Data;
 
 //battle ai 값바꾸기(느림)
 //json직접 변경(난이도 높음, 그러나 빠름)
@@ -41,12 +43,14 @@ public class State : MonoBehaviour
     
     public GameObject EnemyStatusText;
 
-    private string SaveFileName => $"playerStateSave.json";
-    private string savePath => Path.Combine(Application.persistentDataPath, SaveFileName);
+    public BattleAI[] statechange;
 
    // public RandomCharacter randomcharacter;
     //public SaveManager savemanage;
     public CharacterID characterid;
+
+
+    
 
     void Start()
     {
@@ -57,46 +61,14 @@ public class State : MonoBehaviour
 
         
         //savemanage.Save(savemanage.SaveFromButton());
+        
 
         trainSelect = trainSelect.ConvertAll(x => 0);
-        trainSelectSave = trainSelectSave.ConvertAll(x => 0);
-
-        playerRole = new List<int>{ Random.Range(0,4), Random.Range(0,4), Random.Range(0,4), Random.Range(0,4), Random.Range(0,4),Random.Range(0,4),Random.Range(0,4),Random.Range(0,4),Random.Range(0,4)};//선수 직업
-
-        for (int i = 0; i < 9; i++)
-        {
-            if (playerRole[i] == 0)//전사
-            {
-                playerState[i*3] = Random.Range(1,10);//공격력
-                playerState[i*3+1] = Random.Range(1,10);//방어력
-                playerState[i*3+2] = Random.Range(50,100);//체체력
-            }
-            if (playerRole[i] == 1)//도적
-            {
-                playerState[i*3] = Random.Range(1,10);//공격력
-                playerState[i*3+1] = Random.Range(1,10);//방어력
-                playerState[i*3+2] = Random.Range(50,100);//체체력
-            }
-            if (playerRole[i] == 2)//궁수
-            {
-                playerState[i*3] = Random.Range(1,10);//공격력
-                playerState[i*3+1] = Random.Range(1,10);//방어력
-                playerState[i*3+2] = Random.Range(30,50);//체체력
-            }
-            if (playerRole[i] == 3)//마법사
-            {
-                playerState[i*3] = Random.Range(1,10);//공격력
-                playerState[i*3+1] = Random.Range(1,10);//방어력
-                playerState[i*3+2] = Random.Range(30,50);//체체력
-            }
-        }
+        trainSelectSave = trainSelectSave.ConvertAll(x => 0);        
 
         getPlayer = new List<int>{ Random.Range(0,11), Random.Range(0,11),Random.Range(0,11) };
 
-        string json = JsonConvert.SerializeObject(playerState, Formatting.Indented);
-        File.WriteAllText(savePath, json);
 
-        Debug.Log(savePath);
     }
 
     void Update()
@@ -120,6 +92,9 @@ public class State : MonoBehaviour
         trainAdd = trainAdd.ConvertAll(x => 0);
         fighterButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector3(-90f, -10f);
         EnemyStatusText.GetComponentInChildren<CharacterID>().characterKey = (fighterCount + 1).ToString();
+        Debug.Log(statechange[fighterCount].hp);
+        Debug.Log(statechange[fighterCount].defense);
+        Debug.Log(statechange[fighterCount].damage);
     }
     
     public void selectWeek(int dayIndex)//훈련 날짜
@@ -164,31 +139,15 @@ public class State : MonoBehaviour
         
         trainSelect = trainSelect.ConvertAll(x => 0);//리스트 안 값 다시 0으로 변경
         
-        fighterButtons[0].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, 0f);//선수 위치 원래대로
-        fighterButtons[1].GetComponent<RectTransform>().anchoredPosition = new Vector2(90f, 0f);
-        fighterButtons[2].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, -100f);
-        fighterButtons[3].GetComponent<RectTransform>().anchoredPosition = new Vector2(90f, -100f);
-        fighterButtons[4].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, -200f);
-        if (playerCount > 5)
-        {
-            fighterButtons[5].GetComponent<RectTransform>().anchoredPosition = new Vector2(90f, -200f);
-        }
-        if (playerCount > 6)
-        {
-            fighterButtons[6].GetComponent<RectTransform>().anchoredPosition = new Vector2(10f, -300f);
-        }
-        if (playerCount > 7)
-        {
-            fighterButtons[7].GetComponent<RectTransform>().anchoredPosition = new Vector2(90f, -300f);
-        }
-        if (playerCount > 8)
-        {
-            fighterButtons[8].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, -400f);
-        }
-        if (playerCount > 9)
-        {
-            fighterButtons[9].GetComponent<RectTransform>().anchoredPosition = new Vector2(90f, -400f);
-        }
+        fighterButtons[0].GetComponent<RectTransform>().anchoredPosition = new Vector2(-90f, -15f);//선수 위치 원래대로
+        fighterButtons[1].GetComponent<RectTransform>().anchoredPosition = new Vector2(50f, -15f);
+        fighterButtons[2].GetComponent<RectTransform>().anchoredPosition = new Vector2(190f, -15f);
+        fighterButtons[3].GetComponent<RectTransform>().anchoredPosition = new Vector2(-90f, -215f);
+        fighterButtons[4].GetComponent<RectTransform>().anchoredPosition = new Vector2(50f, -215f);
+        fighterButtons[5].GetComponent<RectTransform>().anchoredPosition = new Vector2(190f, -215f);
+        fighterButtons[6].GetComponent<RectTransform>().anchoredPosition = new Vector2(-90f, -415f);
+        fighterButtons[7].GetComponent<RectTransform>().anchoredPosition = new Vector2(50f, -415f);
+        fighterButtons[8].GetComponent<RectTransform>().anchoredPosition = new Vector2(190f, -415f);
     }   
 
     public void nextWeek()//다음주로 넘김
@@ -205,17 +164,37 @@ public class State : MonoBehaviour
     {
         for (int i = 0; i < trainResult.Count; i++)
         {
-            playerState[i] += trainResult[i];
+            if (i%3 == 0)
+            {
+                statechange[i/3].damage += trainResult[i];
+                Debug.Log(statechange[i/3].damage);
+            }
+            if (i%3 == 1)
+            {
+                statechange[i/3].defense +=trainResult[i];
+                Debug.Log(statechange[i/3].defense);
+            }
+            if (i%3 == 2)
+            {
+                statechange[i/3].hp += trainResult[i];
+                Debug.Log(statechange[i/3].hp);
+            }
         }
+
 
         trainSelectSave = trainSelectSave.ConvertAll(x => 0);
 
         trainResult = trainResult.ConvertAll(x => 0);
-        fighterButtons[0].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, 0f);//선수 위치 원래대로
-        fighterButtons[1].GetComponent<RectTransform>().anchoredPosition = new Vector2(90f, 0f);
-        fighterButtons[2].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, -100f);
-        fighterButtons[3].GetComponent<RectTransform>().anchoredPosition = new Vector2(90f, -100f);
-        fighterButtons[4].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, -200f);
+        fighterButtons[0].GetComponent<RectTransform>().anchoredPosition = new Vector2(-90f, -15f);//선수 위치 원래대로
+        fighterButtons[1].GetComponent<RectTransform>().anchoredPosition = new Vector2(50f, -15f);
+        fighterButtons[2].GetComponent<RectTransform>().anchoredPosition = new Vector2(190f, -15f);
+        fighterButtons[3].GetComponent<RectTransform>().anchoredPosition = new Vector2(-90f, -215f);
+        fighterButtons[4].GetComponent<RectTransform>().anchoredPosition = new Vector2(50f, -215f);
+        fighterButtons[5].GetComponent<RectTransform>().anchoredPosition = new Vector2(190f, -215f);
+        fighterButtons[6].GetComponent<RectTransform>().anchoredPosition = new Vector2(-90f, -415f);
+        fighterButtons[7].GetComponent<RectTransform>().anchoredPosition = new Vector2(50f, -415f);
+        fighterButtons[8].GetComponent<RectTransform>().anchoredPosition = new Vector2(190f, -415f);
+        Debug.Log("주넘기기 완료");
     }
     public void playerGoodChoice()
     {
