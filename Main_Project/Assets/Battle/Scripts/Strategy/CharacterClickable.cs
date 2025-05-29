@@ -28,7 +28,6 @@ namespace Battle.Scripts.Strategy
                 if (!strategyManager.hasCharacter)
                 {
                     strategyManager.ClickedCharacter = transform;
-                    Debug.Log("🖱 클릭된 오브젝트: " + gameObject.name);
                     strategyManager.hasCharacter = true;
                     if (strategyManager.hasPlayer) strategyManager.Move();
                 }

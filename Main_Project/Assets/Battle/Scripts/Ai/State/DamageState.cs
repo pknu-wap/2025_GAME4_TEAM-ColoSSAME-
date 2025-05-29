@@ -19,8 +19,6 @@ namespace Battle.Scripts.Ai.State
 
         public void EnterState()
         {
-            Debug.Log($"{ai} : {ai.StateMachine.currentState}");
-            
             ai.TakeDamage(damage);
             
             ai.FlashRedTransparent(0.8f, 0.1f);

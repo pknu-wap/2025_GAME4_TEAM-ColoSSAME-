@@ -30,69 +30,75 @@ namespace Battle.Scripts.ImageManager
             StartCoroutine(CaptureAllRoutine());
         }
 
-        [ContextMenu("저장된 이미지 불러오기")]
-        public void LoadAllSprites()
+        private IEnumerator CaptureAllRoutine()
         {
-            foreach (var pannel in Pannels)
+            for (int i = 0; i < Targets.Count; i++)
             {
-                if (pannel == null) continue;
-
-                string tag = pannel.tag;
-                string folderPath = Path.Combine(baseSavePath, tag);
-                if (!Directory.Exists(folderPath)) continue;
-
-                string[] files = Directory.GetFiles(folderPath, "*.png");
-                bool matched = false;
-
-                foreach (var file in files)
-                {
-                    string fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
-                    if (fileNameWithoutExt.Equals(pannel.GetComponent<CharacterID>().characterKey, StringComparison.OrdinalIgnoreCase))
-                    {
-                        ApplySpriteToPannel(pannel, file);
-                        matched = true;
-                        break;
-                    }
-                }
-
-                if (!matched)
-                {
-                    Debug.LogWarning($"❌ {pannel.GetComponent<CharacterID>().characterKey}에 대응하는 PNG 파일이 {folderPath}에 없음");
-                }
+                var target = Targets[i];
+                yield return CaptureAndSaveSingle(target);
             }
         }
-        
-        public void LoadSpriteForSingle(GameObject target, string path)
+
+        private IEnumerator CaptureAndSaveSingle(GameObject Target)
         {
-            if (target == null) return;
-    
-            var id = target.GetComponent<CharacterID>();
-            if (id == null)
+            var id = Target.GetComponent<CharacterID>();
+            string fileName = $"{id.characterKey}.png";
+
+            captureCamera.orthographic = true;
+            captureCamera.orthographicSize = 0.8f;
+            captureCamera.transform.position = new Vector3(Target.transform.position.x, Target.transform.position.y + 0.3f, -1f);
+
+            var originalClearFlags = captureCamera.clearFlags;
+            var originalBackgroundColor = captureCamera.backgroundColor;
+            var originalCullingMask = captureCamera.cullingMask;
+
+            captureCamera.clearFlags = CameraClearFlags.SolidColor;
+            captureCamera.backgroundColor = new Color(0, 0, 0, 0);
+            captureCamera.cullingMask = visibleLayers;
+
+            var rt = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32);
+            captureCamera.targetTexture = rt;
+            RenderTexture.active = rt;
+
+            var screenshot = new Texture2D(width, height, TextureFormat.ARGB32, false);
+            captureCamera.Render();
+            screenshot.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+            screenshot.Apply();
+
+            captureCamera.targetTexture = null;
+            RenderTexture.active = null;
+            Destroy(rt);
+
+            captureCamera.clearFlags = originalClearFlags;
+            captureCamera.backgroundColor = originalBackgroundColor;
+            captureCamera.cullingMask = originalCullingMask;
+
+            string folderPath;
+
+            if (id.characterTeamKey == "Team01")
             {
-                Debug.LogWarning("CharacterID 컴포넌트가 없습니다.");
-                return;
+                folderPath = Path.Combine(baseSavePath, "PlayerCharacter");
+            }
+            else
+            {
+                string subFolder = id.characterTeamKey;
+                folderPath = Path.Combine(baseSavePath, "EnemyCharacter", subFolder);
             }
 
-            string folderPath = Path.Combine(baseSavePath, path); // 고정 경로
             if (!Directory.Exists(folderPath))
-            {
-                Debug.LogWarning("지정된 폴더가 존재하지 않습니다: " + folderPath);
-                return;
-            }
+                Directory.CreateDirectory(folderPath);
 
-            string[] files = Directory.GetFiles(folderPath, "*.png");
-            foreach (var file in files)
-            {
-                string fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
-                if (fileNameWithoutExt.Equals(id.characterKey, StringComparison.OrdinalIgnoreCase))
-                {
-                    ApplySpriteToPannel(target, file);
-                    Debug.Log($"✅ 개별 이미지 적용 완료: {file}");
-                    return;
-                }
-            }
+            string fullPath = Path.Combine(folderPath, fileName);
+            byte[] pngData = screenshot.EncodeToPNG();
+            File.WriteAllBytes(fullPath, pngData);
 
-            Debug.LogWarning($"❌ {id.characterKey}에 해당하는 이미지가 {folderPath}에 없음");
+            Debug.Log($"저장 완료: {fullPath}");
+
+    #if UNITY_EDITOR
+            UnityEditor.AssetDatabase.Refresh();
+    #endif
+
+            yield return null;
         }
 
         [ContextMenu("출전한 캐릭터 이미지만 불러오기")]
@@ -128,10 +134,20 @@ namespace Battle.Scripts.ImageManager
                 var id = pannel.GetComponent<CharacterID>();
                 if (id == null) continue;
 
-                if (!deployedKeys.Contains(id.characterKey)) continue;
+                if (!deployedKeys.Contains($"{id.characterTeamKey}_{id.characterKey}")) continue;
 
-                string tag = pannel.tag;
-                string folderPath = Path.Combine(baseSavePath, tag);
+                string folderPath;
+
+                if (id.characterTeamKey == "Team01")
+                {
+                    folderPath = Path.Combine(baseSavePath, "PlayerCharacter");
+                }
+                else
+                {
+                    string subFolder = id.characterTeamKey.Replace("Team", "Enemy");
+                    folderPath = Path.Combine(baseSavePath, "EnemyCharacter", subFolder);
+                }
+
                 if (!Directory.Exists(folderPath)) continue;
 
                 string[] files = Directory.GetFiles(folderPath, "*.png");
@@ -141,11 +157,91 @@ namespace Battle.Scripts.ImageManager
                     if (fileNameWithoutExt.Equals(id.characterKey, StringComparison.OrdinalIgnoreCase))
                     {
                         ApplySpriteToPannel(pannel, file);
-                        Debug.Log($"✅ 출전 캐릭터 이미지 적용됨: {file}");
+                        Debug.Log($"출전 캐릭터 이미지 적용됨: {file}");
                         break;
                     }
                 }
             }
+        }
+
+        [ContextMenu("저장된 이미지 불러오기")]
+        public void LoadAllSprites()
+        {
+            foreach (var pannel in Pannels)
+            {
+                if (pannel == null) continue;
+
+                var id = pannel.GetComponent<CharacterID>();
+                if (id == null) continue;
+
+                string folderPath;
+
+                if (id.characterTeamKey == "Team01")
+                {
+                    folderPath = Path.Combine(baseSavePath, "PlayerCharacter");
+                }
+                else
+                {
+                    string subFolder = id.characterTeamKey;
+                    folderPath = Path.Combine(baseSavePath, "EnemyCharacter", subFolder);
+                }
+
+                if (!Directory.Exists(folderPath)) continue;
+
+                string[] files = Directory.GetFiles(folderPath, "*.png");
+                foreach (var file in files)
+                {
+                    string fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
+                    if (fileNameWithoutExt.Equals(id.characterKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        ApplySpriteToPannel(pannel, file);
+                        break;
+                    }
+                }
+            }
+        }
+
+        public void LoadSpriteForSingle(GameObject target, string teamKey)
+        {
+            if (target == null) return;
+
+            var id = target.GetComponent<CharacterID>();
+            if (id == null)
+            {
+                Debug.LogWarning("CharacterID 컴포넌트가 없습니다.");
+                return;
+            }
+
+            string folderPath;
+
+            if (teamKey == "Team01")
+            {
+                folderPath = Path.Combine(baseSavePath, "PlayerCharacter");
+            }
+            else
+            {
+                string subFolder = id.characterTeamKey;
+                folderPath = Path.Combine(baseSavePath, "EnemyCharacter", subFolder);
+            }
+
+            if (!Directory.Exists(folderPath))
+            {
+                Debug.LogWarning("지정된 폴더가 존재하지 않습니다: " + folderPath);
+                return;
+            }
+
+            string[] files = Directory.GetFiles(folderPath, "*.png");
+            foreach (var file in files)
+            {
+                string fileNameWithoutExt = Path.GetFileNameWithoutExtension(file);
+                if (fileNameWithoutExt.Equals(id.characterKey, StringComparison.OrdinalIgnoreCase))
+                {
+                    ApplySpriteToPannel(target, file);
+                    return;
+                }
+            }
+
+            Debug.LogWarning($"{id.characterKey}에 해당하는 이미지가 {folderPath}에 없음");
         }
 
         private void ApplySpriteToPannel(GameObject pannel, string filePath)
@@ -158,68 +254,7 @@ namespace Battle.Scripts.ImageManager
             if (pannel.TryGetComponent(out SpriteRenderer renderer))
             {
                 renderer.sprite = sprite;
-                Debug.Log($"🖼️ 적용 완료: {Path.GetFileName(filePath)}");
             }
-        }
-
-        private IEnumerator CaptureAllRoutine()
-        {
-            for (int i = 0; i < Targets.Count; i++)
-            {
-                var target = Targets[i];
-                yield return CaptureAndSaveSingle(target);
-            }
-        }
-
-        private IEnumerator CaptureAndSaveSingle(GameObject Target)
-        {
-            string fileName = $"{Target.GetComponent<CharacterID>().characterKey}.png";
-
-            captureCamera.orthographic = true;
-            captureCamera.orthographicSize = 0.8f;
-            captureCamera.transform.position = new Vector3(Target.transform.position.x, Target.transform.position.y + 0.3f, -1f);
-
-            var originalClearFlags = captureCamera.clearFlags;
-            var originalBackgroundColor = captureCamera.backgroundColor;
-            var originalCullingMask = captureCamera.cullingMask;
-
-            captureCamera.clearFlags = CameraClearFlags.SolidColor;
-            captureCamera.backgroundColor = new Color(0, 0, 0, 0);
-            captureCamera.cullingMask = visibleLayers;
-
-            var rt = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32);
-            captureCamera.targetTexture = rt;
-            RenderTexture.active = rt;
-
-            var screenshot = new Texture2D(width, height, TextureFormat.ARGB32, false);
-            captureCamera.Render();
-            screenshot.ReadPixels(new Rect(0, 0, width, height), 0, 0);
-            screenshot.Apply();
-
-            captureCamera.targetTexture = null;
-            RenderTexture.active = null;
-            Destroy(rt);
-
-            captureCamera.clearFlags = originalClearFlags;
-            captureCamera.backgroundColor = originalBackgroundColor;
-            captureCamera.cullingMask = originalCullingMask;
-
-            string matchingTag = Target.tag + "Character";
-            string folderPath = Path.Combine(baseSavePath, matchingTag);
-            if (!Directory.Exists(folderPath))
-                Directory.CreateDirectory(folderPath);
-
-            string fullPath = Path.Combine(folderPath, fileName);
-            byte[] pngData = screenshot.EncodeToPNG();
-            File.WriteAllBytes(fullPath, pngData);
-
-            Debug.Log($"📸 저장 완료: {fullPath}");
-
-#if UNITY_EDITOR
-            UnityEditor.AssetDatabase.Refresh();
-#endif
-
-            yield return null;
         }
     }
 }

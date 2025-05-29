@@ -16,18 +16,16 @@ namespace Battle.Scripts.Ai.State
             ai.StopMoving();
             
             ai.aiAnimator.Reset();
-            ai.aiAnimator.Move();
-            
-            if(!ai.IsRetreating) ai.Retreater.GetComponent<RetreatTarget>().SetRetreatTarget();
-            ai.IsRetreating = true;
+            ai.aiAnimator.StopMove();
+            ai.Retreater.GetComponent<RetreatTarget>().SetRetreatTarget();
         }
 
         public void UpdateState()
         {
+            ai.aiAnimator.Move();
             ai.MoveTo(ai.Retreater.position);
             if (ai.IsInRetreatDistance())
             {
-                ai.IsRetreating = false;
                 ai.StateMachine.ChangeState(new IdleState(ai, true, ai.waitTime));
             }
         }

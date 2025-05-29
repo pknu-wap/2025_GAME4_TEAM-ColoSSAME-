@@ -15,47 +15,34 @@ namespace Battle.Scripts.Value
         
         public int playersNumber;
         public int enemiesNumber;
-        private GameObject[] exitevent;
-        public WinnerText winnerText;
-        public NextScene nextScene;
         GameObject[] players;
         GameObject[] enemies;
-        GameObject Ai;
-        private void Start()
+        public GameObject Result;
+
+        public void startSetting()
         {
-            Ai = GameObject.FindGameObjectWithTag("Ai");
+            Result.SetActive(false);
             players = GameObject.FindGameObjectsWithTag("Player");
             playersNumber = players.Length;
             Debug.Log("플레이어 수 : " + playersNumber);
             enemies = GameObject.FindGameObjectsWithTag("Enemy");
             enemiesNumber = enemies.Length;
             Debug.Log("적 수 : " + enemiesNumber);
-            exitevent = GameObject.FindGameObjectsWithTag("Exitevent");
-            foreach (GameObject obj in exitevent)
-            {
-                obj.SetActive(false);
-            }
         }
-
+        
         public void Winner(GameObject tags)
         {
             if(tags.CompareTag("Player")) playersNumber--;
             if(tags.CompareTag("Enemy")) enemiesNumber--;
             if (playersNumber == 0 || enemiesNumber == 0)
             {
-                Ai.SetActive(false);
-                winnerText.gameObject.SetActive(true);
-                nextScene.ButtonOn();
                 if (playersNumber < enemiesNumber) {
-                    winnerText.Lose();
+                    
                 } else {
-                    winnerText.Win();
+                    
                 }
                 gameObject.SetActive(false);
-            }
-            foreach (GameObject obj in exitevent)
-            {
-                obj.SetActive(true);
+                Result.SetActive(true);
             }
         }
     }

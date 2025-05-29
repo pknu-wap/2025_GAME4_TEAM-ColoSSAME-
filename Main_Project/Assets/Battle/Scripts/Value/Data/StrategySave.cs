@@ -25,7 +25,7 @@ namespace Battle.Scripts.Value.Data
             CharacterData data = JsonConvert.DeserializeObject<CharacterData>(json);
 
             // 2. 저장 대상 레이어 설정 (예: "PlayerCharacterSeat" 또는 "EnemyCharacterSeat")
-            int targetLayer = 10;
+            int targetLayer = 9;
 
             // 3. 모든 GameObject에서 레이어 기준 필터링
             GameObject[] allObjects = FindObjectsOfType<GameObject>();
@@ -33,16 +33,18 @@ namespace Battle.Scripts.Value.Data
             {
                 if (obj.layer != targetLayer) continue;
 
-                Debug.Log(obj.name);
                 var id = obj.GetComponent<CharacterID>();
-                if (id == null || !data.characters.ContainsKey(id.characterKey)) continue;
+                if (id == null || string.IsNullOrEmpty(id.characterTeamKey)) continue;
+
+                string fullKey = $"{id.characterTeamKey}_{id.characterKey}";
+                if (!data.characters.ContainsKey(fullKey)) continue;
 
                 // 4. 위치 저장
-                data.characters[id.characterKey].IsDeployed = true;
-                data.characters[id.characterKey].x = obj.transform.position.x + 2.6f;
-                data.characters[id.characterKey].y = obj.transform.position.y + 0.8f;
-                data.characters[id.characterKey].z = obj.transform.position.z;
-                Debug.Log(JsonConvert.SerializeObject(data.characters[id.characterKey], Formatting.Indented));
+                var character = data.characters[fullKey];
+                character.IsDeployed = true;
+                character.x = obj.transform.position.x + 2.6f;
+                character.y = obj.transform.position.y + 0.8f;
+                character.z = obj.transform.position.z;
             }
 
             // 5. JSON 파일로 다시 저장

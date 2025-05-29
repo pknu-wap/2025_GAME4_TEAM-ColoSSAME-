@@ -7,6 +7,8 @@ namespace Battle.Scripts.Value.Data
     [System.Serializable]
     public class CharacterInfo
     {
+        //character 고유 팀 번호
+        public string characterTeamKey;
         //character 고유 번호
         public string characterKey;
         
@@ -47,5 +49,7 @@ namespace Battle.Scripts.Value.Data
         public float x, y, z;
         //character 출전여부
         public bool IsDeployed;
+        //character 팀
+        public TeamType team;
     }
 }

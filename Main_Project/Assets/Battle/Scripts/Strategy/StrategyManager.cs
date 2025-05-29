@@ -79,7 +79,6 @@ namespace Battle.Scripts.Strategy
 
                     characters[index].transform.localPosition = new Vector3(-0.3f + (i * 0.15f), 0.2f - (j * 0.2f), 0);
                     characters[index].layer = 0;
-                    Debug.Log(characters[index].name);
                 }
             }
             
@@ -92,7 +91,6 @@ namespace Battle.Scripts.Strategy
 
                     enemyCharacters[index].transform.localPosition = new Vector3(-0.3f + (i * 0.15f), 0.2f - (j * 0.2f), 0);
                     enemyCharacters[index].layer = 0;
-                    Debug.Log(enemyCharacters[index].name);
                 }
             }
         }
@@ -177,7 +175,6 @@ namespace Battle.Scripts.Strategy
 
         private void IsDeployed()
         {
-            Debug.Log("isdeployed 실행되었음");
             foreach (var character in characters)
             {
                 Vector2 characterPos = character.transform.localPosition;
@@ -186,13 +183,11 @@ namespace Battle.Scripts.Strategy
                     MinArea.y <= characterPos.y &&
                     MaxArea.y >= characterPos.y)
                 {
-                    character.layer = 10;
-                    Debug.Log(character.name + " is deployed");
+                    character.layer = 9;
                 }
                 else
                 {
                     character.layer = 0;
-                    Debug.Log(character.name + " is not deployed");
                 }
             }
         }

@@ -23,11 +23,8 @@ namespace Battle.Scripts.UI
 
         public void LoadJsonData()
         {
-            if (id == null || string.IsNullOrEmpty(id.characterKey))
-            {
-                Debug.LogWarning("StatText: CharacterID가 설정되지 않았습니다.");
+            if (id == null || string.IsNullOrEmpty(id.characterKey) || string.IsNullOrEmpty(id.characterTeamKey))
                 return;
-            }
 
             string fileName = teamTag == "Player" ? "PlayerSave.json" : "EnemySave.json";
             string filePath = Path.Combine(Application.persistentDataPath, fileName);
@@ -39,17 +36,16 @@ namespace Battle.Scripts.UI
             }
 
             string json = File.ReadAllText(filePath);
-
-            //Dictionary 포함된 JSON은 JsonUtility 대신 JsonConvert 사용
             CharacterData data = JsonConvert.DeserializeObject<CharacterData>(json);
 
-            if (data.characters.TryGetValue(id.characterKey, out var info))
+            string fullKey = $"{id.characterTeamKey}_{id.characterKey}";
+            if (data.characters.TryGetValue(fullKey, out var info))
             {
                 myInfo = info;
             }
             else
             {
-                Debug.LogWarning($"StatText: characterKey {id.characterKey} 에 해당하는 데이터를 찾을 수 없습니다.");
+                Debug.LogWarning($"StatText: {fullKey} 에 해당하는 데이터를 찾을 수 없습니다.");
             }
         }
 

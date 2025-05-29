@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Battle.Scripts.Ai;
 using Battle.Scripts.ImageManager;
+using Battle.Scripts.Value;
 using Battle.Scripts.Value.Data;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -70,6 +71,7 @@ namespace Battle.Scripts.UI
                         if (statID != null)
                         {
                             statID.characterKey = spawnedID.characterKey;
+                            statID.characterTeamKey = spawnedID.characterTeamKey; // ✅ 팀 키도 설정
                         }
                     }
                 }
@@ -81,19 +83,24 @@ namespace Battle.Scripts.UI
                     if (panelID != null)
                     {
                         panelID.characterKey = spawnedID.characterKey;
+                        panelID.characterTeamKey = spawnedID.characterTeamKey; // ✅ 팀 키도 설정
                     }
                 }
 
                 start++;
+                spawned.GetComponent<BattleAI>().isWinner = FindObjectOfType<IsWinner>();
+                spawned.GetComponent<BattleAI>().BattleStart();
             }
 
             // 4. StatText 재활성화 및 연결
             foreach (var text in statText)
             {
                 text.gameObject.SetActive(true);
-                text.StatConnect();
+                text.StatConnect(); // 내부에서 myInfo 로드
             }
+
+            FindObjectOfType<IsWinner>().startSetting();
+            gameObject.SetActive(false);
         }
-        
     }
 }

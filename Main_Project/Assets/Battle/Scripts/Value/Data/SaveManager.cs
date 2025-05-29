@@ -60,8 +60,8 @@ namespace Battle.Scripts.Value.Data
                 var info = new CharacterInfo
                 {
                     characterKey = id.characterKey,
+                    characterTeamKey = id.characterTeamKey,
                     name = obj.name,
-                    // ... 이하 동일
                     bodyPath1 = spum.ImageElement[0].ItemPath,
                     bodyPath2 = spum.ImageElement[1].ItemPath,
                     bodyPath3 = spum.ImageElement[2].ItemPath,
@@ -95,11 +95,14 @@ namespace Battle.Scripts.Value.Data
                     CON = ai.hp,
                     classType = ai.Class,
                     weaponType = ai.weaponType,
-                    IsDeployed = false
+                    IsDeployed = false,
+                    team = ai.team
                 };
         
                 // 3. 기존에 있으면 덮어쓰기, 없으면 추가
-                data.characters[id.characterKey] = info;
+                // SaveFromButton 안에서 수정
+                string fullKey = $"{id.characterTeamKey}_{id.characterKey}";
+                data.characters[fullKey] = info;
             }
         
             // 4. 저장
@@ -119,9 +122,9 @@ namespace Battle.Scripts.Value.Data
                 var resetCharacter = obj.GetComponent<RandomCharacter>();
                 BattleAI ai = obj.GetComponent<BattleAI>();
                 resetCharacter?.Reset();
-                if (id == null || spum == null || !loaded.characters.ContainsKey(id.characterKey)) continue;
-
-                var info = loaded.characters[id.characterKey];
+                string fullKey = $"{id.characterTeamKey}_{id.characterKey}";
+                if (!loaded.characters.ContainsKey(fullKey)) continue;
+                var info = loaded.characters[fullKey];
 
                 spum.ImageElement[0].ItemPath = info.bodyPath1;
                 spum.ImageElement[1].ItemPath = info.bodyPath2;
@@ -152,10 +155,7 @@ namespace Battle.Scripts.Value.Data
                 spum.ImageElement[20].ItemPath = info.weaponPath1;
                 spum.ImageElement[21].PartSubType = info.weaponType2;
                 spum.ImageElement[21].ItemPath = info.weaponPath2;
-                ai.damage = info.ATK;
-                ai.hp = info.CON;
-                ai.Class = info.classType;
-                ai.weaponType = info.weaponType;
+                ai.ApplyLoadedStats(info);
 
                 createTest?.RerenderAllParts(obj);
                 if (targetTag == "Player")
