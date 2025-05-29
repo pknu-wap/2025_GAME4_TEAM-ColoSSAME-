@@ -6,10 +6,9 @@ public class PuzzleManager : MonoBehaviour
 {
     public GameObject investorprefab;
     public Transform[] spawnPoints;
-    private Image[] images; // prefab img 저장
-    public Image[]  completedInvestorImage; // 왼쪽 page의 완료된 img 배열
+    public Image[] completedInvestorImage;
     public Transform spawnParent;
-
+    
     public GameObject[] hidePanels;
 
     public GameObject negotiationPanelPrefab; // 저장된 nego 프리팹
@@ -18,13 +17,13 @@ public class PuzzleManager : MonoBehaviour
     public RandomImageSelector imageSelector;
 
     private int completedIndex = 0; // 왼쪽 page의 완료된 img 배열 index
+    private List<Sprite> usedSprites = new List<Sprite>();
     void Start()
     {
         if (imageSelector != null)
         {
             imageSelector.ResetUsedIndices(); // 초기화
         }
-        images =  new Image[spawnPoints.Length];
         SpawnNewInvestor();
     }
 
@@ -39,10 +38,6 @@ public class PuzzleManager : MonoBehaviour
             RectTransform objRect = obj.GetComponent<RectTransform>();
             objRect.anchoredPosition = ((RectTransform)spawnPoints[i]).localPosition;
 
-            // InvestorUnit 스크립트 초기화
-            InvestorUnit unit = obj.GetComponent<InvestorUnit>();
-            unit.Init(this);
-
             // 이미지 Random 선택
             Image img = obj.GetComponentInChildren<Image>();
             if (img != null && imageSelector != null)
@@ -53,15 +48,55 @@ public class PuzzleManager : MonoBehaviour
                     img.sprite = imageSelector.sprites[randIndex];
                 }
             }
+            // InvestorUnit 스크립트 초기화
+            InvestorUnit unit = obj.GetComponent<InvestorUnit>();
+            unit.Init(this);
         }
     }
-
-    public void HideOtherInvestors(GameObject exceptThis)
+    public void MoveInvestorImageToCompletedSlot(GameObject investorGO)
     {
-        foreach (Transform child in spawnParent) // spawnParent = investors
+        if (completedIndex >= completedInvestorImage.Length)
         {
-            Destroy(exceptThis);
-            child.gameObject.SetActive(false); // 또는 Destroy(child.gameObject);
+            Debug.LogWarning("✅ [PuzzleManager] 모든 슬롯이 채워졌습니다.");
+            return;
+        }
+
+        // 투자자에서 이미지 가져오기
+        Image originalImage = investorGO.GetComponentInChildren<Image>();
+        if (originalImage == null || originalImage.sprite == null)
+        {
+            Debug.LogError("❌ [PuzzleManager] 원본 이미지 또는 스프라이트가 null입니다.");
+            return;
+        }
+        else
+        {
+            Debug.Log($"✅ 원본 스프라이트: {originalImage.sprite.name}");
+        }
+
+        // 슬롯 이미지 설정
+        Image slotImage = completedInvestorImage[completedIndex];
+        slotImage.sprite = originalImage.sprite;
+
+        // UI 설정 보정
+        slotImage.enabled = true;
+        slotImage.preserveAspect = true;
+        slotImage.rectTransform.sizeDelta = new Vector2(120, 120);
+
+        // 혹시 투명도 문제 있을 경우 강제 보정
+        Color color = slotImage.color;
+        color.a = 1f;
+        slotImage.color = color;
+
+        Debug.Log($"✅ [PuzzleManager] 슬롯 {completedIndex} 에 이미지 할당 완료: {originalImage.sprite.name}");
+
+        completedIndex++;
+    }
+
+    public void HideOtherInvestors()
+    {
+        foreach (Transform child in spawnParent)
+        {
+                child.gameObject.SetActive(false);
         }
     }
 
@@ -72,6 +107,5 @@ public class PuzzleManager : MonoBehaviour
             if (child.gameObject != exceptThis)
                 child.gameObject.SetActive(true);
         }
-        
     }
 }

@@ -9,11 +9,18 @@ public class InvestorUnit : MonoBehaviour
     private GameObject activeNegotiationPanel;
     private GameObject negotiationPanelPrefab;
     private Transform storyUIAnchor;
+
+    private Image myImage;
+    private PuzzleManager puzzleManager;
+
     public void Init(PuzzleManager manager)
     {
+        puzzleManager = manager;
         panelsToHide = manager.hidePanels;
         storyUIAnchor = manager.storyUIAnchor;
         negotiationPanelPrefab = manager.negotiationPanelPrefab;
+
+        myImage = GetComponentInChildren<Image>();    
         
         // 클릭 시 nego 패널 set true, 자신을 제외한 prefab들 set false
         investorButton.onClick.AddListener(() =>
@@ -28,14 +35,15 @@ public class InvestorUnit : MonoBehaviour
             nego.Init(manager, this.gameObject, panelsToHide);
             
             nego.OnPuzzleComplete += () =>
-            {
+            {   
+                Debug.Log("onPuzzleComplete");
+                puzzleManager.MoveInvestorImageToCompletedSlot(this.gameObject);
                 Destroy(this.gameObject);               // 나 자신 삭제
                 Destroy(activeNegotiationPanel);        // UI 삭제
-                manager.SpawnNewInvestor();             // 새 투자자 생성
             };
 
             // 외부 UI 및 investor 프리팹 숨기기
-            manager.HideOtherInvestors(this.gameObject);
+            manager.HideOtherInvestors();
             foreach (var panel in panelsToHide)
                 panel.SetActive(false);
         });
