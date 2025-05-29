@@ -51,16 +51,14 @@ public class BattleSceneManager : MonoBehaviour
         enemyTeamImage.sprite = LoadTeamSprite(enemyTeamKey);
         enemyTeamText.text = GetTeamDisplayName(enemyTeamKey);
 
-        resultPanel.SetActive(false); // 처음에는 결과창 숨김
+        resultPanel.SetActive(false); // 결과창 초기 숨김
     }
 
-    // 버튼으로 호출 (우리팀 승리)
     public void OnWin()
     {
         ApplyResult(myTeamKey);
     }
 
-    // 버튼으로 호출 (우리팀 패배)
     public void OnLose()
     {
         ApplyResult(enemyTeamKey);
@@ -68,15 +66,6 @@ public class BattleSceneManager : MonoBehaviour
 
     void ApplyResult(string winnerKey)
     {
-        Debug.Log($"⚔️ 승자 처리: {winnerKey}");
-
-        if (currentMatch == null)
-        {
-            Debug.LogError("⛔ currentMatch가 null");
-            return;
-        }
-
-        // 1. 현재 라운드에 따라 승자 저장
         TournamentData data = saveManager.LoadTournament();
 
         if (data.finalMatch == currentMatch)
@@ -94,7 +83,6 @@ public class BattleSceneManager : MonoBehaviour
             tournamentController.SetQuarterFinalWinner(index, winnerKey);
         }
 
-        // 2. 결과창 UI 업데이트
         resultMyTeamImage.sprite = myTeamImage.sprite;
         resultMyTeamText.text = myTeamText.text;
 
@@ -105,8 +93,7 @@ public class BattleSceneManager : MonoBehaviour
         {
             resultMyTeamResult.text = "승";
             resultEnemyTeamResult.text = "패";
-
-            resultEnemyTeamImage.color = new Color(1, 1, 1, 0.3f); // 흐림
+            resultEnemyTeamImage.color = new Color(1, 1, 1, 0.3f);
             resultMyTeamImage.color = Color.white;
 
             tournamentController.AutoResolveRemainingMatches();
@@ -115,15 +102,14 @@ public class BattleSceneManager : MonoBehaviour
         {
             resultMyTeamResult.text = "패";
             resultEnemyTeamResult.text = "승";
-
-            resultMyTeamImage.color = new Color(1, 1, 1, 0.3f); // 흐림
+            resultMyTeamImage.color = new Color(1, 1, 1, 0.3f);
             resultEnemyTeamImage.color = Color.white;
 
             Debug.Log("💀 우리 팀 패배 - 게임 오버");
         }
 
+        resultPanel.SetActive(true);
         tournamentController.SaveTournament();
-        resultPanel.SetActive(true); // 결과창 켜기
     }
 
     Match FindMyCurrentMatch(TournamentData data)

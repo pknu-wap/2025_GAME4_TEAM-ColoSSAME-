@@ -113,62 +113,39 @@ public class TournamentController : MonoBehaviour
         saveManager.SaveTournament(currentTournament);
     }
     
+    // TryAdvanceToNextRounds 함수 수정
     public void TryAdvanceToNextRounds()
     {
-        // 4강 자동 구성
         if (currentTournament.semiFinals.Count < 2 &&
             AllMatchesFinished(currentTournament.quarterFinals))
         {
-            var usedTeams = new HashSet<string>();
+            var qf = currentTournament.quarterFinals;
+            var winners = new List<string> {
+                qf[0].winnerKey, qf[1].winnerKey,
+                qf[2].winnerKey, qf[3].winnerKey
+            };
 
-            for (int i = 0; i < 2; i++)
-            {
-                string p1 = currentTournament.quarterFinals[i * 2].winnerKey;
-                string p2 = currentTournament.quarterFinals[i * 2 + 1].winnerKey;
+            winners.Sort((a, b) => a == "Team01" ? -1 : b == "Team01" ? 1 : 0);
 
-                // 중복 방지
-                if (usedTeams.Contains(p1) || usedTeams.Contains(p2))
-                {
-                    Debug.LogError($"❌ 중복된 팀이 발견됨: {p1}, {p2}");
-                    continue;
-                }
+            currentTournament.semiFinals.Clear();
+            currentTournament.semiFinals.Add(new Match { player1Key = winners[0], player2Key = winners[1] });
+            currentTournament.semiFinals.Add(new Match { player1Key = winners[2], player2Key = winners[3] });
 
-                usedTeams.Add(p1);
-                usedTeams.Add(p2);
-
-                currentTournament.semiFinals.Add(new Match
-                {
-                    player1Key = p1,
-                    player2Key = p2
-                });
-            }
-
-            Debug.Log("🎯 4강 대진표 생성 완료");
+            Debug.Log("🎯 4강 대진표 생성 완료 (Team01 우선 배치)");
         }
 
-        // 결승 자동 구성
         if (currentTournament.finalMatch == null &&
             AllMatchesFinished(currentTournament.semiFinals))
         {
-            string f1 = currentTournament.semiFinals[0].winnerKey;
-            string f2 = currentTournament.semiFinals[1].winnerKey;
-
-            if (f1 != null && f2 != null && f1 != f2)
+            currentTournament.finalMatch = new Match
             {
-                currentTournament.finalMatch = new Match
-                {
-                    player1Key = f1,
-                    player2Key = f2
-                };
-                Debug.Log("🎯 결승 대진표 생성 완료");
-            }
-            else
-            {
-                Debug.LogWarning("⚠️ 결승전 구성 실패: 중복 또는 null winner");
-            }
+                player1Key = currentTournament.semiFinals[0].winnerKey,
+                player2Key = currentTournament.semiFinals[1].winnerKey
+            };
+            Debug.Log("🎯 결승 대진표 생성 완료");
         }
     }
-
+    
     
     public void SaveTournament()
     {
