@@ -48,11 +48,7 @@ public class State : MonoBehaviour
    // public RandomCharacter randomcharacter;
     //public SaveManager savemanage;
     public CharacterID characterid;
-    public SaveManager saver;
 
-    public string targetTag = "Player"; // 저장 대상 태그 ("Player" or "Enemy")
-    private string SaveFileName => $"{targetTag}Save.json";
-    private string savePath => Path.Combine(Application.persistentDataPath, SaveFileName);
 
     
 
@@ -65,7 +61,6 @@ public class State : MonoBehaviour
 
         
         //savemanage.Save(savemanage.SaveFromButton());
-        CharacterData loaded = Load();
         
 
         trainSelect = trainSelect.ConvertAll(x => 0);
@@ -73,17 +68,6 @@ public class State : MonoBehaviour
 
         getPlayer = new List<int>{ Random.Range(0,11), Random.Range(0,11),Random.Range(0,11) };
 
-        foreach (var s in statechange)
-        {
-            var id = s.GetComponent<CharacterID>();
-
-            var info = loaded.characters[id.characterKey];
-
-            s.damage = info.ATK;
-            s.hp = info.CON;
-            s.defense = info.DEF;
-        }
-        
 
     }
 
@@ -117,19 +101,6 @@ public class State : MonoBehaviour
     {
         day = dayIndex;
     }
-
-    private CharacterData Load()
-        {
-            if (File.Exists(savePath))
-            {
-                string json = File.ReadAllText(savePath);
-                CharacterData data = JsonConvert.DeserializeObject<CharacterData>(json);
-                Debug.Log($"{targetTag} 불러오기 완료");
-                return data;
-            }
-            Debug.LogWarning($"{targetTag} 저장 파일 없음");
-            return new CharacterData();
-        }
 
     public void leftClick()//훈련 왼쪽 클릭
     {   
