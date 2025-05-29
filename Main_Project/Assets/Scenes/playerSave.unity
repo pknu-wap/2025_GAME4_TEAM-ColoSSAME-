@@ -274,7 +274,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &16284398
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -411,6 +411,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: Team01
   characterKey: 6
 --- !u!212 &20802521
 SpriteRenderer:
@@ -2217,6 +2218,10 @@ PrefabInstance:
       propertyPath: characterKey
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: characterTeamKey
+      value: Team02
+      objectReference: {fileID: 0}
     - target: {fileID: 9060998752809128883, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: m_LocalRotation.y
       value: 0.008726558
@@ -3482,6 +3487,10 @@ PrefabInstance:
       propertyPath: characterKey
       value: 4
       objectReference: {fileID: 0}
+    - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: characterTeamKey
+      value: Team01
+      objectReference: {fileID: 0}
     - target: {fileID: 9060998752809128883, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: m_LocalRotation.y
       value: 0.008726558
@@ -4462,6 +4471,7 @@ GameObject:
   - component: {fileID: 179887142}
   - component: {fileID: 179887141}
   - component: {fileID: 179887140}
+  - component: {fileID: 179887143}
   m_Layer: 5
   m_Name: fighter (5)
   m_TagString: Untagged
@@ -4620,6 +4630,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 179887138}
   m_CullTransparentMesh: 1
+--- !u!114 &179887143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 179887138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  characterTeamKey: Team01
+  characterKey: 6
 --- !u!1 &193885484
 GameObject:
   m_ObjectHideFlags: 0
@@ -5123,6 +5147,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: Team01
   characterKey: 2
 --- !u!1 &215412164 stripped
 GameObject:
@@ -5967,6 +5992,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: Team01
   characterKey: 
 --- !u!114 &264507553
 MonoBehaviour:
@@ -7235,6 +7261,10 @@ PrefabInstance:
     - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: characterKey
       value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: characterTeamKey
+      value: Team02
       objectReference: {fileID: 0}
     - target: {fileID: 9060998752809128883, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: m_LocalRotation.y
@@ -8651,6 +8681,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: Team02
   characterKey: 3
 --- !u!212 &400783952
 SpriteRenderer:
@@ -9248,6 +9279,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: Team01
   characterKey: 1
 --- !u!1 &447910739
 GameObject:
@@ -9458,6 +9490,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: Team02
   characterKey: 6
 --- !u!212 &448386193
 SpriteRenderer:
@@ -9956,6 +9989,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: 
   characterKey: 1
 --- !u!114 &479402033
 MonoBehaviour:
@@ -11409,6 +11443,10 @@ PrefabInstance:
       propertyPath: characterKey
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: characterTeamKey
+      value: Team02
+      objectReference: {fileID: 0}
     - target: {fileID: 9060998752809128883, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: m_LocalRotation.y
       value: 0.008726558
@@ -11682,6 +11720,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: 
   characterKey: 2
 --- !u!114 &519044376
 MonoBehaviour:
@@ -12008,6 +12047,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: Team02
   characterKey: 9
 --- !u!212 &534012800
 SpriteRenderer:
@@ -12254,7 +12294,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &540634286
 RectTransform:
   m_ObjectHideFlags: 0
@@ -13194,6 +13234,10 @@ PrefabInstance:
       propertyPath: characterKey
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: characterTeamKey
+      value: Team01
+      objectReference: {fileID: 0}
     - target: {fileID: 9060998752809128883, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: m_LocalRotation.y
       value: 0.008726558
@@ -13597,6 +13641,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: 
   characterKey: 1
 --- !u!114 &593756043
 MonoBehaviour:
@@ -15120,6 +15165,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: Team01
   characterKey: 2
 --- !u!1 &652221138 stripped
 GameObject:
@@ -15384,6 +15430,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: Team02
   characterKey: 5
 --- !u!212 &688539225
 SpriteRenderer:
@@ -15502,6 +15549,10 @@ PrefabInstance:
     - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: characterKey
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: characterTeamKey
+      value: Team02
       objectReference: {fileID: 0}
     - target: {fileID: 9060998752809128883, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: m_LocalRotation.y
@@ -16944,6 +16995,10 @@ PrefabInstance:
       propertyPath: characterKey
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: characterTeamKey
+      value: Team01
+      objectReference: {fileID: 0}
     - target: {fileID: 9060998752809128883, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: m_LocalRotation.y
       value: 0.008726558
@@ -17462,6 +17517,10 @@ PrefabInstance:
       propertyPath: characterKey
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: characterTeamKey
+      value: Team01
+      objectReference: {fileID: 0}
     - target: {fileID: 9060998752809128883, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: m_LocalRotation.y
       value: 0.008726558
@@ -17622,6 +17681,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: Team01
   characterKey: 8
 --- !u!212 &863709102
 SpriteRenderer:
@@ -18696,6 +18756,7 @@ GameObject:
   - component: {fileID: 917975565}
   - component: {fileID: 917975564}
   - component: {fileID: 917975563}
+  - component: {fileID: 917975566}
   m_Layer: 5
   m_Name: next
   m_TagString: Untagged
@@ -18778,7 +18839,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
+        m_CallState: 0
       - m_Target: {fileID: 730669867}
         m_TargetAssemblyTypeName: State, Assembly-CSharp
         m_MethodName: goHome
@@ -18790,10 +18851,22 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 2
+        m_CallState: 0
       - m_Target: {fileID: 1897721829}
         m_TargetAssemblyTypeName: Battle.Scripts.Value.Data.SaveManager, Assembly-CSharp
         m_MethodName: SaveFromButton
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 0
+      - m_Target: {fileID: 917975566}
+        m_TargetAssemblyTypeName: Battle.Scripts.SceneChanger, Assembly-CSharp
+        m_MethodName: ChangeScene
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -18841,6 +18914,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 917975561}
   m_CullTransparentMesh: 1
+--- !u!114 &917975566
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 917975561}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fff7529fb63129647b2331941cfa3fa3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneToLoad: StrategySceneTemp
 --- !u!1 &929473840
 GameObject:
   m_ObjectHideFlags: 0
@@ -19165,6 +19251,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: Team02
   characterKey: 7
 --- !u!212 &947485116
 SpriteRenderer:
@@ -19913,6 +20000,7 @@ GameObject:
   - component: {fileID: 1004145383}
   - component: {fileID: 1004145382}
   - component: {fileID: 1004145384}
+  - component: {fileID: 1004145385}
   m_Layer: 5
   m_Name: fighter (2)
   m_TagString: Untagged
@@ -20071,6 +20159,20 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &1004145385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1004145380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  characterTeamKey: Team01
+  characterKey: 3
 --- !u!1 &1005623822
 GameObject:
   m_ObjectHideFlags: 0
@@ -20429,6 +20531,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: Team01
   characterKey: 5
 --- !u!114 &1030211769
 MonoBehaviour:
@@ -20859,6 +20962,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   showPanelsButton: {fileID: 0}
+  completeButton: {fileID: 0}
 --- !u!114 &1059685578
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22448,6 +22552,10 @@ PrefabInstance:
       propertyPath: characterKey
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: characterTeamKey
+      value: Team02
+      objectReference: {fileID: 0}
     - target: {fileID: 9060998752809128883, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: m_LocalRotation.y
       value: 0.008726558
@@ -23458,6 +23566,10 @@ PrefabInstance:
       propertyPath: characterKey
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: characterTeamKey
+      value: Team02
+      objectReference: {fileID: 0}
     - target: {fileID: 9060998752809128883, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: m_LocalRotation.y
       value: 0.008726558
@@ -23657,6 +23769,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: Team02
   characterKey: 1
 --- !u!212 &1178788964
 SpriteRenderer:
@@ -24726,6 +24839,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: Team02
   characterKey: 4
 --- !u!212 &1243089529
 SpriteRenderer:
@@ -26336,6 +26450,10 @@ PrefabInstance:
       propertyPath: characterKey
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: characterTeamKey
+      value: Team02
+      objectReference: {fileID: 0}
     - target: {fileID: 9060998752809128883, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: m_LocalRotation.y
       value: 0.008726558
@@ -27378,6 +27496,10 @@ PrefabInstance:
       propertyPath: characterKey
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: characterTeamKey
+      value: Team01
+      objectReference: {fileID: 0}
     - target: {fileID: 9060998752809128883, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: m_LocalRotation.y
       value: 0.008726558
@@ -28080,6 +28202,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   showPanelsButton: {fileID: 0}
+  completeButton: {fileID: 0}
 --- !u!114 &1403479718
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28227,6 +28350,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: 
   characterKey: 1
 --- !u!114 &1403537652
 MonoBehaviour:
@@ -28460,6 +28584,10 @@ PrefabInstance:
     - target: {fileID: 7065548900561576508, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: weaponTrigger
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: characterTeamKey
+      value: Team01
       objectReference: {fileID: 0}
     - target: {fileID: 9060998752809128883, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: m_LocalRotation.y
@@ -29328,6 +29456,10 @@ PrefabInstance:
       propertyPath: characterKey
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: characterTeamKey
+      value: Team01
+      objectReference: {fileID: 0}
     - target: {fileID: 9060998752809128883, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: m_LocalRotation.y
       value: 0.008726558
@@ -29648,7 +29780,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterKey: 1
+  characterTeamKey: Team01
+  characterKey: 4
 --- !u!114 &1457797853
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32772,6 +32905,7 @@ GameObject:
   - component: {fileID: 1532833315}
   - component: {fileID: 1532833314}
   - component: {fileID: 1532833313}
+  - component: {fileID: 1532833316}
   m_Layer: 5
   m_Name: fighter (8)
   m_TagString: Untagged
@@ -32930,6 +33064,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1532833311}
   m_CullTransparentMesh: 1
+--- !u!114 &1532833316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1532833311}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  characterTeamKey: Team01
+  characterKey: 9
 --- !u!1 &1533376221
 GameObject:
   m_ObjectHideFlags: 0
@@ -33401,6 +33549,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: Team01
   characterKey: 1
 --- !u!1 &1552177449
 GameObject:
@@ -33507,6 +33656,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: Team01
   characterKey: 9
 --- !u!212 &1565293699
 SpriteRenderer:
@@ -33591,6 +33741,10 @@ PrefabInstance:
     - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: characterKey
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: characterTeamKey
+      value: Team02
       objectReference: {fileID: 0}
     - target: {fileID: 9060998752809128883, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: m_LocalRotation.y
@@ -33983,7 +34137,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterKey: 1
+  characterTeamKey: Team01
+  characterKey: 8
 --- !u!114 &1580689848
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -34550,6 +34705,10 @@ PrefabInstance:
     - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: characterKey
       value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: characterTeamKey
+      value: Team01
       objectReference: {fileID: 0}
     - target: {fileID: 9060998752809128883, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: m_LocalRotation.y
@@ -35718,6 +35877,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: 
   characterKey: 5
 --- !u!114 &1647630193
 MonoBehaviour:
@@ -36071,6 +36231,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: Team02
   characterKey: 2
 --- !u!212 &1661233498
 SpriteRenderer:
@@ -36368,6 +36529,10 @@ PrefabInstance:
     - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: characterKey
       value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: characterTeamKey
+      value: Team01
       objectReference: {fileID: 0}
     - target: {fileID: 9060998752809128883, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: m_LocalRotation.y
@@ -36711,7 +36876,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterKey: 2
+  characterTeamKey: Team01
+  characterKey: 7
 --- !u!114 &1688390713
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -37036,6 +37202,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: Team02
   characterKey: 8
 --- !u!212 &1691381295
 SpriteRenderer:
@@ -37839,6 +38006,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: 
   characterKey: 2
 --- !u!114 &1725547414
 MonoBehaviour:
@@ -38987,6 +39155,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: Team01
   characterKey: 7
 --- !u!212 &1814600125
 SpriteRenderer:
@@ -40549,6 +40718,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: Team01
   characterKey: 3
 --- !u!212 &1903095783
 SpriteRenderer:
@@ -40660,6 +40830,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: Team01
   characterKey: 4
 --- !u!212 &1903319799
 SpriteRenderer:
@@ -43495,6 +43666,10 @@ PrefabInstance:
       propertyPath: characterKey
       value: 9
       objectReference: {fileID: 0}
+    - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: characterTeamKey
+      value: Team02
+      objectReference: {fileID: 0}
     - target: {fileID: 9060998752809128883, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
       propertyPath: m_LocalRotation.y
       value: 0.008726558
@@ -43978,6 +44153,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: Team01
   characterKey: 5
 --- !u!212 &2022273602
 SpriteRenderer:

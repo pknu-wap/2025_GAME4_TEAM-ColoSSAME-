@@ -64,8 +64,8 @@ public class State : MonoBehaviour
         
 
         trainSelect = trainSelect.ConvertAll(x => 0);
-        trainSelectSave = trainSelectSave.ConvertAll(x => 0);        
-
+        trainSelectSave = trainSelectSave.ConvertAll(x => 0);
+        characterid = GetComponent<CharacterID>();
         getPlayer = new List<int>{ Random.Range(0,11), Random.Range(0,11),Random.Range(0,11) };
 
 
