@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq; 
 
 public class TournamentController : MonoBehaviour
 {
@@ -35,6 +36,9 @@ public class TournamentController : MonoBehaviour
 
         TryAdvanceToNextRounds();
         saveManager.SaveTournament(currentTournament);
+        
+        Debug.Log("종료");
+        
     }
 
     public void SetSemiFinalWinner(int matchIndex, string winnerKey)
@@ -116,14 +120,27 @@ public class TournamentController : MonoBehaviour
     // TryAdvanceToNextRounds 함수 수정
     public void TryAdvanceToNextRounds()
     {
-        if (currentTournament.semiFinals.Count < 2 &&
-            AllMatchesFinished(currentTournament.quarterFinals))
+        var qf = currentTournament.quarterFinals;
+
+        if (qf.Count >= 4 && currentTournament.semiFinals.Count < 2 && AllMatchesFinished(qf))
         {
-            var qf = currentTournament.quarterFinals;
-            var winners = new List<string> {
-                qf[0].winnerKey, qf[1].winnerKey,
-                qf[2].winnerKey, qf[3].winnerKey
-            };
+            Debug.Log("🧪 4강 생성 조건 만족 - winnerKey 목록 확인:");
+            foreach (var m in qf)
+                Debug.Log($"match: {m.player1Key} vs {m.player2Key} → winner: {m.winnerKey}");
+
+            var winners = new List<string>();
+
+            foreach (var match in qf)
+            {
+                if (!string.IsNullOrEmpty(match.winnerKey))
+                    winners.Add(match.winnerKey);
+            }
+
+            if (winners.Count < 4)
+            {
+                Debug.LogError("❌ 8강 결과 부족 → 4강 생성 불가 (winners.Count < 4)");
+                return;
+            }
 
             winners.Sort((a, b) => a == "Team01" ? -1 : b == "Team01" ? 1 : 0);
 
@@ -134,17 +151,25 @@ public class TournamentController : MonoBehaviour
             Debug.Log("🎯 4강 대진표 생성 완료 (Team01 우선 배치)");
         }
 
-        if (currentTournament.finalMatch == null &&
-            AllMatchesFinished(currentTournament.semiFinals))
+        if (currentTournament.finalMatch == null && AllMatchesFinished(currentTournament.semiFinals))
         {
-            currentTournament.finalMatch = new Match
+            if (currentTournament.semiFinals.Count >= 2)
             {
-                player1Key = currentTournament.semiFinals[0].winnerKey,
-                player2Key = currentTournament.semiFinals[1].winnerKey
-            };
-            Debug.Log("🎯 결승 대진표 생성 완료");
+                currentTournament.finalMatch = new Match
+                {
+                    player1Key = currentTournament.semiFinals[0].winnerKey,
+                    player2Key = currentTournament.semiFinals[1].winnerKey
+                };
+                Debug.Log("🎯 결승 대진표 생성 완료");
+            }
+            else
+            {
+                Debug.LogError("❌ 4강 매치 수 부족 → 결승 생성 불가");
+            }
         }
     }
+
+
     
     
     public void SaveTournament()

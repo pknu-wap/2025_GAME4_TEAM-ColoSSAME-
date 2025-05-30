@@ -56,6 +56,7 @@ public class BattleSceneManager : MonoBehaviour
 
     public void OnWin()
     {
+        Debug.Log("🧨🧨🧨 OnWin() 호출됨");
         ApplyResult(myTeamKey);
     }
 
@@ -65,43 +66,91 @@ public class BattleSceneManager : MonoBehaviour
     }
 
     void ApplyResult(string winnerKey)
+{
+    try
     {
+        Debug.Log("🎯 ApplyResult 진입");
+        Debug.Log($"currentMatch: {currentMatch.player1Key} vs {currentMatch.player2Key}");
+
         TournamentData data = saveManager.LoadTournament();
 
-        if (data.finalMatch == currentMatch)
+        Debug.Log($"💬 winnerKey: {(winnerKey == null ? "NULL" : $"[{winnerKey}]")}");
+        Debug.Log($"💬 myTeamKey: {(myTeamKey == null ? "NULL" : $"[{myTeamKey}]")}");
+        Debug.Log($"💬 winnerKey.Equals(myTeamKey): {winnerKey == myTeamKey}");
+
+        // Final Match 확인
+        if (data.finalMatch != null && MatchesEqual(data.finalMatch, currentMatch))
         {
-            tournamentController.SetFinalWinner(winnerKey);
+            Debug.Log("🏆 결승 승자 설정");
+            tournamentController?.SetFinalWinner(winnerKey);
         }
-        else if (data.semiFinals.Contains(currentMatch))
+
+        Debug.Log("1");
+
+        // Semi Finals 확인
+        for (int i = 0; i < data.semiFinals.Count; i++)
         {
-            int index = data.semiFinals.IndexOf(currentMatch);
-            tournamentController.SetSemiFinalWinner(index, winnerKey);
+            if (MatchesEqual(data.semiFinals[i], currentMatch))
+            {
+                Debug.Log("🔥 4강 승자 설정");
+                tournamentController?.SetSemiFinalWinner(i, winnerKey);
+                break;
+            }
         }
-        else if (data.quarterFinals.Contains(currentMatch))
+
+        Debug.Log("2");
+
+        // Quarter Finals 확인
+        for (int i = 0; i < data.quarterFinals.Count; i++)
         {
-            int index = data.quarterFinals.IndexOf(currentMatch);
-            tournamentController.SetQuarterFinalWinner(index, winnerKey);
+            if (MatchesEqual(data.quarterFinals[i], currentMatch))
+            {
+                Debug.Log("🧊 8강 승자 설정 진입 전");
+                if (tournamentController != null)
+                {
+                    tournamentController.SetQuarterFinalWinner(i, winnerKey);
+                    Debug.Log($"8강 {i}경기 승자: {winnerKey}");
+                }
+                else
+                {
+                    Debug.LogError("❌ tournamentController가 null입니다. 인스펙터에서 연결 확인 필요.");
+                }
+                break;
+            }
         }
+
+        Debug.Log("3");
 
         resultMyTeamImage.sprite = myTeamImage.sprite;
         resultMyTeamText.text = myTeamText.text;
+        Debug.Log("4");
 
         resultEnemyTeamImage.sprite = enemyTeamImage.sprite;
         resultEnemyTeamText.text = enemyTeamText.text;
+        Debug.Log("5");
+
+        Debug.Log($"💡 winnerKey = {winnerKey}, myTeamKey = {myTeamKey}");
+        Debug.Log("6");
+        Debug.Log($"== 비교 결과: {winnerKey == myTeamKey}");
 
         if (winnerKey == myTeamKey)
         {
+            Debug.Log("🟩 조건문 진입: 우리 팀 승리");
+
             resultMyTeamResult.text = "승";
             resultEnemyTeamResult.text = "패";
+
             resultEnemyTeamImage.color = new Color(1, 1, 1, 0.3f);
             resultMyTeamImage.color = Color.white;
 
-            tournamentController.AutoResolveRemainingMatches();
+            tournamentController?.AutoResolveRemainingMatches();
+            Debug.Log("✅ 우리 팀 승리 완료");
         }
         else
         {
             resultMyTeamResult.text = "패";
             resultEnemyTeamResult.text = "승";
+
             resultMyTeamImage.color = new Color(1, 1, 1, 0.3f);
             resultEnemyTeamImage.color = Color.white;
 
@@ -109,8 +158,14 @@ public class BattleSceneManager : MonoBehaviour
         }
 
         resultPanel.SetActive(true);
-        tournamentController.SaveTournament();
+        tournamentController?.SaveTournament();
     }
+    catch (System.Exception e)
+    {
+        Debug.LogError($"💥 ApplyResult 예외 발생: {e.Message}\n{e.StackTrace}");
+    }
+}
+
 
     Match FindMyCurrentMatch(TournamentData data)
     {
@@ -142,5 +197,11 @@ public class BattleSceneManager : MonoBehaviour
         if (!key.StartsWith("Team"))
             key = $"Team{key.PadLeft(2, '0')}";
         return $"팀 {key.Substring(4)}";
+    }
+
+    bool MatchesEqual(Match a, Match b)
+    {
+        return (a.player1Key == b.player1Key && a.player2Key == b.player2Key) ||
+               (a.player1Key == b.player2Key && a.player2Key == b.player1Key);
     }
 }
