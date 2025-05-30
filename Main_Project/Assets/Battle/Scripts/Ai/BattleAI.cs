@@ -5,7 +5,6 @@ using Battle.Scripts.Value;
 using Battle.Scripts.Value.Data.Class;
 using Battle.Scripts.Value.HpBar;
 using Battle.Scripts.Value.Data;         // ← CharacterInfo
-using Battle.Scripts.Value.Data.Class;   // ← ClassType
 using Battle.Scripts.Ai;                 // ← WeaponType, TeamType
 using Pathfinding;
 using Unity.VisualScripting;
@@ -109,7 +108,7 @@ namespace Battle.Scripts.Ai
 
             hp = RandomInRangeInt(stats.hp, range.hpRange);
             damage = RandomInRangeFloat(stats.attack, range.attackRange);
-            defense = RandomInRangeInt(stats.defense, range.defenseRange);
+            defense = RandomInRangeFloat(stats.defense, range.defenseRange);
             moveSpeed = RandomInRangeFloat(stats.moveSpeed, range.moveSpeedRange);
             attackRange = stats.attackRange;
             AttackDelay = RandomInRangeFloat(stats.attackDelay, range.attackDelayRange);
