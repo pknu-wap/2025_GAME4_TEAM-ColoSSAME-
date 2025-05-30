@@ -93,6 +93,7 @@ namespace Battle.Scripts.Value.Data
                     weaponPath2 = spum.ImageElement[21].ItemPath,
                     ATK = ai.damage,
                     CON = ai.hp,
+                    DEF = ai.defense,
                     classType = ai.Class,
                     weaponType = ai.weaponType,
                     IsDeployed = false,
