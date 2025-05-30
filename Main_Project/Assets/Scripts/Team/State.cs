@@ -41,7 +41,8 @@ public class State : MonoBehaviour
 
     public List<int> playerRole;//선수 직업
     
-    public GameObject EnemyStatusText;
+    public GameObject playerStatusText;
+    public GameObject enemyStatusText;
 
     public BattleAI[] statechange;
 
@@ -91,7 +92,8 @@ public class State : MonoBehaviour
         fighterCount = playerIndex;
         trainAdd = trainAdd.ConvertAll(x => 0);
         fighterButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector3(-90f, -10f);
-        EnemyStatusText.GetComponentInChildren<CharacterID>().characterKey = (fighterCount + 1).ToString();
+        playerStatusText.GetComponentInChildren<CharacterID>().characterKey = (fighterCount + 1).ToString();
+        enemyStatusText.GetComponentInChildren<CharacterID>().characterKey = (fighterCount + 1).ToString();
         Debug.Log(statechange[fighterCount].hp);
         Debug.Log(statechange[fighterCount].defense);
         Debug.Log(statechange[fighterCount].damage);
