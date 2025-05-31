@@ -128,7 +128,7 @@ namespace Battle.Scripts.Ai
 
             hp = info.CON;
             damage = info.ATK;
-            defense = classStat.defense;
+            defense = info.DEF;
             moveSpeed = classStat.moveSpeed;
             attackRange = classStat.attackRange;
             AttackDelay = classStat.attackDelay;
