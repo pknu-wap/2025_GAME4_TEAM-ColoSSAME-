@@ -27,7 +27,7 @@ namespace Battle.Scripts.Value
             playersNumber = players.Length;
             Debug.Log("플레이어 수 : " + playersNumber);
             enemies = GameObject.FindGameObjectsWithTag("Enemy");
-            enemiesNumber = enemies.Length;
+            enemiesNumber = enemies.Length-9;
             Debug.Log("적 수 : " + enemiesNumber);
         }
         
