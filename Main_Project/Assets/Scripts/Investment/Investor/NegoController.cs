@@ -11,18 +11,27 @@ public class NegoController : MonoBehaviour
     private GameObject ownerInvestor;
     private GameObject[] panelsToShow;
     public Button completeButton;
-    public void Init(PuzzleManager manager, GameObject investor, GameObject[] panelsToRestore)
+    public void Init(PuzzleManager manager, GameObject investor, GameObject[] panelsToRestore, int nameIndex, MoneyManager moneyManager)
     {
         this.manager = manager;
         this.ownerInvestor = investor;
         this.panelsToShow = panelsToRestore;
-
-        showPanelsButton.onClick.AddListener(() =>
+        
+        CalculatorManager calc = GetComponentInChildren<CalculatorManager>();
+        if (calc != null)
+            calc.SetMoneyManager(moneyManager);
+        
+        RandomText randomText = GetComponentInChildren<RandomText>();
+        if(randomText != null) randomText.SetIndex(nameIndex);
+        if (showPanelsButton != null)
         {
-            foreach (var panel in panelsToShow)
-                panel.SetActive(true);
-            manager.ShowOtherInvestors(ownerInvestor);
-        });
+            showPanelsButton.onClick.AddListener(() =>
+            {
+                foreach (var panel in panelsToShow)
+                    panel.SetActive(true);
+                manager.ShowOtherInvestors(ownerInvestor);
+            });
+        }
         if (completeButton != null)
         {
             completeButton.onClick.AddListener(() =>
