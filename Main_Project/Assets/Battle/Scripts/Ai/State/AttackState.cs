@@ -20,13 +20,20 @@ namespace Battle.Scripts.Ai.State
             ai.aiAnimator.Attack();
             if(ai.CurrentTarget == null) ai.StateMachine.ChangeState(new IdleState(ai, true, 0f));
             //Weapon: Bow or Magic -> RangedAttack, X -> MeleeAttack
-            if (ai.weaponType is WeaponType.Bow or WeaponType.Magic)
+            if (ai.weaponType is WeaponType.Bow)
             {
-                RangedAttack();
+                ArrowAttack();
             }
             else
             {
-                MeleeAttack();
+                if (ai.weaponType is WeaponType.Magic)
+                {
+                    MagicAttack();
+                }
+                else
+                {
+                    MeleeAttack();
+                }
             }
         }
 
@@ -38,15 +45,28 @@ namespace Battle.Scripts.Ai.State
             ai.StartCoroutine(AttackDelay());
         }
 
-        void RangedAttack()
+        void MagicAttack()
         {
             if(!ai.CurrentTarget || !ai.destinationSetter.target) ai.StateMachine.ChangeState(new IdleState(ai, true, ai.waitTime));
-            ai.StartCoroutine(RangedAttackDelay());
+            ai.StartCoroutine(MagicAttackDelay());
+        }
+        
+        void ArrowAttack()
+        {
+            if(!ai.CurrentTarget || !ai.destinationSetter.target) ai.StateMachine.ChangeState(new IdleState(ai, true, ai.waitTime));
+            ai.StartCoroutine(ArrowAttackDelay());
         }
 
-        private IEnumerator RangedAttackDelay()
+        private IEnumerator MagicAttackDelay()
         {
+            ai.arrowWeaponTrigger.FireArrow();
             yield return new WaitForSeconds(ai.AttackDelay);
+            ai.StateMachine.ChangeState(new IdleState(ai,false,ai.waitTime));
+        }
+        
+        private IEnumerator ArrowAttackDelay()
+        {
+            yield return new WaitForSeconds(ai.AttackDelay / 2);
             ai.arrowWeaponTrigger.FireArrow();
             ai.StateMachine.ChangeState(new IdleState(ai,false,ai.waitTime));
         }
