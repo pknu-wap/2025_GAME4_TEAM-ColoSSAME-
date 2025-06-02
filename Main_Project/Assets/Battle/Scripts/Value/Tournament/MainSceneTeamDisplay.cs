@@ -5,6 +5,9 @@ using TMPro;
 public class MainSceneTeamDisplay : MonoBehaviour
 {
     public TournamentSaveManager saveManager;
+    
+    
+    public TextMeshProUGUI roundText;
 
     [Header("내 팀")]
     public Image myTeamImage;
@@ -50,17 +53,27 @@ public class MainSceneTeamDisplay : MonoBehaviour
     private Match FindCurrentMatchWithMyTeam(TournamentData data)
     {
         foreach (var match in data.quarterFinals)
-            if ((match.player1Key == myTeamKey || match.player2Key == myTeamKey) && string.IsNullOrEmpty(match.winnerKey))
+            if ((match.player1Key == myTeamKey || match.player2Key == myTeamKey) &&
+                string.IsNullOrEmpty(match.winnerKey))
+            {
+                roundText.text = "8강";
                 return match;
+            }
 
         foreach (var match in data.semiFinals)
             if ((match.player1Key == myTeamKey || match.player2Key == myTeamKey) && string.IsNullOrEmpty(match.winnerKey))
+            {
+                roundText.text = "4강";
                 return match;
+            }
 
         if (data.finalMatch != null &&
             (data.finalMatch.player1Key == myTeamKey || data.finalMatch.player2Key == myTeamKey) &&
             string.IsNullOrEmpty(data.finalMatch.winnerKey))
+        {
+            roundText.text = "결승";
             return data.finalMatch;
+        }
 
         return null;
     }

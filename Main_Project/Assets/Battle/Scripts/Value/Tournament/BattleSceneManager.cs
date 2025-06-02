@@ -11,6 +11,10 @@ public class BattleSceneManager : MonoBehaviour
     private string enemyTeamKey;
     private Match currentMatch;
 
+    public TextMeshProUGUI roundText;
+    public TextMeshProUGUI resultRoundText;
+    
+
     [Header("우리 팀 (좌측)")]
     public Image myTeamImage;
     public TextMeshProUGUI myTeamText;
@@ -50,9 +54,25 @@ public class BattleSceneManager : MonoBehaviour
 
         enemyTeamImage.sprite = LoadTeamSprite(enemyTeamKey);
         enemyTeamText.text = GetTeamDisplayName(enemyTeamKey);
+        
+        string roundName = GetRoundName(data, currentMatch);
+        roundText.text = roundName;
 
         resultPanel.SetActive(false); // 결과창 초기 숨김
     }
+    
+    string GetRoundName(TournamentData data, Match match)
+    {
+        if (data.finalMatch == match)
+            return "결승";
+        else if (data.semiFinals.Contains(match))
+            return "4강";
+        else if (data.quarterFinals.Contains(match))
+            return "8강";
+        else
+            return "토너먼트";
+    }
+
 
     public void OnWin()
     {
@@ -120,6 +140,8 @@ public class BattleSceneManager : MonoBehaviour
         }
 
         Debug.Log("3");
+
+        resultRoundText.text = roundText.text + " 결과";
 
         resultMyTeamImage.sprite = myTeamImage.sprite;
         resultMyTeamText.text = myTeamText.text;

@@ -12,6 +12,8 @@ public class TournamentUIController : MonoBehaviour
     [Header("토너먼트 매니저 연결")]
     public TournamentSaveManager saveManager;
 
+    public TextMeshProUGUI roundText;
+    
     [Header("8강 UI 이미지")]
     public GameObject quarterFinalUI;
     public Image[] qfP1Images; // 0~3
@@ -57,6 +59,8 @@ public class TournamentUIController : MonoBehaviour
                     qfP1Texts[j].text = GetTeamDisplayName(m.player1Key); // ✅ j로 수정
                     qfP2Texts[j].text = GetTeamDisplayName(m.player2Key);
                 }
+
+                roundText.text = "8강";
                 return;
             }
         }
@@ -76,6 +80,7 @@ public class TournamentUIController : MonoBehaviour
                     sfP1Texts[j].text = GetTeamDisplayName(m.player1Key);
                     sfP2Texts[j].text = GetTeamDisplayName(m.player2Key);
                 }
+                roundText.text = "4강";
                 return;
             }
         }
@@ -91,6 +96,7 @@ public class TournamentUIController : MonoBehaviour
             finalP2Text.text = GetTeamDisplayName(data.finalMatch.player2Key);
             return;
         }
+        roundText.text = "결승";
 
         // 4. 모든 라운드 완료됨
         Debug.Log("🏁 토너먼트가 종료되었습니다.");
