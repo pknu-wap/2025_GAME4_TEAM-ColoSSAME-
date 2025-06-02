@@ -108,9 +108,9 @@ public class State : MonoBehaviour
         fighterCount = playerIndex;
         trainAdd = trainAdd.ConvertAll(x => 0);
         fighterButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, 10f);
-        enemyButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, 10f);
+        enemyButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector2(-40f, -20f);
         fighterButtons[fighterCount].GetComponent<RectTransform>().localScale = new Vector2(3f,3f);
-        enemyButtons[fighterCount].GetComponent<RectTransform>().localScale = new Vector2(3f,3f);
+        enemyButtons[fighterCount].GetComponent<RectTransform>().localScale = new Vector2(-3f,3f);
         playerStatusText.GetComponentInChildren<CharacterID>().characterKey = (fighterCount + 1).ToString();
         enemyStatusText.GetComponentInChildren<CharacterID>().characterKey = (fighterCount + 1).ToString();
         Debug.Log(statechange[fighterCount].hp);
