@@ -1,22 +1,29 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Battle.Scripts.Ai.CharacterCreator;
-using Battle.Scripts.Ai;
-//신 변경
 
-public class Changer : MonoBehaviour 
-{	
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
-	public void SceneChange() 
-	{
-		StartCoroutine(createDelay());
-	}
-	IEnumerator createDelay()
-	{
-		 yield return new WaitForSeconds(5f);
-		 SceneManager.LoadScene("playerSave");
-	}
-	
+namespace Battle.Scripts
+{
+    public class Changer : MonoBehaviour
+    {
+        [SerializeField] private string sceneToLoad;
+        
+
+        public void ChangeScene()
+        {
+            Debug.Log("버튼 눌러짐");
+            StartCoroutine(CleanAndLoad());
+        }
+
+        private IEnumerator CleanAndLoad()
+        {
+			yield return new WaitForSeconds(5f);
+            SceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single);
+            yield break;
+        }
+    }
 }

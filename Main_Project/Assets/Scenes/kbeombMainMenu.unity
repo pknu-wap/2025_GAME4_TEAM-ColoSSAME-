@@ -2946,9 +2946,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 893791161}
-        m_TargetAssemblyTypeName: Changer, Assembly-CSharp
-        m_MethodName: SceneChange
+      - m_Target: {fileID: 353298122}
+        m_TargetAssemblyTypeName: GameMaster, Assembly-CSharp
+        m_MethodName: StartTournamentManually
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2958,9 +2958,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 353298122}
-        m_TargetAssemblyTypeName: GameMaster, Assembly-CSharp
-        m_MethodName: StartTournamentManually
+      - m_Target: {fileID: 893791161}
+        m_TargetAssemblyTypeName: Battle.Scripts.Changer, Assembly-CSharp
+        m_MethodName: ChangeScene
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3217,6 +3217,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b8e5cd8e1e124a4ba401367218c03d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sceneToLoad: kbeombPlayerSave
 --- !u!114 &893791162
 MonoBehaviour:
   m_ObjectHideFlags: 0
