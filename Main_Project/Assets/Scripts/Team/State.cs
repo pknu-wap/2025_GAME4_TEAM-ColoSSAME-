@@ -79,7 +79,7 @@ public class State : MonoBehaviour
         for (int i = 0; i < 9; i++)
         {
             int stresult = Random.Range(0, trainInfo.Count);
-            trainResultSave[i] = trainResultInfo[stresult];
+            trainResultSave[i] = trainInfo[stresult];
         }
 
 
