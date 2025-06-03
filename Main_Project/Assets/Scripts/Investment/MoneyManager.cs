@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MoneyManager : MonoBehaviour
 {
-    [SerializeField] private int money = 0;
+    [SerializeField] public int money = 0;
     [SerializeField] private TextMeshProUGUI moneyText;
 
     [SerializeField] private CalculatorManager[] resultValues;

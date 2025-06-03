@@ -47,6 +47,8 @@ public class State : MonoBehaviour
 
     public BattleAI[] statechange;
 
+    public MoneyManager moneymanager;
+
     float hpresult;
     float damageresult;
     float defenseresult;
@@ -73,6 +75,7 @@ public class State : MonoBehaviour
 
         trainSelect = trainSelect.ConvertAll(x => 0);
         trainSelectSave = trainSelectSave.ConvertAll(x => 0);
+
         characterid = GetComponent<CharacterID>();
         getPlayer = new List<int>{ Random.Range(0,11), Random.Range(0,11),Random.Range(0,11) };
 
@@ -107,7 +110,7 @@ public class State : MonoBehaviour
     {
         fighterCount = playerIndex;
         trainAdd = trainAdd.ConvertAll(x => 0);
-        fighterButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector2(-10f, 10f);
+        fighterButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector2(-40f, 10f);
         enemyButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector2(-40f, -20f);
         fighterButtons[fighterCount].GetComponent<RectTransform>().localScale = new Vector2(3f,3f);
         enemyButtons[fighterCount].GetComponent<RectTransform>().localScale = new Vector2(-3f,3f);
@@ -120,7 +123,7 @@ public class State : MonoBehaviour
 
     public void playerRandomState(int trainschoice)
     {
-        if (trainschoice == 0)
+        if (trainschoice == 0 && moneymanager.money > 100)
         {
             hpresult= Random.Range(-2.5f,3f);
             if (hpresult >= 0)
@@ -133,13 +136,14 @@ public class State : MonoBehaviour
                 int index = Random.Range(0, trainBadResultInfo.Count);
                 trainResultSave[fighterCount] =  trainBadResultInfo[index];
             }
+            moneymanager.AddMoney(-100);
             statechange[fighterCount].hp = Mathf.Round((statechange[fighterCount].hp+hpresult) * 10f) / 10f;
             if (statechange[fighterCount].hp < 1)
             {
                 statechange[fighterCount].hp = 1;
             }
         }
-        if (trainschoice == 1)
+        if (trainschoice == 1 && moneymanager.money > 100)
         {
 
             damageresult= Random.Range(-2.5f,3f);
@@ -153,13 +157,14 @@ public class State : MonoBehaviour
                 int index = Random.Range(0, trainBadResultInfo.Count);
                 trainResultSave[fighterCount] =  trainBadResultInfo[index];
             }
+            moneymanager.AddMoney(-100);
             statechange[fighterCount].damage = Mathf.Round((statechange[fighterCount].damage+damageresult) * 10f) / 10f;
             if (statechange[fighterCount].damage < 1)
             {
                 statechange[fighterCount].damage = 1;
             }
         }
-        if (trainschoice == 2)
+        if (trainschoice == 2 && moneymanager.money > 100)
         {
 
            defenseresult = Random.Range(-2.5f,3f);
@@ -173,6 +178,7 @@ public class State : MonoBehaviour
                 int index = Random.Range(0, trainBadResultInfo.Count);
                 trainResultSave[fighterCount] =  trainBadResultInfo[index];
             }
+            moneymanager.AddMoney(-100);
             statechange[fighterCount].defense = Mathf.Round((statechange[fighterCount].defense+defenseresult) * 10f) / 10f;
             if (statechange[fighterCount].defense < 1)
             {
