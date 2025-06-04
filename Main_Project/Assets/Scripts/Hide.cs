@@ -18,12 +18,5 @@ public class Hide : MonoBehaviour
         panelToShow.SetActive(true);
     }
 
-    public void ChangeText(TextMeshProUGUI textToChange)//클릭 시 글씨 크기 변경
-    {
-        foreach (TextMeshProUGUI text in allTexts)
-        {
-            text.fontSize = 25;
-        }
-        textToChange.fontSize = 30;
-    } 
+
 }
