@@ -45,13 +45,13 @@ public class BGMController : MonoBehaviour
         // 씬 이름에 따라 자동으로 BGM 설정
         switch (scene.name)
         {
-            case "MainMenu":
+            case "kbeombMainMenu":
                 PlayDefaultBGM();
                 break;
-            case "BattleUI":
+            case "BattleStartTemp 1":
                 PlayBattleBGM();
                 break;
-            case "Strategy":
+            case "StrategySceneTemp":
                 PlayStrategyBGM();
                 break;
             default:
