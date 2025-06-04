@@ -20,7 +20,8 @@ public class InvestorUnit : MonoBehaviour
     private GameObject loadingPanel;
     private int nameIndex;
 
-    public void Init(PuzzleManager manager, string nameText, int nameIndex)
+    public BGMController  bgmController;
+    public void Init(PuzzleManager manager, string nameText, int nameIndex, BGMController bgm)
     {
         puzzleManager = manager;
         panelsToHide = manager.hidePanels;
@@ -28,7 +29,8 @@ public class InvestorUnit : MonoBehaviour
         negotiationPanelPrefab = manager.negotiationPanelPrefab;
         loadingPanel = manager.loadingPanel;
         this.nameIndex = nameIndex;
-
+        bgmController = bgm;
+        Debug.Log("bgmController 연결됨" + (bgmController != null));
         myImage = GetComponentInChildren<Image>();
         names.text = nameText;
 
@@ -77,6 +79,7 @@ public class InvestorUnit : MonoBehaviour
         if (loadingPanel != null)
         {
             loadingPanel.SetActive(true);
+            bgmController.PlayLoadingBGM();
             Debug.Log("🔵 loadingPanel 활성화됨");
         }
 
@@ -110,16 +113,15 @@ public class InvestorUnit : MonoBehaviour
             Debug.LogError("❌ NegoController가 협상 패널에 없음!");
             yield break;
         }
-
-        nego.Init(puzzleManager, this.gameObject, panelsToHide, nameIndex, moneyManager);
-        Debug.Log("✅ Nego Init 완료");
-
         nego.OnPuzzleComplete += () =>
         {
             Debug.Log("🎯 협상 완료 콜백 실행");
+            bgmController.PlayDefaultBGM();
             puzzleManager.MoveInvestorImageToCompletedSlot(this.gameObject);
             Destroy(this.gameObject);
             Destroy(activeNegotiationPanel);
         };
+        nego.Init(puzzleManager, this.gameObject, panelsToHide, nameIndex, moneyManager);
+        Debug.Log("✅ Nego Init 완료");
     }
 }

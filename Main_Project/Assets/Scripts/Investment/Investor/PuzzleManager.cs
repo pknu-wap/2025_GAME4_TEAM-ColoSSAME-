@@ -17,6 +17,7 @@ public class PuzzleManager : MonoBehaviour
     private List<int> nameIndexes = new List<int>();
     public MoneyManager moneyManager;
     public GameObject loadingPanel;
+    public BGMController bgmController; // Inspector에서 연결
     private readonly string[] names_investor =
     {
         "플라비우스", "율리우스", "클라우디우스", "플라미니누스",
@@ -60,7 +61,7 @@ public class PuzzleManager : MonoBehaviour
             int nameIndex = nameIndexes[i];
             InvestorUnit unit = obj.GetComponent<InvestorUnit>();
             unit.moneyManager = moneyManager;
-            unit.Init(this, names_investor[nameIndex], nameIndex);
+            unit.Init(this, names_investor[nameIndex], nameIndex, bgmController);
         }
     }
 
