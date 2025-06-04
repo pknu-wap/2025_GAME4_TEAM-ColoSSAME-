@@ -79,7 +79,15 @@ public class InvestorUnit : MonoBehaviour
         if (loadingPanel != null)
         {
             loadingPanel.SetActive(true);
-            bgmController.PlayLoadingBGM();
+            if (BGMController.Instance != null)
+            {
+                BGMController.Instance.PlayLoadingBGM();
+                Debug.Log("🎵 BGMController.Instance로 BGM 재생");
+            }
+            else
+            {
+                Debug.LogError("❌ BGMController.Instance가 null입니다!");
+            }
             Debug.Log("🔵 loadingPanel 활성화됨");
         }
 
@@ -116,7 +124,8 @@ public class InvestorUnit : MonoBehaviour
         nego.OnPuzzleComplete += () =>
         {
             Debug.Log("🎯 협상 완료 콜백 실행");
-            bgmController.PlayDefaultBGM();
+            if (BGMController.Instance != null)
+                BGMController.Instance.PlayDefaultBGM();
             puzzleManager.MoveInvestorImageToCompletedSlot(this.gameObject);
             Destroy(this.gameObject);
             Destroy(activeNegotiationPanel);

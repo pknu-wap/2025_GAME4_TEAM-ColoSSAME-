@@ -9,7 +9,7 @@ public class IntButton : MonoBehaviour
     
     public void OnClick()
     { 
-        value = Random.Range(100, 1001);
+        value = Random.Range(10, 100);
        manager.SetOperand(value);
     }
     
