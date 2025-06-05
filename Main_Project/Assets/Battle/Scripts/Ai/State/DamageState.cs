@@ -19,7 +19,11 @@ namespace Battle.Scripts.Ai.State
 
         public void EnterState()
         {
-            if(ai.defense - damage < 0) ai.TakeDamage(damage - ai.defense);
+            if (ai.defense - damage < 0)
+            {
+                if(ai.damage - ai.defense < 1) ai.TakeDamage(damage - ai.defense + 1);
+                else ai.TakeDamage(damage - ai.defense);
+            }
             else ai.TakeDamage(1);
             
             ai.FlashRedTransparent(0.8f, 0.1f);
