@@ -5,8 +5,7 @@ using TMPro;
 public class MainSceneTeamDisplay : MonoBehaviour
 {
     public TournamentSaveManager saveManager;
-    
-    
+
     public TextMeshProUGUI roundText;
 
     [Header("내 팀")]
@@ -16,6 +15,10 @@ public class MainSceneTeamDisplay : MonoBehaviour
     [Header("상대 팀")]
     public Image enemyTeamImage;
     public TextMeshProUGUI enemyTeamText;
+
+    [Header("버튼 및 종료 UI")]
+    public GameObject matchEnterButton;
+    public GameObject gameEndPanel;
 
     private const string myTeamKey = "Team01"; // 고정
 
@@ -28,26 +31,37 @@ public class MainSceneTeamDisplay : MonoBehaviour
     {
         TournamentData data = saveManager.LoadTournament();
         Debug.Log("✅ ShowCurrentMatch 실행됨");
-    
-        var d = saveManager.LoadTournament();
-        Debug.Log($"🎮 불러온 팀 수: QF={d.quarterFinals.Count}, SF={d.semiFinals.Count}");
 
-        // 내 팀이 현재 출전한 경기 찾기
-        Match currentMatch = FindCurrentMatchWithMyTeam(data);
-        if (currentMatch == null)
+        // 1. 우승했는지 먼저 확인
+        if (data.finalMatch != null && data.finalMatch.winnerKey == myTeamKey)
         {
-            Debug.LogWarning("📭 현재 Team01이 포함된 진행 중인 경기가 없습니다.");
+            roundText.text = "우승";
+            ApplyEliminationUI(true);
+            SetTeamDisplayVisible(false);
             return;
         }
 
-        string enemyKey = (currentMatch.player1Key == myTeamKey) ? currentMatch.player2Key : currentMatch.player1Key;
+        // 2. 현재 진행 중인 경기 찾기
+        Match currentMatch = FindCurrentMatchWithMyTeam(data);
+        if (currentMatch != null)
+        {
+            string enemyKey = (currentMatch.player1Key == myTeamKey) ? currentMatch.player2Key : currentMatch.player1Key;
 
-        // 이미지 & 이름 표시
-        myTeamImage.sprite = LoadTeamSprite(myTeamKey);
-        myTeamText.text = GetTeamDisplayName(myTeamKey);
+            myTeamImage.sprite = LoadTeamSprite(myTeamKey);
+            myTeamText.text = GetTeamDisplayName(myTeamKey);
 
-        enemyTeamImage.sprite = LoadTeamSprite(enemyKey);
-        enemyTeamText.text = GetTeamDisplayName(enemyKey);
+            enemyTeamImage.sprite = LoadTeamSprite(enemyKey);
+            enemyTeamText.text = GetTeamDisplayName(enemyKey);
+
+            ApplyEliminationUI(false);
+            SetTeamDisplayVisible(true);
+            return;
+        }
+
+        // 3. 탈락 처리
+        roundText.text = "토너먼트 탈락";
+        ApplyEliminationUI(true);
+        SetTeamDisplayVisible(false);
     }
 
     private Match FindCurrentMatchWithMyTeam(TournamentData data)
@@ -61,7 +75,8 @@ public class MainSceneTeamDisplay : MonoBehaviour
             }
 
         foreach (var match in data.semiFinals)
-            if ((match.player1Key == myTeamKey || match.player2Key == myTeamKey) && string.IsNullOrEmpty(match.winnerKey))
+            if ((match.player1Key == myTeamKey || match.player2Key == myTeamKey) &&
+                string.IsNullOrEmpty(match.winnerKey))
             {
                 roundText.text = "4강";
                 return match;
@@ -76,6 +91,20 @@ public class MainSceneTeamDisplay : MonoBehaviour
         }
 
         return null;
+    }
+
+    private void ApplyEliminationUI(bool eliminatedOrEnded)
+    {
+        matchEnterButton.SetActive(!eliminatedOrEnded);
+        gameEndPanel.SetActive(eliminatedOrEnded);
+    }
+
+    private void SetTeamDisplayVisible(bool visible)
+    {
+        myTeamImage.gameObject.SetActive(visible);
+        myTeamText.gameObject.SetActive(visible);
+        enemyTeamImage.gameObject.SetActive(visible);
+        enemyTeamText.gameObject.SetActive(visible);
     }
 
     private Sprite LoadTeamSprite(string key)
