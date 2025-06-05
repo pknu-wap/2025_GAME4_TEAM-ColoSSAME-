@@ -10,6 +10,7 @@ using Battle.Scripts.Value.Data;
 using UnityEngine.EventSystems;
 using Battle.Scripts.Ai;
 using Battle.Scripts.Value.Data;
+using Battle.Scripts.ImageManager;
 
 //battle ai 값바꾸기(느림)
 //json직접 변경(난이도 높음, 그러나 빠름)
@@ -45,6 +46,10 @@ public class State : MonoBehaviour
     public GameObject playerStatusText;
     public GameObject enemyStatusText;
 
+    public SaveManager savemanage; 
+    public SaveManager enemysavemanage;
+    public TransparentScreenshot changeimage;
+
     public BattleAI[] statechange;
 
     public MoneyManager moneymanager;
@@ -70,8 +75,11 @@ public class State : MonoBehaviour
         //randomcharacter.Randomize();
 
         
-        //savemanage.Save(savemanage.SaveFromButton());
-        
+        savemanage.LoadFromButton();
+
+        enemysavemanage.LoadFromButton();
+
+        changeimage.LoadAllSprites();        
 
         trainSelect = trainSelect.ConvertAll(x => 0);
         trainSelectSave = trainSelectSave.ConvertAll(x => 0);

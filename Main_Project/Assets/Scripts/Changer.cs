@@ -11,6 +11,7 @@ namespace Battle.Scripts
     public class Changer : MonoBehaviour
     {
         [SerializeField] private string sceneToLoad;
+        [SerializeField] private float loadingtime;
         
 
         public void ChangeScene()
@@ -21,7 +22,7 @@ namespace Battle.Scripts
 
         private IEnumerator CleanAndLoad()
         {
-			yield return new WaitForSeconds(5f);
+			yield return new WaitForSeconds(loadingtime);
             SceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single);
             yield break;
         }
