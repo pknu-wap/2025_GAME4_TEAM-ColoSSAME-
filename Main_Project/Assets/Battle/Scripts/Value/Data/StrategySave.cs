@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
+using Battle.Scripts.Strategy;
 using UnityEngine;
 
 namespace Battle.Scripts.Value.Data
@@ -11,6 +12,7 @@ namespace Battle.Scripts.Value.Data
 
         private string SaveFileName => $"{targetTag}Save.json";
         private string savePath => Path.Combine(Application.persistentDataPath, SaveFileName);
+        public StrategyManager strategyManager;
 
         public void SavePositionsOnly()
         {
@@ -29,6 +31,7 @@ namespace Battle.Scripts.Value.Data
 
             // 3. 모든 GameObject에서 레이어 기준 필터링
             GameObject[] allObjects = FindObjectsOfType<GameObject>();
+            
             foreach (var obj in allObjects)
             {
                 if (obj.layer != targetLayer) continue;
