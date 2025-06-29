@@ -121,6 +121,7 @@ namespace Battle.Scripts.Strategy
         {
             ActivePlayer();
             ResetCharacters();
+            ClearAllSlots();
             playerPositions[0].transform.localPosition = new Vector2(-0.2f, 0f);
             playerPositions[1].transform.localPosition = new Vector2(0.2f, 0f);
             playerPositions[2].transform.localPosition = new Vector2(0f, 0.2f);
@@ -131,6 +132,7 @@ namespace Battle.Scripts.Strategy
         {
             ActivePlayer();
             ResetCharacters();
+            ClearAllSlots();
             playerPositions[0].transform.localPosition = new Vector2(-0.15f, -0.15f);
             playerPositions[1].transform.localPosition = new Vector2(0.15f, -0.15f);
             playerPositions[2].transform.localPosition = new Vector2(-0.15f, 0.15f);
@@ -141,6 +143,7 @@ namespace Battle.Scripts.Strategy
         {
             ActivePlayer();
             ResetCharacters();
+            ClearAllSlots();
             playerPositions[0].transform.localPosition = new Vector2(-0.15f, 0f);
             playerPositions[1].transform.localPosition = new Vector2(0f, 0f);
             playerPositions[2].transform.localPosition = new Vector2(0.15f, -0.2f);
@@ -163,6 +166,15 @@ namespace Battle.Scripts.Strategy
                 var sr = ClickedEnemy.GetComponent<SpriteRenderer>();
                 if (sr != null) sr.material.color = Color.white;
                 ClickedEnemy = null;
+            }
+        }
+        
+        private void ClearAllSlots()
+        {
+            var slots = FindObjectsOfType<PlayerSlot>();
+            foreach (var slot in slots)
+            {
+                slot.ClearSlot();
             }
         }
 
@@ -200,7 +212,7 @@ namespace Battle.Scripts.Strategy
             return false;
         }
 
-        private void IsDeployed()
+        public void IsDeployed()
         {
             foreach (var character in characters)
             {

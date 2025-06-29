@@ -1,71 +1,87 @@
-using System.Collections;
-using Battle.Scripts.ImageManager;
-using Battle.Scripts.UI;
-using Battle.Scripts.Value.Data;
+using Battle.Scripts.Strategy;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace Battle.Scripts.Strategy
+public class DraggableCharacter : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    public class CharacterClickable : MonoBehaviour, IPointerClickHandler
-    {
-        public StrategyManager strategyManager;
-        public GameObject EnemyStatusIcon;
-        public GameObject EnemyStatusText;
-        public TransparentScreenshot iconMaker;
+    private Vector3 originalPosition;
+    private SpriteRenderer spriteRenderer;
+    private int originalLayer;
+    private PlayerSlot currentSlot;
 
-        public void OnPointerClick(PointerEventData eventData)
+    private PlayerSlot[] allSlots;
+
+    public StrategyManager strategyManager;
+
+    private void Awake()
+    {
+        spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        originalPosition = transform.position;
+        originalLayer = gameObject.layer;
+        spriteRenderer.color = new Color(1, 1, 1, 0.5f);
+
+        if (currentSlot != null)
         {
-            gameObject.GetComponent<SpriteRenderer>().material.color = Color.gray;
-            if (CompareTag("PlayerCharacter"))
+            currentSlot.ClearSlot();
+            currentSlot = null;
+        }
+
+        // 모든 슬롯 가져와서 하이라이트 켜기
+        allSlots = FindObjectsOfType<PlayerSlot>();
+        foreach (var slot in allSlots)
+        {
+            slot.EnableHighlight(true);
+        }
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(eventData.position);
+        mouseWorldPos.z = 0;
+        transform.position = mouseWorldPos;
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(eventData.position);
+        mouseWorldPos.z = 0;
+
+        bool snapped = false;
+
+        foreach (var slot in allSlots)
+        {
+            if (Vector2.Distance(mouseWorldPos, slot.transform.position) < slot.snapRange)
             {
-                if (strategyManager == null) return;
-                if (strategyManager.hasEnemy)
-                {
-                    strategyManager.ResetCharacter();
-                    strategyManager.ClickedEnemy = null;
-                }
-                if (!strategyManager.hasCharacter)
-                {
-                    strategyManager.ClickedCharacter = transform;
-                    strategyManager.hasCharacter = true;
-                    if (strategyManager.hasPlayer) strategyManager.Move();
-                }
-                else
-                {
-                    strategyManager.ResetCharacter();
-                    gameObject.GetComponent<SpriteRenderer>().material.color = Color.white;
-                }
-            }
-            else
-            {
-                if (strategyManager.hasCharacter)
-                {
-                    strategyManager.ResetCharacter();
-                    strategyManager.ClickedCharacter = null;
-                }
-                if (!strategyManager.hasEnemy)
-                {
-                    strategyManager.ClickedEnemy = gameObject;
-                    strategyManager.hasEnemy = true;
-                    EnemyStatusIcon.GetComponentInChildren<CharacterID>().characterKey =
-                        gameObject.GetComponent<CharacterID>().characterKey;
-                    EnemyStatusText.GetComponentInChildren<CharacterID>().characterKey =
-                        gameObject.GetComponent<CharacterID>().characterKey;
-                }
-                else
-                {
-                    strategyManager.ResetCharacter();
-                    gameObject.GetComponent<SpriteRenderer>().material.color = Color.gray;
-                    strategyManager.ClickedEnemy = gameObject;
-                    strategyManager.hasEnemy = true;
-                    EnemyStatusIcon.GetComponentInChildren<CharacterID>().characterKey =
-                        gameObject.GetComponent<CharacterID>().characterKey;
-                    EnemyStatusText.GetComponent<CharacterID>().characterKey = gameObject.GetComponent<CharacterID>().characterKey;
-                }
-                iconMaker.LoadSpriteForSingle(EnemyStatusIcon, "EnemyCharacter");
-                EnemyStatusText.GetComponent<StrategyUIText>().LoadJsonData();
+                slot.SnapCharacter(transform);
+                gameObject.layer = 9;
+                currentSlot = slot;
+                snapped = true;
+                break;
             }
         }
+
+        if (!snapped)
+        {
+            ReturnToOriginalPosition();
+        }
+
+        spriteRenderer.color = Color.white;
+        strategyManager.IsDeployed();
+
+        // 드래그 종료 후 슬롯 하이라이트 끄기
+        foreach (var slot in allSlots)
+        {
+            slot.EnableHighlight(false);
+        }
+    }
+
+    public void ReturnToOriginalPosition()
+    {
+        transform.position = originalPosition;
+        gameObject.layer = originalLayer;
     }
 }
