@@ -2,17 +2,19 @@ using System;
 using Battle.Scripts.Value.Data;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 
 namespace Battle.Scripts.Strategy
 {
     public class StrategyManager : MonoBehaviour
     {
-        public GameObject[] players;
+        public GameObject[] playerPositions;
         public GameObject[] characters;
         public GameObject[] enemyCharacters;
         public Transform ClickedCharacter;
         public Transform ClickedPlayer;
         public GameObject ClickedEnemy;
+        public GameObject startButton;
         public bool hasCharacter;
         public bool hasPlayer;
         public bool hasEnemy;
@@ -21,7 +23,8 @@ namespace Battle.Scripts.Strategy
         
         private void Awake()
         {
-            players = GameObject.FindGameObjectsWithTag("Position");
+            playerPositions = GameObject.FindGameObjectsWithTag("Position");
+            startButton = GameObject.FindGameObjectWithTag("StartButton");
 
             // characters를 characterKey 기준으로 정렬
             var unsortedCharacters = GameObject.FindGameObjectsWithTag("PlayerCharacter");
@@ -58,6 +61,7 @@ namespace Battle.Scripts.Strategy
                 return string.Compare(idA.characterKey, idB.characterKey, StringComparison.Ordinal); // 파싱 실패 시 fallback
             });
             enemyCharacters = unsortedEnemies;
+            startButton.SetActive(false);
         }
         
         private void Start()
@@ -65,6 +69,17 @@ namespace Battle.Scripts.Strategy
             TwoTwo();
         }
         
+        private bool lastDeployState;
+
+        private void Update()
+        {
+            bool hasDeployed = HasAnyDeployedCharacter();
+            if (hasDeployed != lastDeployState)
+            {
+                startButton.SetActive(hasDeployed);
+                lastDeployState = hasDeployed;
+            }
+        }
 
         private void ResetCharacters()
         {
@@ -96,7 +111,7 @@ namespace Battle.Scripts.Strategy
         }
         private void ActivePlayer()
         {
-            foreach (var player in players)
+            foreach (var player in playerPositions)
             {
                 player.SetActive(true);
             }
@@ -106,30 +121,33 @@ namespace Battle.Scripts.Strategy
         {
             ActivePlayer();
             ResetCharacters();
-            players[0].transform.localPosition = new Vector2(-0.2f, 0f);
-            players[1].transform.localPosition = new Vector2(0.2f, 0f);
-            players[2].transform.localPosition = new Vector2(0f, 0.2f);
-            players[3].transform.localPosition = new Vector2(0f, -0.2f);
+            ClearAllSlots();
+            playerPositions[0].transform.localPosition = new Vector2(-0.2f, 0f);
+            playerPositions[1].transform.localPosition = new Vector2(0.2f, 0f);
+            playerPositions[2].transform.localPosition = new Vector2(0f, 0.2f);
+            playerPositions[3].transform.localPosition = new Vector2(0f, -0.2f);
         }
 
         public void TwoTwo()
         {
             ActivePlayer();
             ResetCharacters();
-            players[0].transform.localPosition = new Vector2(-0.15f, -0.15f);
-            players[1].transform.localPosition = new Vector2(0.15f, -0.15f);
-            players[2].transform.localPosition = new Vector2(-0.15f, 0.15f);
-            players[3].transform.localPosition = new Vector2(0.15f, 0.15f);
+            ClearAllSlots();
+            playerPositions[0].transform.localPosition = new Vector2(-0.15f, -0.15f);
+            playerPositions[1].transform.localPosition = new Vector2(0.15f, -0.15f);
+            playerPositions[2].transform.localPosition = new Vector2(-0.15f, 0.15f);
+            playerPositions[3].transform.localPosition = new Vector2(0.15f, 0.15f);
         }
 
         public void OneOneTwo()
         {
             ActivePlayer();
             ResetCharacters();
-            players[0].transform.localPosition = new Vector2(-0.15f, 0f);
-            players[1].transform.localPosition = new Vector2(0f, 0f);
-            players[2].transform.localPosition = new Vector2(0.15f, -0.2f);
-            players[3].transform.localPosition = new Vector2(0.15f, 0.2f);
+            ClearAllSlots();
+            playerPositions[0].transform.localPosition = new Vector2(-0.15f, 0f);
+            playerPositions[1].transform.localPosition = new Vector2(0f, 0f);
+            playerPositions[2].transform.localPosition = new Vector2(0.15f, -0.2f);
+            playerPositions[3].transform.localPosition = new Vector2(0.15f, 0.2f);
         }
 
         public void ResetCharacter()
@@ -148,6 +166,15 @@ namespace Battle.Scripts.Strategy
                 var sr = ClickedEnemy.GetComponent<SpriteRenderer>();
                 if (sr != null) sr.material.color = Color.white;
                 ClickedEnemy = null;
+            }
+        }
+        
+        private void ClearAllSlots()
+        {
+            var slots = FindObjectsOfType<PlayerSlot>();
+            foreach (var slot in slots)
+            {
+                slot.ClearSlot();
             }
         }
 
@@ -172,8 +199,20 @@ namespace Battle.Scripts.Strategy
             hasCharacter = false;
             hasPlayer = false;
         }
+        
+        public bool HasAnyDeployedCharacter()
+        {
+            foreach (var character in characters)
+            {
+                if (character.layer == 9) // 현재 IsDeployed에서 layer 9를 사용 중
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
-        private void IsDeployed()
+        public void IsDeployed()
         {
             foreach (var character in characters)
             {

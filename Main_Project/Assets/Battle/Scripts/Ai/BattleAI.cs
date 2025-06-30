@@ -4,15 +4,9 @@ using Battle.Scripts.Ai.Weapon;
 using Battle.Scripts.Value;
 using Battle.Scripts.Value.Data.Class;
 using Battle.Scripts.Value.HpBar;
-using Battle.Scripts.Value.Data;         // ← CharacterInfo
-using Battle.Scripts.Ai;                 // ← WeaponType, TeamType
 using Pathfinding;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.UI;
 using CharacterInfo = Battle.Scripts.Value.Data.CharacterInfo;
-using Screen = UnityEngine.Device.Screen;
 using StateMachine = Battle.Scripts.StateCore.StateMachine;
 
 namespace Battle.Scripts.Ai
@@ -27,7 +21,6 @@ namespace Battle.Scripts.Ai
     {
         public StateMachine StateMachine { get; private set; }
         public Transform CurrentTarget;
-        public Transform tempTarget;
         public Transform Retreater;
 
         public Vector2 retreatAreaMin = new Vector2(-7f, -3f);
@@ -44,10 +37,10 @@ namespace Battle.Scripts.Ai
         public float damage = 1f;
         public float retreatDistance = 3f;
         public float waitTime = 0.25f;
-        public float stunTime = 0f;
+        public float stunTime;
         public ClassType Class;
         public AudioClip attackSound;
-        public bool IsRetreating = false;
+        public AudioClip skillSound;
 
         [Min(0.25f)] public float AttackDelay = 0.5f;
         private float lastAttackTime;
@@ -76,7 +69,6 @@ namespace Battle.Scripts.Ai
         {
             Targeting = new Targeting(this);
             StateMachine = new StateMachine();
-            characterValue = GetComponent<CharacterValue>();
             addPrefab = GetComponent<AddPrefab>();
         }
 
@@ -173,7 +165,6 @@ namespace Battle.Scripts.Ai
 
         public bool CanAttack()
         {
-            aiAnimator.StopMove();
             return Time.time >= lastAttackTime + AttackDelay;
         }
 
@@ -188,12 +179,6 @@ namespace Battle.Scripts.Ai
 
         public void MoveTo(Vector3 target)
         {
-            if (Vector2.Distance(transform.position, target) < 0.1f)
-            {
-                StopMoving();
-                return;
-            }
-
             aiPath.canMove = true;
             Flip(target);
         }
@@ -202,7 +187,6 @@ namespace Battle.Scripts.Ai
         {
             Vector2 dir = (target - transform.position).normalized;
             transform.localScale = new Vector3(dir.x > 0 ? -0.8f : 0.8f, 0.8f, 0.8f);
-            HealthBar?.GetComponent<HealthBarFixDirection>()?.ForceFix();
         }
 
         public void FlipToRight() => Flip(transform.position + Vector3.right);
@@ -260,8 +244,6 @@ namespace Battle.Scripts.Ai
 
             for (int i = 0; i < renderers.Length; i++)
                 renderers[i].color = originalColors[i];
-
-            flashCoroutine = null;
         }
 
         public bool IsDead() => characterValue.currentHp <= 0;
@@ -269,6 +251,7 @@ namespace Battle.Scripts.Ai
         public void Kill()
         {
             if (isDead) return;
+            StopMoving();
             isDead = true;
             isWinner.Winner(gameObject);
             Destroy(Retreater.gameObject);

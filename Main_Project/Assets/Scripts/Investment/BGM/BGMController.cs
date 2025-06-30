@@ -38,6 +38,7 @@ public class BGMController : MonoBehaviour
         }
     }
 
+    //씬 이름이 아니라 다른 변수 등을 이용해서 음악 재생을 수정할 필요가 있음.
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         Debug.Log("🎬 Scene 전환 감지: " + scene.name);
