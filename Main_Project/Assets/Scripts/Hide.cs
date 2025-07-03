@@ -7,7 +7,6 @@ using TMPro;
 public class Hide : MonoBehaviour
 {
     public GameObject[] allPanels; //ui 설정
-    public TextMeshProUGUI[] allTexts; //글자 설정
 
     public void ShowPanel(GameObject panelToShow)//ui 창 변경
     {

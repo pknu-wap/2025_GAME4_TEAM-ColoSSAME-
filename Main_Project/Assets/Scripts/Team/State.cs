@@ -11,6 +11,7 @@ using UnityEngine.EventSystems;
 using Battle.Scripts.Ai;
 using Battle.Scripts.Value.Data;
 using Battle.Scripts.ImageManager;
+using Battle.Scripts.Ai.CharacterCreator; 
 
 //battle ai 값바꾸기(느림)
 //json직접 변경(난이도 높음, 그러나 빠름)
@@ -24,8 +25,6 @@ public class State : MonoBehaviour
 
     public List<Button> fighterButtons;//선수 지정
     public List<Button> enemyButtons;
-
-    public List<int> playerState;//능력치
 
     public List<TextMeshProUGUI> trainShow;//훈련 창에서 선택한 훈련 보여줌
     public List<int> trainSelect;//훈련 종류 저장
@@ -51,12 +50,20 @@ public class State : MonoBehaviour
     public TransparentScreenshot changeimage;
 
     public BattleAI[] statechange;
+    public List<GameObject> buyFighter;
 
     public MoneyManager moneymanager;
 
     float hpresult;
     float damageresult;
     float defenseresult;
+
+    int sellCount;
+    int playerCheck;
+    public List<int> sellList;
+
+    public List<GameObject> playerimage; 
+    List<int> playerIndexList = new List<int>{0,1,2,3,4,5,6,7,8};
 
    // public RandomCharacter randomcharacter;
     //public SaveManager savemanage;
@@ -84,7 +91,6 @@ public class State : MonoBehaviour
         trainSelect = trainSelect.ConvertAll(x => 0);
         trainSelectSave = trainSelectSave.ConvertAll(x => 0);
 
-        characterid = GetComponent<CharacterID>();
         getPlayer = new List<int>{ Random.Range(0,11), Random.Range(0,11),Random.Range(0,11) };
 
         for (int i = 0; i < 9; i++)
@@ -99,39 +105,39 @@ public class State : MonoBehaviour
     void Update()
     {
         //stateText.text = $"공격력 : {playerState[(fighterCount)*3]} \n방어력 : {playerState[(fighterCount)*3+1]} \n체력 : {playerState[(fighterCount)*3+2]}";//공격력, 방어력 표시
-        trainShow[0].text = $"{trainList[trainSelectSave[0+fighterCount*7]]}";//훈련 할 능력치
-        trainShow[1].text = $"{trainList[trainSelectSave[1+fighterCount*7]]}";
-        trainShow[2].text = $"{trainList[trainSelectSave[2+fighterCount*7]]}";
-        trainShow[3].text = $"{trainList[trainSelectSave[3+fighterCount*7]]}";
-        trainShow[4].text = $"{trainList[trainSelectSave[4+fighterCount*7]]}";
-        trainShow[5].text = $"{trainList[trainSelectSave[5+fighterCount*7]]}";
-        trainShow[6].text = $"{trainList[trainSelectSave[6+fighterCount*7]]}";
+
 
         trainResultInfoText.text = $"{trainResultSave[fighterCount]}";
 
-        trainResultText.text = $"공격력 : {playerState[(fighterCount)*3]} + <color=#00ffff>{trainResult[fighterCount*3]}</color> \n방어력 : {playerState[(fighterCount)*3+1]} + <color=#00ffff>{trainResult[fighterCount*3+1]}</color>  \n체력    : {playerState[(fighterCount)*3+2]} + <color=#00ffff>{trainResult[fighterCount*3+2]}</color> ";//주넘기시 후 표시할 선수 능력치
+        //trainResultText.text = $"공격력 : {playerState[(fighterCount)*3]} + <color=#00ffff>{trainResult[fighterCount*3]}</color> \n방어력 : {playerState[(fighterCount)*3+1]} + <color=#00ffff>{trainResult[fighterCount*3+1]}</color>  \n체력    : {playerState[(fighterCount)*3+2]} + <color=#00ffff>{trainResult[fighterCount*3+2]}</color> ";//주넘기시 후 표시할 선수 능력치
     
         getPlayerStateText.text = $"공격력 : {getPlayer[0]} \n방어력 : {getPlayer[1]} \n체력 : {getPlayer[2]}";//공격력, 방어력 표시
     }
 
     public void selectPlayer(int playerIndex)//선수 선택
     {
-        fighterCount = playerIndex;
-        trainAdd = trainAdd.ConvertAll(x => 0);
-        fighterButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector2(-40f, 10f);
-        enemyButtons[fighterCount].GetComponent<RectTransform>().anchoredPosition = new Vector2(-40f, -20f);
-        fighterButtons[fighterCount].GetComponent<RectTransform>().localScale = new Vector2(3f,3f);
-        enemyButtons[fighterCount].GetComponent<RectTransform>().localScale = new Vector2(-3f,3f);
+        playerCheck = playerIndex;
+        fighterCount = playerIndexList[playerIndex];
+
+        fighterButtons[playerIndex].GetComponent<RectTransform>().anchoredPosition = new Vector2(-40f, 10f);
+        enemyButtons[playerIndex].GetComponent<RectTransform>().anchoredPosition = new Vector2(-40f, -20f);
+
+        fighterButtons[playerIndex].GetComponent<RectTransform>().localScale = new Vector2(3f,3f);
+        enemyButtons[playerIndex].GetComponent<RectTransform>().localScale = new Vector2(-3f,3f);
+
         playerStatusText.GetComponentInChildren<CharacterID>().characterKey = (fighterCount + 1).ToString();
         enemyStatusText.GetComponentInChildren<CharacterID>().characterKey = (fighterCount + 1).ToString();
+
         Debug.Log(statechange[fighterCount].hp);
         Debug.Log(statechange[fighterCount].defense);
         Debug.Log(statechange[fighterCount].damage);
+
+        Debug.Log(fighterCount);
     }
 
     public void playerRandomState(int trainschoice)
     {
-        if (trainschoice == 0 && moneymanager.money > 100)
+        if (trainschoice == 0 && moneymanager.money >= 100)
         {
             hpresult= Random.Range(-2.5f,3f);
             if (hpresult >= 0)
@@ -151,7 +157,7 @@ public class State : MonoBehaviour
                 statechange[fighterCount].hp = 1;
             }
         }
-        if (trainschoice == 1 && moneymanager.money > 100)
+        if (trainschoice == 1 && moneymanager.money >= 100)
         {
 
             damageresult= Random.Range(-2.5f,3f);
@@ -172,7 +178,7 @@ public class State : MonoBehaviour
                 statechange[fighterCount].damage = 1;
             }
         }
-        if (trainschoice == 2 && moneymanager.money > 100)
+        if (trainschoice == 2 && moneymanager.money >= 100)
         {
 
            defenseresult = Random.Range(-2.5f,3f);
@@ -195,37 +201,7 @@ public class State : MonoBehaviour
         }
     }
     
-    public void selectWeek(int dayIndex)//훈련 날짜
-    {
-        day = dayIndex;
-    }
 
-    public void leftClick()//훈련 왼쪽 클릭
-    {   
-        if (trainSelect[day] == 0)
-        {
-            trainSelect[day] = 2;
-        }
-        else
-        {
-            trainSelect[day] -= 1;
-        }
-        trainSelectSave[day+fighterCount*7] = trainSelect[day];
-
-    }
-
-    public void rightClick()//오른쪽 클릭
-    {
-           if (trainSelect[day] == 2)
-        {
-            trainSelect[day] = 0;
-        }
-        else
-        {
-            trainSelect[day] += 1;
-        }
-        trainSelectSave[day+fighterCount*7] = trainSelect[day];
-    }
 
     public void trainBack()
     {   
@@ -234,8 +210,11 @@ public class State : MonoBehaviour
             trainAdd[s] += Random.Range(0,4);
             trainResult[s+3*(fighterCount)] = trainAdd[s];
         }
-        fighterButtons[fighterCount].GetComponent<RectTransform>().localScale = new Vector2(1f,1f);
-        enemyButtons[fighterCount].GetComponent<RectTransform>().localScale = new Vector2(1f,1f); 
+        for (int i=0; i < playerIndexList.Count; i++ )
+        {
+            fighterButtons[i].GetComponent<RectTransform>().localScale = new Vector2(1f,1f);
+            enemyButtons[i].GetComponent<RectTransform>().localScale = new Vector2(1f,1f); 
+        }
         
         trainSelect = trainSelect.ConvertAll(x => 0);//리스트 안 값 다시 0으로 변경
         
@@ -258,17 +237,49 @@ public class State : MonoBehaviour
         enemyButtons[6].GetComponent<RectTransform>().anchoredPosition = new Vector2(-90f, -415f);
         enemyButtons[7].GetComponent<RectTransform>().anchoredPosition = new Vector2(50f, -415f);
         enemyButtons[8].GetComponent<RectTransform>().anchoredPosition = new Vector2(190f, -415f);
+
+        for (int k = 1; k <= sellCount; k++)
+        {
+            fighterButtons[playerIndexList.Count-k].gameObject.SetActive(false);
+            //playerimage[playerIndexList.Count-k].SetActive(false);
+        } 
     }   
 
-    public void nextWeek()//다음주로 넘김
-    {
-        //for (int i = 0; i < playerState.Count; i ++)
+    public void sellFighter()//선수팔기
+    {   
+        sellCount += 1;
+        //playerIndexList[fighterCount] = playerIndexList.Count - sellCount;
+        //playerimage[fighterCount].GetComponentInChildren<CharacterID>().characterKey = (playerIndexList.Count - sellCount + 1).ToString();
+        sellList.Add(fighterCount);
+        moneymanager.AddMoney((int)(statechange[fighterCount].hp + statechange[fighterCount].damage + statechange[fighterCount].defense));
+        for (int i = playerCheck; i < playerIndexList.Count; i++)
         {
-           // playerState[i] += attackTrainingSave[i];//주를 넘겨 훈련량량 더해줌
+            playerIndexList[i] += 1;
+            playerimage[i].GetComponentInChildren<CharacterID>().characterKey = (int.Parse(playerimage[i].GetComponentInChildren<CharacterID>().characterKey) + 1).ToString();
         }
-        //trainSelect = trainSelect.ConvertAll(x => 0);//리스트 안 값 다시 0으로 변경
-        //trainSelectSave = trainSelectSave.ConvertAll(x => "공격력");
+        changeimage.LoadAllSprites();
+
+        Debug.Log("playerIndexList: " + string.Join(", ", playerIndexList));
+
+        for (int k = 1; k <= sellCount; k++)
+        {
+            fighterButtons[playerIndexList.Count-k].gameObject.SetActive(false);
+            playerimage[playerIndexList.Count-k].GetComponentInChildren<CharacterID>().characterKey = (sellList[sellList.Count-k]).ToString();
+        }    
+   }
+
+   /*public void scoutFighter()
+   {
+    if (sellCount >= 1)
+    {
+        buyFighter[sellList[0]].GetComponentInChildren<RandomCharacter>().Randomize();
+        fighterButtons[playerIndexList.Count - sellList.Count].gameObject.SetActive(true);
+        savemanage.Save
+        savemanage.LoadFromButton();
+        changeimage.LoadAllSprites();        
+
     }
+   }*/
 
     public void goHome()//넘어가기
     {
@@ -306,13 +317,13 @@ public class State : MonoBehaviour
         fighterButtons[8].GetComponent<RectTransform>().anchoredPosition = new Vector2(190f, -415f);
         Debug.Log("주넘기기 완료");
     }
-    public void playerGoodChoice()
-    {
-        playerCount += 1;
+    //public void playerGoodChoice()
+    //{
+        //playerCount += 1;
 
-        playerState[(playerCount-1)*3] = getPlayer[0];
-        playerState[(playerCount-1)*3+1] = getPlayer[1];
-        playerState[(playerCount-1)*3+2] = getPlayer[2];
+        //playerState[(playerCount-1)*3] = getPlayer[0];
+        //playerState[(playerCount-1)*3+1] = getPlayer[1];
+        //playerState[(playerCount-1)*3+2] = getPlayer[2];
         
-    }
+    //}
 }
