@@ -728,6 +728,54 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 3533259449336369807, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
   m_PrefabInstance: {fileID: 174397111}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &277144694
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 277144695}
+  - component: {fileID: 277144696}
+  m_Layer: 5
+  m_Name: load
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &277144695
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 277144694}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2077727151}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &277144696
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 277144694}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff3d5832ecf5d4b0eb565a3b50de483f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &315739902
 GameObject:
   m_ObjectHideFlags: 0
@@ -2902,6 +2950,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1237388524}
+        m_TargetAssemblyTypeName: LeagueManager, Assembly-CSharp
+        m_MethodName: NewLeague
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
       - m_Target: {fileID: 353298122}
         m_TargetAssemblyTypeName: GameMaster, Assembly-CSharp
         m_MethodName: StartTournamentManually
@@ -4201,6 +4261,1191 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1222757351}
   m_CullTransparentMesh: 1
+--- !u!1 &1237388521
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1237388525}
+  - component: {fileID: 1237388524}
+  - component: {fileID: 1237388523}
+  - component: {fileID: 1237388522}
+  m_Layer: 5
+  m_Name: LeagueSystemManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1237388522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1237388521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a8bff437262841a49ae7325d2973487, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1237388523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1237388521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c663e9a9dadb54f99822287c396eb319, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1237388524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1237388521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acf420b858419436dae883c6a327d632, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  league:
+    settings:
+      name: "\uCF5C\uB85C\uC138\uC6C0 \uB9AC\uADF8 \uC2DC\uC98C 1"
+      totalRounds: 27
+      pointRule:
+        win: 3
+        draw: 1
+        lose: 0
+      playerTeamId: 1
+      playerTeamName: "\uD300 A"
+    teams:
+    - id: 1
+      name: "\uD300 A"
+      played: 0
+      win: 0
+      draw: 0
+      lose: 0
+      goalsFor: 0
+      goalsAgainst: 0
+      points: 0
+      rank: 0
+    - id: 2
+      name: "\uD300 B"
+      played: 0
+      win: 0
+      draw: 0
+      lose: 0
+      goalsFor: 0
+      goalsAgainst: 0
+      points: 0
+      rank: 0
+    - id: 3
+      name: "\uD300 C"
+      played: 0
+      win: 0
+      draw: 0
+      lose: 0
+      goalsFor: 0
+      goalsAgainst: 0
+      points: 0
+      rank: 0
+    - id: 4
+      name: "\uD300 D"
+      played: 0
+      win: 0
+      draw: 0
+      lose: 0
+      goalsFor: 0
+      goalsAgainst: 0
+      points: 0
+      rank: 0
+    - id: 5
+      name: "\uD300 E"
+      played: 0
+      win: 0
+      draw: 0
+      lose: 0
+      goalsFor: 0
+      goalsAgainst: 0
+      points: 0
+      rank: 0
+    - id: 6
+      name: "\uD300 F"
+      played: 0
+      win: 0
+      draw: 0
+      lose: 0
+      goalsFor: 0
+      goalsAgainst: 0
+      points: 0
+      rank: 0
+    - id: 7
+      name: "\uD300 G"
+      played: 0
+      win: 0
+      draw: 0
+      lose: 0
+      goalsFor: 0
+      goalsAgainst: 0
+      points: 0
+      rank: 0
+    - id: 8
+      name: "\uD300 H"
+      played: 0
+      win: 0
+      draw: 0
+      lose: 0
+      goalsFor: 0
+      goalsAgainst: 0
+      points: 0
+      rank: 0
+    - id: 9
+      name: "\uD300 I"
+      played: 0
+      win: 0
+      draw: 0
+      lose: 0
+      goalsFor: 0
+      goalsAgainst: 0
+      points: 0
+      rank: 0
+    - id: 10
+      name: "\uD300 J"
+      played: 0
+      win: 0
+      draw: 0
+      lose: 0
+      goalsFor: 0
+      goalsAgainst: 0
+      points: 0
+      rank: 0
+    schedule:
+    - roundNumber: 1
+      matches:
+      - matchId: 1-1
+        teamAId: 1
+        teamBId: 10
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 1-2
+        teamAId: 2
+        teamBId: 9
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 1-3
+        teamAId: 3
+        teamBId: 8
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 1-4
+        teamAId: 4
+        teamBId: 7
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 1-5
+        teamAId: 5
+        teamBId: 6
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 2
+      matches:
+      - matchId: 2-1
+        teamAId: 1
+        teamBId: 9
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 2-2
+        teamAId: 10
+        teamBId: 8
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 2-3
+        teamAId: 2
+        teamBId: 7
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 2-4
+        teamAId: 3
+        teamBId: 6
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 2-5
+        teamAId: 4
+        teamBId: 5
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 3
+      matches:
+      - matchId: 3-1
+        teamAId: 1
+        teamBId: 8
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 3-2
+        teamAId: 9
+        teamBId: 7
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 3-3
+        teamAId: 10
+        teamBId: 6
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 3-4
+        teamAId: 2
+        teamBId: 5
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 3-5
+        teamAId: 3
+        teamBId: 4
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 4
+      matches:
+      - matchId: 4-1
+        teamAId: 1
+        teamBId: 7
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 4-2
+        teamAId: 8
+        teamBId: 6
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 4-3
+        teamAId: 9
+        teamBId: 5
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 4-4
+        teamAId: 10
+        teamBId: 4
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 4-5
+        teamAId: 2
+        teamBId: 3
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 5
+      matches:
+      - matchId: 5-1
+        teamAId: 1
+        teamBId: 6
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 5-2
+        teamAId: 7
+        teamBId: 5
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 5-3
+        teamAId: 8
+        teamBId: 4
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 5-4
+        teamAId: 9
+        teamBId: 3
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 5-5
+        teamAId: 10
+        teamBId: 2
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 6
+      matches:
+      - matchId: 6-1
+        teamAId: 1
+        teamBId: 5
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 6-2
+        teamAId: 6
+        teamBId: 4
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 6-3
+        teamAId: 7
+        teamBId: 3
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 6-4
+        teamAId: 8
+        teamBId: 2
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 6-5
+        teamAId: 9
+        teamBId: 10
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 7
+      matches:
+      - matchId: 7-1
+        teamAId: 1
+        teamBId: 4
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 7-2
+        teamAId: 5
+        teamBId: 3
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 7-3
+        teamAId: 6
+        teamBId: 2
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 7-4
+        teamAId: 7
+        teamBId: 10
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 7-5
+        teamAId: 8
+        teamBId: 9
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 8
+      matches:
+      - matchId: 8-1
+        teamAId: 1
+        teamBId: 3
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 8-2
+        teamAId: 4
+        teamBId: 2
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 8-3
+        teamAId: 5
+        teamBId: 10
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 8-4
+        teamAId: 6
+        teamBId: 9
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 8-5
+        teamAId: 7
+        teamBId: 8
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 9
+      matches:
+      - matchId: 9-1
+        teamAId: 1
+        teamBId: 2
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 9-2
+        teamAId: 3
+        teamBId: 10
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 9-3
+        teamAId: 4
+        teamBId: 9
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 9-4
+        teamAId: 5
+        teamBId: 8
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 9-5
+        teamAId: 6
+        teamBId: 7
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 10
+      matches:
+      - matchId: 10-1
+        teamAId: 1
+        teamBId: 10
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 10-2
+        teamAId: 2
+        teamBId: 9
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 10-3
+        teamAId: 3
+        teamBId: 8
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 10-4
+        teamAId: 4
+        teamBId: 7
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 10-5
+        teamAId: 5
+        teamBId: 6
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 11
+      matches:
+      - matchId: 11-1
+        teamAId: 1
+        teamBId: 9
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 11-2
+        teamAId: 10
+        teamBId: 8
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 11-3
+        teamAId: 2
+        teamBId: 7
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 11-4
+        teamAId: 3
+        teamBId: 6
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 11-5
+        teamAId: 4
+        teamBId: 5
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 12
+      matches:
+      - matchId: 12-1
+        teamAId: 1
+        teamBId: 8
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 12-2
+        teamAId: 9
+        teamBId: 7
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 12-3
+        teamAId: 10
+        teamBId: 6
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 12-4
+        teamAId: 2
+        teamBId: 5
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 12-5
+        teamAId: 3
+        teamBId: 4
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 13
+      matches:
+      - matchId: 13-1
+        teamAId: 1
+        teamBId: 7
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 13-2
+        teamAId: 8
+        teamBId: 6
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 13-3
+        teamAId: 9
+        teamBId: 5
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 13-4
+        teamAId: 10
+        teamBId: 4
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 13-5
+        teamAId: 2
+        teamBId: 3
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 14
+      matches:
+      - matchId: 14-1
+        teamAId: 1
+        teamBId: 6
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 14-2
+        teamAId: 7
+        teamBId: 5
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 14-3
+        teamAId: 8
+        teamBId: 4
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 14-4
+        teamAId: 9
+        teamBId: 3
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 14-5
+        teamAId: 10
+        teamBId: 2
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 15
+      matches:
+      - matchId: 15-1
+        teamAId: 1
+        teamBId: 5
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 15-2
+        teamAId: 6
+        teamBId: 4
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 15-3
+        teamAId: 7
+        teamBId: 3
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 15-4
+        teamAId: 8
+        teamBId: 2
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 15-5
+        teamAId: 9
+        teamBId: 10
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 16
+      matches:
+      - matchId: 16-1
+        teamAId: 1
+        teamBId: 4
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 16-2
+        teamAId: 5
+        teamBId: 3
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 16-3
+        teamAId: 6
+        teamBId: 2
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 16-4
+        teamAId: 7
+        teamBId: 10
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 16-5
+        teamAId: 8
+        teamBId: 9
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 17
+      matches:
+      - matchId: 17-1
+        teamAId: 1
+        teamBId: 3
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 17-2
+        teamAId: 4
+        teamBId: 2
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 17-3
+        teamAId: 5
+        teamBId: 10
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 17-4
+        teamAId: 6
+        teamBId: 9
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 17-5
+        teamAId: 7
+        teamBId: 8
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 18
+      matches:
+      - matchId: 18-1
+        teamAId: 1
+        teamBId: 2
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 18-2
+        teamAId: 3
+        teamBId: 10
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 18-3
+        teamAId: 4
+        teamBId: 9
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 18-4
+        teamAId: 5
+        teamBId: 8
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 18-5
+        teamAId: 6
+        teamBId: 7
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 19
+      matches:
+      - matchId: 19-1
+        teamAId: 1
+        teamBId: 10
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 19-2
+        teamAId: 2
+        teamBId: 9
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 19-3
+        teamAId: 3
+        teamBId: 8
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 19-4
+        teamAId: 4
+        teamBId: 7
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 19-5
+        teamAId: 5
+        teamBId: 6
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 20
+      matches:
+      - matchId: 20-1
+        teamAId: 1
+        teamBId: 9
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 20-2
+        teamAId: 10
+        teamBId: 8
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 20-3
+        teamAId: 2
+        teamBId: 7
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 20-4
+        teamAId: 3
+        teamBId: 6
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 20-5
+        teamAId: 4
+        teamBId: 5
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 21
+      matches:
+      - matchId: 21-1
+        teamAId: 1
+        teamBId: 8
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 21-2
+        teamAId: 9
+        teamBId: 7
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 21-3
+        teamAId: 10
+        teamBId: 6
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 21-4
+        teamAId: 2
+        teamBId: 5
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 21-5
+        teamAId: 3
+        teamBId: 4
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 22
+      matches:
+      - matchId: 22-1
+        teamAId: 1
+        teamBId: 7
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 22-2
+        teamAId: 8
+        teamBId: 6
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 22-3
+        teamAId: 9
+        teamBId: 5
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 22-4
+        teamAId: 10
+        teamBId: 4
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 22-5
+        teamAId: 2
+        teamBId: 3
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 23
+      matches:
+      - matchId: 23-1
+        teamAId: 1
+        teamBId: 6
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 23-2
+        teamAId: 7
+        teamBId: 5
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 23-3
+        teamAId: 8
+        teamBId: 4
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 23-4
+        teamAId: 9
+        teamBId: 3
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 23-5
+        teamAId: 10
+        teamBId: 2
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 24
+      matches:
+      - matchId: 24-1
+        teamAId: 1
+        teamBId: 5
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 24-2
+        teamAId: 6
+        teamBId: 4
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 24-3
+        teamAId: 7
+        teamBId: 3
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 24-4
+        teamAId: 8
+        teamBId: 2
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 24-5
+        teamAId: 9
+        teamBId: 10
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 25
+      matches:
+      - matchId: 25-1
+        teamAId: 1
+        teamBId: 4
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 25-2
+        teamAId: 5
+        teamBId: 3
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 25-3
+        teamAId: 6
+        teamBId: 2
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 25-4
+        teamAId: 7
+        teamBId: 10
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 25-5
+        teamAId: 8
+        teamBId: 9
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 26
+      matches:
+      - matchId: 26-1
+        teamAId: 1
+        teamBId: 3
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 26-2
+        teamAId: 4
+        teamBId: 2
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 26-3
+        teamAId: 5
+        teamBId: 10
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 26-4
+        teamAId: 6
+        teamBId: 9
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 26-5
+        teamAId: 7
+        teamBId: 8
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+    - roundNumber: 27
+      matches:
+      - matchId: 27-1
+        teamAId: 1
+        teamBId: 2
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 27-2
+        teamAId: 3
+        teamBId: 10
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 27-3
+        teamAId: 4
+        teamBId: 9
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 27-4
+        teamAId: 5
+        teamBId: 8
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+      - matchId: 27-5
+        teamAId: 6
+        teamBId: 7
+        result:
+          winner: 0
+          scoreA: 0
+          scoreB: 0
+--- !u!224 &1237388525
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1237388521}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1270746313 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3533259449336369807, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
@@ -6802,7 +8047,7 @@ GameObject:
   - component: {fileID: 2077727153}
   - component: {fileID: 2077727152}
   m_Layer: 5
-  m_Name: Button (2)
+  m_Name: loadButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6821,6 +8066,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1673418541}
+  - {fileID: 277144695}
   m_Father: {fileID: 976779742}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -6872,37 +8118,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: SceneChange
+      - m_Target: {fileID: 277144696}
+        m_TargetAssemblyTypeName: LoadManager, Assembly-CSharp
+        m_MethodName: OnClickLoad
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -6959,3 +8181,4 @@ SceneRoots:
   - {fileID: 517610179}
   - {fileID: 1897041364}
   - {fileID: 1385302309}
+  - {fileID: 1237388525}
