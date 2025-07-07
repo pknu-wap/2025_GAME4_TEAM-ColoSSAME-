@@ -4,7 +4,6 @@ using UnityEngine;
 public class VictoryDefeatButton : MonoBehaviour
 {
     public LeagueManager leagueManager;
-
     private void Start()
     {
         if (leagueManager == null)

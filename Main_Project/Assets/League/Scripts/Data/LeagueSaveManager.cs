@@ -6,6 +6,9 @@ public class LeagueSaveManager : MonoBehaviour
 {
     private string fileName = "LeagueSave.json";
     private string savePath;
+    
+    public string SavePath => savePath;
+
 
     void Awake()
     {

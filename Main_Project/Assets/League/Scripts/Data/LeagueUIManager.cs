@@ -5,7 +5,9 @@ using TMPro;
 
 public class LeagueUIManager : MonoBehaviour
 {
+    public static LeagueUIManager Instance;
     public LeagueManager leagueManager;
+    
 
     [Header("다음 경기 UI")]
     public Image[] teamAImages;
@@ -21,6 +23,9 @@ public class LeagueUIManager : MonoBehaviour
     public TextMeshProUGUI[] loseTexts;
     public TextMeshProUGUI[] drawTexts;
     public TextMeshProUGUI[] winRateTexts;
+    
+    public TMP_Text currentRoundInfoText;
+    public TMP_Text nextRoundInfoText;
 
     void Start()
     {
@@ -36,8 +41,26 @@ public class LeagueUIManager : MonoBehaviour
         UpdateNextMatchUI();
         UpdateRankingUI();
         ShowMyTeamNextMatch();
+        UpdateRoundInfoUI(); 
     }
 
+    private void UpdateRoundInfoUI()
+    {
+        int currentRound = GetCurrentRoundNumber();
+        if (currentRound == 1)
+        {
+            currentRoundInfoText.text = $"시작 라운드";
+        }
+        else
+        {
+            
+            currentRoundInfoText.text = $"{currentRound - 1} 라운드";
+        }
+
+        nextRoundInfoText.text = $"{currentRound} 라운드";
+    }
+
+    
     private void UpdateNextMatchUI()
     {
         int currentRound = GetCurrentRoundNumber();

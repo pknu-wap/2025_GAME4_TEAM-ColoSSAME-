@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Linq;
 using System;
+using System.IO;
+
 
 public class LeagueManager : MonoBehaviour
 {
@@ -46,6 +48,14 @@ public class LeagueManager : MonoBehaviour
     /// </summary>
     public void NewLeague()
     {
+        
+        // 기존 save 파일 삭제
+        if (File.Exists(saveManager.SavePath))
+        {
+            File.Delete(saveManager.SavePath);
+            Debug.Log("🗑️ 기존 리그 세이브 파일 삭제 완료");
+        }
+        
         league = settingManager.InitializeLeague();
         saveManager.SaveLeague(league);
 
@@ -53,6 +63,7 @@ public class LeagueManager : MonoBehaviour
 
         Debug.Log("✅ 새로운 리그 데이터 생성 완료");
     }
+    
 
 
 
