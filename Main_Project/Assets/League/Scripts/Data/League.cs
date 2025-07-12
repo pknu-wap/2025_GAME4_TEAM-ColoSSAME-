@@ -33,6 +33,7 @@ using System.Collections.Generic;
     {
         public int id;
         public string name;
+        public string explanation;
         public int played;
         public int win;
         public int draw;

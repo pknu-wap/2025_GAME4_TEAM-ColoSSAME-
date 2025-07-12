@@ -37,16 +37,28 @@ public class LeagueSettingManager : MonoBehaviour
     {
         List<Team> teams = new List<Team>();
 
-        teams.Add(new Team { id = 1, name = "카이루스" });
-        teams.Add(new Team { id = 2, name = "플로라" });
-        teams.Add(new Team { id = 3, name = "이그니스" });
-        teams.Add(new Team { id = 4, name = "루멘" });
-        teams.Add(new Team { id = 5, name = "녹스" });
-        teams.Add(new Team { id = 6, name = "모르스" });
-        teams.Add(new Team { id = 7, name = "폴그르" });
-        teams.Add(new Team { id = 8, name = "마레" });
-        teams.Add(new Team { id = 9, name = "테라" });
-        teams.Add(new Team { id = 10, name = "아스트라" });
+        teams.Add(new Team { id = 1, name = "카이루스", explanation = "“하늘과 바람을 지배하는 귀족 가문.\n빠르고 우아한 전술을 자랑한다.”" });
+        
+        teams.Add(new Team { id = 2, name = "플로라", explanation = "“숲과 생명의 숨결을 이어받은 가문.\n치유와 재생의 힘을 지녔다.”" });
+        
+        teams.Add(new Team { id = 3, name = "이그니스", explanation = "“용의 피가 흐르는 불꽃의 가문.\n강력한 공격과 불굴의 기개로 적을 불태운다.”" });
+        
+        teams.Add(new Team { id = 4, name = "루멘", explanation = "“빛과 철의 질서를 수호하는 성기사 가문.\n굳건한 방어와 정의의 힘을 믿는다.”" });
+        
+        teams.Add(new Team { id = 5, name = "녹스", explanation = "“밤과 달의 신비를 따르는 그림자 가문.\n은밀하고 치명적인 일격을 가한다.”" });
+        
+        teams.Add(new Team { id = 6, name = "모르스", explanation = "“죽음과 저주의 사제를 모시는 가문.\n망령의 힘으로 적을 저주한다.”" });
+        
+        teams.Add(new Team { id = 7, name = "폴그르", explanation = "“천둥의 신에게 선택받은 속도의 가문.\n번개처럼 빠르고 강렬한 공격을 펼친다.”" });
+        
+        teams.Add(new Team { id = 8, name = "마레", explanation = "“바다의 심연을 품은 가문.\n흐르는 물처럼 유연하고 냉철하다.”" });
+        
+        teams.Add(new Team { id = 9, name = "테라", explanation = "“대지와 산의 수호자 가문.\n강인한 방어력과 흔들리지 않는 의지를 가진다.”" });
+        
+        teams.Add(new Team { id = 10, name = "아스트라",explanation = "“별과 운명을 읽는 예언자 가문.\n신비한 힘으로 전장의 흐름을 꿰뚫는다.”" });
+        
+        
+        
 
         return teams;
     }
