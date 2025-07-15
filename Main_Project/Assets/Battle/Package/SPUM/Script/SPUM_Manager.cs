@@ -421,9 +421,7 @@ public class SPUM_Manager : MonoBehaviour
         var UnitType = ButtonData.UnitType;
         var PartType = ButtonData.PartType;
 
-        //해당 파트가 고정되어있는지 판별 이후 고정되어있다면 실행X 
         if(isSpriteFixed) return;
-        
         string unitType = UnitType;
         string partType = PartType;
 
@@ -627,9 +625,7 @@ public class SPUM_Manager : MonoBehaviour
         #endif
         List<string> conditionTypes = new List<string> {"Body", "Horse" };
 
-        //filteredButtons는 버튼이 Body나 Horse가 아닌 버튼만 타겟으로 잡아서 리스트로 변환
         var filteredButtons = ItemButtons.Where(button => !conditionTypes.Contains(button.ItemShowType)).ToList();
-        //각각의 filteredButtons에 대하여 SetPartRandom 실행
         foreach (var button in filteredButtons)
         {
             button.SetPartRandom();

@@ -12,12 +12,12 @@ namespace Battle.Scripts.Value
         GameObject[] players;
         GameObject[] enemies;
         public GameObject Result;
-        public BattleSceneManager BattleSceneManager;
+        public LeagueSceneManager LeagueSceneManager;
 
         private void Awake()
         {
             Instance = this;
-            BattleSceneManager = FindObjectOfType<BattleSceneManager>();
+            LeagueSceneManager = FindObjectOfType<LeagueSceneManager>();
         }
 
         public void startSetting()
@@ -38,9 +38,9 @@ namespace Battle.Scripts.Value
             if (playersNumber == 0 || enemiesNumber == 0)
             {
                 if (playersNumber < enemiesNumber) {
-                    BattleSceneManager.OnLose();
+                    LeagueSceneManager.OnClickLose();
                 } else {
-                    BattleSceneManager.OnWin();
+                    LeagueSceneManager.OnClickLose();
                 }
                 gameObject.SetActive(false);
                 Result.SetActive(true);

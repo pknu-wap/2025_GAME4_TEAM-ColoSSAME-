@@ -208,83 +208,96 @@ public class LeagueManager : MonoBehaviour
             return 1;
         }
     }
-    
+
     public void ProcessRoundResult(bool isPlayerWin)
-{
-    int currentRound = GetCurrentRoundNumber();
-    Round round = league.schedule.Find(r => r.roundNumber == currentRound);
-
-    if (round == null)
     {
-        Debug.LogWarning("❌ 현재 라운드 정보를 찾을 수 없습니다.");
-        return;
-    }
+        int currentRound = GetCurrentRoundNumber();
+        Round round = league.schedule.Find(r => r.roundNumber == currentRound);
 
-    int playerTeamId = league.settings.playerTeamId;
-
-    foreach (var match in round.matches)
-    {
-        Team teamA = league.teams.Find(t => t.id == match.teamAId);
-        Team teamB = league.teams.Find(t => t.id == match.teamBId);
-
-        if (teamA == null || teamB == null)
+        if (round == null)
         {
-            Debug.LogWarning("❌ 팀 정보를 찾을 수 없습니다.");
-            continue;
+            Debug.LogWarning("❌ 현재 라운드 정보를 찾을 수 없습니다.");
+            return;
         }
 
-        Result result = new Result();
+        int playerTeamId = league.settings.playerTeamId;
 
-        if (match.teamAId == playerTeamId || match.teamBId == playerTeamId)
+        foreach (var match in round.matches)
         {
-            // 플레이어 경기 처리
-            if (isPlayerWin)
+            Team teamA = league.teams.Find(t => t.id == match.teamAId);
+            Team teamB = league.teams.Find(t => t.id == match.teamBId);
+
+            if (teamA == null || teamB == null)
             {
-                result.scoreA = match.teamAId == playerTeamId ? 1 : 0;
-                result.scoreB = match.teamBId == playerTeamId ? 1 : 0;
-                result.winner = playerTeamId;
+                Debug.LogWarning("❌ 팀 정보를 찾을 수 없습니다.");
+                continue;
+            }
+
+            Result result = new Result();
+
+            if (match.teamAId == playerTeamId || match.teamBId == playerTeamId)
+            {
+                // 플레이어 경기 처리
+                if (isPlayerWin)
+                {
+                    result.scoreA = match.teamAId == playerTeamId ? 1 : 0;
+                    result.scoreB = match.teamBId == playerTeamId ? 1 : 0;
+                    result.winner = playerTeamId;
+                }
+                else
+                {
+                    result.scoreA = match.teamAId == playerTeamId ? 0 : 1;
+                    result.scoreB = match.teamBId == playerTeamId ? 0 : 1;
+                    result.winner = match.teamAId == playerTeamId ? match.teamBId : match.teamAId;
+                }
             }
             else
             {
-                result.scoreA = match.teamAId == playerTeamId ? 0 : 1;
-                result.scoreB = match.teamBId == playerTeamId ? 0 : 1;
-                result.winner = match.teamAId == playerTeamId ? match.teamBId : match.teamAId;
-            }
-        }
-        else
-        {
-            // 랜덤 결과 처리
-            int rand = UnityEngine.Random.Range(0, 3); // 0=draw, 1=teamA win, 2=teamB win
+                // 랜덤 결과 처리
+                int rand = UnityEngine.Random.Range(0, 3); // 0=draw, 1=teamA win, 2=teamB win
 
-            if (rand == 0)
-            {
-                result.scoreA = 1;
-                result.scoreB = 1;
-                result.winner = 0; // 무승부
+                if (rand == 0)
+                {
+                    result.scoreA = 1;
+                    result.scoreB = 1;
+                    result.winner = 0; // 무승부
+                }
+                else if (rand == 1)
+                {
+                    result.scoreA = 2;
+                    result.scoreB = 0;
+                    result.winner = teamA.id;
+                }
+                else
+                {
+                    result.scoreA = 0;
+                    result.scoreB = 2;
+                    result.winner = teamB.id;
+                }
             }
-            else if (rand == 1)
-            {
-                result.scoreA = 2;
-                result.scoreB = 0;
-                result.winner = teamA.id;
-            }
-            else
-            {
-                result.scoreA = 0;
-                result.scoreB = 2;
-                result.winner = teamB.id;
-            }
+
+            // 결과 반영
+            match.result = result;
+            ApplyMatchResultToTeams(teamA.id, teamB.id, result);
         }
 
-        // 결과 반영
-        match.result = result;
-        ApplyMatchResultToTeams(teamA.id, teamB.id, result);
+        // 순위 계산 및 저장
+        CalculateRanking();
+        saveManager.SaveLeague(league);
+
+        Debug.Log("✅ 라운드 결과 처리 완료");
     }
 
-    // 순위 계산 및 저장
-    CalculateRanking();
-    saveManager.SaveLeague(league);
+    public Sprite GetTeamSprite(int teamId)
+    {
+        string path = $"TeamImages/team_{teamId}";
+        Sprite sprite = Resources.Load<Sprite>(path);
 
-    Debug.Log("✅ 라운드 결과 처리 완료");
-}
+        if (sprite == null)
+        {
+            Debug.LogWarning($"❌ 팀 스프라이트를 찾을 수 없습니다: {path}");
+        }
+
+        return sprite;
+    }
 }
