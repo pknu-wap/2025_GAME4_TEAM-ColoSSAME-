@@ -153,9 +153,9 @@ namespace Scripts.Team.Fightermanage
 
         public void playerRandomState(int trainschoice)
         {
-            if (trainschoice == 0 && moneymanager.money >= 100)
+            if (trainschoice == 0)
             {
-                hpresult= Random.Range(-2.5f,3f);
+                /*hpresult= Random.Range(-2.5f,3f);
                 if (hpresult >= 0)
                 {   
                     int index = Random.Range(0, trainResultInfo.Count);
@@ -165,9 +165,13 @@ namespace Scripts.Team.Fightermanage
                 {   
                     int index = Random.Range(0, trainBadResultInfo.Count);
                     trainResultSave[fighterCount] =  trainBadResultInfo[index];
-                }
-                moneymanager.AddMoney(-100);
+                }*/
+                statechange[fighterCount].hp += statechange[fighterCount].hp * 0.1f;
+                statechange[fighterCount].damage += statechange[fighterCount].damage * 0.1f;
+                statechange[fighterCount].defense += statechange[fighterCount].defense * 0.1f;
                 statechange[fighterCount].hp = Mathf.Round((statechange[fighterCount].hp+hpresult) * 10f) / 10f;
+                statechange[fighterCount].damage = Mathf.Round((statechange[fighterCount].damage+damageresult) * 10f) / 10f;
+                statechange[fighterCount].defense = Mathf.Round((statechange[fighterCount].defense+defenseresult) * 10f) / 10f;
                 if (statechange[fighterCount].hp < 1)
                 {
                     statechange[fighterCount].hp = 1;
