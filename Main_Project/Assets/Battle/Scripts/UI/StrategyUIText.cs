@@ -53,7 +53,7 @@ namespace Battle.Scripts.UI
         {
             if (myInfo != null)
             {
-                Status.text = $"ATK : {myInfo.ATK}\nDef : {myInfo.DEF}\nHp: {myInfo.CON}";
+                Status.text = $"Hp: {myInfo.CON}\nATK : {myInfo.ATK}\nDef : {myInfo.DEF}";
             }
         }
     }
