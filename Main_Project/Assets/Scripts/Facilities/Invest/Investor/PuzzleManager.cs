@@ -23,7 +23,7 @@ public class PuzzleManager : MonoBehaviour
         "플라비우스", "율리우스", "클라우디우스", "플라미니누스",
         "프리스쿠스", "루킬리우스", "브루투스", "카이킬리우스"
     };
-    void Start()
+    void OnEnable()
     {
         if (imageSelector != null)
         {
@@ -34,7 +34,7 @@ public class PuzzleManager : MonoBehaviour
             nameIndexes.Add(i);
         Shuffle(nameIndexes);
         
-        SpawnNewInvestor();
+        // SpawnNewInvestor();
     }
 
     public void SpawnNewInvestor()
