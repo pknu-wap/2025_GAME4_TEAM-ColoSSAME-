@@ -13,6 +13,7 @@ using Battle.Scripts.Value.Data;
 using Battle.Scripts.ImageManager;
 using Battle.Scripts.Ai.CharacterCreator; 
 using Scripts.Team.DeathManage;
+using Scripts.Team.FighterRandomBuy;
 
 //battle ai 값바꾸기(느림)
 //json직접 변경(난이도 높음, 그러나 빠름)
@@ -39,13 +40,14 @@ namespace Scripts.Team.Fightermanage
         public SaveManager enemysavemanage;
         public TransparentScreenshot changeimage;
         public TransparentScreenshot trainimage;
+        public TransparentScreenshot buyimage;
 
         public TransparentScreenshot deathchangeimage;
 
         public DeathSave deathsave;
 
         public BattleAI[] statechange;
-        public List<GameObject> buyFighter;
+        public RandomCharacter[] randomfighter;
 
         public MoneyManager moneymanager;
 
@@ -60,14 +62,15 @@ namespace Scripts.Team.Fightermanage
 
         int sellCount;
 
-        int deleteCount;
+        public int deleteCount;
         public List<int> deleteList;
 
         int playerCheck;
         public List<int> sellList;
 
         public List<GameObject> playerimage; 
-        List<int> playerIndexList = new List<int>{0,1,2,3,4,5,6,7,8};
+        public List<int> playerIndexList = new List<int>{0,1,2,3,4,5,6,7,8};
+        public List<int> playerIdLIst = new List<int> {0,1,2,3,4,5,6,7,8,9};
 
         public CharacterID characterid;
         public TextMeshProUGUI trainResultInfoText;
@@ -78,21 +81,23 @@ namespace Scripts.Team.Fightermanage
 
         void Start()
         {
+
             savemanage.LoadFromButton();
 
             enemysavemanage.LoadFromButton();
 
             changeimage.LoadAllSprites();  
 
-            trainimage.LoadAllSprites();      
+            trainimage.LoadAllSprites(); 
+
+            buyimage.LoadAllSprites();     
 
 
             for (int i = 0; i < 9; i++)
             {
-                int stresult = Random.Range(0, trainInfo.Count);
+                int stresult = Random.Range(0,trainInfo.Count);
                 trainResultSave[i] = trainInfo[stresult];
             }
-
 
         }
 
@@ -136,7 +141,7 @@ namespace Scripts.Team.Fightermanage
             {
                 LevelTextContain = "검투사 진화";
             }
-            else
+            if (LevelList[fighterCount] >= 10)
             {   
                 statechange[fighterCount].hp += 5;
                 statechange[fighterCount].damage += 5;
@@ -189,15 +194,29 @@ namespace Scripts.Team.Fightermanage
 
         public void sellFighter()//선수팔기
         {   
+            for (int i = 0; i< 9; i++)
+            {
+                playerIdLIst[i] = int.Parse(playerimage[i].GetComponentInChildren<CharacterID>().characterKey);
+            }
+            for (int i = 0; i< 9; i++)
+            {
+                Debug.Log(playerIndexList[i] + ", " + playerIdLIst[i+1]);
+                playerIndexList[i] = playerIdLIst[i+1];
+            }
+            
+
             sellCount += 1;
             deleteCount += 1;
             sellList.Add(fighterCount);
-            deleteList.Add(fighterCount);
+            
             moneymanager.AddMoney((int)(statechange[fighterCount].hp + statechange[fighterCount].damage + statechange[fighterCount].defense));
+
+            deleteList.Add(int.Parse(playerimage[playerCheck].GetComponentInChildren<CharacterID>().characterKey));
+
             for (int i = playerCheck; i < playerIndexList.Count; i++)
             {
-                playerIndexList[i] += 1;
-                playerimage[i].GetComponentInChildren<CharacterID>().characterKey = (int.Parse(playerimage[i].GetComponentInChildren<CharacterID>().characterKey) + 1).ToString();
+                playerimage[i].GetComponentInChildren<CharacterID>().characterKey = playerIndexList[i].ToString();
+                //playerimage[i].GetComponentInChildren<CharacterID>().characterKey = (int.Parse(playerimage[i].GetComponentInChildren<CharacterID>().characterKey) + 1).ToString();
             }
             changeimage.LoadAllSprites();
 
@@ -205,6 +224,7 @@ namespace Scripts.Team.Fightermanage
 
             for (int k = 1; k <= deleteCount; k++)
             {
+
                 fighterButtons[playerIndexList.Count-k].gameObject.SetActive(false);
                 playerimage[playerIndexList.Count-k].GetComponentInChildren<CharacterID>().characterKey = (deleteList[deleteList.Count-k]).ToString();
             }    
@@ -216,12 +236,23 @@ namespace Scripts.Team.Fightermanage
             deathCount += 1;
             deleteCount += 1;
             deathList.Add(fighterCount);
-            deleteList.Add(fighterCount);
+
+            for (int i = 0; i< 9; i++)
+            {
+                playerIdLIst[i] = int.Parse(playerimage[i].GetComponentInChildren<CharacterID>().characterKey);
+            }
+
+            for (int i = 0; i< 9; i++)
+            {
+                Debug.Log(playerIndexList[i] + ", " + playerIdLIst[i+1]);
+                playerIndexList[i] = playerIdLIst[i+1];
+            }
+
+            deleteList.Add(int.Parse(playerimage[playerCheck].GetComponentInChildren<CharacterID>().characterKey));
 
             for (int i = playerCheck; i < playerIndexList.Count; i++)
             {
-                playerIndexList[i] += 1;
-                playerimage[i].GetComponentInChildren<CharacterID>().characterKey = (int.Parse(playerimage[i].GetComponentInChildren<CharacterID>().characterKey) + 1).ToString();
+                playerimage[i].GetComponentInChildren<CharacterID>().characterKey = playerIndexList[i].ToString();
             }
             changeimage.LoadAllSprites();
 
