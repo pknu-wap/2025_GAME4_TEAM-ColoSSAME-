@@ -19,5 +19,14 @@ public class GameStartButton : MonoBehaviour
         {
             Debug.LogWarning("❌ LeagueManager.Instance가 존재하지 않습니다.");
         }
+        if (UserManager.Instance != null)
+        {
+            UserManager.Instance.NewUser("User");
+            Debug.Log("✅ New User 생성 완료");
+        }
+        else
+        {
+            Debug.LogWarning("❌ UserManager.Instance가 존재하지 않습니다.");
+        }
     }
 }

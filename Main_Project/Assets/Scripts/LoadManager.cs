@@ -7,12 +7,14 @@ public class LoadManager : MonoBehaviour
     private string playerSavePath;
     private string leagueSavePath;
     private string enemySavePath;
+    private string userSavePath;
 
     void Awake()
     {
         playerSavePath = Path.Combine(Application.persistentDataPath, "PlayerSave.json");
         leagueSavePath = Path.Combine(Application.persistentDataPath, "LeagueSave.json");
         enemySavePath = Path.Combine(Application.persistentDataPath, "EnemySave.json");
+        userSavePath = Path.Combine(Application.persistentDataPath, "UserSave.json");
     }
 
     public void OnClickLoad()
@@ -20,6 +22,7 @@ public class LoadManager : MonoBehaviour
         bool playerLoaded = File.Exists(playerSavePath);
         bool leagueLoaded = File.Exists(leagueSavePath);
         bool enemyLoaded = File.Exists(enemySavePath);
+        bool userLoaded = File.Exists(userSavePath);
 
         if (playerLoaded && leagueLoaded && enemyLoaded)
         {
