@@ -120,6 +120,7 @@ namespace Scripts.Team.Fightermanage
 
             playerStatusText.GetComponentInChildren<CharacterID>().characterKey = (fighterCount + 1).ToString();
             enemyStatusText.GetComponentInChildren<CharacterID>().characterKey = (playerCheck + 1).ToString();
+            
         }
 
         public void PlayeLevelup(int trainschoice)
@@ -186,7 +187,7 @@ namespace Scripts.Team.Fightermanage
             enemyButtons[7].GetComponent<RectTransform>().anchoredPosition = new Vector2(50f, -415f);
             enemyButtons[8].GetComponent<RectTransform>().anchoredPosition = new Vector2(190f, -415f);
 
-            for (int k = 1; k <= sellCount; k++)
+            for (int k = 1; k <= deleteCount; k++)
             {
                 fighterButtons[playerIndexList.Count-k].gameObject.SetActive(false);
             } 
@@ -197,13 +198,8 @@ namespace Scripts.Team.Fightermanage
             for (int i = 0; i< 9; i++)
             {
                 playerIdLIst[i] = int.Parse(playerimage[i].GetComponentInChildren<CharacterID>().characterKey);
+                fighterButtons[i].GetComponentInChildren<CharacterID>().characterKey = playerIndexList[i].ToString();
             }
-            for (int i = 0; i< 9; i++)
-            {
-                Debug.Log(playerIndexList[i] + ", " + playerIdLIst[i+1]);
-                playerIndexList[i] = playerIdLIst[i+1];
-            }
-            
 
             sellCount += 1;
             deleteCount += 1;
@@ -215,7 +211,8 @@ namespace Scripts.Team.Fightermanage
 
             for (int i = playerCheck; i < playerIndexList.Count; i++)
             {
-                playerimage[i].GetComponentInChildren<CharacterID>().characterKey = playerIndexList[i].ToString();
+                playerIndexList[i] = playerIdLIst[i];
+                playerimage[i].GetComponentInChildren<CharacterID>().characterKey = (playerIndexList[i]+1).ToString();
                 //playerimage[i].GetComponentInChildren<CharacterID>().characterKey = (int.Parse(playerimage[i].GetComponentInChildren<CharacterID>().characterKey) + 1).ToString();
             }
             changeimage.LoadAllSprites();
@@ -224,7 +221,6 @@ namespace Scripts.Team.Fightermanage
 
             for (int k = 1; k <= deleteCount; k++)
             {
-
                 fighterButtons[playerIndexList.Count-k].gameObject.SetActive(false);
                 playerimage[playerIndexList.Count-k].GetComponentInChildren<CharacterID>().characterKey = (deleteList[deleteList.Count-k]).ToString();
             }    
@@ -244,7 +240,6 @@ namespace Scripts.Team.Fightermanage
 
             for (int i = 0; i< 9; i++)
             {
-                Debug.Log(playerIndexList[i] + ", " + playerIdLIst[i+1]);
                 playerIndexList[i] = playerIdLIst[i+1];
             }
 

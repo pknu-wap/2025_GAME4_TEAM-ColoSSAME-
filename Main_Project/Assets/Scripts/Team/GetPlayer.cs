@@ -63,6 +63,11 @@ namespace Scripts.Team.FighterRandomBuy
                 savemanage.SaveFromButton();
                 buyfighterimage.CaptureAndSaveAll();
 
+                for (int i = 0; i< 9; i++)
+                {
+                    state.fighterButtons[i].GetComponentInChildren<CharacterID>().characterKey = state.fighterButtons[i].GetComponentInChildren<CharacterID>().characterKey;
+                }
+
                 state.deleteCount -= 1;
                 state.deleteList.RemoveAt(0);
 
@@ -101,6 +106,7 @@ namespace Scripts.Team.FighterRandomBuy
             buyfighterimage.LoadAllSprites();
             state.changeimage.LoadAllSprites();  
             state.trainimage.LoadAllSprites(); 
+
             int idvalue = 20;
             foreach(var id in characterid)
             {
