@@ -254,7 +254,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.125, y: 0.21875}
+  m_Size: {x: 0.125, y: 0.1875}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -5357,6 +5357,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterTeamKey: 
   characterKey: 1
 --- !u!50 &2964760198084068819
 Rigidbody2D:
@@ -5448,7 +5449,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentTarget: {fileID: 0}
-  tempTarget: {fileID: 0}
   Retreater: {fileID: 0}
   retreatAreaMin: {x: -4.5, y: -4}
   retreatAreaMax: {x: 4.5, y: 0}
@@ -5465,15 +5465,15 @@ MonoBehaviour:
   stunTime: 0
   Class: 1
   attackSound: {fileID: 0}
-  IsRetreating: 0
+  skillSound: {fileID: 0}
   AttackDelay: 0.4
   aiAnimator: {fileID: 2375609346642144253}
   weaponTrigger: {fileID: 0}
   arrowWeaponTrigger: {fileID: 0}
   HealthBar: {fileID: 2493997746504651999}
+  Weapon: {fileID: 0}
   rb: {fileID: 2964760198084068819}
   characterValue: {fileID: 4763464735257921149}
-  Weapon: {fileID: 0}
   renderers:
   - {fileID: 3117610476239883023}
   - {fileID: 6129183802715781425}
@@ -5894,7 +5894,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.71875, y: 0.65625}
+  m_Size: {x: 0.03125, y: 0.09375}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -6352,7 +6352,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.03125, y: 0.0625}
+  m_Size: {x: 0.125, y: 0.03125}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -6887,7 +6887,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.125, y: 0.21875}
+  m_Size: {x: 0.125, y: 0.1875}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -7838,7 +7838,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.53125, y: 0.46875}
+  m_Size: {x: 0.5, y: 0.4375}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -8243,7 +8243,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.03125, y: 0.0625}
+  m_Size: {x: 0.125, y: 0.03125}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
