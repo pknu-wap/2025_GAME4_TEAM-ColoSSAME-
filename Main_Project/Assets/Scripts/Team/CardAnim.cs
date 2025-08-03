@@ -10,6 +10,6 @@ public class CardAnim : MonoBehaviour
     public void CardAnimEnd()
         {
             getplayer.fighterimage[getplayer.cardnumber].SetActive(true);
-            cardopen[getplayer.cardnumber] = 1;
+            getplayer.cardopen[getplayer.cardnumber] = 1;
         }
 }
