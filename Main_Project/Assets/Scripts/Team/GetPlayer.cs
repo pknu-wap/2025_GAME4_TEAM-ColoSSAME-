@@ -29,6 +29,8 @@ namespace Scripts.Team.FighterRandomBuy
         public GameObject canvas;
         public GameObject drawfighter;
 
+        public GameObject cardinfo;
+
         public Animator[] anim;
         public AnimationClip clip;
 
@@ -97,10 +99,20 @@ namespace Scripts.Team.FighterRandomBuy
 
         public void CardSelect(int cardnum)
         {   
-            cardnumber = cardnum;
-            anim[cardnum].SetTrigger("Iscardclick");
-            //StartCoroutine(WaitforAnim(cardnum));
-            cardopen[cardnum] = 1;
+            if (cardopen[cardnum] == 0)
+            {
+                cardnumber = cardnum;
+                anim[cardnum].SetTrigger("Iscardclick");
+                //StartCoroutine(WaitforAnim(cardnum));
+            }
+        }
+
+        public void CardShow(int cardcount)
+        {
+            if (cardopen[cardcount] == 1)
+            {
+                cardinfo.SetActive(true);
+            }
         }
 
         public void FighterCanvas()

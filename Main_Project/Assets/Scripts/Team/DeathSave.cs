@@ -7,6 +7,7 @@ using Battle.Scripts.Ai.CharacterCreator;
 using Battle.Scripts.Value.Data;
 using System.IO;
 using Scripts.Team.Fightermanage;
+using Battle.Scripts.ImageManager;
 
 namespace Scripts.Team.DeathManage
 {
@@ -15,6 +16,8 @@ namespace Scripts.Team.DeathManage
         private string savePath => $"{Application.persistentDataPath}/DeathSave.json";
         public SaveManager savemanage; 
         public State state;
+        public TransparentScreenshot changeimage;
+
 
         void Start()
         {

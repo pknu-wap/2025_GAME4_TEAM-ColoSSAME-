@@ -4,15 +4,10 @@ using UnityEngine;
 
 public class GetStateShow : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public GameObject showinformation;
 
-    // Update is called once per frame
-    void Update()
+    public void BackButton()
     {
-        
+        showinformation.SetActive(false);
     }
 }
