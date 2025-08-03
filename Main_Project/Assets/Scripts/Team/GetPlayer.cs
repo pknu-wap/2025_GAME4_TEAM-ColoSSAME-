@@ -7,6 +7,7 @@ using Battle.Scripts.Ai.CharacterCreator;
 using Battle.Scripts.ImageManager;
 using Battle.Scripts.Value.Data;
 using Battle.Scripts.Ai;
+using UnityEngine.UI;
 //팀 관리 -> 선수영입
 
 namespace Scripts.Team.FighterRandomBuy
@@ -19,6 +20,8 @@ namespace Scripts.Team.FighterRandomBuy
 
         public CharacterID[] characterid;
 
+        public GameObject[] fighterimage;
+
         public TransparentScreenshot buyfighterimage;
 
         public SaveManager savemanage; 
@@ -26,6 +29,18 @@ namespace Scripts.Team.FighterRandomBuy
         public GameObject canvas;
         public GameObject drawfighter;
 
+        public Animator[] anim;
+        public AnimationClip clip;
+
+        public List<int> cardopen = new List<int>{0,0,0,0,0,0,0,0,0,0};
+
+        public int cardnumber;
+        
+        public void Start()
+        {
+            buyfighterimage.LoadAllSprites();
+        }
+    
         public void FighterBuy()
         {
             /*for (int i = 0; i < characterid.Length; i++)
@@ -63,11 +78,6 @@ namespace Scripts.Team.FighterRandomBuy
                 savemanage.SaveFromButton();
                 buyfighterimage.CaptureAndSaveAll();
 
-                for (int i = 0; i< 9; i++)
-                {
-                    state.fighterButtons[i].GetComponentInChildren<CharacterID>().characterKey = state.fighterButtons[i].GetComponentInChildren<CharacterID>().characterKey;
-                }
-
                 state.deleteCount -= 1;
                 state.deleteList.RemoveAt(0);
 
@@ -85,10 +95,20 @@ namespace Scripts.Team.FighterRandomBuy
             }
         }
 
+        public void CardSelect(int cardnum)
+        {   
+            cardnumber = cardnum;
+            anim[cardnum].SetTrigger("Iscardclick");
+            //StartCoroutine(WaitforAnim(cardnum));
+            cardopen[cardnum] = 1;
+        }
+
         public void FighterCanvas()
         {   
             if (state.deleteList.Count >= 1)
             { 
+                buyfighterimage.LoadAllSprites();
+                StartCoroutine(WaitforLoad());
                 canvas.SetActive(false);
                 drawfighter.SetActive(true);
             }
@@ -96,7 +116,6 @@ namespace Scripts.Team.FighterRandomBuy
             {
                 Debug.Log("검투사 보유 공간 부족");
             }
-            buyfighterimage.LoadAllSprites();
         }
 
         public void ReturnCanvas()
@@ -106,6 +125,7 @@ namespace Scripts.Team.FighterRandomBuy
             buyfighterimage.LoadAllSprites();
             state.changeimage.LoadAllSprites();  
             state.trainimage.LoadAllSprites(); 
+            cardopen = cardopen.ConvertAll(x => 0);
 
             int idvalue = 20;
             foreach(var id in characterid)
@@ -113,6 +133,16 @@ namespace Scripts.Team.FighterRandomBuy
                 id.characterKey = idvalue.ToString();
                 idvalue += 1;
             }
+        }
+
+        IEnumerator WaitforLoad()
+        {
+            yield return new WaitForSeconds(3f);  // 3초 대기
+        }
+        IEnumerator WaitforAnim(int cardnum)
+        {
+            yield return new WaitForSeconds(0.9f);
+            fighterimage[cardnum].SetActive(true);
         }
     }   
 }
