@@ -8,6 +8,10 @@ using Battle.Scripts.ImageManager;
 using Battle.Scripts.Value.Data;
 using Battle.Scripts.Ai;
 using UnityEngine.UI;
+using TMPro;
+using Newtonsoft.Json;
+using Battle.Scripts.UI;
+using Scripts.Team.IsAnimStopClick;
 //팀 관리 -> 선수영입
 
 namespace Scripts.Team.FighterRandomBuy
@@ -22,7 +26,10 @@ namespace Scripts.Team.FighterRandomBuy
 
         public GameObject[] fighterimage;
 
+        public GameObject clickcardstate;
+
         public TransparentScreenshot buyfighterimage;
+        public TransparentScreenshot clickcardimage;
 
         public SaveManager savemanage; 
 
@@ -33,11 +40,15 @@ namespace Scripts.Team.FighterRandomBuy
 
         public Animator[] anim;
         public AnimationClip clip;
+        
+        public StrategyUIText loadtext;
+
+        public CardClickStop blockclick;
 
         public List<int> cardopen = new List<int>{0,0,0,0,0,0,0,0,0,0};
 
         public int cardnumber;
-        
+
         public void Start()
         {
             buyfighterimage.LoadAllSprites();
@@ -99,12 +110,22 @@ namespace Scripts.Team.FighterRandomBuy
 
         public void CardSelect(int cardnum)
         {   
+            blockclick.IsAnimStopClick();
             if (cardopen[cardnum] == 0)
             {
                 cardnumber = cardnum;
                 anim[cardnum].SetTrigger("Iscardclick");
-                //StartCoroutine(WaitforAnim(cardnum));
             }
+            if (cardopen[cardnum] == 1)
+            {
+                blockclick.IsClickCard();
+            }
+            //characterid[10] = characterid[cardnum];
+            fighterimage[10].GetComponentInChildren<CharacterID>().characterKey = fighterimage[cardnum].GetComponentInChildren<CharacterID>().characterKey;
+            clickcardstate.GetComponentInChildren<CharacterID>().characterKey = fighterimage[cardnum].GetComponentInChildren<CharacterID>().characterKey;
+            //savemanage.SaveFromButton();
+            loadtext.LoadJsonData();
+            clickcardimage.LoadAllSprites();
         }
 
         public void CardShow(int cardcount)
@@ -112,6 +133,7 @@ namespace Scripts.Team.FighterRandomBuy
             if (cardopen[cardcount] == 1)
             {
                 cardinfo.SetActive(true);
+                blockclick.IsClickCard();
             }
         }
 
