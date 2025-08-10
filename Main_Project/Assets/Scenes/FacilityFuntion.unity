@@ -3027,6 +3027,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 670642968}
+        m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
+        m_MethodName: CardShow
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 4
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &99498649
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8696,6 +8708,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   getplayer: {fileID: 670642968}
+  blockclick: {fileID: 670642969}
 --- !u!1 &245370545
 GameObject:
   m_ObjectHideFlags: 0
@@ -8874,6 +8887,18 @@ MonoBehaviour:
       - m_Target: {fileID: 670642968}
         m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
         m_MethodName: CardSelect
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 5
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 670642968}
+        m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
+        m_MethodName: CardShow
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -10029,6 +10054,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   getplayer: {fileID: 670642968}
+  blockclick: {fileID: 670642969}
 --- !u!1 &284768212
 GameObject:
   m_ObjectHideFlags: 0
@@ -11103,18 +11129,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 0
-      - m_Target: {fileID: 264507553}
-        m_TargetAssemblyTypeName: Battle.Scripts.UI.StrategyUIText, Assembly-CSharp
-        m_MethodName: LoadJsonData
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 0
       - m_Target: {fileID: 670642968}
         m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
         m_MethodName: CardSelect
@@ -11127,6 +11141,30 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 670642968}
+        m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
+        m_MethodName: CardShow
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 264507553}
+        m_TargetAssemblyTypeName: Battle.Scripts.UI.StrategyUIText, Assembly-CSharp
+        m_MethodName: LoadJsonData
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 0
 --- !u!114 &313101532
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11990,18 +12028,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 0
-      - m_Target: {fileID: 264507553}
-        m_TargetAssemblyTypeName: Battle.Scripts.UI.StrategyUIText, Assembly-CSharp
-        m_MethodName: LoadJsonData
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 0
       - m_Target: {fileID: 670642968}
         m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
         m_MethodName: CardSelect
@@ -12026,6 +12052,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 264507553}
+        m_TargetAssemblyTypeName: Battle.Scripts.UI.StrategyUIText, Assembly-CSharp
+        m_MethodName: LoadJsonData
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 0
 --- !u!114 &322160616
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13136,7 +13174,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &361330697
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13836,6 +13874,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   getplayer: {fileID: 670642968}
+  blockclick: {fileID: 670642969}
 --- !u!1 &378053138
 GameObject:
   m_ObjectHideFlags: 0
@@ -14173,6 +14212,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   getplayer: {fileID: 670642968}
+  blockclick: {fileID: 670642969}
 --- !u!1 &384149670
 GameObject:
   m_ObjectHideFlags: 0
@@ -17238,6 +17278,118 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 458760517}
+  m_CullTransparentMesh: 1
+--- !u!1 &464680949
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 464680950}
+  - component: {fileID: 464680953}
+  - component: {fileID: 464680952}
+  - component: {fileID: 464680951}
+  m_Layer: 0
+  m_Name: playershowImage
+  m_TagString: PlayerCharacter
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &464680950
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 464680949}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -100}
+  m_LocalScale: {x: 90, y: 90, z: 0}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1660203400}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 150}
+  m_SizeDelta: {x: 320, y: 180}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &464680951
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 464680949}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  characterTeamKey: Team01
+  characterKey: 15
+--- !u!212 &464680952
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 464680949}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 100
+  m_Sprite: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 0
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
+--- !u!222 &464680953
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 464680949}
   m_CullTransparentMesh: 1
 --- !u!1 &479402030
 GameObject:
@@ -20830,6 +20982,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 670642968}
+        m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
+        m_MethodName: CardShow
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 7
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &558864483
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22941,7 +23105,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &610928178
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23003,7 +23167,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 100
   m_TargetDisplay: 0
 --- !u!224 &610928181
 RectTransform:
@@ -24943,6 +25107,7 @@ GameObject:
   m_Component:
   - component: {fileID: 670642967}
   - component: {fileID: 670642968}
+  - component: {fileID: 670642969}
   m_Layer: 5
   m_Name: buyfighterevent
   m_TagString: Untagged
@@ -25004,6 +25169,7 @@ MonoBehaviour:
   - {fileID: 409889096}
   - {fileID: 1424256221}
   - {fileID: 1097791512}
+  - {fileID: 1042627947}
   fighterimage:
   - {fileID: 1216579342}
   - {fileID: 532141083}
@@ -25015,7 +25181,10 @@ MonoBehaviour:
   - {fileID: 1892499773}
   - {fileID: 2102179223}
   - {fileID: 724703423}
+  - {fileID: 464680949}
+  clickcardstate: {fileID: 717365774}
   buyfighterimage: {fileID: 1115163786}
+  clickcardimage: {fileID: 1002238485}
   savemanage: {fileID: 1897721829}
   canvas: {fileID: 361330696}
   drawfighter: {fileID: 610928177}
@@ -25031,9 +25200,34 @@ MonoBehaviour:
   - {fileID: 237606787}
   - {fileID: 1667838675}
   - {fileID: 383506920}
-  clip: {fileID: 7400000, guid: 78e49a8b7b605794aa3a153834f7df40, type: 2}
+  clip: {fileID: 7400000, guid: 619b41517a1452f498c0421f0df243d0, type: 2}
+  loadtext: {fileID: 717365777}
+  blockclick: {fileID: 670642969}
   cardopen: 00000000000000000000000000000000000000000000000000000000000000000000000000000000
   cardnumber: 0
+--- !u!114 &670642969
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 670642966}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d758ee07c3e1dfd4f9ee76688e34f67e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cardList:
+  - {fileID: 322160615}
+  - {fileID: 313101531}
+  - {fileID: 1628885397}
+  - {fileID: 1600004577}
+  - {fileID: 99498648}
+  - {fileID: 245658197}
+  - {fileID: 1427370752}
+  - {fileID: 558864482}
+  - {fileID: 1903557692}
+  - {fileID: 1227043794}
 --- !u!1 &678735024
 GameObject:
   m_ObjectHideFlags: 0
@@ -25529,6 +25723,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   savemanage: {fileID: 1897721829}
   state: {fileID: 730669867}
+  changeimage: {fileID: 0}
 --- !u!114 &693975653
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26393,7 +26588,7 @@ RectTransform:
   m_GameObject: {fileID: 717365774}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -9719.999}
-  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1660203400}
@@ -26401,7 +26596,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -240}
-  m_SizeDelta: {x: 400, y: 130}
+  m_SizeDelta: {x: 370, y: 130}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &717365776
 MonoBehaviour:
@@ -26480,8 +26675,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 55
-  m_fontSizeBase: 55
+  m_fontSize: 30
+  m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -34081,6 +34276,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   getplayer: {fileID: 670642968}
+  blockclick: {fileID: 670642969}
 --- !u!1 &979689361
 GameObject:
   m_ObjectHideFlags: 0
@@ -34500,6 +34696,112 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 996832418}
   m_CullTransparentMesh: 1
+--- !u!1 &1002238483
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1002238484}
+  - component: {fileID: 1002238486}
+  - component: {fileID: 1002238485}
+  m_Layer: 0
+  m_Name: ImageGenerator (4)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1002238484
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1002238483}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -967.3544, y: -561.4883, z: 2.8847573}
+  m_LocalScale: {x: 1.5153906, y: 1.5153906, z: 1.5153906}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1692092842}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1002238485
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1002238483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 63b0078055811d548a8031a39155d683, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  captureCamera: {fileID: 1002238486}
+  width: 1920
+  height: 1080
+  visibleLayers:
+    serializedVersion: 2
+    m_Bits: 7
+  Targets:
+  - {fileID: 1042627937}
+  Pannels:
+  - {fileID: 464680949}
+--- !u!20 &1002238486
+Camera:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1002238483}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_ClearFlags: 1
+  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_projectionMatrixMode: 1
+  m_GateFitMode: 2
+  m_FOVAxisMode: 0
+  m_Iso: 200
+  m_ShutterSpeed: 0.005
+  m_Aperture: 16
+  m_FocusDistance: 10
+  m_FocalLength: 50
+  m_BladeCount: 5
+  m_Curvature: {x: 2, y: 11}
+  m_BarrelClipping: 0.25
+  m_Anamorphism: 0
+  m_SensorSize: {x: 36, y: 24}
+  m_LensShift: {x: 0, y: 0}
+  m_NormalizedViewPortRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+  near clip plane: 0.3
+  far clip plane: 1000
+  field of view: 60
+  orthographic: 0
+  orthographic size: 5
+  m_Depth: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 7
+  m_RenderingPath: -1
+  m_TargetTexture: {fileID: 0}
+  m_TargetDisplay: 1
+  m_TargetEye: 3
+  m_HDR: 1
+  m_AllowMSAA: 1
+  m_AllowDynamicResolution: 0
+  m_ForceIntoRT: 0
+  m_OcclusionCulling: 1
+  m_StereoConvergence: 10
+  m_StereoSeparation: 0.022
 --- !u!1 &1003261138
 GameObject:
   m_ObjectHideFlags: 0
@@ -36363,6 +36665,27 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d10b52b488544434f874d329b8655676, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &1042627937 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3533259449336369807, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+  m_PrefabInstance: {fileID: 1289562424}
+  m_PrefabAsset: {fileID: 0}
+--- !u!224 &1042627938 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+  m_PrefabInstance: {fileID: 1289562424}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1042627947 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+  m_PrefabInstance: {fileID: 1289562424}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1042627937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa56d6802a54b694ba50291ec0f896fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1042846695
@@ -41204,6 +41527,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 670642968}
+        m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
+        m_MethodName: CardShow
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 9
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1227043795
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -44080,6 +44415,143 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1288266635}
   m_CullTransparentMesh: 1
+--- !u!1001 &1289562424
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1692092842}
+    m_Modifications:
+    - target: {fileID: 3533259449336369807, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_Name
+      value: basic 1 (30)
+      objectReference: {fileID: 0}
+    - target: {fileID: 3533259449336369807, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 7065548900561576508, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: Weapon
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7065548900561576508, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: weaponTrigger
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: characterKey
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 7399127441138961348, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: characterTeamKey
+      value: Team01
+      objectReference: {fileID: 0}
+    - target: {fileID: 9060998752809128883, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.008726558
+      objectReference: {fileID: 0}
+    - target: {fileID: 9060998752809128883, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.2123126
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.2123126
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1.5153906
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 4.400148
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.9999619
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.008726557
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -1240
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -561.98834
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 9062191452935131804, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 426ca74c43b5be04d9ae40bc5e927f13, type: 3}
 --- !u!1 &1292201180
 GameObject:
   m_ObjectHideFlags: 0
@@ -44200,6 +44672,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   getplayer: {fileID: 670642968}
+  blockclick: {fileID: 670642969}
 --- !u!1 &1298506670
 GameObject:
   m_ObjectHideFlags: 0
@@ -48624,6 +49097,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 670642968}
+        m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
+        m_MethodName: CardShow
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 6
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1427370753
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -49169,7 +49654,6 @@ GameObject:
   - component: {fileID: 1436369822}
   - component: {fileID: 1436369823}
   - component: {fileID: 1436369825}
-  - component: {fileID: 1436369824}
   m_Layer: 0
   m_Name: F_U_CardA_Back_Flip01
   m_TagString: Untagged
@@ -49265,19 +49749,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1436369824
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1436369820}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e394106c39b67e14cb7e409c838119a3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  getplayer: {fileID: 0}
 --- !u!114 &1436369825
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -49291,6 +49762,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   getplayer: {fileID: 670642968}
+  blockclick: {fileID: 670642969}
 --- !u!1001 &1442593026
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -54863,6 +55335,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   getplayer: {fileID: 670642968}
+  blockclick: {fileID: 670642969}
 --- !u!1 &1554796206
 GameObject:
   m_ObjectHideFlags: 0
@@ -56429,34 +56902,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08bd0e88e771ecb4381d84e32bf475f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  investorprefab: {fileID: 161289334928076159, guid: 7794457f7fae18444825524104134818, type: 3}
-  spawnPoints:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  completedInvestorImage:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  spawnParent: {fileID: 0}
-  hidePanels:
-  - {fileID: 1350912427}
-  - {fileID: 1925162595}
-  - {fileID: 688845792}
-  - {fileID: 1258055392}
-  - {fileID: 1488754711}
-  - {fileID: 1674970451}
-  - {fileID: 129772506}
-  - {fileID: 347083343}
-  - {fileID: 722928306}
-  negotiationPanelPrefab: {fileID: 5856261865912908889, guid: adf686dd2617a134081e51b590efc64d, type: 3}
-  storyUIAnchor: {fileID: 1718187701}
-  imageSelector: {fileID: 1867031340}
-  moneyManager: {fileID: 1925162597}
-  loadingPanel: {fileID: 435051591}
-  bgmController: {fileID: 885491594}
 --- !u!1 &1597400623
 GameObject:
   m_ObjectHideFlags: 0
@@ -56769,6 +57214,18 @@ MonoBehaviour:
       - m_Target: {fileID: 670642968}
         m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
         m_MethodName: CardSelect
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 3
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 670642968}
+        m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
+        m_MethodName: CardShow
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -57869,6 +58326,81 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1611880481}
   m_CullTransparentMesh: 1
+--- !u!1 &1620659058
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1620659059}
+  - component: {fileID: 1620659061}
+  - component: {fileID: 1620659060}
+  m_Layer: 0
+  m_Name: cardImage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1620659059
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1620659058}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -100.00002}
+  m_LocalScale: {x: 1.0000799, y: 1.0000799, z: 0}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1660203400}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 540, y: 837}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1620659060
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1620659058}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 6eff70dac4104634dac5bbbfc00be3da, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1620659061
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1620659058}
+  m_CullTransparentMesh: 1
 --- !u!1 &1621120372
 GameObject:
   m_ObjectHideFlags: 0
@@ -58264,6 +58796,18 @@ MonoBehaviour:
       - m_Target: {fileID: 670642968}
         m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
         m_MethodName: CardSelect
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 2
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 670642968}
+        m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
+        m_MethodName: CardShow
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -59157,8 +59701,10 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1944085544}
-  - {fileID: 2134662809}
+  - {fileID: 464680950}
+  - {fileID: 1620659059}
   - {fileID: 717365775}
+  - {fileID: 2134662809}
   - {fileID: 1323562955}
   - {fileID: 1158313888}
   m_Father: {fileID: 610928181}
@@ -59558,6 +60104,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   getplayer: {fileID: 670642968}
+  blockclick: {fileID: 670642969}
 --- !u!1 &1668901005
 GameObject:
   m_ObjectHideFlags: 0
@@ -60820,6 +61367,7 @@ Transform:
   - {fileID: 775609346}
   - {fileID: 1605781842}
   - {fileID: 1115163785}
+  - {fileID: 1002238484}
   - {fileID: 1405035149}
   - {fileID: 1359281196}
   - {fileID: 818189509}
@@ -60848,6 +61396,7 @@ Transform:
   - {fileID: 409889087}
   - {fileID: 1424256212}
   - {fileID: 1097791503}
+  - {fileID: 1042627938}
   - {fileID: 140010209}
   - {fileID: 73164348}
   m_Father: {fileID: 0}
@@ -66166,6 +66715,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   savemanage: {fileID: 1897721829}
   state: {fileID: 730669867}
+  changeimage: {fileID: 0}
 --- !u!114 &1894001959
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -66932,6 +67482,18 @@ MonoBehaviour:
       - m_Target: {fileID: 670642968}
         m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
         m_MethodName: CardSelect
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 8
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 670642968}
+        m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
+        m_MethodName: CardShow
         m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -70603,6 +71165,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   getplayer: {fileID: 670642968}
+  blockclick: {fileID: 670642969}
 --- !u!1 &2015608742
 GameObject:
   m_ObjectHideFlags: 0
@@ -71821,6 +72384,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   savemanage: {fileID: 1897721829}
   state: {fileID: 730669867}
+  changeimage: {fileID: 0}
 --- !u!224 &2055662126
 RectTransform:
   m_ObjectHideFlags: 0
@@ -74247,7 +74811,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2134662809
 Transform:
   m_ObjectHideFlags: 0
@@ -74257,8 +74821,8 @@ Transform:
   m_GameObject: {fileID: 2134662808}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -1}
-  m_LocalScale: {x: 540, y: 540, z: 108}
+  m_LocalPosition: {x: 0, y: 0, z: -9719.999}
+  m_LocalScale: {x: 540, y: 540, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1660203400}
@@ -74303,7 +74867,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 100
   m_Sprite: {fileID: 21300000, guid: 6eff70dac4104634dac5bbbfc00be3da, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
