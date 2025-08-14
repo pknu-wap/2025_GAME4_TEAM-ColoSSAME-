@@ -118,7 +118,7 @@ namespace Scripts.Team.Fightermanage
             fighterButtons[playerIndex].GetComponent<RectTransform>().localScale = new Vector2(3f,3f);
             enemyButtons[playerIndex].GetComponent<RectTransform>().localScale = new Vector2(-3f,3f);
 
-            playerStatusText.GetComponentInChildren<CharacterID>().characterKey = (fighterCount + 1).ToString();
+            playerStatusText.GetComponentInChildren<CharacterID>().characterKey = playerimage[playerIndex].GetComponentInChildren<CharacterID>().characterKey;
             enemyStatusText.GetComponentInChildren<CharacterID>().characterKey = (playerCheck + 1).ToString();
             
         }
