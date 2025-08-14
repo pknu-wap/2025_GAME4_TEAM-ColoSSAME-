@@ -2291,7 +2291,7 @@ MonoBehaviour:
   playersNumber: 0
   enemiesNumber: 0
   Result: {fileID: 9151552277785722277}
-  LeagueSceneManager: {fileID: 0}
+  BattleSceneManager: {fileID: 686100608777356529}
 --- !u!1 &2282971738386943843
 GameObject:
   m_ObjectHideFlags: 0
@@ -6805,10 +6805,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78396926cbbfc4ac3b48fc5fc34a87d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 1
   data:
     dataString: UEsDBBQAAAgIAABIIezW2gIqXgIAABQFAAALACQAZ3JhcGgwLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQF1VE1z2jAQ/SuMziVjIJDQW2sI6SEJE9LJxRchrbEGWfLoI0Ay/PeuZBu7dHpieft29+2H/EWEshUwp83KCP6kOZDvAxJs8m3QOR/hSHdabcQntJx3wV0RSDRyXqkTGvFRCLO6BGcE+6F2MpATBL0SuTblku8g1dZZhHMqLaDLaBeiFUJfA3LEn+E8hJzQGt8F6xOteTI4o8lAOTAdtSW2tJrlFZO0rIAHyR15Mm7Yo1mkKWymYSQ39yG7llLYRgtxpyr2mtLKeuwECVxQ7C0KSG5CswWIXeGC0n74S55bcI0sQ08LYXBIdV7yU9eTK6nd19o+qPSh0n1UVad8+sc7HEV3bnT52FYdJaGCKwTbv9ITo9b1BtuHF53wURzQgco93Up4L0A965XRXnF0OuNDqLcwXnR/L42lBbB9h9dSr0Bf/X89oYdz7P2YSlFu4xxva2AjdZx3XD4Y3M0vFBxPwzYpEA0qflt4o7v+DTWOB2GsQ1fTpQryttqbQCXLOLPQjXepNgoi3IiuQFHpTmtM464XeOXrlb3yPNDwWprija99BFchEe74SXLlWuvDZVm20IcnsMWLd1Io6EQHxzPOKdVK1ffVn0kbtvEmp6wXtvOC/31aZJbfjqbJdJonk/t5Ms+HHBifsNmU3c3v6IRtSbw9obBPKte10GY8uDXVJVd4Z+1HZLAytIq3zg09rMRnqXsjFyrXG2YA1Eud4SIcDBbBd8mXXOCANuCcUHHf5CsjUrM98OySKIudLo/O0KzLkpFKfGgXkIyk8auRkQBfbnlt4EPAIRRvk53J+Q9QSwMEFAAACAgAAEgh7C0XwbBtAAAAeAAAAAkAJABtZXRhLmpzb24KACAAAAAAAAEAGAAAgD7V3rGdAQCAPtXesZ0BAIA+1d6xnQGrVipLLSrOzM9TslIw0TPSMzTXUVBKL0osyCgGihiCOKWZKSB2tJJZmomhqYGpaZqBsYWlgWWabkpqcopxsplpsrmleaJxcpJSLFB9SWVBql9ibipET0BiSUZaZl5KZl66nntRZoo7yGil2FoAUEsBAi0AFAAACAgAAEgh7NbaAipeAgAAFAUAAAsAJAAAAAAAAAAAAAAAAAAAAGdyYXBoMC5qc29uCgAgAAAAAAABABgAAIA+1d6xnQEAgD7V3rGdAQCAPtXesZ0BUEsBAi0AFAAACAgAAEgh7C0XwbBtAAAAeAAAAAkAJAAAAAAAAAAAAAAAqwIAAG1ldGEuanNvbgoAIAAAAAAAAQAYAACAPtXesZ0BAIA+1d6xnQEAgD7V3rGdAVBLBQYAAAAAAgACALgAAABjAwAAAAA=
+    upgradeData: 
     file_cachedStartup: {fileID: 0}
+    data_cachedStartup: 
     cacheStartup: 0
   showNavGraphs: 1
   showUnwalkableNodes: 1
@@ -6831,7 +6833,8 @@ MonoBehaviour:
     _ConnectionLowLerp: {r: 0, g: 1, b: 0, a: 0.5}
     _ConnectionHighLerp: {r: 1, g: 0, b: 0, a: 0.5}
     _MeshEdgeColor: {r: 0, g: 0, b: 0, a: 0.5}
-    _AreaColors: []
+    _AreaColors:
+    - {r: 0, g: 0, b: 0, a: 0}
   tagNames: []
   heuristic: 2
   heuristicScale: 1
@@ -6839,8 +6842,6 @@ MonoBehaviour:
   maxFrameTime: 10
   batchGraphUpdates: 0
   graphUpdateBatchingInterval: 0.2
-  navmeshUpdates:
-    updateInterval: 0
   euclideanEmbedding:
     mode: 0
     seed: 0
@@ -11102,6 +11103,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentTarget: {fileID: 0}
+  tempTarget: {fileID: 0}
   Retreater: {fileID: 0}
   retreatAreaMin: {x: -4.9, y: -4}
   retreatAreaMax: {x: 4.9, y: 1}
@@ -11118,7 +11120,7 @@ MonoBehaviour:
   stunTime: 0
   Class: 0
   attackSound: {fileID: 0}
-  skillSound: {fileID: 0}
+  IsRetreating: 0
   AttackDelay: 0.5
   aiAnimator: {fileID: 4487959493264559355}
   weaponTrigger: {fileID: 0}
@@ -11201,7 +11203,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 373b52eb9bf8c40f785bb6947a1aee66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 1
   drawGizmos: 1
   detailedGizmos: 0
   startEndModifier:
@@ -11229,7 +11231,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6eb1402c17e84a9282a7f0f62eb584f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 5
   radius: 0.5
   height: 2
   canMove: 1
@@ -11238,31 +11240,26 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  endReachedDistance: 0.2
-  whenCloseToDestination: 1
-  rvoDensityBehavior:
-    enabled: 0
-    densityThreshold: 0.5
-    returnAfterBeingPushedAway: 0
-    progressAverage: 0
-    lastJobDensityResult: 0
+  centerOffsetCompatibility: NaN
   repathRateCompatibility: NaN
   canSearchCompability: 0
   orientation: 1
   enableRotation: 0
   autoRepath:
     mode: 2
-    period: 0.5
+    interval: 0.5
     sensitivity: 10
-    maximumPeriod: 2
+    maximumInterval: 2
     visualizeSensitivity: 0
+  targetCompatibility: {fileID: 0}
   maxAcceleration: -2.5
   rotationSpeed: 360
   slowdownDistance: 0.6
   pickNextWaypointDist: 2
+  endReachedDistance: 0.2
   alwaysDrawGizmos: 0
   slowWhenNotFacingTarget: 1
-  preventMovingBackwards: 0
+  whenCloseToDestination: 1
   constrainInsideGraph: 0
 --- !u!114 &7160001141758245881
 MonoBehaviour:
@@ -11276,9 +11273,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9679e68a0f1144e79c664d9a11ca121, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 1
   target: {fileID: 0}
-  useRotation: 0
 --- !u!212 &6459806878446459047 stripped
 SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 6478018183379972407, guid: 22278203e8d524358894260c10cb0a79, type: 3}
@@ -12195,6 +12191,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentTarget: {fileID: 0}
+  tempTarget: {fileID: 0}
   Retreater: {fileID: 0}
   retreatAreaMin: {x: -4.9, y: -4}
   retreatAreaMax: {x: 4.9, y: 1}
@@ -12211,7 +12208,7 @@ MonoBehaviour:
   stunTime: 0
   Class: 0
   attackSound: {fileID: 0}
-  skillSound: {fileID: 0}
+  IsRetreating: 0
   AttackDelay: 0.42
   aiAnimator: {fileID: 3268056680867113269}
   weaponTrigger: {fileID: 3306029311702657466}
@@ -12309,7 +12306,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 373b52eb9bf8c40f785bb6947a1aee66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 1
   drawGizmos: 1
   detailedGizmos: 0
   startEndModifier:
@@ -12337,7 +12334,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6eb1402c17e84a9282a7f0f62eb584f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 5
   radius: 0.5
   height: 2
   canMove: 1
@@ -12346,31 +12343,26 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  endReachedDistance: 0
-  whenCloseToDestination: 1
-  rvoDensityBehavior:
-    enabled: 0
-    densityThreshold: 0.5
-    returnAfterBeingPushedAway: 0
-    progressAverage: 0
-    lastJobDensityResult: 0
+  centerOffsetCompatibility: NaN
   repathRateCompatibility: NaN
   canSearchCompability: 0
   orientation: 1
   enableRotation: 0
   autoRepath:
     mode: 2
-    period: 0.5
+    interval: 0.5
     sensitivity: 10
-    maximumPeriod: 2
+    maximumInterval: 2
     visualizeSensitivity: 0
+  targetCompatibility: {fileID: 0}
   maxAcceleration: -2.5
   rotationSpeed: 360
   slowdownDistance: 0
   pickNextWaypointDist: 2
+  endReachedDistance: 0
   alwaysDrawGizmos: 0
   slowWhenNotFacingTarget: 1
-  preventMovingBackwards: 0
+  whenCloseToDestination: 1
   constrainInsideGraph: 0
 --- !u!114 &4034415176732609881
 MonoBehaviour:
@@ -12384,9 +12376,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9679e68a0f1144e79c664d9a11ca121, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 1
   target: {fileID: 0}
-  useRotation: 0
 --- !u!212 &8680351123076162250 stripped
 SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 5781639517790938004, guid: 014fe8d68eb894953acd12f99324c58a, type: 3}
@@ -12866,6 +12857,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentTarget: {fileID: 0}
+  tempTarget: {fileID: 0}
   Retreater: {fileID: 0}
   retreatAreaMin: {x: -4.9, y: -4}
   retreatAreaMax: {x: 4.9, y: 1}
@@ -12882,7 +12874,7 @@ MonoBehaviour:
   stunTime: 0
   Class: 0
   attackSound: {fileID: 0}
-  skillSound: {fileID: 0}
+  IsRetreating: 0
   AttackDelay: 1
   aiAnimator: {fileID: 3804697576759505334}
   weaponTrigger: {fileID: 7985637209138637258}
@@ -12980,7 +12972,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 373b52eb9bf8c40f785bb6947a1aee66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 1
   drawGizmos: 1
   detailedGizmos: 0
   startEndModifier:
@@ -13008,7 +13000,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6eb1402c17e84a9282a7f0f62eb584f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 5
   radius: 0.5
   height: 2
   canMove: 1
@@ -13017,31 +13009,26 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  endReachedDistance: 0
-  whenCloseToDestination: 1
-  rvoDensityBehavior:
-    enabled: 0
-    densityThreshold: 0.5
-    returnAfterBeingPushedAway: 0
-    progressAverage: 0
-    lastJobDensityResult: 0
+  centerOffsetCompatibility: NaN
   repathRateCompatibility: NaN
   canSearchCompability: 0
   orientation: 1
   enableRotation: 0
   autoRepath:
     mode: 2
-    period: 0.5
+    interval: 0.5
     sensitivity: 10
-    maximumPeriod: 2
+    maximumInterval: 2
     visualizeSensitivity: 0
+  targetCompatibility: {fileID: 0}
   maxAcceleration: -2.5
   rotationSpeed: 360
   slowdownDistance: 0
   pickNextWaypointDist: 2
+  endReachedDistance: 0
   alwaysDrawGizmos: 0
   slowWhenNotFacingTarget: 1
-  preventMovingBackwards: 0
+  whenCloseToDestination: 1
   constrainInsideGraph: 0
 --- !u!114 &3444759523521096185
 MonoBehaviour:
@@ -13055,9 +13042,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9679e68a0f1144e79c664d9a11ca121, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 1
   target: {fileID: 0}
-  useRotation: 0
 --- !u!212 &8431419298041392136 stripped
 SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 6542980258513519800, guid: 014fe8d68eb894953acd12f99324c58a, type: 3}
@@ -13523,10 +13509,10 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 9092026567351912021, guid: cf1554094a2d572478cce8092a4ac3ca, type: 3}
-      insertIndex: 0
+      insertIndex: -1
       addedObject: {fileID: 4917565863307650482}
     - targetCorrespondingSourceObject: {fileID: 9092026567351912021, guid: cf1554094a2d572478cce8092a4ac3ca, type: 3}
-      insertIndex: 1
+      insertIndex: -1
       addedObject: {fileID: 6667323774634012407}
     - targetCorrespondingSourceObject: {fileID: 5320374883469277381, guid: cf1554094a2d572478cce8092a4ac3ca, type: 3}
       insertIndex: -1
@@ -13789,6 +13775,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentTarget: {fileID: 0}
+  tempTarget: {fileID: 0}
   Retreater: {fileID: 0}
   retreatAreaMin: {x: -4.9, y: -4}
   retreatAreaMax: {x: 4.9, y: 1}
@@ -13805,7 +13792,7 @@ MonoBehaviour:
   stunTime: 0
   Class: 0
   attackSound: {fileID: 0}
-  skillSound: {fileID: 0}
+  IsRetreating: 0
   AttackDelay: 0.25
   aiAnimator: {fileID: 490417711335772889}
   weaponTrigger: {fileID: 5546361316272527685}
@@ -13888,7 +13875,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 373b52eb9bf8c40f785bb6947a1aee66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 1
   drawGizmos: 1
   detailedGizmos: 0
   startEndModifier:
@@ -13916,7 +13903,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6eb1402c17e84a9282a7f0f62eb584f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 5
   radius: 0.5
   height: 2
   canMove: 1
@@ -13925,31 +13912,26 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  endReachedDistance: 0
-  whenCloseToDestination: 1
-  rvoDensityBehavior:
-    enabled: 0
-    densityThreshold: 0.5
-    returnAfterBeingPushedAway: 0
-    progressAverage: 0
-    lastJobDensityResult: 0
+  centerOffsetCompatibility: NaN
   repathRateCompatibility: NaN
   canSearchCompability: 0
   orientation: 1
   enableRotation: 0
   autoRepath:
     mode: 2
-    period: 0.5
+    interval: 0.5
     sensitivity: 10
-    maximumPeriod: 2
+    maximumInterval: 2
     visualizeSensitivity: 0
+  targetCompatibility: {fileID: 0}
   maxAcceleration: -2.5
   rotationSpeed: 360
   slowdownDistance: 0
   pickNextWaypointDist: 2
+  endReachedDistance: 0
   alwaysDrawGizmos: 1
   slowWhenNotFacingTarget: 1
-  preventMovingBackwards: 0
+  whenCloseToDestination: 1
   constrainInsideGraph: 0
 --- !u!114 &7566646962283560436
 MonoBehaviour:
@@ -13963,9 +13945,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9679e68a0f1144e79c664d9a11ca121, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 1
   target: {fileID: 0}
-  useRotation: 0
 --- !u!212 &8234256979841341224 stripped
 SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 5057127933131565162, guid: cf1554094a2d572478cce8092a4ac3ca, type: 3}
@@ -15918,6 +15899,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentTarget: {fileID: 0}
+  tempTarget: {fileID: 0}
   Retreater: {fileID: 0}
   retreatAreaMin: {x: -4.9, y: -4}
   retreatAreaMax: {x: 4.9, y: 1}
@@ -15934,7 +15916,7 @@ MonoBehaviour:
   stunTime: 0
   Class: 0
   attackSound: {fileID: 0}
-  skillSound: {fileID: 0}
+  IsRetreating: 0
   AttackDelay: 2.5
   aiAnimator: {fileID: 1982578670149600282}
   weaponTrigger: {fileID: 6570630249493139736}
@@ -16032,7 +16014,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 373b52eb9bf8c40f785bb6947a1aee66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 1
   drawGizmos: 1
   detailedGizmos: 0
   startEndModifier:
@@ -16060,7 +16042,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6eb1402c17e84a9282a7f0f62eb584f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 5
   radius: 0.5
   height: 2
   canMove: 1
@@ -16069,31 +16051,26 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  endReachedDistance: 0
-  whenCloseToDestination: 1
-  rvoDensityBehavior:
-    enabled: 0
-    densityThreshold: 0.5
-    returnAfterBeingPushedAway: 0
-    progressAverage: 0
-    lastJobDensityResult: 0
+  centerOffsetCompatibility: NaN
   repathRateCompatibility: NaN
   canSearchCompability: 0
   orientation: 1
   enableRotation: 0
   autoRepath:
     mode: 2
-    period: 0.5
+    interval: 0.5
     sensitivity: 10
-    maximumPeriod: 2
+    maximumInterval: 2
     visualizeSensitivity: 0
+  targetCompatibility: {fileID: 0}
   maxAcceleration: -2.5
   rotationSpeed: 360
   slowdownDistance: 0
   pickNextWaypointDist: 2
+  endReachedDistance: 0
   alwaysDrawGizmos: 0
   slowWhenNotFacingTarget: 1
-  preventMovingBackwards: 0
+  whenCloseToDestination: 1
   constrainInsideGraph: 0
 --- !u!114 &90578987452717964
 MonoBehaviour:
@@ -16107,9 +16084,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9679e68a0f1144e79c664d9a11ca121, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 1
   target: {fileID: 0}
-  useRotation: 0
 --- !u!212 &3701499815807800379 stripped
 SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 6453320214492111933, guid: 014fe8d68eb894953acd12f99324c58a, type: 3}
@@ -16547,6 +16523,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentTarget: {fileID: 0}
+  tempTarget: {fileID: 0}
   Retreater: {fileID: 0}
   retreatAreaMin: {x: -4.9, y: -4}
   retreatAreaMax: {x: 4.9, y: 1}
@@ -16563,7 +16540,7 @@ MonoBehaviour:
   stunTime: 0
   Class: 0
   attackSound: {fileID: 0}
-  skillSound: {fileID: 0}
+  IsRetreating: 0
   AttackDelay: 0.5
   aiAnimator: {fileID: 2633015474861483412}
   weaponTrigger: {fileID: 0}
@@ -16646,7 +16623,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 373b52eb9bf8c40f785bb6947a1aee66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 1
   drawGizmos: 1
   detailedGizmos: 0
   startEndModifier:
@@ -16674,7 +16651,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6eb1402c17e84a9282a7f0f62eb584f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 5
   radius: 0.5
   height: 2
   canMove: 1
@@ -16683,31 +16660,26 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  endReachedDistance: 0.2
-  whenCloseToDestination: 1
-  rvoDensityBehavior:
-    enabled: 0
-    densityThreshold: 0.5
-    returnAfterBeingPushedAway: 0
-    progressAverage: 0
-    lastJobDensityResult: 0
+  centerOffsetCompatibility: NaN
   repathRateCompatibility: NaN
   canSearchCompability: 0
   orientation: 1
   enableRotation: 0
   autoRepath:
     mode: 2
-    period: 0.5
+    interval: 0.5
     sensitivity: 10
-    maximumPeriod: 2
+    maximumInterval: 2
     visualizeSensitivity: 0
+  targetCompatibility: {fileID: 0}
   maxAcceleration: -2.5
   rotationSpeed: 360
   slowdownDistance: 0.6
   pickNextWaypointDist: 2
+  endReachedDistance: 0.2
   alwaysDrawGizmos: 0
   slowWhenNotFacingTarget: 1
-  preventMovingBackwards: 0
+  whenCloseToDestination: 1
   constrainInsideGraph: 0
 --- !u!114 &5405875099781186495
 MonoBehaviour:
@@ -16721,9 +16693,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9679e68a0f1144e79c664d9a11ca121, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 1
   target: {fileID: 0}
-  useRotation: 0
 --- !u!212 &8351744965447138863 stripped
 SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 1741408396703886853, guid: b1d1b587ef04c4b78accd9412b85b135, type: 3}
@@ -17118,6 +17089,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentTarget: {fileID: 0}
+  tempTarget: {fileID: 0}
   Retreater: {fileID: 0}
   retreatAreaMin: {x: -4.9, y: -4}
   retreatAreaMax: {x: 4.9, y: 1}
@@ -17134,7 +17106,7 @@ MonoBehaviour:
   stunTime: 0
   Class: 0
   attackSound: {fileID: 0}
-  skillSound: {fileID: 0}
+  IsRetreating: 0
   AttackDelay: 0.3
   aiAnimator: {fileID: 4695222459443446054}
   weaponTrigger: {fileID: 386594537053712173}
@@ -17232,7 +17204,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 373b52eb9bf8c40f785bb6947a1aee66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 1
   drawGizmos: 1
   detailedGizmos: 0
   startEndModifier:
@@ -17260,7 +17232,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6eb1402c17e84a9282a7f0f62eb584f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 5
   radius: 0.5
   height: 2
   canMove: 1
@@ -17269,31 +17241,26 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  endReachedDistance: 0
-  whenCloseToDestination: 1
-  rvoDensityBehavior:
-    enabled: 0
-    densityThreshold: 0.5
-    returnAfterBeingPushedAway: 0
-    progressAverage: 0
-    lastJobDensityResult: 0
+  centerOffsetCompatibility: NaN
   repathRateCompatibility: NaN
   canSearchCompability: 0
   orientation: 1
   enableRotation: 0
   autoRepath:
     mode: 2
-    period: 0.5
+    interval: 0.5
     sensitivity: 10
-    maximumPeriod: 2
+    maximumInterval: 2
     visualizeSensitivity: 0
+  targetCompatibility: {fileID: 0}
   maxAcceleration: -2.5
   rotationSpeed: 360
   slowdownDistance: 0
   pickNextWaypointDist: 2
+  endReachedDistance: 0
   alwaysDrawGizmos: 0
   slowWhenNotFacingTarget: 1
-  preventMovingBackwards: 0
+  whenCloseToDestination: 1
   constrainInsideGraph: 0
 --- !u!114 &2579251615543999815
 MonoBehaviour:
@@ -17307,9 +17274,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9679e68a0f1144e79c664d9a11ca121, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 1
   target: {fileID: 0}
-  useRotation: 0
 --- !u!212 &830822782670430364 stripped
 SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 8819126551340863732, guid: 672092d6fae854c9da73ae8124fb85bc, type: 3}
@@ -17704,6 +17670,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentTarget: {fileID: 0}
+  tempTarget: {fileID: 0}
   Retreater: {fileID: 0}
   retreatAreaMin: {x: -4.9, y: -4}
   retreatAreaMax: {x: 4.9, y: 1}
@@ -17720,7 +17687,7 @@ MonoBehaviour:
   stunTime: 0
   Class: 0
   attackSound: {fileID: 0}
-  skillSound: {fileID: 0}
+  IsRetreating: 0
   AttackDelay: 0.3
   aiAnimator: {fileID: 3491793380638704323}
   weaponTrigger: {fileID: 3998570941099633901}
@@ -17818,7 +17785,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 373b52eb9bf8c40f785bb6947a1aee66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 1
   drawGizmos: 1
   detailedGizmos: 0
   startEndModifier:
@@ -17846,7 +17813,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6eb1402c17e84a9282a7f0f62eb584f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 5
   radius: 0.5
   height: 2
   canMove: 1
@@ -17855,31 +17822,26 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  endReachedDistance: 0
-  whenCloseToDestination: 1
-  rvoDensityBehavior:
-    enabled: 0
-    densityThreshold: 0.5
-    returnAfterBeingPushedAway: 0
-    progressAverage: 0
-    lastJobDensityResult: 0
+  centerOffsetCompatibility: NaN
   repathRateCompatibility: NaN
   canSearchCompability: 0
   orientation: 1
   enableRotation: 0
   autoRepath:
     mode: 2
-    period: 0.5
+    interval: 0.5
     sensitivity: 10
-    maximumPeriod: 2
+    maximumInterval: 2
     visualizeSensitivity: 0
+  targetCompatibility: {fileID: 0}
   maxAcceleration: -2.5
   rotationSpeed: 360
   slowdownDistance: 0
   pickNextWaypointDist: 2
+  endReachedDistance: 0
   alwaysDrawGizmos: 0
   slowWhenNotFacingTarget: 1
-  preventMovingBackwards: 0
+  whenCloseToDestination: 1
   constrainInsideGraph: 0
 --- !u!114 &5739476108631869260
 MonoBehaviour:
@@ -17893,9 +17855,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9679e68a0f1144e79c664d9a11ca121, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 1073741824
+  version: 1
   target: {fileID: 0}
-  useRotation: 0
 --- !u!1 &1632609183128228056 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6953575647964389462, guid: 672092d6fae854c9da73ae8124fb85bc, type: 3}
