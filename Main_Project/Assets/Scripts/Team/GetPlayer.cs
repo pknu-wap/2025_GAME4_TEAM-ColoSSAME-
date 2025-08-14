@@ -73,7 +73,7 @@ namespace Scripts.Team.FighterRandomBuy
             buyfighterimage.LoadAllSprites();
         }
 
-        public void FighterConfrim(int fighterselect)
+        public void FighterConfrim()
         {   
             if (state.deleteList.Count >= 1)
             {
@@ -86,7 +86,7 @@ namespace Scripts.Team.FighterRandomBuy
                 
                 state.fighterButtons[state.playerIndexList.Count-state.deleteList.Count].gameObject.SetActive(true);
                 //state.playerimage[state.playerIndexList.Count-state.deleteList.Count].GetComponentInChildren<CharacterID>().characterKey = characterid[fighterselect].characterKey;
-                characterid[fighterselect].characterKey = (state.deleteList[0]).ToString();
+                characterid[cardnumber].characterKey = (state.deleteList[0]).ToString();
 
                 savemanage.SaveFromButton();
                 buyfighterimage.CaptureAndSaveAll();
