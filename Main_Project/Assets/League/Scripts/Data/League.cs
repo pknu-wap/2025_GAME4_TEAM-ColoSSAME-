@@ -32,6 +32,7 @@ using System.Collections.Generic;
     public class Team
     {
         public int id;
+        public string fid;
         public string name;
         public string explanation;
         public int played;

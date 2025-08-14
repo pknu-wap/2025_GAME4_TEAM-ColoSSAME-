@@ -16,6 +16,8 @@ public class Carousel : MonoBehaviour
     public Image teamImages;
     public TMP_Text teamName;
     public TMP_Text teamText;
+    
+    public TeamDetailViewer teamDetailViewer;
 
     void Start()
     {
@@ -98,6 +100,18 @@ public class Carousel : MonoBehaviour
         leagueManager.league.settings.playerTeamId = myTeam.id;
         leagueManager.league.settings.playerTeamName = myTeam.name;
 
+    }
+
+    public void OnViewStatusButtonClick()
+    {
+        Team selectedTeam = leagueManager.league.teams.Find(t => t.id == currentIndex + 1);
+        string familyId = selectedTeam.fid; // 가문 ID (예: "Caelus")
+
+        // ➡️ TeamDetailViewer 스크립트의 함수를 호출하여 가문 ID를 전달
+        if (teamDetailViewer != null)
+        {
+            teamDetailViewer.ShowDetails(familyId);
+        }
     }
 
 }
