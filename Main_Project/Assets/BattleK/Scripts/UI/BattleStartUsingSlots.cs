@@ -172,7 +172,6 @@ public class BattleStartUsingSlots : MonoBehaviour
         if (occupied < Mathf.Max(1, minUnitsToStart))
         {
             Debug.LogWarning($"[BattleStart] 전투 시작 불가: 배치된 유닛 {occupied}/{minUnitsToStart}");
-            // 필요하면 여기서 경고 UI/사운드 재생
             return;
         }
 
@@ -201,11 +200,16 @@ public class BattleStartUsingSlots : MonoBehaviour
             var slot = slots[i];
             if (slot == null || !slot.IsOccupied || slot.Occupant == null) continue;
 
-            var drag = slot.Occupant.GetComponent<UIDrag>();
-            if (drag == null) continue;
-
-            var key = (drag.characterKey ?? string.Empty).Trim();
-            if (string.IsNullOrEmpty(key)) continue;
+            // 🔄 변경 포인트: UIDrag.characterKey → CharacterID.characterKey
+            // 점유 오브젝트(드래그 아이템)에서 CharacterID를 읽음
+            var cid = slot.Occupant.GetComponent<CharacterID>();
+            string key = (cid != null ? cid.characterKey : null);
+            key = (key ?? string.Empty).Trim();
+            if (string.IsNullOrEmpty(key))
+            {
+                Debug.LogWarning($"[BattleStart] 슬롯 {i + 1}: CharacterID.characterKey 비어있음");
+                continue;
+            }
 
             // UI px → Player 로컬 좌표
             var slotRT = slot.GetComponent<RectTransform>();

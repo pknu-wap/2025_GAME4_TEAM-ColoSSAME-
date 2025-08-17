@@ -131,22 +131,28 @@ public class AICore : MonoBehaviour, IDamageable
     [ContextMenu("Setup SPUM Renderers")]
     private void TrySetupRenderers()
     {
+        // 1. 자신 및 자식에서 SPUM_Prefabs 컴포넌트를 검색
+        SPUM_Prefabs spumPrefab = GetComponentInChildren<SPUM_Prefabs>(true);
+
         Transform unitRoot = null;
-        foreach (Transform child in transform)
+
+        if (spumPrefab != null)
         {
-            if (child.name.StartsWith("SPUM_", StringComparison.Ordinal))
-            {
-                unitRoot = child.Find("UnitRoot/Root");
-                if (unitRoot != null) break;
-            }
+            // 2. SPUM_Prefabs 기준으로 UnitRoot/Root 탐색
+            unitRoot = spumPrefab.transform.Find("UnitRoot/Root");
         }
-        if (unitRoot == null) unitRoot = transform.Find("UnitRoot/Root");
+
+        // 3. fallback (못 찾으면 자기 하위에서 직접 검색)
+        if (unitRoot == null)
+            unitRoot = transform.Find("UnitRoot/Root");
 
         if (unitRoot != null)
         {
             renderers = unitRoot.GetComponentsInChildren<SpriteRenderer>(true);
             originalColors = new Color[renderers.Length];
-            for (int i = 0; i < renderers.Length; i++) originalColors[i] = renderers[i].color;
+            for (int i = 0; i < renderers.Length; i++) 
+                originalColors[i] = renderers[i].color;
+
             UnityEditor.EditorUtility.SetDirty(this);
         }
         else
