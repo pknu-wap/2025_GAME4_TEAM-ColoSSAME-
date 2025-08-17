@@ -1,7 +1,14 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
+using System.Text.RegularExpressions; // ← 추가: 표시용 이름 변환에 사용
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class TargetWindowController : MonoBehaviour
 {
@@ -18,10 +25,36 @@ public class TargetWindowController : MonoBehaviour
     [Header("캐릭터 이미지")]
     public Image characterImage; // CharacterImg/Image 오브젝트 연결
 
+    // ==== 이미지 경로 설정 ====
+    public enum ImagePathMode
+    {
+        Resources,           // Resources/<folder>/<name>(.png) → Resources.Load 사용
+        RelativeToAssets,    // <Project>/Assets/<folder>/<name>.<ext>
+        StreamingAssets,     // <Project>/StreamingAssets/<folder>/<name>.<ext>
+        PersistentDataPath,  // <App>/persistentData/<folder>/<name>.<ext>
+        Absolute             // <folder>/<name>.<ext> (folder에 절대경로 입력)
+    }
+
+    [Header("이미지 경로 설정")]
+    [Tooltip("어디 기준으로 이미지를 로드할지 선택합니다.")]
+    public ImagePathMode pathMode = ImagePathMode.Resources;
+
+    [Tooltip("폴더 경로. 예) Resources 모드: 'ScreenShots', Assets 상대: 'SPUM/ScreenShots', 절대: 'D:/.../ScreenShots'")]
+    public string folder = "ScreenShots";
+
+    [Tooltip("파일 확장자(리소스 모드 제외)")]
+    public string fileExtension = "png";
+
+#if UNITY_EDITOR
+    [SerializeField, TextArea(1, 2)]
+    private string _resolvedBasePathPreview;
+#endif
+
+    // ==== 내부 상태 ====
     private enum TargetSlot { None, First, Second }
     private TargetSlot currentSelectedSlot = TargetSlot.None;
 
-    // 현재 타겟창이 가리키는 캐릭터 키(이름)
+    // 저장용 키는 원본 그대로 (예: "Astra_Aetherius")
     private string _currentCharacterKey;
 
     void Start()
@@ -42,34 +75,62 @@ public class TargetWindowController : MonoBehaviour
         }
     }
 
-    // 창이 다시 활성화될 때(닫았다 열었을 때) 복원
     void OnEnable()
     {
         if (!string.IsNullOrEmpty(_currentCharacterKey))
             SyncUIFromSave();
     }
 
+#if UNITY_EDITOR
+    void OnValidate()
+    {
+        _resolvedBasePathPreview = ResolveBaseFolderForPreview();
+    }
+#endif
+
     /// <summary>
     /// 캐릭터 이름/이미지 설정 + 저장된 타겟 복원(항상 이 함수로 진입)
     /// </summary>
     public void SetCharacter(string name)
     {
+        // 저장용 키는 원본 그대로 보관
         _currentCharacterKey = name?.Trim();
 
-        SetCharacterName(_currentCharacterKey);
+        // 표시는 변환( "_" → " " 등 )된 이름으로
+        SetCharacterName(ToDisplayName(_currentCharacterKey));
         LoadCharacterImage(_currentCharacterKey);
 
-        // JSON에서 기존 targetClasses 복원 → UI 적용
         SyncUIFromSave();
     }
 
-    public void SetCharacterName(string name)
+    public void SetCharacterName(string nameForDisplay)
     {
-        if (characterNameText != null) characterNameText.text = name;
-        else Debug.LogError("characterNameText가 연결되어 있지 않습니다!");
+        if (characterNameText != null)
+        {
+            // 혹시 외부에서 원본 키를 넣어도 안전하게 표시용 변환
+            characterNameText.text = ToDisplayName(nameForDisplay);
+        }
+        else
+        {
+            Debug.LogError("characterNameText가 연결되어 있지 않습니다!");
+        }
     }
 
-    private void LoadCharacterImage(string characterName)
+    /// <summary>
+    /// 저장용 키(예: "Astra_Aetherius")를 표시용 문자열("Astra Aetherius")로 변환
+    /// 필요 시 여러 언더스코어를 단일 공백으로 정리
+    /// </summary>
+    private static string ToDisplayName(string key)
+    {
+        if (string.IsNullOrWhiteSpace(key)) return key;
+        // 1) 언더스코어를 공백으로
+        string s = key.Replace('_', ' ');
+        // 2) 공백 여러 개 → 하나로 정리
+        s = Regex.Replace(s, @"\s+", " ").Trim();
+        return s;
+    }
+
+    private void LoadCharacterImage(string characterNameKey)
     {
         if (characterImage == null)
         {
@@ -77,23 +138,69 @@ public class TargetWindowController : MonoBehaviour
             return;
         }
 
-        if (string.IsNullOrEmpty(characterName))
+        if (string.IsNullOrEmpty(characterNameKey))
         {
             characterImage.sprite = null;
             return;
         }
 
-        // Resources/ScreenShots 폴더에서 이미지 로드(확장자 없이 파일명=캐릭터키)
-        Sprite sprite = Resources.Load<Sprite>($"ScreenShots/{characterName}");
-        if (sprite != null)
+        // ── 1) Resources 모드: Resources.Load 사용 ───────────────────────────────
+        if (pathMode == ImagePathMode.Resources)
         {
-            characterImage.sprite = sprite;
-            characterImage.color = Color.white; // 투명 방지
-            // Debug.Log($"이미지 로드 성공: {characterName}");
+            // Resources/<folder>/<characterNameKey> (확장자 없이)
+            string resPath = CombineUnityPath(folder, characterNameKey);
+            Sprite sprite = Resources.Load<Sprite>(resPath);
+            if (sprite != null)
+            {
+                characterImage.sprite = sprite;
+                characterImage.color = Color.white; // 투명 방지
+            }
+            else
+            {
+                Debug.LogWarning($"[이미지] Resources에서 스프라이트를 찾을 수 없습니다: {resPath} (예상 파일: Assets/Resources/{folder}/{characterNameKey}.png)");
+                characterImage.sprite = null;
+            }
+            return;
         }
-        else
+
+        // ── 2) 파일 시스템 모드: Texture2D 로드 후 Sprite 생성 ──────────────────
+        string baseFolder = ResolveBaseFolder();
+        if (string.IsNullOrEmpty(baseFolder))
         {
-            Debug.LogWarning($"이미지를 찾을 수 없습니다: {characterName} (경로: Resources/ScreenShots/{characterName}.png)");
+            Debug.LogError($"[이미지] 베이스 폴더 해석 실패. mode={pathMode}, folder={folder}");
+            characterImage.sprite = null;
+            return;
+        }
+
+        string fullPath = PathCombineOS(baseFolder, $"{characterNameKey}.{fileExtension}");
+        if (!File.Exists(fullPath))
+        {
+            Debug.LogWarning($"[이미지] 파일을 찾을 수 없습니다: {fullPath}");
+            characterImage.sprite = null;
+            return;
+        }
+
+        try
+        {
+            byte[] data = File.ReadAllBytes(fullPath);
+            var tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            if (tex.LoadImage(data))
+            {
+                var sprite = Sprite.Create(tex,
+                    new Rect(0, 0, tex.width, tex.height),
+                    new Vector2(0.5f, 0.5f), 100f);
+                characterImage.sprite = sprite;
+                characterImage.color = Color.white;
+            }
+            else
+            {
+                Debug.LogWarning($"[이미지] Texture2D.LoadImage 실패: {fullPath}");
+                characterImage.sprite = null;
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[이미지] 로드 중 예외: {fullPath}\n{e}");
             characterImage.sprite = null;
         }
     }
@@ -109,7 +216,6 @@ public class TargetWindowController : MonoBehaviour
         // 새 포맷: List<UnitClass> 기준
         if (rec.targetClasses != null && rec.targetClasses.Count > 0)
         {
-            // enum → 한글 라벨 변환
             if (firstTargetText)
             {
                 if (rec.targetClasses.Count > 0 && TargetClassMap.EnumToKo.TryGetValue(rec.targetClasses[0], out var ko1))
@@ -158,7 +264,7 @@ public class TargetWindowController : MonoBehaviour
         }
 
         // UI 표시(한글 라벨)
-        if (currentSelectedSlot == TargetSlot.First && firstTargetText)      firstTargetText.text  = jobName;
+        if (currentSelectedSlot == TargetSlot.First && firstTargetText)        firstTargetText.text  = jobName;
         else if (currentSelectedSlot == TargetSlot.Second && secondTargetText) secondTargetText.text = jobName;
 
         // 저장(Enum 리스트)
@@ -185,6 +291,110 @@ public class TargetWindowController : MonoBehaviour
 
         currentSelectedSlot = TargetSlot.None;
         HighlightSlot(TargetSlot.None);
-        // _currentCharacterKey 는 유지 (필요시 null 처리)
     }
+
+    // ==========================
+    // 경로 처리 유틸리티
+    // ==========================
+
+    // Resources 모드에서만 사용 (확장자 없이)
+    private static string CombineUnityPath(string a, string b)
+    {
+        a = (a ?? "").Trim().Replace('\\', '/').Trim('/');
+        b = (b ?? "").Trim().Replace('\\', '/').Trim('/');
+        if (string.IsNullOrEmpty(a)) return b;
+        if (string.IsNullOrEmpty(b)) return a;
+        return $"{a}/{b}";
+    }
+
+    private string ResolveBaseFolder()
+    {
+        switch (pathMode)
+        {
+            case ImagePathMode.Resources:
+                // Resources는 baseFolder 개념이 아니라서 사용하지 않음
+                return null;
+
+            case ImagePathMode.RelativeToAssets:
+                return PathCombineOS(Application.dataPath, folder);
+
+            case ImagePathMode.StreamingAssets:
+                return PathCombineOS(Application.streamingAssetsPath, folder);
+
+            case ImagePathMode.PersistentDataPath:
+                return PathCombineOS(Application.persistentDataPath, folder);
+
+            case ImagePathMode.Absolute:
+                // folder 자체가 절대 경로여야 함
+                return NormalizeOSPath(folder);
+
+            default:
+                return null;
+        }
+    }
+
+    private static string PathCombineOS(string basePath, string sub)
+    {
+        if (string.IsNullOrEmpty(basePath)) return NormalizeOSPath(sub);
+        if (string.IsNullOrEmpty(sub)) return NormalizeOSPath(basePath);
+        return NormalizeOSPath(Path.Combine(basePath, sub));
+    }
+
+    private static string NormalizeOSPath(string p)
+    {
+        return string.IsNullOrEmpty(p) ? null : p.Replace('\\', '/');
+    }
+
+#if UNITY_EDITOR
+    private string ResolveBaseFolderForPreview()
+    {
+        if (pathMode == ImagePathMode.Resources)
+            return $"(Resources) Assets/Resources/{folder.Trim().Replace('\\','/')}";
+        return ResolveBaseFolder() ?? "(null)";
+    }
+
+    [CustomEditor(typeof(TargetWindowController))]
+    private class TargetWindowControllerEditor : Editor
+    {
+        public override void OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
+
+            var t = (TargetWindowController)target;
+
+            // 해석 경로 미리보기
+            EditorGUILayout.Space(6);
+            using (new EditorGUILayout.VerticalScope("box"))
+            {
+                GUILayout.Label("경로 미리보기", EditorStyles.boldLabel);
+                string preview = t.ResolveBaseFolderForPreview();
+                EditorGUILayout.HelpBox(preview ?? "(null)", MessageType.Info);
+            }
+
+            // 폴더 선택 (Resources 모드는 파일 시스템 폴더 개념이 아니라서 비활성)
+            using (new EditorGUI.DisabledScope(t.pathMode == ImagePathMode.Resources))
+            {
+                if (GUILayout.Button("폴더 선택 (파일 시스템)"))
+                {
+                    string start = t.ResolveBaseFolder() ?? Application.dataPath;
+                    string selected = EditorUtility.OpenFolderPanel("이미지 폴더 선택", start, "");
+                    if (!string.IsNullOrEmpty(selected))
+                    {
+                        // 여기서는 현재 모드 유지하고 folder만 절대경로로 저장
+                        t.folder = selected;
+                        EditorUtility.SetDirty(t);
+                    }
+                }
+            }
+
+            if (GUILayout.Button("이 캐릭터 이미지 다시 로드 (디버그)"))
+            {
+                if (!string.IsNullOrEmpty(t._currentCharacterKey))
+                    t.LoadCharacterImage(t._currentCharacterKey);
+                else
+                    Debug.Log("현재 캐릭터 키가 없습니다. SetCharacter 호출 후 테스트하세요.");
+            }
+        }
+    }
+#endif
 }
