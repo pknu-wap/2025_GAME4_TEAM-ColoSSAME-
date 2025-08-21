@@ -11,6 +11,8 @@ public class User
     public int money = 100;
     public Dictionary<string, int> inventory; 
     
+    public List<Unit> myUnits;
+    
     public User() { }
     public User(string nickname)
     {
