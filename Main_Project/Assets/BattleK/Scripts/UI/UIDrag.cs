@@ -13,7 +13,7 @@ public class UIDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     [Header("원래 목록 영역(풀)으로 돌려보낼 부모 (선택)")]
     public RectTransform homeParent;  // 비워두면 현재 parent 유지
     private Vector2 homePosition;     // 최초 Awake 시점 anchoredPosition
-    private int homeSiblingIndex;     // 보기 순서도 복원하고 싶으면 사용
+    private int homeSiblingIndex;     // 보기 순서 복원용
 
     private Slot currentSlot;
 
@@ -27,11 +27,11 @@ public class UIDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
     public float doubleClickThreshold = 0.25f;
     private float lastClickTime = -1f;
 
-    [Header("캐릭터 고유 키 (또는 이름)")]
-    public string characterKey;
-
     [Header("타겟 선택창 오브젝트 (씬 상의 원본)")]
     public GameObject targetingWindow;
+
+    // ✅ CharacterID 연동
+    private CharacterID characterID;
 
     // 현재 열려있는 캐릭터 키(전역 공유)
     private static string currentOpenCharacterKey = null;
@@ -41,7 +41,7 @@ public class UIDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
         rectTransform = GetComponent<RectTransform>();
         canvas = GetComponentInParent<Canvas>();
 
-        // ✅ home 정보는 "최초 자리"로 고정 저장
+        // home 정보는 "최초 자리"로 고정 저장
         homeParent = homeParent ?? rectTransform.parent as RectTransform;
         homePosition = rectTransform.anchoredPosition;
         homeSiblingIndex = rectTransform.GetSiblingIndex();
@@ -50,6 +50,13 @@ public class UIDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
             targetingWindow = GameObject.Find("TargetingWindow");
         if (targetingWindow != null)
             targetingWindow.SetActive(false);
+
+        // ✅ CharacterID 캐시
+        characterID = GetComponent<CharacterID>();
+        if (characterID == null)
+        {
+            Debug.LogWarning($"[UIDrag] {gameObject.name}에 CharacterID 컴포넌트가 없습니다. 타겟창 연동이 제한될 수 있습니다.");
+        }
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -63,15 +70,6 @@ public class UIDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
             currentSlot.IsOccupied = false;
             currentSlot.Occupant = null;
             currentSlot = null;
-        }
-
-        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            rectTransform.parent as RectTransform,
-            eventData.position,
-            eventData.pressEventCamera,
-            out Vector2 localMousePos))
-        {
-            // anchoredPosition - 마우스 간 오프셋(원래 코드 유지)
         }
     }
 
@@ -156,23 +154,31 @@ public class UIDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
         var controller = targetingWindow.GetComponent<TargetWindowController>();
         if (controller == null) return;
 
-        if (!targetingWindow.activeSelf)
+        // ✅ CharacterID에서 키를 얻는다.
+        string key = characterID != null ? characterID.characterKey : null;
+        if (string.IsNullOrEmpty(key))
         {
-            targetingWindow.SetActive(true);
-            controller.SetCharacter(characterKey);
-            currentOpenCharacterKey = characterKey;
+            Debug.LogWarning("[UIDrag] CharacterID.characterKey 가 비어있습니다. 타겟창에 올바른 키를 전달할 수 없습니다.");
             return;
         }
 
-        if (currentOpenCharacterKey == characterKey)
+        if (!targetingWindow.activeSelf)
+        {
+            targetingWindow.SetActive(true);
+            controller.SetCharacter(key);
+            currentOpenCharacterKey = key;
+            return;
+        }
+
+        if (currentOpenCharacterKey == key)
         {
             targetingWindow.SetActive(false);
             currentOpenCharacterKey = null;
         }
         else
         {
-            controller.SetCharacter(characterKey);
-            currentOpenCharacterKey = characterKey;
+            controller.SetCharacter(key);
+            currentOpenCharacterKey = key;
         }
     }
 
@@ -202,9 +208,12 @@ public class UIDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHa
 
     private void CloseTargetWindowIfOpenForThis()
     {
-        if (targetingWindow != null &&
-            targetingWindow.activeSelf &&
-            currentOpenCharacterKey == characterKey)
+        if (targetingWindow == null) return;
+
+        string key = characterID != null ? characterID.characterKey : null;
+        if (string.IsNullOrEmpty(key)) return;
+
+        if (targetingWindow.activeSelf && currentOpenCharacterKey == key)
         {
             targetingWindow.SetActive(false);
             currentOpenCharacterKey = null;
