@@ -4,15 +4,25 @@ using UnityEngine;
 using Scripts.Team.FighterRandomBuy;
 using Scripts.Team.IsAnimStopClick;
 
-public class CardAnim : MonoBehaviour
-{   
-    public GetPlayer getplayer;
+namespace Scripts.Team.CardAnimcontrol
+{
+    public class CardAnim : MonoBehaviour
+    {   
+        public GetPlayer getplayer;
 
-    public CardClickStop blockclick;
+        public CardClickStop blockclick;
 
-    public void CardAnimEnd()
+        public void CardAnimEnd()
         {
             getplayer.CharacterGather[getplayer.count].SetActive(true);
             blockclick.IsClickCard();
         }
+        public void CardResetAnim()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                getplayer.anim[i].SetTrigger("IsUnitBuy");
+            }
+        }
+    }
 }

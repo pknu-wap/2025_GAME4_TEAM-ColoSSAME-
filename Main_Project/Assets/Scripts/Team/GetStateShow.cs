@@ -4,10 +4,18 @@ using UnityEngine;
 
 public class GetStateShow : MonoBehaviour
 {
-    public GameObject showinformation;
+    public GameObject canvas;
+    public GameObject drawfight;
 
     public void BackButton()
     {
-        showinformation.SetActive(false);
+        drawfight.SetActive(false);
+        canvas.SetActive(true);
+    }
+
+    public void EnterButton()
+    {
+        canvas.SetActive(false);
+        drawfight.SetActive(true);
     }
 }
