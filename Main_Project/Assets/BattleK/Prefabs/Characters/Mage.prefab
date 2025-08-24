@@ -40,6 +40,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1565083156362403729}
+  - component: {fileID: 7250100815363427195}
   - component: {fileID: 5942231145628904408}
   - component: {fileID: 639951473971131555}
   - component: {fileID: 2127510258012232803}
@@ -48,7 +49,6 @@ GameObject:
   - component: {fileID: 9010373572953121936}
   - component: {fileID: 647805290323870763}
   - component: {fileID: 8963552811901411199}
-  - component: {fileID: 417214991353197587}
   m_Layer: 0
   m_Name: Mage
   m_TagString: Untagged
@@ -74,6 +74,22 @@ Transform:
   - {fileID: 7413430100660996590}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7250100815363427195
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4795633874110169938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01be86a8560a5f442a2b9bfcd93b01b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _prefabs: {fileID: 0}
+  _charMS: 0
+  _goalPos: {x: 0, y: 0, z: 0}
+  isAction: 0
 --- !u!114 &5942231145628904408
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -355,21 +371,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f703ca03dd90e994096657cde90555fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &417214991353197587
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4795633874110169938}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 41bb45a6432a8bd4e845f0352cbcfdf0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _prefabs: {fileID: 0}
-  _charMS: 3
-  isAction: 0
 --- !u!1 &6047596406260527809
 GameObject:
   m_ObjectHideFlags: 0
@@ -498,18 +499,8 @@ MonoBehaviour:
   hitLayers:
     serializedVersion: 2
     m_Bits: 128
-  playerLayerIndex: 10
-  enemyLayerIndex: 11
-  preferIndexMapping: 1
-  selfLayerNameForPlayer: Player
-  selfLayerNameForEnemy: Enemy
-  opponentLayerNameForPlayer: Enemy
-  opponentLayerNameForEnemy: Player
-  customOpponentMaps: []
   projectilePrefab: {fileID: 141248266703544822, guid: 9e1e8e7b646f9cd48a9c548f9c83cd87, type: 3}
   firePoint: {fileID: 5096629213532469654}
-  projectileLayerOverride: -1
-  overrideChildrenLayer: 1
   prepareTime: 0.15
   cooldown: 0.6
   projectileScale: {x: 1, y: 1, z: 1}
@@ -518,7 +509,6 @@ MonoBehaviour:
   baseDamage: 10
   snapshotAimOnRelease: 1
   blockOutOfRange: 1
-  autoRebindAfterSpawn: 1
 --- !u!1001 &4337979028731425310
 PrefabInstance:
   m_ObjectHideFlags: 0
