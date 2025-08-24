@@ -127,9 +127,19 @@ MonoBehaviour:
     m_Bits: 0
   hitLayers:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 0
+  playerLayerIndex: 10
+  enemyLayerIndex: 11
+  preferIndexMapping: 1
+  selfLayerNameForPlayer: Player
+  selfLayerNameForEnemy: Enemy
+  opponentLayerNameForPlayer: Enemy
+  opponentLayerNameForEnemy: Player
+  customOpponentMaps: []
   projectilePrefab: {fileID: 141248266703544822, guid: 9e1e8e7b646f9cd48a9c548f9c83cd87, type: 3}
   firePoint: {fileID: 2798022384102715710}
+  projectileLayerOverride: -1
+  overrideChildrenLayer: 1
   prepareTime: 0.15
   cooldown: 0.6
   projectileScale: {x: 1, y: 1, z: 1}
@@ -138,6 +148,7 @@ MonoBehaviour:
   baseDamage: 10
   snapshotAimOnRelease: 1
   blockOutOfRange: 1
+  autoRebindAfterSpawn: 1
 --- !u!1 &2375634795148752266
 GameObject:
   m_ObjectHideFlags: 0
@@ -147,7 +158,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2629305428889384108}
-  - component: {fileID: 4685909459246810652}
   - component: {fileID: 5613247333845258225}
   - component: {fileID: 5058941250823826175}
   - component: {fileID: 6728562550204417383}
@@ -156,6 +166,7 @@ GameObject:
   - component: {fileID: 5374087963838105696}
   - component: {fileID: 3043822665594186671}
   - component: {fileID: 592460057564420327}
+  - component: {fileID: 8688582252993584482}
   m_Layer: 0
   m_Name: Astra_Orion
   m_TagString: Untagged
@@ -180,22 +191,6 @@ Transform:
   - {fileID: 7951478557365521440}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4685909459246810652
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2375634795148752266}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01be86a8560a5f442a2b9bfcd93b01b3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _prefabs: {fileID: 0}
-  _charMS: 0
-  _goalPos: {x: 0, y: 0, z: 0}
-  isAction: 0
 --- !u!114 &5613247333845258225
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -232,7 +227,7 @@ MonoBehaviour:
   destinationSetter: {fileID: 0}
   aiPath: {fileID: 0}
   meleeAttack: {fileID: 0}
-  rangedAttack: {fileID: 5046580431101678471}
+  rangedAttack: {fileID: 0}
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 0
@@ -477,6 +472,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f703ca03dd90e994096657cde90555fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &8688582252993584482
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2375634795148752266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41bb45a6432a8bd4e845f0352cbcfdf0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _prefabs: {fileID: 0}
+  _charMS: 3
+  isAction: 0
 --- !u!1001 &7022149647936487233
 PrefabInstance:
   m_ObjectHideFlags: 0
