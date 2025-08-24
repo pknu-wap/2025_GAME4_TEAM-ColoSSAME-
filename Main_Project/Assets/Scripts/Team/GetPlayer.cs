@@ -7,16 +7,21 @@ using System.Linq;
 using UnityEngine.UI;
 using TMPro;
 using Scripts.Team.IsAnimStopClick;
+using Scripts.Team.CardAnimcontrol;
 
 namespace Scripts.Team.FighterRandomBuy
 {
     public class GetPlayer : MonoBehaviour
     {
+        public UserManager userManager;
+        private Unit unit;
+
         private FamilyData familyData;
 
         public GameObject[] CharacterGather;
         public Image[] CharacterImage;
         public Image SelectCharaterImage;
+        public SpriteRenderer[] FlipedCard;
         
         public List<int> CharacterGetCheck = new List<int> {0,0,0,0,0,0,0,0,0,0};
         public List<int> CharacterIDList = new List<int> {0,0,0,0,0,0,0,0,0,0};
@@ -32,6 +37,7 @@ namespace Scripts.Team.FighterRandomBuy
         public TextMeshProUGUI StoryText;
 
         public Animator[] anim;
+        public Sprite cardback; 
 
         public CardClickStop blockclick;
 
@@ -104,7 +110,9 @@ namespace Scripts.Team.FighterRandomBuy
 
             for (int i = 0; i < 10; i++)
             {
-                CharacterIDList[i] = UnityEngine.Random.Range(0,familyData.Characters.Count);
+                int RandomRarity = UnityEngine.Random.Range(0,10);
+
+                CharacterIDList[i] = (RandomRarity >= 9) ? 0 : UnityEngine.Random.Range(1, 5);
                 CharacterData characterdata = familyData.Characters[CharacterIDList[i]];
             }
         }
@@ -143,6 +151,8 @@ namespace Scripts.Team.FighterRandomBuy
                 SelectCharaterImage.sprite = portraitSprite;
                 SelectCharaterImage.preserveAspect = true;
 
+                unit = new Unit(characterdata.Unit_ID);
+
                 NameText.text = $"이름:{characterdata.Unit_Name}";
                 ClassText.text = $"직업:{characterdata.Class}";
                 StoryText.text = characterdata.Story;
@@ -157,6 +167,19 @@ namespace Scripts.Team.FighterRandomBuy
                 cardsstate.SetActive(true);
                 cards.SetActive(false);
             }
+        }
+
+        public void BuyRandomUnit()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                anim[i].Rebind();           //애니메이션 처음으로
+                anim[i].Update(0f);         //늦어질 가능성 줄이기
+                FlipedCard[i].sprite = cardback;
+                CharacterGather[i].SetActive(false);
+            }
+            CharacterGetCheck = CharacterGetCheck.ConvertAll(x => 0);
+            UserManager.Instance.AddUnit(unit);
         }
 
         public void BackExplain()
