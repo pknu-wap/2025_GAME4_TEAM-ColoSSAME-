@@ -40,6 +40,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 467976879825897153}
+  - component: {fileID: 2936310956332984530}
   - component: {fileID: 2048889344240941826}
   - component: {fileID: 2126808323826044348}
   - component: {fileID: 1298534768048431956}
@@ -48,7 +49,6 @@ GameObject:
   - component: {fileID: 6122541174897140862}
   - component: {fileID: 2102800698224659589}
   - component: {fileID: 7068292511514052414}
-  - component: {fileID: 6700319894380222218}
   m_Layer: 0
   m_Name: Astra_Aetherius
   m_TagString: Untagged
@@ -73,6 +73,22 @@ Transform:
   - {fileID: 1672196704487397973}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2936310956332984530
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 873735242336416591}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01be86a8560a5f442a2b9bfcd93b01b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _prefabs: {fileID: 0}
+  _charMS: 0
+  _goalPos: {x: 0, y: 0, z: 0}
+  isAction: 0
 --- !u!114 &2048889344240941826
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -109,7 +125,7 @@ MonoBehaviour:
   destinationSetter: {fileID: 0}
   aiPath: {fileID: 0}
   meleeAttack: {fileID: 0}
-  rangedAttack: {fileID: 0}
+  rangedAttack: {fileID: 2655539425901504437}
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 0
@@ -354,21 +370,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f703ca03dd90e994096657cde90555fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &6700319894380222218
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 873735242336416591}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 41bb45a6432a8bd4e845f0352cbcfdf0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _prefabs: {fileID: 0}
-  _charMS: 3
-  isAction: 0
 --- !u!1 &9096768253660140012
 GameObject:
   m_ObjectHideFlags: 0
@@ -465,19 +466,9 @@ MonoBehaviour:
     m_Bits: 0
   hitLayers:
     serializedVersion: 2
-    m_Bits: 0
-  playerLayerIndex: 10
-  enemyLayerIndex: 11
-  preferIndexMapping: 1
-  selfLayerNameForPlayer: Player
-  selfLayerNameForEnemy: Enemy
-  opponentLayerNameForPlayer: Enemy
-  opponentLayerNameForEnemy: Player
-  customOpponentMaps: []
+    m_Bits: 128
   projectilePrefab: {fileID: 141248266703544822, guid: 9e1e8e7b646f9cd48a9c548f9c83cd87, type: 3}
   firePoint: {fileID: 2211270257666294841}
-  projectileLayerOverride: -1
-  overrideChildrenLayer: 1
   prepareTime: 0.15
   cooldown: 0.6
   projectileScale: {x: 1, y: 1, z: 1}
@@ -486,7 +477,6 @@ MonoBehaviour:
   baseDamage: 10
   snapshotAimOnRelease: 1
   blockOutOfRange: 1
-  autoRebindAfterSpawn: 1
 --- !u!1001 &918011782805871944
 PrefabInstance:
   m_ObjectHideFlags: 0
