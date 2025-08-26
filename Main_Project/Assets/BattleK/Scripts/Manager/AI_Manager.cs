@@ -1,8 +1,16 @@
+// AI_Manager.cs
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class AI_Manager : MonoBehaviour
 {
+    /// <summary>전역 접근이 필요한 경우를 위해 제공(없어도 동작은 가능).</summary>
+    public static AI_Manager Instance { get; private set; }
+
+    /// <summary>매니저가 활성화되면 통지되어 늦게 켜진 AICore에서도 안전 접속 가능.</summary>
+    public static event Action<AI_Manager> OnReady;
+
     [Tooltip("index 0 = Player 루트, index 1 = Enemy 루트(선택)")]
     public List<Transform> unitPool = new List<Transform>();
 
@@ -29,12 +37,36 @@ public class AI_Manager : MonoBehaviour
     private int _playerLayer = -1;
     private int _enemyLayer  = -1;
 
-    void Start()
+    // ─────────────────────────────────────────────────────────────────────────────
+
+    private void Awake()
+    {
+        // 싱글톤 설정(선택)
+        if (Instance != null && Instance != this)
+        {
+            Debug.LogWarning("[AI_Manager] Duplicate instance detected. Destroying this one.", this);
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
+
+    private void OnEnable()
+    {
+        // 매니저 준비됨 이벤트(초기화 이후 AICore들이 구독하고 있다가 즉시 연결)
+        OnReady?.Invoke(this);
+    }
+
+    private void Start()
     {
         // 씬에 미리 배치된 경우에만 의미 있음.
-        // BattleStartUsingSlots가 스폰/배치 후 SetUnitList를 다시 호출함.
+        // 런타임 스폰/배치가 있다면 BattleStartUsingSlots 등에서 SetUnitList를 다시 호출.
         if (unitPool.Count > 0) SetUnitList();
     }
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // 공개 API
+    // ─────────────────────────────────────────────────────────────────────────────
 
     public void SetUnitList()
     {
@@ -78,9 +110,49 @@ public class AI_Manager : MonoBehaviour
                 }
             }
         }
-
         // Debug.Log($"[AI_Manager] 등록 완료: Player={playerUnits.Count}, Enemy={EnemyUnits.Count} / Layers P={_playerLayer},E={_enemyLayer}");
     }
+
+    /// <summary>
+    /// 외부에서 AICore가 런타임에 생성/활성화될 때 호출해 등록하고 싶다면 사용(선택).
+    /// </summary>
+    public void TryRegister(AICore core, bool guessSideByLayer = true)
+    {
+        if (core == null) return;
+
+        if (_playerLayer < 0 || _enemyLayer < 0) ResolveLayers();
+
+        int side = 0; // 기본 Player
+        if (guessSideByLayer)
+        {
+            if (core.gameObject.layer == _enemyLayer) side = 1;
+        }
+
+        if (forceLayerBySide)
+        {
+            AssignLayer(core.gameObject, side == 0 ? _playerLayer : _enemyLayer);
+        }
+
+        int targetMask = ComputeTargetMaskFrom(core.gameObject.layer, side);
+        core.targetLayer = targetMask;
+
+        var list = (side == 0) ? playerUnits : EnemyUnits;
+        if (!list.Contains(core)) list.Add(core);
+    }
+
+    /// <summary>
+    /// 외부에서 AICore가 비활성/파괴될 때 해제하고 싶다면 사용(선택).
+    /// </summary>
+    public void Unregister(AICore core)
+    {
+        if (core == null) return;
+        playerUnits.Remove(core);
+        EnemyUnits.Remove(core);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // 내부 유틸
+    // ─────────────────────────────────────────────────────────────────────────────
 
     /// <summary>
     /// 이름 기반으로 레이어 인덱스를 구해 캐시합니다. 없으면 Default(0)로 폴백합니다.

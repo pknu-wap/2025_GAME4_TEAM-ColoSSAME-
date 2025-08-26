@@ -19,6 +19,9 @@ public class MeleeAttack : MonoBehaviour
     private AICore ownerAi;
     private readonly HashSet<AICore> alreadyHit = new HashSet<AICore>();
 
+    // 👉 추가: 현재 히트박스 유지 코루틴
+    private Coroutine _activeRoutine;
+
     void Awake()
     {
         boxCollider = GetComponent<BoxCollider2D>();
@@ -32,6 +35,12 @@ public class MeleeAttack : MonoBehaviour
         boxCollider.enabled = false;
     }
 
+    void OnDisable()
+    {
+        // 비활성화되면 콜라이더/코루틴 정리
+        CancelAll();
+    }
+
     public void Initialize(AICore ai)
     {
         ownerAi = ai;
@@ -43,7 +52,6 @@ public class MeleeAttack : MonoBehaviour
     public void Attack()
     {
         if (ownerAi == null || ownerAi.target == null) return;
-
         alreadyHit.Clear();
 
         Vector3 selfPos = ownerAi.transform.position;
@@ -74,8 +82,8 @@ public class MeleeAttack : MonoBehaviour
 
         // 충돌 감지 시작
         boxCollider.enabled = true;
-        StopAllCoroutines();
-        StartCoroutine(DisableColliderAfterFixedFrames(activeFixedFrames));
+        if (_activeRoutine != null) StopCoroutine(_activeRoutine);
+        _activeRoutine = StartCoroutine(DisableColliderAfterFixedFrames(activeFixedFrames));
     }
 
     private IEnumerator DisableColliderAfterFixedFrames(int fixedFrames)
@@ -85,6 +93,7 @@ public class MeleeAttack : MonoBehaviour
             yield return new WaitForFixedUpdate();
 
         boxCollider.enabled = false;
+        _activeRoutine = null;
     }
 
     private static bool Probability(float probabilityPercent)
@@ -104,7 +113,7 @@ public class MeleeAttack : MonoBehaviour
         if (targetAi.gameObject.layer == ownerAi.gameObject.layer) return;
 
         // 죽은 대상 무시
-        if (targetAi.State == State.Death) return;
+        if (targetAi.State == State.Death || targetAi.IsDead) return;
 
         // AoE가 아니면 "현재 타겟만" 허용
         if (!isAoE && targetAi.transform != ownerAi.target) return;
@@ -120,5 +129,24 @@ public class MeleeAttack : MonoBehaviour
         }
 
         targetAi.StateMachine.ChangeState(new DamageState(targetAi, ownerAi.attackDamage));
+    }
+
+    /// <summary>
+    /// ▶ 모든 근접 공격 루틴/히트박스 즉시 중단 (AICore.StopAllActionsHard에서 호출)
+    /// </summary>
+    public void CancelAll()
+    {
+        if (_activeRoutine != null)
+        {
+            try { StopCoroutine(_activeRoutine); } catch { }
+            _activeRoutine = null;
+        }
+
+        if (boxCollider != null)
+            boxCollider.enabled = false;
+
+        alreadyHit.Clear();
+        CancelInvoke();
+        // 필요시 이펙트/사운드 정리 추가
     }
 }

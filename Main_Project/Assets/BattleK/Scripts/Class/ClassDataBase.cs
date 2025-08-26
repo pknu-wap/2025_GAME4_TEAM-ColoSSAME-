@@ -27,7 +27,7 @@ public enum UnitAttackDelay
 // [✓] 팀 구분
 public enum TeamUnit
 {
-    Player = 6,
+    Player = 10,
     Enemy
 }
 

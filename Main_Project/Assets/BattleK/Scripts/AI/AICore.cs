@@ -9,39 +9,54 @@ public class AICore : MonoBehaviour, IDamageable
 {
     public PlayerObjC player;
 
+    [Header("Stats")]
     public int hp;
     public int def;
     public int moveSpeed;
     public int attackDamage;
-    public float attackSpeed;
+    public float attackSpeed;     // (구) 공격속도 기반, 남겨둠
     public float attackRange;
     public float sightRange = 5f;
     public float evasionRate;
     public float skillRange;
     public float skillDelay;
 
-    public TargetStrategy TargetStrategy;
+    [Header("Attack Timing")]
+    [Tooltip("공격 후 애니메이션이 재생되는 동안 대기하는 시간(초) - 이 동안은 제자리 Idle 유지")]
+    public float attackAnimationDelay = 0.15f;
 
+    [Tooltip("피격 시 추가로 묶어두는 시간(초). DamageState에서 attackDelay와 합산해 제자리 Idle 유지")]
+    public float stun = 0.2f;
+
+    [Header("Attack Cooldown")]
+    [Tooltip("공격 쿨다운(초). 0이면 attackSpeed 기반(1/attackSpeed)을 사용")]
+    public float attackDelay = 0.0f;
+
+    public TargetStrategy TargetStrategy;
     public State State;
     public UnitClass unitClass;
     public UnitAttackDelay UnitAttackDelay;
 
+    [Header("Manager Link")]
     public AI_Manager aiManager;
 
+    [Header("Targeting")]
     public Transform target;
     public LayerMask targetLayer;
     public List<UnitClass> targetClasses = new List<UnitClass> { UnitClass.Archer, UnitClass.Mage };
     public Targeting targeting;
 
+    [Header("Movement / Pathfinding")]
     public AIDestinationSetter destinationSetter;
     public AIPath aiPath;
 
+    [Header("Attacks")]
     public MeleeAttack meleeAttack;
     public RangedAttack rangedAttack;
 
+    [Header("Etc")]
     public LayerMask obstacleLayer;
     public StateMachine StateMachine { get; private set; }
-
     public SkillUse skillUse;
     public SkillDatabase skillDatabase;
     public SkillCooldownManager cooldownManager;
@@ -50,16 +65,20 @@ public class AICore : MonoBehaviour, IDamageable
     public SpriteRenderer[] renderers;
     public Color[] originalColors;
 
-    // 전투 타입 플래그 (인스펙터에서 설정)
     [Header("Combat Type")]
     public bool isRanged = false;
 
-    // 바라보기(스케일 반전) 기준값
     [SerializeField] private float facingBaseScale = 0.7f;
     private float _absBaseScale = 0.7f;
 
-    // maxSpeed 0으로 잠금 시 복구용
     private float _cachedMaxSpeed = -1f;
+
+    // ── 생명/이벤트 ──────────────────────────────────────────────────────────────
+    public bool IsDead { get; private set; }
+    public event Action<AICore> OnDied;
+
+    // ── 공격 쿨다운 내부 타이머 ────────────────────────────────────────────────
+    private float _nextAttackTime = 0f;
 
     private void Awake()
     {
@@ -82,6 +101,41 @@ public class AICore : MonoBehaviour, IDamageable
         _absBaseScale = Mathf.Abs(facingBaseScale) > 1e-4f ? Mathf.Abs(facingBaseScale) : 0.7f;
     }
 
+    private void OnEnable()
+    {
+        if (aiManager == null)
+        {
+            if (AI_Manager.Instance != null) aiManager = AI_Manager.Instance;
+            else
+            {
+                AI_Manager.OnReady += HandleManagerReady;
+                var found = AIManagerLocator.FindInActiveScene();
+                if (found != null)
+                {
+                    aiManager = found;
+                    AI_Manager.OnReady -= HandleManagerReady;
+                }
+            }
+        }
+
+        if (aiManager != null) aiManager.TryRegister(this, guessSideByLayer: true);
+    }
+
+    private void OnDisable()
+    {
+        if (IsDead && State != State.Death)
+            State = State.Death;
+
+        AI_Manager.OnReady -= HandleManagerReady;
+        if (aiManager != null) aiManager.Unregister(this);
+    }
+
+    private void HandleManagerReady(AI_Manager mgr)
+    {
+        if (aiManager == null) aiManager = mgr;
+        AI_Manager.OnReady -= HandleManagerReady;
+    }
+
     private void Start()
     {
         if (aiPath != null) aiPath.maxSpeed = moveSpeed;
@@ -100,29 +154,90 @@ public class AICore : MonoBehaviour, IDamageable
         StateMachine.ChangeState(new IdleState(this));
     }
 
-    public bool TryUseSkill()
-    {
-        if (skillDatabase == null) return false;
-
-        SkillData skill = skillDatabase.GetSkill(unitClass, 0);
-        if (skill == null || target == null) return false;
-
-        float distance = Vector2.Distance(transform.position, target.position);
-
-        if (distance <= skill.range && cooldownManager != null && cooldownManager.IsCooldownReady(skill.skillID))
-        {
-            cooldownManager.SetCooldown(skill.skillID, skill.cooldown);
-            if (skillUse != null) skillUse.UseSkill(skill, this, target);
-            return true;
-        }
-        return false;
-    }
-
-    // 피해 입구 (투사체/근접에서 호출)
     public void ApplyDamage(int amount, GameObject attacker)
     {
-        if (StateMachine != null)
+        if (IsDead) return;
+
+        hp -= Mathf.Max(0, amount - def);
+        if (hp <= 0)
+        {
+            Kill(attacker);
+            return;
+        }
+
+        if (StateMachine != null && !(StateMachine.CurrentState is DeathState))
             StateMachine.ChangeState(new DamageState(this, amount));
+    }
+
+    /// <summary>죽음을 한 번만 처리</summary>
+    public void Kill(GameObject killer = null)
+    {
+        if (IsDead) return;
+        IsDead = true;
+
+        State = State.Death;
+        StopAllActionsHard();
+
+        if (StateMachine != null)
+            StateMachine.ChangeState(new DeathState(this));
+
+        try { OnDied?.Invoke(this); } catch { }
+    }
+
+    public void StopAllActionsHard()
+    {
+        meleeAttack?.CancelAll();
+        rangedAttack?.CancelAll();
+        skillUse?.CancelAll();
+
+        StopMovementHard(alsoZeroMaxSpeed: true);
+
+        var anim = player?._prefabs?._anim;
+        if (anim != null)
+        {
+            anim.ResetTrigger("ATTACK");
+            anim.ResetTrigger("MOVE");
+            anim.SetBool("isMoving", false);
+        }
+
+        CancelInvoke();
+        StopAllCoroutines();
+    }
+
+    public void StopMovementHard(bool alsoZeroMaxSpeed = false)
+    {
+        if (aiPath != null)
+        {
+            aiPath.canMove = false;
+            aiPath.canSearch = false;
+            try { aiPath.isStopped = true; } catch { }
+            aiPath.destination = transform.position;
+            aiPath.SearchPath();
+
+            if (alsoZeroMaxSpeed)
+            {
+                if (_cachedMaxSpeed < 0f) _cachedMaxSpeed = aiPath.maxSpeed;
+                aiPath.maxSpeed = 0f;
+            }
+        }
+
+        var rb2d = GetComponent<Rigidbody2D>();
+        if (rb2d != null) rb2d.velocity = Vector2.zero;
+    }
+
+    public void ResumePathfinding()
+    {
+        if (IsDead) return;
+        if (aiPath != null)
+        {
+            aiPath.canSearch = true;
+            if (_cachedMaxSpeed >= 0f)
+            {
+                aiPath.maxSpeed = _cachedMaxSpeed;
+                _cachedMaxSpeed = -1f;
+            }
+            try { aiPath.isStopped = false; } catch { }
+        }
     }
 
 #if UNITY_EDITOR
@@ -131,29 +246,19 @@ public class AICore : MonoBehaviour, IDamageable
     [ContextMenu("Setup SPUM Renderers")]
     private void TrySetupRenderers()
     {
-        // 1. 자신 및 자식에서 SPUM_Prefabs 컴포넌트를 검색
         SPUM_Prefabs spumPrefab = GetComponentInChildren<SPUM_Prefabs>(true);
-
         Transform unitRoot = null;
-
-        if (spumPrefab != null)
-        {
-            // 2. SPUM_Prefabs 기준으로 UnitRoot/Root 탐색
-            unitRoot = spumPrefab.transform.Find("UnitRoot/Root");
-        }
-
-        // 3. fallback (못 찾으면 자기 하위에서 직접 검색)
-        if (unitRoot == null)
-            unitRoot = transform.Find("UnitRoot/Root");
+        if (spumPrefab != null) unitRoot = spumPrefab.transform.Find("UnitRoot/Root");
+        if (unitRoot == null)   unitRoot = transform.Find("UnitRoot/Root");
 
         if (unitRoot != null)
         {
             renderers = unitRoot.GetComponentsInChildren<SpriteRenderer>(true);
             originalColors = new Color[renderers.Length];
-            for (int i = 0; i < renderers.Length; i++) 
-                originalColors[i] = renderers[i].color;
-
+            for (int i = 0; i < renderers.Length; i++) originalColors[i] = renderers[i].color;
+#if UNITY_EDITOR
             UnityEditor.EditorUtility.SetDirty(this);
+#endif
         }
         else
         {
@@ -166,7 +271,6 @@ public class AICore : MonoBehaviour, IDamageable
     public void FaceByDirX(float dirX)
     {
         if (Mathf.Abs(dirX) < 0.0001f) return;
-        // 프로젝트 규칙: 왼쪽 보면 +, 오른쪽 보면 - (0.7 / -0.7)
         float sign = dirX >= 0 ? -1f : 1f;
         transform.localScale = new Vector3(_absBaseScale * sign, _absBaseScale, 1f);
     }
@@ -183,54 +287,43 @@ public class AICore : MonoBehaviour, IDamageable
         FaceByDirX(v.x);
     }
 
-    // ─── 공격 중 이동 완전 정지(미끄러짐 방지) ───
-    public void StopMovementHard(bool alsoZeroMaxSpeed = false)
+    // ─── 스킬 헬퍼 ───
+    public bool TryUseSkill()
     {
-        if (aiPath != null)
+        if (IsDead || skillDatabase == null) return false;
+
+        SkillData skill = skillDatabase.GetSkill(unitClass, 0);
+        if (skill == null || target == null) return false;
+
+        float distance = Vector2.Distance(transform.position, target.position);
+
+        if (distance <= skill.range && cooldownManager != null && cooldownManager.IsCooldownReady(skill.skillID))
         {
-            aiPath.canMove = false;
-            aiPath.canSearch = false;
-            try { aiPath.isStopped = true; } catch { /* 구버전 예외 무시 */ }
-
-            // 목적지를 현재 위치로 고정(steering 끌림 방지)
-            aiPath.destination = transform.position;
-            aiPath.SearchPath();
-
-            // 선택: maxSpeed=0으로 추가 차단(복구 필요)
-            if (alsoZeroMaxSpeed)
-            {
-                if (_cachedMaxSpeed < 0f) _cachedMaxSpeed = aiPath.maxSpeed;
-                aiPath.maxSpeed = 0f;
-            }
+            cooldownManager.SetCooldown(skill.skillID, skill.cooldown);
+            if (skillUse != null) skillUse.UseSkill(skill, this, target);
+            return true;
         }
-
-        var rb2d = GetComponent<Rigidbody2D>();
-        if (rb2d != null) rb2d.velocity = Vector2.zero;
+        return false;
     }
 
-    // 공격 종료 후 탐색 재개 (이동 on/off는 각 상태에서 제어)
-    public void ResumePathfinding()
+    // ─── 공격 쿨다운 API ───
+    /// <summary>지금 공격 가능?</summary>
+    public bool CanAttack()
     {
-        if (aiPath != null)
-        {
-            aiPath.canSearch = true;
-            // maxSpeed 0으로 잠그었으면 복구
-            if (_cachedMaxSpeed >= 0f)
-            {
-                aiPath.maxSpeed = _cachedMaxSpeed;
-                _cachedMaxSpeed = -1f;
-            }
-            try { aiPath.isStopped = false; } catch { }
-            // aiPath.canMove는 Move/Retreat에서 켭니다.
-        }
+        if (IsDead) return false;
+        return Time.time >= _nextAttackTime;
     }
 
-    private void OnDrawGizmosSelected()
+    /// <summary>남은 공격 쿨다운(초)</summary>
+    public float RemainingAttackCooldown()
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, sightRange);
+        return Mathf.Max(0f, _nextAttackTime - Time.time);
+    }
 
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
+    /// <summary>이번 공격 직후 쿨다운 시작(고정 attackDelay가 우선, 0이면 1/attackSpeed 사용)</summary>
+    public void StampAttackCooldown()
+    {
+        float baseDelay = (attackDelay > 0f) ? attackDelay : Mathf.Clamp(1f / Mathf.Max(0.01f, attackSpeed), 0.1f, 2f);
+        _nextAttackTime = Time.time + Mathf.Max(0f, baseDelay);
     }
 }

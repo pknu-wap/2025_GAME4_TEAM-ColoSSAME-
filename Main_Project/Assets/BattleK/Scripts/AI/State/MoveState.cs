@@ -11,9 +11,10 @@ public class MoveState : IState
 
     public void Enter()
     {
+        if (ai == null || ai.IsDead) return;
+
         ai.State = State.MOVE;
 
-        // 탐색 재개 + 이동 on
         ai.ResumePathfinding();
         if (ai.aiPath != null) ai.aiPath.canMove = true;
 
@@ -23,25 +24,33 @@ public class MoveState : IState
 
     public IEnumerator Execute()
     {
+        if (ai == null || ai.IsDead) yield break;
+
         ai.player.PlayStateAnimation(PlayerState.MOVE);
 
         while (true)
         {
-            // 1) 타겟 없거나 죽으면 Idle
-            if (ai.target == null || ai.target.GetComponent<AICore>().State == State.Death)
+            if (ai == null || ai.IsDead) yield break;
+
+            // 타겟 유효 체크
+            if (ai.target == null)
+            {
+                ai.StateMachine.ChangeState(new IdleState(ai));
+                yield break;
+            }
+            var tc = ai.target.GetComponent<AICore>();
+            if (tc == null || tc.IsDead || tc.State == State.Death)
             {
                 ai.StateMachine.ChangeState(new IdleState(ai));
                 yield break;
             }
 
-            // 2) 타겟 방향
+            // 방향/바라보기
             Vec = ai.target.transform.position - ai.player.transform.position;
             dirVec = Vec.normalized;
-
-            // 3) 바라보기(스케일 반전 유틸)
             ai.FaceByDirX(dirVec.x);
 
-            // 4) 스킬 선사용
+            // 스킬 우선
             if (ai.TryUseSkill())
             {
                 SkillData skill = ai.skillDatabase.GetSkill(ai.unitClass, 0);
@@ -49,8 +58,8 @@ public class MoveState : IState
                 yield break;
             }
 
-            // 5) 사거리 도달 → AttackState
-            if (ai.attackRange >= Vec.magnitude)
+            // 사거리 도달 + 공격 쿨다운 준비됨 → Attack
+            if (ai.attackRange >= Vec.magnitude && ai.CanAttack())
             {
                 if (ai.aiPath != null) ai.aiPath.canMove = false;
                 ai.StateMachine.ChangeState(new AttackState(ai));
@@ -61,5 +70,9 @@ public class MoveState : IState
         }
     }
 
-    public void Exit() { }
+    public void Exit()
+    {
+        if (ai == null) return;
+        ai.player?._prefabs?._anim?.SetBool("1_Move", false);
+    }
 }

@@ -21,6 +21,8 @@ public class RangedRetreatState : IState
 
     public void Enter()
     {
+        if (ai == null || ai.IsDead) return;
+
         ai.State = State.MOVE;
 
         // 카이팅 동안 타겟 자동 추적 OFF, 탐색/이동 ON
@@ -42,11 +44,15 @@ public class RangedRetreatState : IState
 
     public IEnumerator Execute()
     {
+        if (ai == null || ai.IsDead) yield break;
+
         _timer = 0f;
         _repathT = 0f;
 
         while (_timer < retreatDuration)
         {
+            if (ai == null || ai.IsDead) yield break;
+
             _timer += Time.deltaTime;
             _repathT += Time.deltaTime;
 
@@ -66,11 +72,13 @@ public class RangedRetreatState : IState
 
         // 짧게 텀 후 재공격
         yield return new WaitForSeconds(0.05f);
-        ai.StateMachine.ChangeState(new AttackState(ai));
+        if (ai != null && !ai.IsDead)
+            ai.StateMachine.ChangeState(new AttackState(ai));
     }
 
     public void Exit()
     {
+        if (ai == null || ai.IsDead) return;
         // 카이팅 종료 시 다시 타겟 추적 복구
         if (ai.destinationSetter != null) ai.destinationSetter.target = ai.target;
     }
@@ -138,7 +146,7 @@ public class RangedRetreatState : IState
             if (col.transform == self) continue;
 
             var otherAI = col.GetComponentInParent<AICore>();
-            if (otherAI != null && otherAI.State == State.Death) continue;
+            if (otherAI != null && (otherAI.IsDead || otherAI.State == State.Death)) continue;
 
             float d = Vector2.Distance(self.position, col.transform.position);
             if (d < minDist)

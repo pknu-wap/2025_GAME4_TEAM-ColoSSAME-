@@ -60,6 +60,9 @@ public class RangedAttack : MonoBehaviour
     IObjectPool<Projectile> _pool;
     bool _poolReady;
 
+    // 👉 추가: 현재 발사 코루틴 참조
+    Coroutine _fireRoutine;
+
     void Reset()
     {
         if (!firePoint) firePoint = transform;
@@ -78,6 +81,12 @@ public class RangedAttack : MonoBehaviour
     {
         if (autoRebindAfterSpawn)
             StartCoroutine(Co_RebindNextFrame());
+    }
+
+    void OnDisable()
+    {
+        // 👉 비활성화/죽음 시 모든 동작 정지
+        CancelAll();
     }
 
     IEnumerator Co_RebindNextFrame()
@@ -229,7 +238,9 @@ public class RangedAttack : MonoBehaviour
         float dist = Vector2.Distance(transform.position, target.position);
         if (blockOutOfRange && dist > maxRange) return false;
 
-        StartCoroutine(FireRoutine(target));
+        // 👉 기존 루틴 중복 방지
+        CancelAll();
+        _fireRoutine = StartCoroutine(FireRoutine(target));
         _lastShotTime = Time.time;
         return true;
     }
@@ -241,8 +252,11 @@ public class RangedAttack : MonoBehaviour
         if (prepareTime > 0f)
             yield return new WaitForSeconds(prepareTime);
 
+        // 스냅샷/실시간 조준 옵션은 필요시 확장
         Vector2 dir = ((Vector2)target.position - (Vector2)firePoint.position).normalized;
         SpawnAndFire(dir);
+
+        _fireRoutine = null;
     }
 
     void SpawnAndFire(Vector2 dir)
@@ -278,6 +292,20 @@ public class RangedAttack : MonoBehaviour
     }
 
     void ReturnToPool(Projectile p) => _pool.Release(p);
+
+    /// <summary>
+    /// ▶ 모든 발사 관련 루틴/예약을 즉시 중단 (AICore.StopAllActionsHard에서 호출)
+    /// </summary>
+    public void CancelAll()
+    {
+        if (_fireRoutine != null)
+        {
+            try { StopCoroutine(_fireRoutine); } catch { }
+            _fireRoutine = null;
+        }
+        CancelInvoke();
+        // 투사체는 자체 수명 관리(Projectile)에서 풀 복귀
+    }
 
     void OnDrawGizmosSelected()
     {
