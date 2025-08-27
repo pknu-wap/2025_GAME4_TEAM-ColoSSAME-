@@ -94,6 +94,11 @@ public class BattleStartUsingSlots : MonoBehaviour
     private readonly List<Vector3> _lastPlayerTargets_Local_PlayerRoot = new();
     private readonly List<Vector3> _lastPlayerTargets_Local_EnemyRoot  = new();
 
+    // === 추가: 전투 세팅 완료 후 스탯 수집을 호출할 대상 (선택) ===
+    [Header("전투 준비 완료 시 스탯 수집 (선택)")]
+    [Tooltip("비워두면 자동으로 씬에서 찾습니다(비활성 포함).")]
+    public FamilyStatsCollector statsCollector;
+
     private void Awake()
     {
         if (startBattleButton != null)
@@ -734,5 +739,31 @@ public class BattleStartUsingSlots : MonoBehaviour
         if (enemyUnitsRoot  != null) aiManager.unitPool.Add(enemyUnitsRoot);
 
         aiManager.SetUnitList();
+
+        // ====== 추가: 스폰/세팅 완전히 끝난 후 스탯 수집 트리거 ======
+#if UNITY_2020_1_OR_NEWER
+        if (statsCollector == null) statsCollector = FindObjectOfType<FamilyStatsCollector>(true);
+#else
+        if (statsCollector == null) statsCollector = FindObjectOfType<FamilyStatsCollector>();
+#endif
+        if (statsCollector != null)
+        {
+            if (!statsCollector.gameObject.activeSelf)
+                statsCollector.gameObject.SetActive(true);
+
+            // ✅ 수정안 1: 비활성될 수 있는 이 객체 대신, 항상 살아있는 Runner로 코루틴 실행
+            CoroutineRunner.Run(_DeferredCollect(statsCollector));
+        }
+        else
+        {
+            Debug.LogWarning("[BattleStart] FamilyStatsCollector를 씬에서 찾지 못했습니다.");
+        }
+    }
+
+    private IEnumerator _DeferredCollect(FamilyStatsCollector collector)
+    {
+        // 필요시 한 프레임 대기(스폰 직후 컴포넌트 초기화 보장)
+        yield return null;
+        collector.CollectFromBothTeams();
     }
 }
