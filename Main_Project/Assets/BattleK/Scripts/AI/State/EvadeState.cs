@@ -9,19 +9,18 @@ public class EvadeState : IState
     {
         this.ai = ai;
     }
-    
+
     public void Enter()
     {
+        if (ai == null || ai.IsDead) return;
     }
 
     public IEnumerator Execute()
     {
+        if (ai == null || ai.IsDead) yield break;
         ai.StateMachine.ChangeState(new IdleState(ai));
         yield return null;
     }
 
-    public void Exit()
-    {
-        
-    }
+    public void Exit() { }
 }

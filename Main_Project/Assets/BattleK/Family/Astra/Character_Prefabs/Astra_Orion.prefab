@@ -167,6 +167,8 @@ GameObject:
   - component: {fileID: 3043822665594186671}
   - component: {fileID: 592460057564420327}
   - component: {fileID: 8688582252993584482}
+  - component: {fileID: -4670731202485307103}
+  - component: {fileID: -9157758266482453181}
   m_Layer: 0
   m_Name: Astra_Orion
   m_TagString: Untagged
@@ -214,6 +216,9 @@ MonoBehaviour:
   evasionRate: 0
   skillRange: 0
   skillDelay: 0
+  attackAnimationDelay: 0.15
+  stun: 0.2
+  attackDelay: 1
   TargetStrategy: 1
   State: 0
   unitClass: 1
@@ -294,7 +299,7 @@ MonoBehaviour:
   - {r: 1, g: 1, b: 1, a: 1}
   - {r: 1, g: 1, b: 1, a: 1}
   - {r: 1, g: 1, b: 1, a: 1}
-  isRanged: 0
+  isRanged: 1
   facingBaseScale: 0.7
 --- !u!58 &5058941250823826175
 CircleCollider2D:
@@ -487,6 +492,32 @@ MonoBehaviour:
   _prefabs: {fileID: 0}
   _charMS: 3
   isAction: 0
+--- !u!114 &-4670731202485307103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2375634795148752266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd878860dad07dd49ae59be61c9263b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  characterKey: Astra_Orion
+--- !u!114 &-9157758266482453181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2375634795148752266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 138e5eed0c7d3444baf3a40319ae7604, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  FamilyKey: Astra
 --- !u!1001 &7022149647936487233
 PrefabInstance:
   m_ObjectHideFlags: 0

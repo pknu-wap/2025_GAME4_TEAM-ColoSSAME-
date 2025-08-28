@@ -72,7 +72,6 @@ public class PlayerObjC : MonoBehaviour
         try
         {
             var keyNames = _prefabs.StateAnimationPairs.Keys.Select(k => k.ToString());
-            Debug.Log($"[PlayerObjC] {_prefabs.name} 보유 상태 키: {string.Join(", ", keyNames)}");
         }
         catch { /* 특수 구현일 수 있음 */ }
 

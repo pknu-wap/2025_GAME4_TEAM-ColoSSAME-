@@ -16,14 +16,28 @@ public class SkillState : IState
 
     public void Enter()
     {
+        if (ai == null || ai.IsDead) return;
+
         ai.State = State.Skill;
-        ai.skillUse.UseSkill(skillData, ai, target);
+
+        // 타겟 유효성
+        if (target == null || !target.gameObject.activeInHierarchy ||
+            (target.GetComponent<AICore>()?.IsDead ?? true))
+        {
+            ai.StateMachine.ChangeState(new TargetingState(ai));
+            return;
+        }
+
+        ai.skillUse?.UseSkill(skillData, ai, target);
     }
 
     public IEnumerator Execute()
     {
+        if (ai == null || ai.IsDead) yield break;
+
         yield return new WaitForSeconds(0.5f); // 애니메이션 시간
-        ai.StateMachine.ChangeState(new IdleState(ai));
+        if (ai != null && !ai.IsDead)
+            ai.StateMachine.ChangeState(new IdleState(ai));
     }
 
     public void Exit() { }

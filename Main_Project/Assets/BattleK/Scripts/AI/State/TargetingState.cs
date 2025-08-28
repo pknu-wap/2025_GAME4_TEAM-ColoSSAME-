@@ -9,14 +9,30 @@ public class TargetingState : IState
     {
         this.ai = ai;
     }
+
     public void Enter()
     {
-        if (ai.target == null || ai.target.GetComponent<AICore>().State == State.Death)
+        if (ai == null || ai.IsDead)
         {
-            ai.State = State.Targeting;
+            return;
+        }
+
+        ai.State = State.Targeting;
+
+        // 기존 타겟이 죽었거나 없으면 새로 찾기
+        bool need = ai.target == null;
+        if (!need)
+        {
+            var tc = ai.target.GetComponent<AICore>();
+            need = (tc == null || tc.IsDead || tc.State == State.Death || !ai.target.gameObject.activeInHierarchy);
+        }
+
+        if (need)
+        {
             ai.target = ai.targeting.GetTarget(ai);
             ai.destinationSetter.target = ai.target;
         }
+
         ai.StateMachine.ChangeState(new MoveState(ai));
     }
 
@@ -25,8 +41,5 @@ public class TargetingState : IState
         yield return null;
     }
 
-    public void Exit()
-    {
-        
-    }
+    public void Exit() { }
 }
