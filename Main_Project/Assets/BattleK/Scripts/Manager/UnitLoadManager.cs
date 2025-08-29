@@ -120,7 +120,7 @@ public class UnitLoadManager : MonoBehaviour
             }
 
             LoadedUser = data;
-            message = $"User:{data.userName}, Lv:{data.level}, Gold:{data.money}, Units:{data.myUnits.Count}";
+            message = $"User:{data.userName}, Lv:{data.level}, Gold:{data.money}, Units:{data.myUnits.Count}, Aetherius:{data.myUnits.Find(u => u.unitId == "Astra_Aetherius").level}";
             LastMessage = message;
 
             OnUserLoaded?.Invoke(LoadedUser);

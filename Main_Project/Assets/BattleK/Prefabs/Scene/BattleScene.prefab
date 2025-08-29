@@ -33,8 +33,63 @@ Transform:
   - {fileID: 8859493816223418207}
   - {fileID: 4258591991719589633}
   - {fileID: 3902718727317276717}
+  - {fileID: 6257413322237487981}
   m_Father: {fileID: 342188048049387792}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &919142243728273301
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6257413322237487981}
+  - component: {fileID: 7754367905373421671}
+  m_Layer: 0
+  m_Name: CalculateManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6257413322237487981
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919142243728273301}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7128980981049067930}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7754367905373421671
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919142243728273301}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb7d0980584fb704c8a6e9ec54b563cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  statsCollector: {fileID: 8116832239421772936}
+  refreshOnStart: 1
+  invokeCollectorCollectBeforeRead: 1
+  autoRetryIfEmpty: 1
+  retryIntervalSeconds: 0.25
+  maxRetries: 40
+  debugLogging: 1
+  _playerStats: []
+  _enemyStats: []
+  _allStats: []
 --- !u!1 &1119953708594777593
 GameObject:
   m_ObjectHideFlags: 0
@@ -1062,6 +1117,9 @@ MonoBehaviour:
   playerUnitsRoot: {fileID: 4185177606197206826}
   enemyUnitsRoot: {fileID: 694902108949482927}
   familyJsonTemplate: Assets/BattleK/Family/{FAMILY}/{FAMILY}.json
+  unitLoadManager: {fileID: 0}
+  caseInsensitiveMatch: 1
+  debugLogging: 1
   playerStats: []
   enemyStats: []
 --- !u!1001 &3438431574941822291
