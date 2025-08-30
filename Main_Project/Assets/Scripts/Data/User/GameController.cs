@@ -12,11 +12,6 @@ public class GameController : MonoBehaviour
         if (userManager == null)
             userManager = UserManager.Instance;
     }
-
-    public void makeRandUnit()
-    {
-        userManager.GetRandomUnit();
-    }
     public void RewardGold(int amount)
     {
         userManager.AddGold(amount);  // UserManager 통해 골드 추가

@@ -34,13 +34,8 @@ public class TeamDetailViewer : MonoBehaviour
         // ➡️ JSON 데이터를 클래스 객체로 파싱합니다.
         CharacterList characterList = JsonUtility.FromJson<CharacterList>(textAsset.text);
         familyName.text = characterList.Family_Name;
-        if (characterList.Characters.Count != characterPortraits.Count)
-        {
-            Debug.LogError("캐릭터 수와 카드 슬롯 수가 일치하지 않습니다!");
-            return;
-        }
-
-        for (int i = 0; i < characterList.Characters.Count; i++)
+        OnCharacterCardClick(characterList.Characters[0]);
+        for (int i = 0; i < 5; i++)
         {
             // 초상화 이미지 로드 및 할당
             string portraitFile = characterList.Characters[i].Visuals.Portrait.Replace(".png", "");
@@ -52,11 +47,6 @@ public class TeamDetailViewer : MonoBehaviour
             int cardIndex = i;
             characterButtons[i].onClick.RemoveAllListeners();
             characterButtons[i].onClick.AddListener(() => OnCharacterCardClick(characterList.Characters[cardIndex]));
-        }
-        
-        if (characterList.Characters.Count > 0)
-        {
-            OnCharacterCardClick(characterList.Characters[0]);
         }
     }
     
