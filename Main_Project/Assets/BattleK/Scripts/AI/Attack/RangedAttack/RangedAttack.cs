@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -8,14 +7,12 @@ using UnityEngine.Pool;
 public class RangedAttack : MonoBehaviour
 {
     [Header("Owner / Team (자동 설정 대상)")]
-    public LayerMask teammateLayer;     // 아군(자기 레이어)
-    public LayerMask hitLayers;         // 적(상대 레이어)
+    public LayerMask teammateLayer;
+    public LayerMask hitLayers;
 
     [Header("우선 매핑: 레이어 '인덱스'(숫자)")]
-    [Tooltip("예: Player=10, Enemy=11 처럼 인덱스로 확정 매핑")]
-    public int playerLayerIndex = 10;
-    public int enemyLayerIndex  = 11;
-    [Tooltip("인덱스가 유효(0~31)하면 이름 매핑보다 인덱스 매핑을 우선 사용")]
+    public int  playerLayerIndex = 10;
+    public int  enemyLayerIndex  = 11;
     public bool preferIndexMapping = true;
 
     [Header("보조 매핑: 레이어 '이름'(선택)")]
@@ -24,45 +21,83 @@ public class RangedAttack : MonoBehaviour
     public string opponentLayerNameForPlayer = "Enemy";
     public string opponentLayerNameForEnemy  = "Player";
 
-    [System.Serializable]
-    public struct OpponentMap { public string selfLayerName; public string opponentLayerName; }
-    [Tooltip("프로젝트에서 Player/Enemy 외 이름을 쓰면 여기에 직접 매핑")]
+    [System.Serializable] public struct OpponentMap { public string selfLayerName; public string opponentLayerName; }
     public OpponentMap[] customOpponentMaps = new OpponentMap[0];
 
     [Header("Projectile")]
-    public Projectile projectilePrefab; // ⚠️ 런타임 로드 시 끊기기 쉬움 → SetProjectilePrefab()으로 주입 가능
-    public Transform firePoint;
+    public Projectile projectilePrefab;
+    public Transform  firePoint;
 
     [Header("Projectile Layer Override")]
-    [Tooltip("발사 시 투사체 레이어를 강제로 지정. -1이면 프리팹 원래 레이어 유지")]
-    public int projectileLayerOverride = -1;
-    [Tooltip("오버라이드 시 자식까지 모두 적용")]
-    public bool overrideChildrenLayer = true;
+    public int  projectileLayerOverride = -1;
+    public bool overrideChildrenLayer   = true;
 
-    [Header("Stats")]
-    public float prepareTime = 0.15f;
-    public float cooldown = 0.6f;
+    [Header("Stats / Timing")]
+    public float   prepareTime     = 0.15f;
+    public float   cooldown        = 0.6f;
     public Vector3 projectileScale = Vector3.one;
-    public float projectileSpeed = 10f;
-    public float maxRange = 8f;
+    public float   projectileSpeed = 10f;
+    public float   maxRange        = 8f;
+
+    [Header("Damage 기본값")]
+    [Tooltip("오너 연동이 꺼져있거나 실패 시 사용할 기본 데미지")]
     public int baseDamage = 10;
+
+    [Header("Owner Link")]
+    [Tooltip("오너(AICore). 비워두면 부모에서 자동 탐색")]
+    public AICore ownerAI;
+
+    [Tooltip("스탯 주입 완료(StatsReady) 이전에는 절대 발사하지 않음")]
+    public bool waitForStatsReady = true;
+
+    [Tooltip("준비 완료 시점에 owner.attackDamage를 1회 스냅샷해서 baseDamage로 저장")]
+    public bool snapshotOwnerDamageOnReady = true;
+
+    [Tooltip("스냅샷 대신, 매 발사 시 owner.attackDamage를 읽어 최종 데미지 계산")]
+    public bool liveOwnerDamageOnFire = false;
+
+    [Tooltip("최종 = round(atk * multiplier) + bonus")]
+    public float ownerDamageMultiplier = 1f;
+    public int   ownerDamageBonus      = 0;
+
+    [Tooltip("최소/최대 데미지(-1은 상한 미적용)")]
+    public int   minDamage = 1;
+    public int   maxDamage = -1;
+
+    [Header("Fallback Snapshot (Ready 신호가 없거나 늦을 때)")]
+    [Tooltip("Ready 이벤트가 없어도 첫 발사 직전에 오너 ATK가 준비되어 있으면 1회 스냅샷")]
+    public bool lazySnapshotOnFirstFire = true;
+
+    [Tooltip("게으른 스냅샷을 허용하는 최소 오너 ATK(이상일 때만 스냅샷)")]
+    public int lazySnapshotMinOwnerAtk = 1;
 
     [Header("Behavior")]
     public bool snapshotAimOnRelease = true;
     public bool blockOutOfRange = true;
 
     [Header("Auto Rebind")]
-    [Tooltip("스폰 직후 한/두 프레임 대기 후 자동 재바인딩")]
     public bool autoRebindAfterSpawn = true;
 
+    [Header("Debug")]
+    public bool debugLogging = false;
+
+    // ── 내부 상태 ────────────────────────────────────────────
     float _lastShotTime = -999f;
     Collider2D _ownerCollider;
     IObjectPool<Projectile> _pool;
     bool _poolReady;
-
-    // 👉 추가: 현재 발사 코루틴 참조
     Coroutine _fireRoutine;
 
+    // Ready 게이트
+    StatsReady _statsReady;
+    bool _isReadyObserved; // StatsReady.IsReady 또는 OnReady 수신 완료 여부
+
+    // 스냅샷 상태 추적
+    int  _initialBaseDamage;
+    bool _snapshottedByReady;   // Ready 이벤트로 스냅샷 했는가
+    bool _snapshottedLazily;    // 첫 발사 직전에 폴백 스냅샷했는가
+
+    // ── Unity lifecycle ──────────────────────────────────────
     void Reset()
     {
         if (!firePoint) firePoint = transform;
@@ -73,7 +108,9 @@ public class RangedAttack : MonoBehaviour
         _ownerCollider = GetComponent<Collider2D>();
         if (!firePoint) firePoint = transform;
 
-        // 풀은 projectilePrefab이 있을 때만 생성
+        _initialBaseDamage = baseDamage;
+
+        EnsureOwnerAndHook();
         TryBuildPool();
     }
 
@@ -85,44 +122,209 @@ public class RangedAttack : MonoBehaviour
 
     void OnDisable()
     {
-        // 👉 비활성화/죽음 시 모든 동작 정지
+        UnhookReady();
         CancelAll();
+    }
+
+    void OnDestroy()
+    {
+        UnhookReady();
     }
 
     IEnumerator Co_RebindNextFrame()
     {
-        // 스폰 후 상위/스포너의 레이어 세팅이 끝나도록 한 프레임 대기
         yield return null;
-        RebindNow(force: false);
+        RebindNow(false);
 
-        // 주소형 로드/지연 초기화 대비로 한 프레임 더
         if (teammateLayer.value == 0 || hitLayers.value == 0 || (hitLayers.value & teammateLayer.value) != 0)
         {
             yield return null;
-            RebindNow(force: false);
+            RebindNow(false);
+        }
+
+        // 혹시 오너가 늦게 붙은 경우 다시 훅
+        EnsureOwnerAndHook();
+    }
+
+    // ── 핵심: 오너/Ready 훅 ──────────────────────────────────
+    void EnsureOwnerAndHook()
+    {
+        if (ownerAI == null)
+            ownerAI = GetComponentInParent<AICore>();
+
+        UnhookReady();
+        _statsReady = ownerAI ? ownerAI.GetComponent<StatsReady>() : null;
+
+        if (!waitForStatsReady)
+        {
+            _isReadyObserved = true;
+            return;
+        }
+
+        if (_statsReady == null)
+        {
+            // ⚠️ 예전엔 여기서 게이트를 열었지만, 조기발사로 baseDamage=10 문제가 생김.
+            // → 게이트는 열지 않되, lazySnapshotOnFirstFire가 켜져 있으면 첫 발사 직전 스냅샷으로 보정.
+            _isReadyObserved = false; // Ready가 없으면 기본은 막는다.
+            if (debugLogging)
+                Debug.LogWarning($"[RangedAttack] StatsReady 미존재: Ready 전 발사 차단. (owner={ownerAI?.name ?? "null"})", this);
+            return;
+        }
+
+        if (_statsReady.IsReady)
+        {
+            OnOwnerReady();
+        }
+        else
+        {
+            _isReadyObserved = false;
+            _statsReady.OnReady += OnOwnerReady;
         }
     }
 
-    /// 외부(스포너/유틸)에서 언제든 호출 가능. force=true면 기존 값 덮어씀.
-    public void RebindNow(bool force)
+    void UnhookReady()
     {
-        AutoConfigureMasksImpl(force);
+        if (_statsReady != null)
+            _statsReady.OnReady -= OnOwnerReady;
     }
 
+    void OnOwnerReady()
+    {
+        _isReadyObserved = true;
+
+        if (snapshotOwnerDamageOnReady && ownerAI != null)
+        {
+            baseDamage = ComputeOwnerDamage(ownerAI.attackDamage);
+            _snapshottedByReady = true;
+
+            if (debugLogging)
+                Debug.Log($"[RangedAttack] Snapshot by READY: baseDamage={baseDamage} (owner={ownerAI.name}, atk={ownerAI.attackDamage})", this);
+        }
+        UnhookReady();
+    }
+
+    // ── 외부 API ─────────────────────────────────────────────
+    public void RebindNow(bool force) => AutoConfigureMasksImpl(force);
+
+    public bool TryAttack(Transform target)
+    {
+        // 1) Ready 게이트: Ready 이전이면 발사 금지
+        if (waitForStatsReady && !_isReadyObserved)
+        {
+            // 단, 폴백 스냅샷 옵션이 켜져 있고 오너 ATK가 준비되었다면,
+            // 여기서 1회 스냅샷 후 Ready 없이도 발사 허용.
+            if (lazySnapshotOnFirstFire && ownerAI != null &&
+                ownerAI.attackDamage >= lazySnapshotMinOwnerAtk &&
+                snapshotOwnerDamageOnReady && !_snapshottedByReady && !_snapshottedLazily)
+            {
+                baseDamage = ComputeOwnerDamage(ownerAI.attackDamage);
+                _snapshottedLazily = true;
+
+                if (debugLogging)
+                    Debug.Log($"[RangedAttack] Lazy snapshot on first fire: baseDamage={baseDamage} (owner={ownerAI.name}, atk={ownerAI.attackDamage})", this);
+
+                // 게이트 임시 해제(이 발사만). 이후에도 Ready가 오면 정식 스냅샷 로직이 다시 동작.
+            }
+            else
+            {
+                if (debugLogging) Debug.Log($"[RangedAttack] blocked: waiting StatsReady (owner={ownerAI?.name ?? "null"})", this);
+                EnsureOwnerAndHook(); // 혹시나 오너/Ready 재훅
+                return false;
+            }
+        }
+
+        if (!CanFireNow()) return false;
+        if (target == null) return false;
+        if (!_poolReady)
+        {
+#if UNITY_EDITOR
+            Debug.LogWarning("[RangedAttack] 풀 미준비. projectilePrefab 지정 필요.", this);
+#endif
+            return false;
+        }
+
+        float dist = Vector2.Distance(transform.position, target.position);
+        if (blockOutOfRange && dist > maxRange) return false;
+
+        CancelAll();
+        _fireRoutine = StartCoroutine(FireRoutine(target));
+        _lastShotTime = Time.time;
+        return true;
+    }
+
+    // ── 발사 루틴 ────────────────────────────────────────────
+    bool CanFireNow() => Time.time >= _lastShotTime + cooldown;
+
+    IEnumerator FireRoutine(Transform target)
+    {
+        if (prepareTime > 0f) yield return new WaitForSeconds(prepareTime);
+        Vector2 dir = ((Vector2)target.position - (Vector2)firePoint.position).normalized;
+        SpawnAndFire(dir);
+        _fireRoutine = null;
+    }
+
+    void SpawnAndFire(Vector2 dir)
+    {
+        var proj = _pool.Get();
+        if (proj == null) return;
+
+        proj.transform.position   = firePoint.position;
+        proj.transform.rotation   = Quaternion.FromToRotation(Vector3.right, dir);
+        proj.transform.localScale = projectileScale;
+
+        if (projectileLayerOverride >= 0 && projectileLayerOverride < 32)
+        {
+            if (overrideChildrenLayer) SetLayerRecursively(proj.gameObject, projectileLayerOverride);
+            else                       proj.gameObject.layer = projectileLayerOverride;
+        }
+
+        proj.IgnoreCollider(_ownerCollider);
+        proj.SetAllyMask(teammateLayer);
+
+        // 최종 데미지: 실시간 모드가 켜져 있으면 오너 ATK로 계산, 아니면 baseDamage 사용
+        int finalDamage = baseDamage;
+        if (liveOwnerDamageOnFire && ownerAI != null)
+            finalDamage = ComputeOwnerDamage(ownerAI.attackDamage);
+
+        if (debugLogging)
+        {
+            string ownerName = ownerAI ? ownerAI.name : "NULL_OWNER";
+            Debug.Log($"[RangedAttack] Fired → damage={finalDamage} (owner={ownerName}, base={baseDamage}, " +
+                      $"readyGate={(waitForStatsReady ? (_isReadyObserved ? "READY" : "BLOCK") : "OFF")}, " +
+                      $"lazySnap={_snapshottedLazily}, readySnap={_snapshottedByReady})  path={GetPath(this)}", this);
+        }
+
+        proj.Launch(new Projectile.Params
+        {
+            speed = projectileSpeed,
+            damage = finalDamage,
+            maxTravelDistance = maxRange,
+            hitLayers = hitLayers,
+            attacker = gameObject,
+        });
+    }
+
+    int ComputeOwnerDamage(int ownerAtk)
+    {
+        float raw = (ownerAtk * Mathf.Max(0.0001f, ownerDamageMultiplier)) + ownerDamageBonus;
+        int dmg   = Mathf.RoundToInt(raw);
+        if (maxDamage > 0) dmg = Mathf.Clamp(dmg, Mathf.Max(1, minDamage), maxDamage);
+        else               dmg = Mathf.Max(1, minDamage > 0 ? Mathf.Max(minDamage, dmg) : Mathf.Max(1, dmg));
+        return dmg;
+    }
+
+    // ── 레이어/풀/유틸 ───────────────────────────────────────
     void AutoConfigureMasksImpl(bool force)
     {
         int selfLayer = gameObject.layer;
 
-        // 1) 아군 = 자기 레이어
         if (force || teammateLayer.value == 0)
             teammateLayer = 1 << selfLayer;
 
-        // 2) 적 = 자기 레이어 기준 상대 레이어 결정
         if (force || hitLayers.value == 0)
         {
             hitLayers = ResolveOpponentMask(selfLayer);
 
-            // 못 찾았거나(0) 아군과 겹치면 보정
             if (hitLayers.value == 0 || (hitLayers.value & teammateLayer.value) != 0)
             {
                 int mask = Physics2D.GetLayerCollisionMask(selfLayer);
@@ -131,26 +333,20 @@ public class RangedAttack : MonoBehaviour
                 hitLayers = mask;
             }
         }
-
 #if UNITY_EDITOR
         if (hitLayers.value == 0)
-        {
-            Debug.LogWarning($"[RangedAttack] hitLayers=0. self '{LayerMask.LayerToName(selfLayer)}'({selfLayer}) / " +
-                             $"인덱스/이름 매핑 또는 충돌 행렬을 확인하세요. {GetPath(this)}", this);
-        }
+            Debug.LogWarning($"[RangedAttack] hitLayers=0. self '{LayerMask.LayerToName(selfLayer)}'({selfLayer}) 확인. {GetPath(this)}", this);
 #endif
     }
 
     LayerMask ResolveOpponentMask(int selfLayer)
     {
-        // 0) 인덱스 매핑 우선
-        if (preferIndexMapping && InRange(playerLayerIndex) && InRange(enemyLayerIndex))
+        if (preferIndexMapping && IsValidLayerIndex(playerLayerIndex) && IsValidLayerIndex(enemyLayerIndex))
         {
             if (selfLayer == playerLayerIndex) return 1 << enemyLayerIndex;
             if (selfLayer == enemyLayerIndex)  return 1 << playerLayerIndex;
         }
 
-        // 1) 이름 매핑
         string selfName = LayerMask.LayerToName(selfLayer);
         if (selfName == selfLayerNameForPlayer)
         {
@@ -163,45 +359,30 @@ public class RangedAttack : MonoBehaviour
             if (opp != -1) return 1 << opp;
         }
 
-        // 2) 커스텀 매핑
         if (customOpponentMaps != null)
         {
             for (int i = 0; i < customOpponentMaps.Length; i++)
-            {
                 if (customOpponentMaps[i].selfLayerName == selfName)
                 {
                     int opp = LayerMask.NameToLayer(customOpponentMaps[i].opponentLayerName);
                     if (opp != -1) return 1 << opp;
                 }
-            }
         }
-
-        // 3) 실패
         return 0;
     }
 
-    static bool InRange(int layerIndex) => layerIndex >= 0 && layerIndex < 32;
-
-    // ========= 핵심: 런타임 DI(주입) 경로 =========
-    public void SetProjectilePrefab(Projectile prefab)
-    {
-        projectilePrefab = prefab;
-        TryBuildPool(); // 새 프리팹으로 풀 다시 준비
-    }
+    static bool IsValidLayerIndex(int layerIndex) => layerIndex >= 0 && layerIndex < 32;
 
     void TryBuildPool()
     {
         if (projectilePrefab == null)
         {
 #if UNITY_EDITOR
-            Debug.LogWarning($"[RangedAttack] projectilePrefab이 비었습니다. (프리팹 런타임 로드 시 참조가 끊긴 경우가 흔합니다) : {GetPath(this)}", this);
+            Debug.LogWarning($"[RangedAttack] projectilePrefab 비어있음. {GetPath(this)}", this);
 #endif
-            _poolReady = false;
-            _pool = null;
-            return;
+            _poolReady = false; _pool = null; return;
         }
 
-        // 이미 풀 있으면 파기
         _pool = new ObjectPool<Projectile>(
             createFunc: () =>
             {
@@ -215,7 +396,7 @@ public class RangedAttack : MonoBehaviour
                 p.OnDespawnRequested = ReturnToPool;
                 return p;
             },
-            actionOnGet:  p => { if (p != null) p.gameObject.SetActive(true);  },
+            actionOnGet:     p => { if (p != null) p.gameObject.SetActive(true);  },
             actionOnRelease: p => { if (p != null) p.gameObject.SetActive(false); },
             actionOnDestroy: p => { if (p != null) Destroy(p.gameObject); },
             collectionCheck: false, defaultCapacity: 16, maxSize: 256
@@ -223,88 +404,12 @@ public class RangedAttack : MonoBehaviour
         _poolReady = true;
     }
 
-    public bool TryAttack(Transform target)
-    {
-        if (!CanFireNow()) return false;
-        if (target == null) return false;
-        if (!_poolReady)
-        {
-#if UNITY_EDITOR
-            Debug.LogWarning("[RangedAttack] 풀 준비가 안 됨(projectilePrefab 미지정). SetProjectilePrefab() 또는 인스펙터 지정 필요.", this);
-#endif
-            return false;
-        }
-
-        float dist = Vector2.Distance(transform.position, target.position);
-        if (blockOutOfRange && dist > maxRange) return false;
-
-        // 👉 기존 루틴 중복 방지
-        CancelAll();
-        _fireRoutine = StartCoroutine(FireRoutine(target));
-        _lastShotTime = Time.time;
-        return true;
-    }
-
-    bool CanFireNow() => Time.time >= _lastShotTime + cooldown;
-
-    IEnumerator FireRoutine(Transform target)
-    {
-        if (prepareTime > 0f)
-            yield return new WaitForSeconds(prepareTime);
-
-        // 스냅샷/실시간 조준 옵션은 필요시 확장
-        Vector2 dir = ((Vector2)target.position - (Vector2)firePoint.position).normalized;
-        SpawnAndFire(dir);
-
-        _fireRoutine = null;
-    }
-
-    void SpawnAndFire(Vector2 dir)
-    {
-        var proj = _pool.Get();
-        if (proj == null) return;
-
-        proj.transform.position = firePoint.position;
-        proj.transform.rotation = Quaternion.FromToRotation(Vector3.right, dir);
-        proj.transform.localScale = projectileScale;
-
-        // 투사체 레이어 강제
-        if (projectileLayerOverride >= 0 && projectileLayerOverride < 32)
-        {
-            if (overrideChildrenLayer)
-                SetLayerRecursively(proj.gameObject, projectileLayerOverride);
-            else
-                proj.gameObject.layer = projectileLayerOverride;
-        }
-
-        // 소유자 충돌 무시 및 팀 마스크
-        proj.IgnoreCollider(_ownerCollider);
-        proj.SetAllyMask(teammateLayer);
-
-        proj.Launch(new Projectile.Params
-        {
-            speed = projectileSpeed,
-            damage = baseDamage,
-            maxTravelDistance = maxRange,
-            hitLayers = hitLayers,
-            attacker = gameObject,
-        });
-    }
-
     void ReturnToPool(Projectile p) => _pool.Release(p);
 
-    /// <summary>
-    /// ▶ 모든 발사 관련 루틴/예약을 즉시 중단 (AICore.StopAllActionsHard에서 호출)
-    /// </summary>
     public void CancelAll()
     {
-        if (_fireRoutine != null)
-        {
-            try { StopCoroutine(_fireRoutine); } catch { }
-            _fireRoutine = null;
-        }
+        if (_fireRoutine != null) { try { StopCoroutine(_fireRoutine); } catch { } _fireRoutine = null; }
         CancelInvoke();
-        // 투사체는 자체 수명 관리(Projectile)에서 풀 복귀
     }
 
     void OnDrawGizmosSelected()
@@ -315,7 +420,6 @@ public class RangedAttack : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, maxRange);
     }
 
-    // ===== 유틸 =====
     static void SetLayerRecursively(GameObject go, int layer)
     {
         go.layer = layer;
@@ -326,9 +430,10 @@ public class RangedAttack : MonoBehaviour
 
     static string GetPath(Component c)
     {
-        var t = c.transform;
+        if (c == null) return "(null)";
+        Transform t = c.transform; if (t == null) return "(no transform)";
         string path = t.name;
-        while (t.parent != null) { t = t.parent; path = t.name + "/" + path; }
+        for (Transform p = t.parent; p != null; p = p.parent) path = p.name + "/" + path;
         return path;
     }
 }
