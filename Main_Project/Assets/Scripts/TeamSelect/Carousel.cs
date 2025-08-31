@@ -70,6 +70,16 @@ public class Carousel : MonoBehaviour
 
             cards[i].DOAnchorPos(positions[posIndex], 0.3f).SetEase(Ease.OutQuad);
             cards[i].DOScale(Vector3.one * scales[posIndex], 0.3f).SetEase(Ease.OutQuad);
+            Image cardImage = cards[i].GetComponent<Image>();
+            if (positions[posIndex].x == 0 && positions[posIndex].y < -30)
+            {
+                cardImage.material = ShaderController.Instance.bannerOutlineMaterial;
+                Debug.Log("적용함");
+            }
+            else
+            {
+                cardImage.material = ShaderController.Instance.normalOutlineMaterial;
+            }
         }
     }
     
