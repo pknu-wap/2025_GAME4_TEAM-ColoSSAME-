@@ -8,6 +8,8 @@ public class UnitDataManager : MonoBehaviour
 
     // 모든 유닛 데이터를 Family_Name을 키로 하는 딕셔너리에 저장
     public Dictionary<string, List<CharacterData>> familyUnitDataDict;
+    // 유닛 ID를 키로, 유닛 데이터를 값으로 하는 딕셔너리 (추가)
+    public Dictionary<string, CharacterData> unitDataDict;
 
     void Awake()
     {
@@ -46,14 +48,13 @@ public class UnitDataManager : MonoBehaviour
             {
                 character.Family_Name = familyName;
                 familyUnitDataDict[familyName].Add(character);
+                unitDataDict[character.Unit_ID] = character; // Unit_ID로 개별 유닛 저장
             }
         }
         Debug.Log($"✅ 총 {familyUnitDataDict.Count}개의 유닛 데이터 로드 완료.");
     }
-
-    /// <summary>
-    /// 유닛 ID를 통해 상세 데이터를 가져오는 메서드.
-    /// </summary>
+    
+    /// 패밀리 ID를 통해 상세 데이터를 가져오는 메서드.
     public List<CharacterData> GetFamilyUnits(string familyName)
     {
         if (familyUnitDataDict.ContainsKey(familyName))
@@ -61,6 +62,17 @@ public class UnitDataManager : MonoBehaviour
             return familyUnitDataDict[familyName];
         }
         Debug.LogWarning($"❌ 가문 데이터 '{familyName}'를 찾을 수 없습니다.");
+        return null;
+    }
+    
+    /// 유닛 ID를 통해 상세 데이터를 가져오는 메서드.
+    public CharacterData GetCharacterData(string unitId)
+    {
+        if (unitDataDict.ContainsKey(unitId))
+        {
+            return unitDataDict[unitId];
+        }
+        Debug.LogWarning($"❌ 유닛 데이터 ID를 찾을 수 없습니다: {unitId}");
         return null;
     }
 }
