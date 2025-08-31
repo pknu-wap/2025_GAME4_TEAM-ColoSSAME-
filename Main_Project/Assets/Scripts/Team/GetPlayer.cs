@@ -212,6 +212,7 @@ namespace Scripts.Team.FighterRandomBuy
             cards.SetActive(true);
         }
 
+
     }
     public class FamilyData
     {
