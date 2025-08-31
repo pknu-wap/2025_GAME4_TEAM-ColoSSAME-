@@ -9,6 +9,8 @@ public class TeamDetailViewer : MonoBehaviour
 {
     public GameObject characterDetailsPanel;
     public List<Image> characterPortraits;
+    public List<Image> cardImages;
+    public List<Image> teamAttributes;
     public List<TMP_Text> characterName;
     public List<Button> characterButtons;
     public TMP_Text characterExplanationText;
@@ -27,6 +29,8 @@ public class TeamDetailViewer : MonoBehaviour
         characterDetailsPanel.SetActive(true);
         
         string jsonPath = $"CharacterData/{fid}";
+        string attributePath = $"TeamAttributes/{fid}attribute";
+        string cardPath = $"TeamCards/{fid}card";
         TextAsset textAsset = Resources.Load<TextAsset>(jsonPath);
         
         if (textAsset == null)
@@ -47,6 +51,10 @@ public class TeamDetailViewer : MonoBehaviour
             Sprite loadedSprite = Resources.Load<Sprite>(portraitPath);
             characterPortraits[i].sprite = loadedSprite;
             characterName[i].text = characterList.Characters[i].Unit_Name;
+            
+            teamAttributes[i].sprite=Resources.Load<Sprite>(attributePath);
+            cardImages[i].sprite=Resources.Load<Sprite>(cardPath);
+            
             
             int cardIndex = i;
             characterButtons[i].onClick.RemoveAllListeners();
