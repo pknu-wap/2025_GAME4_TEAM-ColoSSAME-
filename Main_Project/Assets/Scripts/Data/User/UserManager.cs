@@ -140,7 +140,7 @@ public class UserManager : MonoBehaviour
             Debug.LogWarning($"❌ 제거할 아이템이 없습니다: {itemName}");
         }
     }
-    public void GetRandomUnit()
+    /*public void GetRandomUnit()
     {
         if (UnitDataManager.Instance == null)
         {
@@ -168,13 +168,44 @@ public class UserManager : MonoBehaviour
         // 획득한 유닛의 이름을 DataManager를 통해 가져와 로그를 출력한다.
         CharacterData acquiredData = UnitDataManager.Instance.GetCharacterData(randomUnitId);
         Debug.Log($"🎉 새로운 유닛 획득! 이름: {acquiredData.Unit_Name}, 희귀도: {acquiredData.Rarity}");
-    }
+    }*/
+    
     public void AddUnit(Unit newUnit)
     {
         user.myUnits.Add(newUnit);
         Debug.Log($"🗡️ 새로운 유닛 영입: {newUnit.unitId}");
         SaveUser();
     }
+    public void AddInitialUnitsByFamily(string familyName)
+    {
+        if (UnitDataManager.Instance == null)
+        {
+            Debug.LogError("❌ DataManager가 초기화되지 않았습니다.");
+            return;
+        }
+
+        // DataManager에서 해당 가문의 유닛 리스트를 직접 가져온다.
+        List<CharacterData> familyUnits = UnitDataManager.Instance.GetFamilyUnits(familyName);
+
+        if (familyUnits == null || familyUnits.Count < 10)
+        {
+            Debug.LogError($"❌ 가문 '{familyName}'의 유닛 데이터가 부족합니다.");
+            return;
+        }
+
+        // JSON 파일의 순서대로 5번부터 10번까지의 유닛을 추가한다.
+        int start = 5; // 6번째 캐릭터 (인덱스 5)
+        int end = start + 5; // 5개를 추가 (5, 6, 7, 8, 9, 10)
+
+        for (int i = start; i < end; i++)
+        {
+            Unit newUnit = new Unit(familyUnits[i].Unit_ID);
+            user.myUnits.Add(newUnit);
+            Debug.Log($"✅ 초기 유닛 추가: {familyUnits[i].Unit_Name}");
+        }
+        SaveUser();
+    }
+    
     // 돈 추가/차감 기능도 여기서 호출할 수 있음
     public void AddGold(int amount)
     {

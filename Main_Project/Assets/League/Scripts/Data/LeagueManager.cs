@@ -10,7 +10,7 @@ public class LeagueManager : MonoBehaviour
 
     public League league;
 
-    private LeagueSaveManager saveManager;
+    public LeagueSaveManager saveManager;
     private LeagueSettingManager settingManager;
 
     void Awake()

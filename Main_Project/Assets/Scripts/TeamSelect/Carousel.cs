@@ -70,6 +70,16 @@ public class Carousel : MonoBehaviour
 
             cards[i].DOAnchorPos(positions[posIndex], 0.3f).SetEase(Ease.OutQuad);
             cards[i].DOScale(Vector3.one * scales[posIndex], 0.3f).SetEase(Ease.OutQuad);
+            Image cardImage = cards[i].GetComponent<Image>();
+            if (positions[posIndex].x == 0 && positions[posIndex].y < -30)
+            {
+                cardImage.material = ShaderController.Instance.bannerOutlineMaterial;
+                Debug.Log("적용함");
+            }
+            else
+            {
+                cardImage.material = ShaderController.Instance.normalOutlineMaterial;
+            }
         }
     }
     
@@ -99,7 +109,15 @@ public class Carousel : MonoBehaviour
         Team myTeam = leagueManager.league.teams.Find(t => t.id == currentIndex+1);
         leagueManager.league.settings.playerTeamId = myTeam.id;
         leagueManager.league.settings.playerTeamName = myTeam.name;
-
+        leagueManager.saveManager.SaveLeague(leagueManager.league);
+        if (UserManager.Instance != null)
+        {
+            UserManager.Instance.AddInitialUnitsByFamily(myTeam.name);
+        }
+        else
+        {
+            Debug.LogError("❌ UserManager 인스턴스를 찾을 수 없습니다.");
+        }
     }
 
     public void OnViewStatusButtonClick()
