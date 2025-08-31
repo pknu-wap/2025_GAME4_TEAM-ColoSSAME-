@@ -28,6 +28,7 @@ public class UnitDataManager : MonoBehaviour
     private void LoadAllUnitData()
     {
         familyUnitDataDict = new Dictionary<string, List<CharacterData>>();
+        unitDataDict = new Dictionary<string, CharacterData>(); 
         // Resources 폴더의 모든 JSON 파일을 불러온다.
         TextAsset[] allDataAssets = Resources.LoadAll<TextAsset>("CharacterData");
 
