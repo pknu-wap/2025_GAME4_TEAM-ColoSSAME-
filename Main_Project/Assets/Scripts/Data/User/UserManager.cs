@@ -199,7 +199,7 @@ public class UserManager : MonoBehaviour
 
         for (int i = start; i < end; i++)
         {
-            Unit newUnit = new Unit(familyUnits[i].Unit_ID);
+            Unit newUnit = new Unit(familyUnits[i].Unit_ID, familyUnits[i].Rarity, familyUnits[i].Unit_Name);
             user.myUnits.Add(newUnit);
             Debug.Log($"✅ 초기 유닛 추가: {familyUnits[i].Unit_Name}");
         }
