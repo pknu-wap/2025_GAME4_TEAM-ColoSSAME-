@@ -97,16 +97,36 @@ MonoBehaviour:
   hitLayers:
     serializedVersion: 2
     m_Bits: 0
+  playerLayerIndex: 10
+  enemyLayerIndex: 11
+  preferIndexMapping: 1
+  selfLayerNameForPlayer: Player
+  selfLayerNameForEnemy: Enemy
+  opponentLayerNameForPlayer: Enemy
+  opponentLayerNameForEnemy: Player
+  customOpponentMaps: []
   projectilePrefab: {fileID: 141248266703544822, guid: 9e1e8e7b646f9cd48a9c548f9c83cd87, type: 3}
   firePoint: {fileID: 3823911054057393953}
+  projectileLayerOverride: -1
+  overrideChildrenLayer: 1
   prepareTime: 0.15
   cooldown: 0.6
   projectileScale: {x: 1, y: 1, z: 1}
   projectileSpeed: 10
   maxRange: 8
   baseDamage: 10
+  useOwnerAttackDamage: 1
+  ownerDamageMultiplier: 1
+  ownerDamageBonus: 0
+  minDamage: 1
+  maxDamage: -1
   snapshotAimOnRelease: 1
   blockOutOfRange: 1
+  autoRebindAfterSpawn: 1
+  explicitOwner: {fileID: 0}
+  requeryOwnerOnFire: 1
+  refreshOwnerOnParentChanged: 1
+  debugLogging: 0
 --- !u!1 &1656634821437799871
 GameObject:
   m_ObjectHideFlags: 0
