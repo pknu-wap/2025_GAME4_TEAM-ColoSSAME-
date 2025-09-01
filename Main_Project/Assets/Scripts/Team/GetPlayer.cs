@@ -18,6 +18,8 @@ namespace Scripts.Team.FighterRandomBuy
 
         private FamilyData familyData;
 
+        public string familyname;
+
         public GameObject[] CharacterGather;
         public Image[] CharacterImage;
         public Image SelectCharaterImage;
@@ -53,51 +55,61 @@ namespace Scripts.Team.FighterRandomBuy
             {
                 TextAsset Characterjson = Resources.Load<TextAsset>("CharacterData/Caelus");
                 familyData = JsonConvert.DeserializeObject<FamilyData>(Characterjson.text);
+                familyname = "Caelus";
             }
             if (index == 2)
             {
                 TextAsset Characterjson = Resources.Load<TextAsset>("CharacterData/Flora");
                 familyData = JsonConvert.DeserializeObject<FamilyData>(Characterjson.text);
+                familyname = "Flora";
             }
             if (index == 3)
             {
                 TextAsset Characterjson = Resources.Load<TextAsset>("CharacterData/Ignis");
                 familyData = JsonConvert.DeserializeObject<FamilyData>(Characterjson.text);
+                familyname = "Ignis";
             }
             if (index == 4)
             {
                 TextAsset Characterjson = Resources.Load<TextAsset>("CharacterData/Lumen");
                 familyData = JsonConvert.DeserializeObject<FamilyData>(Characterjson.text);
+                familyname = "Lumen";
             }
             if (index == 5)
             {
                 TextAsset Characterjson = Resources.Load<TextAsset>("CharacterData/Nox");
                 familyData = JsonConvert.DeserializeObject<FamilyData>(Characterjson.text);
+                familyname = "Nox";
             }
             if (index == 6)
             {
                 TextAsset Characterjson = Resources.Load<TextAsset>("CharacterData/Mors");
                 familyData = JsonConvert.DeserializeObject<FamilyData>(Characterjson.text);
+                familyname = "Mors";
             }
             if (index == 7)
             {
                 TextAsset Characterjson = Resources.Load<TextAsset>("CharacterData/Fulger");
                 familyData = JsonConvert.DeserializeObject<FamilyData>(Characterjson.text);
+                familyname = "Fulger";
             }
             if (index == 8)
             {
                 TextAsset Characterjson = Resources.Load<TextAsset>("CharacterData/Mare");
                 familyData = JsonConvert.DeserializeObject<FamilyData>(Characterjson.text);
+                familyname = "Mare";
             }
             if (index == 9)
             {
                 TextAsset Characterjson = Resources.Load<TextAsset>("CharacterData/Terra");
                 familyData = JsonConvert.DeserializeObject<FamilyData>(Characterjson.text);
+                familyname = "Terra";
             }
             if (index == 10)
             {
                 TextAsset Characterjson = Resources.Load<TextAsset>("CharacterData/Astra");
                 familyData = JsonConvert.DeserializeObject<FamilyData>(Characterjson.text);
+                familyname = "Astra";
             }
         }
 
@@ -110,9 +122,21 @@ namespace Scripts.Team.FighterRandomBuy
 
             for (int i = 0; i < 10; i++)
             {
-                int RandomRarity = UnityEngine.Random.Range(0,10);
+                int rand = UnityEngine.Random.Range(0, 100); // 0~99
 
-                CharacterIDList[i] = (RandomRarity >= 9) ? 0 : UnityEngine.Random.Range(1, 5);
+                if (rand < 1) // 1%
+                {
+                    CharacterIDList[i] = 0;
+                }
+                else if (rand < 21) // 20% (1~20)
+                {
+                    CharacterIDList[i] = UnityEngine.Random.Range(1, 6); // 1~5
+                }
+                else // 나머지 79%
+                {
+                    CharacterIDList[i] = UnityEngine.Random.Range(5, familyData.Characters.Count); // 5~끝
+                }
+
                 CharacterData characterdata = familyData.Characters[CharacterIDList[i]];
             }
         }
@@ -151,7 +175,7 @@ namespace Scripts.Team.FighterRandomBuy
                 SelectCharaterImage.sprite = portraitSprite;
                 SelectCharaterImage.preserveAspect = true;
 
-                unit = new Unit(characterdata.Unit_ID);
+                unit = new Unit(characterdata.Unit_ID, characterdata.Rarity, characterdata.Unit_Name);
 
                 NameText.text = $"이름:{characterdata.Unit_Name}";
                 ClassText.text = $"직업:{characterdata.Class}";
@@ -187,6 +211,7 @@ namespace Scripts.Team.FighterRandomBuy
             cardsstate.SetActive(false);
             cards.SetActive(true);
         }
+
 
     }
     public class FamilyData
