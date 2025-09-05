@@ -12,17 +12,21 @@ namespace Scripts.Team.FighterViewer
     public class UnitViewer : MonoBehaviour
     {
         public UserData userData;
+        public FamilyStatsCollector familystat;
 
         public CharacterID characterid;
         public FamilyID familyid;
 
         public Image[] CharacterImage;
         public GameObject[] CharacterObject;
+        public GameObject[] StarCount;
 
         public GetPlayer getplayer;
 
         public TextMeshProUGUI NameText;
         string NameTextContain;
+        public TextMeshProUGUI StatText;
+        string StatTextContain;
 
         private string savePath;
 
@@ -30,6 +34,7 @@ namespace Scripts.Team.FighterViewer
         void Update()
         {
             NameText.text = NameTextContain;
+            StatText.text = StatTextContain;
         }
 
         public void LoadUserData()
@@ -70,9 +75,17 @@ namespace Scripts.Team.FighterViewer
         {
             NameTextContain = userData.myUnits[playerIndex].unitName;
 
+            StatTextContain = $"HP: {familystat.PlayerStats[playerIndex].HP}\nATK: {familystat.PlayerStats[playerIndex].ATK}\nDEF: {familystat.PlayerStats[playerIndex].DEF}\nAGI: {familystat.PlayerStats[playerIndex].AGI}";
+
             CharacterObject[playerIndex].GetComponent<RectTransform>().anchoredPosition = new Vector2(-40f, 10f);
             
             CharacterObject[playerIndex].GetComponent<RectTransform>().localScale = new Vector2(3f,3f);
+
+            for (int i = 0; i < 5; i++)
+                {
+                    StarCount[i].SetActive(false);
+                }
+            StarCount[userData.myUnits[playerIndex].rarity - 1].SetActive(true);
   
         }
 
