@@ -8104,6 +8104,7 @@ MonoBehaviour:
   - {fileID: 2138603879}
   - {fileID: 1989995985}
   - {fileID: 2102972539}
+  unitviewer: {fileID: 730669867}
   cards: {fileID: 1679263543}
   cardsstate: {fileID: 65739642}
   StateText: {fileID: 1327014618}
@@ -23479,6 +23480,9 @@ MonoBehaviour:
   - {fileID: 209639266}
   - {fileID: 403684636}
   getplayer: {fileID: 268818573}
+  fivestarunit: 00000000
+  fourstarunit: 01000000020000000300000004000000
+  onestarunit: 0500000006000000070000000800000009000000
   NameText: {fileID: 1075264983}
   StatText: {fileID: 208044517}
 --- !u!224 &730669868
@@ -34585,7 +34589,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 1
+  m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &1075264984
@@ -41711,6 +41715,18 @@ MonoBehaviour:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 4
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 730669867}
+        m_TargetAssemblyTypeName: Scripts.Team.FighterViewer.UnitViewer, Assembly-CSharp
+        m_MethodName: LoadFamilyData
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0

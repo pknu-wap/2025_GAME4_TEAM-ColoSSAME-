@@ -22,6 +22,11 @@ namespace Scripts.Team.FighterViewer
         public GameObject[] StarCount;
 
         public GetPlayer getplayer;
+        public List<int> fivestarunit = new List<int> {0};
+        public List<int> fourstarunit = new List<int> {1,2,3,4};
+        List<int> threestarunit;
+        List<int> twostarunit;
+        public List<int> onestarunit = new List<int> {5,6,7,8,9};
 
         public TextMeshProUGUI NameText;
         string NameTextContain;
@@ -30,7 +35,6 @@ namespace Scripts.Team.FighterViewer
 
         private string savePath;
 
-        
         void Update()
         {
             NameText.text = NameTextContain;
@@ -43,6 +47,49 @@ namespace Scripts.Team.FighterViewer
             
             string json = File.ReadAllText(savePath);
             userData = JsonConvert.DeserializeObject<UserData>(json);
+        }
+
+        public void LoadFamilyData()
+        {
+            for (int count = 0; count < userData.myUnits.Count; count++)
+            {
+                if (userData.myUnits[count].rarity == 5)
+                {
+                    fivestarunit.Remove(0); 
+                }
+                if (userData.myUnits[count].rarity == 4)
+                {
+                    for (int index = 1; index < 5; index++)
+                    {
+                        if (userData.myUnits[count].unitName == getplayer.familyData.Characters[index].Unit_Name)
+                        {
+                            fourstarunit.Remove(index);
+                            break;
+                        }
+                    }
+                }
+                /*if (userData.myUnits[count].rarity == 3)
+                {
+                    fivestarunit.Remove(0); 
+                }
+                if (userData.myUnits[count].rarity == 2)
+                {
+                    fivestarunit.Remove(0); 
+                }*/
+                if (userData.myUnits[count].rarity == 1)
+                {
+                    for (int index = 5; index < 10; index++)
+                    {
+                        if (userData.myUnits[count].unitName == getplayer.familyData.Characters[index].Unit_Name)
+                        {
+                            onestarunit.Remove(index);
+                            break;
+                        }
+                    } 
+                }
+                
+            }
+
         }
 
         public void UnitShow()//Load사용 안하고 쓰면 오류 
