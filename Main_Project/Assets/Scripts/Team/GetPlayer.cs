@@ -125,25 +125,31 @@ namespace Scripts.Team.FighterRandomBuy
 
             for (int i = 0; i < 10; i++)
             {
-                int rand = UnityEngine.Random.Range(0, 100); // 0~99
+                int rand = UnityEngine.Random.Range(0, 100);
 
                 if (rand < 1 && unitviewer.fivestarunit.Count > 0) // 1%
                 {
                     CharacterIDList[i] = 0;
                 }
-                else if (rand < 21 && unitviewer.fourstarunit.Count > 0) // 20% (1~20)
+                else if (rand < 21 && unitviewer.fourstarunit.Count > 0) // 20%
                 {
                     int randomIndex = UnityEngine.Random.Range(0, unitviewer.fourstarunit.Count);
-                    CharacterIDList[i] = unitviewer.fourstarunit[randomIndex]; 
+                    CharacterIDList[i] = unitviewer.fourstarunit[randomIndex];
                 }
-                else if(rand < 100 && unitviewer.onestarunit.Count > 0)// 나머지 79%
+                else if (unitviewer.onestarunit.Count > 0) // 79%
                 {
                     int randomIndex = UnityEngine.Random.Range(0, unitviewer.onestarunit.Count);
-                    CharacterIDList[i] = unitviewer.onestarunit[randomIndex]; 
+                    CharacterIDList[i] = unitviewer.onestarunit[randomIndex];
+                }
+                else
+                {
+                    // 만약 해당 희귀도 리스트가 다 떨어지면 → 다른 희귀도에서 뽑는 보정 처리 가능
+                    i--;
+                    continue;
                 }
 
                 CharacterData characterdata = familyData.Characters[CharacterIDList[i]];
-            } 
+            }
 
         }
 
