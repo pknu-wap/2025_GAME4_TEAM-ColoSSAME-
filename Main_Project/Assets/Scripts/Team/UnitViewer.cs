@@ -12,24 +12,33 @@ namespace Scripts.Team.FighterViewer
     public class UnitViewer : MonoBehaviour
     {
         public UserData userData;
+        public FamilyStatsCollector familystat;
 
         public CharacterID characterid;
         public FamilyID familyid;
 
         public Image[] CharacterImage;
         public GameObject[] CharacterObject;
+        public GameObject[] StarCount;
 
         public GetPlayer getplayer;
+        public List<int> fivestarunit = new List<int> {0};
+        public List<int> fourstarunit = new List<int> {1,2,3,4};
+        List<int> threestarunit;
+        List<int> twostarunit;
+        public List<int> onestarunit = new List<int> {5,6,7,8,9};
 
         public TextMeshProUGUI NameText;
         string NameTextContain;
+        public TextMeshProUGUI StatText;
+        string StatTextContain;
 
         private string savePath;
 
-        
         void Update()
         {
             NameText.text = NameTextContain;
+            StatText.text = StatTextContain;
         }
 
         public void LoadUserData()
@@ -38,6 +47,49 @@ namespace Scripts.Team.FighterViewer
             
             string json = File.ReadAllText(savePath);
             userData = JsonConvert.DeserializeObject<UserData>(json);
+        }
+
+        public void LoadFamilyData()
+        {
+            for (int count = 0; count < userData.myUnits.Count; count++)
+            {
+                if (userData.myUnits[count].rarity == 5)
+                {
+                    fivestarunit.Remove(0); 
+                }
+                if (userData.myUnits[count].rarity == 4)
+                {
+                    for (int index = 1; index < 5; index++)
+                    {
+                        if (userData.myUnits[count].unitName == getplayer.familyData.Characters[index].Unit_Name)
+                        {
+                            fourstarunit.Remove(index);
+                            break;
+                        }
+                    }
+                }
+                /*if (userData.myUnits[count].rarity == 3)
+                {
+                    fivestarunit.Remove(0); 
+                }
+                if (userData.myUnits[count].rarity == 2)
+                {
+                    fivestarunit.Remove(0); 
+                }*/
+                if (userData.myUnits[count].rarity == 1)
+                {
+                    for (int index = 5; index < 10; index++)
+                    {
+                        if (userData.myUnits[count].unitName == getplayer.familyData.Characters[index].Unit_Name)
+                        {
+                            onestarunit.Remove(index);
+                            break;
+                        }
+                    } 
+                }
+                
+            }
+
         }
 
         public void UnitShow()//Load사용 안하고 쓰면 오류 
@@ -70,9 +122,17 @@ namespace Scripts.Team.FighterViewer
         {
             NameTextContain = userData.myUnits[playerIndex].unitName;
 
+            StatTextContain = $"HP: {familystat.PlayerStats[playerIndex].HP}\nATK: {familystat.PlayerStats[playerIndex].ATK}\nDEF: {familystat.PlayerStats[playerIndex].DEF}\nAGI: {familystat.PlayerStats[playerIndex].AGI}";
+
             CharacterObject[playerIndex].GetComponent<RectTransform>().anchoredPosition = new Vector2(-40f, 10f);
             
             CharacterObject[playerIndex].GetComponent<RectTransform>().localScale = new Vector2(3f,3f);
+
+            for (int i = 0; i < 5; i++)
+                {
+                    StarCount[i].SetActive(false);
+                }
+            StarCount[userData.myUnits[playerIndex].rarity - 1].SetActive(true);
   
         }
 

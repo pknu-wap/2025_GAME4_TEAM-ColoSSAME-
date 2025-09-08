@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using TMPro;
 using Scripts.Team.IsAnimStopClick;
 using Scripts.Team.CardAnimcontrol;
+using Scripts.Team.FighterViewer;
 
 namespace Scripts.Team.FighterRandomBuy
 {
@@ -16,7 +17,7 @@ namespace Scripts.Team.FighterRandomBuy
         public UserManager userManager;
         private Unit unit;
 
-        private FamilyData familyData;
+        public FamilyData familyData;
 
         public string familyname;
 
@@ -29,6 +30,8 @@ namespace Scripts.Team.FighterRandomBuy
         public List<int> CharacterIDList = new List<int> {0,0,0,0,0,0,0,0,0,0};
         public int count;
         public GameObject[] StarCount;
+
+        public UnitViewer unitviewer;
         
         public GameObject cards;
         public GameObject cardsstate;
@@ -122,23 +125,32 @@ namespace Scripts.Team.FighterRandomBuy
 
             for (int i = 0; i < 10; i++)
             {
-                int rand = UnityEngine.Random.Range(0, 100); // 0~99
+                int rand = UnityEngine.Random.Range(0, 100);
 
-                if (rand < 1) // 1%
+                if (rand < 1 && unitviewer.fivestarunit.Count > 0) // 1%
                 {
                     CharacterIDList[i] = 0;
                 }
-                else if (rand < 21) // 20% (1~20)
+                else if (rand < 21 && unitviewer.fourstarunit.Count > 0) // 20%
                 {
-                    CharacterIDList[i] = UnityEngine.Random.Range(1, 6); // 1~5
+                    int randomIndex = UnityEngine.Random.Range(0, unitviewer.fourstarunit.Count);
+                    CharacterIDList[i] = unitviewer.fourstarunit[randomIndex];
                 }
-                else // 나머지 79%
+                else if (unitviewer.onestarunit.Count > 0) // 79%
                 {
-                    CharacterIDList[i] = UnityEngine.Random.Range(5, familyData.Characters.Count); // 5~끝
+                    int randomIndex = UnityEngine.Random.Range(0, unitviewer.onestarunit.Count);
+                    CharacterIDList[i] = unitviewer.onestarunit[randomIndex];
+                }
+                else
+                {
+                    // 만약 해당 희귀도 리스트가 다 떨어지면 → 다른 희귀도에서 뽑는 보정 처리 가능
+                    i--;
+                    continue;
                 }
 
                 CharacterData characterdata = familyData.Characters[CharacterIDList[i]];
             }
+
         }
 
         public void RandomSelect(int index)
