@@ -49,6 +49,8 @@ public class DeathState : IState
                 break;
         }
 
+        if (ai.aiManager != null) ai.aiManager.IsWinner();
+
         // 비활성화는 마지막
         ai.gameObject.SetActive(false);
         yield return null;

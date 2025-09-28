@@ -251,6 +251,7 @@ public class FamilyStatsCollector : MonoBehaviour
         public string Unit_ID;
         public string Unit_Name;
         public int ATK, DEF, HP, AGI;
+        public float APS;
         public int Rarity;
         public int Level;
     }
