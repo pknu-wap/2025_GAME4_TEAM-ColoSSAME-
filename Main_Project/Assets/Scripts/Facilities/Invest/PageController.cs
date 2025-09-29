@@ -1,10 +1,12 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BookPageController : MonoBehaviour
 {
     public Animator bookAnimator;
     public GameObject[] contentPanels;
+    public Button[] contentButtons;
     
     private int currentIndex = 0;
     private bool isFlipping = false;
@@ -31,6 +33,10 @@ public class BookPageController : MonoBehaviour
         else
             bookAnimator.SetTrigger("FlipBackward");
 
+        foreach (Button button in contentButtons)
+        {
+            button.interactable = false;
+        }
         // 현재 인덱스 업데이트 및 0.5초 후 내용 표시
         StartCoroutine(ShowPanelAfterDelay(targetIndex));
         currentIndex = targetIndex;
@@ -38,8 +44,13 @@ public class BookPageController : MonoBehaviour
 
     IEnumerator ShowPanelAfterDelay(int index)
     {
+        
         yield return new WaitForSeconds(0.5f);
         contentPanels[index].SetActive(true);
         isFlipping = false;
+        foreach (Button button in contentButtons)
+        {
+            button.interactable = true;
+        }
     }
 }
