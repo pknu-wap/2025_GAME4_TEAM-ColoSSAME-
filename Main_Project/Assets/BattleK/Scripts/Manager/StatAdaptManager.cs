@@ -54,6 +54,9 @@ public class StatAdaptManager : MonoBehaviour
 
     [Tooltip("AGI = row.AGI * agiScale")]
     public float agiScale = 1f;
+    
+    [Tooltip("APS = row.APS * apsScale  (APS: Attacks Per Second, 초당 공격 횟수)")]
+    public float apsScale = 1f;
 
     public enum StatMappingMode { Overwrite, Additive, Max, Min }
 
@@ -61,6 +64,9 @@ public class StatAdaptManager : MonoBehaviour
     public StatMappingMode atkMapping = StatMappingMode.Overwrite;
     public StatMappingMode defMapping = StatMappingMode.Overwrite;
     public StatMappingMode hpMapping  = StatMappingMode.Overwrite;
+
+    // ★ 변경: APS도 다른 스탯처럼 매핑할 수 있도록 옵션 노출
+    public StatMappingMode apsMapping  = StatMappingMode.Overwrite;
 
     [Header("디버그")]
     public bool debugLogging = true;
@@ -222,6 +228,12 @@ public class StatAdaptManager : MonoBehaviour
                 acc ^= (r.DEF   *  67);
                 acc ^= (r.HP    *  31);
                 acc ^= (r.AGI   *   7);
+
+                // ★ 변경: APS를 해시 스탬프에 포함(APS 변경도 감지)
+                //  - 정수/실수 대응: 우선 속성/필드에서 가져오고 없으면 0 처리
+                float aps = 0f;
+                TryGetAPS(r, out aps);
+                acc ^= Mathf.RoundToInt(aps * 1000f); // 소수 안정화를 위해 스케일
             }
             return acc;
         }
@@ -362,17 +374,92 @@ public class StatAdaptManager : MonoBehaviour
         ai.def          = MapInt(ai.def,          newDef, defMapping);
         ai.hp           = MapInt(ai.hp,           newHp,  hpMapping);
 
-        // 예시: AGI → 이동속/회피/공속
-        ai.moveSpeed    = MapInt(ai.moveSpeed, 100 + newAgi * 3, StatMappingMode.Overwrite);
-        ai.evasionRate  = MapFloat(ai.evasionRate,           newAgi * 3, StatMappingMode.Overwrite);
-        ai.attackSpeed  = MapFloat(ai.attackSpeed,         newAgi * 5f, StatMappingMode.Overwrite);
+        // 예시: AGI → 이동속/회피
+        //ai.moveSpeed    = MapInt  (ai.moveSpeed,   100 + newAgi * 3, StatMappingMode.Overwrite);
+        //ai.evasionRate  = MapFloat(ai.evasionRate, newAgi * 3,       StatMappingMode.Overwrite);
+
+        // ★ 변경: APS를 attackSpeed(초당 공격 횟수)에 "그대로" 매핑
+        //   - CalculateManager.CharacterStatsRow에 APS가 없거나 0/음수면 기존 값을 유지(변경 안 함).
+        //   - 정수/실수 모두 지원: TryGetAPS에서 알아서 가져옴.
+        float incomingAPS;
+        if (TryGetAPS(row, out incomingAPS))
+        {
+            float scaledAPS = incomingAPS * Mathf.Max(0f, apsScale);
+            if (scaledAPS > 0f)
+            {
+                ai.attackSpeed = MapFloat(ai.attackSpeed, scaledAPS, apsMapping);
+            }
+        }
 
         if (debugLogging)
         {
+            string apsLog = TryGetAPS(row, out var apsVal) ? $"{apsVal * apsScale:0.###}" : "NA";
             Debug.Log($"[StatAdaptManager] {SafeUnitKey(ai)} ← " +
-                      $"LV{row.Level} ATK:{newAtk}, DEF:{newDef}, HP:{newHp}, AGI:{row.AGI} " +
-                      $"(→ ms:{ai.moveSpeed}, eva:{ai.evasionRate}, aspd:{ai.attackSpeed:F2})",
+                      $"LV{row.Level} ATK:{newAtk}, DEF:{newDef}, HP:{newHp}, AGI:{row.AGI}, APS:{row.APS} " +
+                      $"(APS:{apsLog})  → ms:{ai.moveSpeed}, eva:{ai.evasionRate:0.##}, aspd:{ai.attackSpeed:0.###}",
                       ai);
+        }
+    }
+
+    // ★ 추가: APS를 안전하게 읽어오는 헬퍼 (정수/실수/다양한 필드명 대응)
+    private static bool TryGetAPS(FamilyStatsCollector.CharacterStatsRow row, out float aps)
+    {
+        aps = 0f;
+        if (row == null) return false;
+
+        // 1) 대표적인 필드/프로퍼티 명으로 직접 접근(있다면)
+        //    - 프로젝트에 맞게 필요한 이름을 추가하세요.
+        //    - 예: APS, Aps, AttacksPerSecond, AttackPerSecond, AttackSpeedAPS ...
+        var t = row.GetType();
+
+        // 필드 우선
+        string[] fieldNames =
+        {
+            "APS", "Aps", "AttacksPerSecond", "AttackPerSecond", "AttackPerSeconds",
+            "AttackSpeedAPS", "AtkPerSec", "AtkPerSecond"
+        };
+        for (int i = 0; i < fieldNames.Length; i++)
+        {
+            var f = t.GetField(fieldNames[i]);
+            if (f == null) continue;
+
+            object v = f.GetValue(row);
+            if (TryCoerceToFloat(v, out aps)) return aps > 0f;
+        }
+
+        // 프로퍼티
+        for (int i = 0; i < fieldNames.Length; i++)
+        {
+            var p = t.GetProperty(fieldNames[i]);
+            if (p == null || !p.CanRead) continue;
+
+            object v = p.GetValue(row, null);
+            if (TryCoerceToFloat(v, out aps)) return aps > 0f;
+        }
+
+        // 2) 없으면 실패
+        aps = 0f;
+        return false;
+    }
+
+    private static bool TryCoerceToFloat(object v, out float result)
+    {
+        result = 0f;
+        if (v == null) return false;
+
+        switch (v)
+        {
+            case float f: result = f; return true;
+            case double d: result = (float)d; return true;
+            case int i: result = i; return true;
+            case long l: result = l; return true;
+            case short s: result = s; return true;
+            case byte b: result = b; return true;
+            case string str:
+                if (float.TryParse(str, out var parsed)) { result = parsed; return true; }
+                return false;
+            default:
+                return false;
         }
     }
 

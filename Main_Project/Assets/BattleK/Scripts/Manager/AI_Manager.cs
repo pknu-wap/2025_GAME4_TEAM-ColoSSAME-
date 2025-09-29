@@ -216,4 +216,17 @@ public class AI_Manager : MonoBehaviour
         foreach (Transform c in t)
             SetLayerRecursively(c, layerIndex);
     }
+
+    public void IsWinner()
+    {
+        if (playerUnits.Count < 1)
+        {
+            //Player Lost Enemy Won
+        }
+
+        if (EnemyUnits.Count < 1)
+        {
+            //Enemy Lost Player Won
+        }
+    }
 }

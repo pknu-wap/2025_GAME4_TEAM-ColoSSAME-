@@ -213,9 +213,11 @@ public class CalculateManager : MonoBehaviour
             int baseAtk = s.ATK;
             int baseDef = s.DEF;
             int baseHp = s.HP;
+            float baseAgi = s.AGI;
             int calcAtk = 20 + (baseAtk * 2 * level);
             int calcDef = 20 + Mathf.RoundToInt(baseDef * 1.5f * level);
             int calcHp = 200 + (baseHp * 10 * level);
+            float calcAPS = (float)Math.Round(1 + 3 * baseAgi / (baseAgi + 6), 2);
             
             list.Add(new FamilyStatsCollector.CharacterStatsRow
             {
@@ -226,6 +228,7 @@ public class CalculateManager : MonoBehaviour
                 DEF       = calcDef,
                 HP        = calcHp,
                 AGI       = s.AGI,
+                APS       = calcAPS,
                 Rarity    = s.Rarity
             });
         }
