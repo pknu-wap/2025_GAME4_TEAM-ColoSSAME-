@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using Newtonsoft.Json;
 
@@ -14,7 +15,7 @@ public class UnitLoadManager : MonoBehaviour
 {
     [Header("절대 경로(파일까지 포함). 예) C:\\Users\\User\\AppData\\LocalLow\\DefaultCompany\\StateLearning\\UserSave.json")]
     [Tooltip("비워두면 Application.persistentDataPath/UserSave.json을 사용합니다.")]
-    [SerializeField] private string absolutePath = 
+    [SerializeField] private string absolutePath =
         @"C:\Users\User\AppData\LocalLow\DefaultCompany\StateLearning\UserSave.json";
 
     [Header("시작 시 자동으로 로드할지 여부")]
@@ -32,20 +33,20 @@ public class UnitLoadManager : MonoBehaviour
     // JSON 역직렬화 옵션: 누락 필드 무시 + Null 포함(스키마 변동 내성)
     private static readonly JsonSerializerSettings jsonSettings = new JsonSerializerSettings
     {
-        MissingMemberHandling = MissingMemberHandling.Ignore,
-        NullValueHandling     = NullValueHandling.Include,
-        Formatting            = Formatting.Indented
+        MissingMemberHandling   = MissingMemberHandling.Ignore,
+        NullValueHandling       = NullValueHandling.Include,
+        // 기존 컬렉션/사전이 있더라도 JSON 값으로 교체
+        ObjectCreationHandling  = ObjectCreationHandling.Replace,
+        // 포맷은 디버그용 (파일 저장은 이 매니저 책임이 아님)
+        Formatting              = Formatting.Indented
     };
 
     private void Awake()
     {
         if (string.IsNullOrWhiteSpace(absolutePath))
-        {
-            // 절대경로를 지정하지 않으면, 기본적으로 persistentDataPath/UserSave.json 사용
             absolutePath = Path.Combine(Application.persistentDataPath, "UserSave.json");
-        }
 
-        Debug.Log($"[UnitLoadManager] Target Path: {absolutePath}");
+        Debug.Log($"[UnitLoadManager] Target Path → {absolutePath}");
 
         if (loadOnAwake)
         {
@@ -56,87 +57,98 @@ public class UnitLoadManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 인스펙터에서 절대 경로를 바꿨을 때, 런타임에서도 반영하고 싶을 경우 호출
-    /// </summary>
+    /// <summary>인스펙터에서 절대 경로를 바꿨을 때 호출</summary>
     public void SetAbsolutePath(string newAbsolutePath)
     {
         absolutePath = newAbsolutePath;
         Debug.Log($"[UnitLoadManager] 경로 변경: {absolutePath}");
     }
 
-    /// <summary>
-    /// 현재 설정된 absolutePath에서 UserSave.json 읽기 (UserManager 미사용)
-    /// </summary>
+    /// <summary>현재 설정된 absolutePath에서 UserSave.json 읽기</summary>
     public bool LoadFromAbsolutePath(out string message)
     {
         return LoadUserFromFile(absolutePath, out message);
     }
 
-    /// <summary>
-    /// 지정 경로에서 UserSave.json 읽기 (정적 헬퍼로도 사용 가능)
-    /// </summary>
+    /// <summary>지정 경로에서 UserSave.json 읽기</summary>
     public bool LoadUserFromFile(string filePath, out string message)
     {
         LastMessage = message = string.Empty;
 
         try
         {
+            // 1) 경로 검증
             if (string.IsNullOrWhiteSpace(filePath))
             {
-                message = "파일 경로가 비어 있습니다.";
-                LastMessage = message;
                 LoadedUser = null;
-                return false;
+                return Fail("파일 경로가 비어 있습니다.", out message);
             }
-
             if (!File.Exists(filePath))
             {
-                message = $"세이브 파일이 존재하지 않습니다.\n→ {filePath}";
-                LastMessage = message;
                 LoadedUser = null;
-                return false;
+                return Fail($"세이브 파일이 존재하지 않습니다.\n→ {filePath}", out message);
             }
 
+            // 2) 읽기 + 역직렬화
             string json = File.ReadAllText(filePath);
             var data = JsonConvert.DeserializeObject<User>(json, jsonSettings);
             if (data == null)
             {
-                message = "역직렬화 결과가 null입니다. JSON 내용/스키마를 확인하세요.";
-                LastMessage = message;
                 LoadedUser = null;
-                return false;
+                return Fail("역직렬화 결과가 null입니다. JSON 내용/스키마를 확인하세요.", out message);
             }
 
-            // 컬렉션 결측 보정
+            // 3) 컬렉션 결측 보정
             if (data.inventory == null) data.inventory = new Dictionary<string, int>();
             if (data.myUnits   == null) data.myUnits   = new List<Unit>();
 
-            // 간단 유효성 체크(원하면 더 추가)
+            // 4) 간단 유효성(경고만)
             if (string.IsNullOrWhiteSpace(data.userName))
-            {
-                // userName이 비어도 치명적 에러는 아님—경고만
                 Debug.LogWarning("[UnitLoadManager] 경고: userName이 비어 있습니다.");
-            }
 
             LoadedUser = data;
-            message = $"User:{data.userName}, Lv:{data.level}, Gold:{data.money}, Units:{data.myUnits.Count}, Aetherius:{data.myUnits.Find(u => u.unitId == "Astra_Aetherius").level}";
+
+            // 5) 안전한 요약 메시지 구성 (하드코드된 유닛 키 접근 제거)
+            var sb = new StringBuilder();
+            sb.Append($"User:{data.userName ?? "(none)"}");
+            sb.Append($", Lv:{data.level}");
+            sb.Append($", Gold:{data.money}");
+            sb.Append($", Units:{data.myUnits.Count}");
+
+            // 원한다면 특정 유닛을 '존재하면'만 덧붙임
+            // (이전처럼 .Find(...).level로 바로 접근하지 않음)
+            // 예시: "Astra_Aetherius" 레벨 표시
+            var aetherius = data.myUnits.Find(u => string.Equals(u.unitId, "Astra_Aetherius", StringComparison.Ordinal));
+            if (aetherius != null)
+                sb.Append($", Astra_Aetherius Lv:{aetherius.level}");
+
+            message = sb.ToString();
             LastMessage = message;
 
-            OnUserLoaded?.Invoke(LoadedUser);
+            // 6) 이벤트 통지 (핸들러 예외는 여기서 잡아 로그만)
+            try { OnUserLoaded?.Invoke(LoadedUser); }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[UnitLoadManager] OnUserLoaded 핸들러 예외: {ex}");
+            }
+
             return true;
         }
         catch (Exception ex)
         {
-            message = $"예외 발생: {ex.Message}";
-            LastMessage = message;
             LoadedUser = null;
-            return false;
+            return Fail($"예외 발생: {ex.Message}", out message);
         }
     }
 
-    // ===== 유틸: LoadedUser 확인용 간단 액세서 =====
+    private bool Fail(string reason, out string message)
+    {
+        message = reason;
+        LastMessage = message;
+        return false;
+    }
 
+    // ===== 유틸 =====
     public bool HasUser() => LoadedUser != null;
 
     public IReadOnlyList<Unit> GetUnitsOrEmpty()
