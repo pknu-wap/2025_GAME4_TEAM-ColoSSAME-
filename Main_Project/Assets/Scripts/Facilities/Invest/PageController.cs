@@ -35,7 +35,7 @@ public class BookPageController : MonoBehaviour
 
         foreach (Button button in contentButtons)
         {
-            button.interactable = false;
+            button.interactable = false;    //더블클릭 막기
         }
         // 현재 인덱스 업데이트 및 0.5초 후 내용 표시
         StartCoroutine(ShowPanelAfterDelay(targetIndex));
