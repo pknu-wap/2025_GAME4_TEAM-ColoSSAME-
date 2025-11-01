@@ -790,6 +790,7 @@ public class BattleStartUsingSlots : MonoBehaviour
         t.localPosition = toLocalPos;
     }
 
+    // ====== 전투 세팅 완료 후 스탯 수집 + UI 반영 ======
     private void NotifySetupCompleteWhenReady()
     {
         if (aiManager == null) return;
@@ -800,18 +801,18 @@ public class BattleStartUsingSlots : MonoBehaviour
 
         aiManager.SetUnitList();
 
-        // ====== 추가: 스폰/세팅 완전히 끝난 후 스탯 수집 트리거 ======
+        // ===== 스탯 수집 (CalculateManager) =====
 #if UNITY_2020_1_OR_NEWER
         if (statsCollector == null) statsCollector = FindObjectOfType<FamilyStatsCollector>(true);
 #else
-        if (statsCollector == null) statsCollector = FindObjectOfType<FamilyStatsCollector>();
+    if (statsCollector == null) statsCollector = FindObjectOfType<FamilyStatsCollector>();
 #endif
         if (statsCollector != null)
         {
             if (!statsCollector.gameObject.activeSelf)
                 statsCollector.gameObject.SetActive(true);
 
-            CoroutineRunner.Run(_DeferredCollect(statsCollector));
+            CoroutineRunner.Run(_DeferredCollectAndUpdateUI(statsCollector));
         }
         else
         {
@@ -819,9 +820,28 @@ public class BattleStartUsingSlots : MonoBehaviour
         }
     }
 
-    private IEnumerator _DeferredCollect(FamilyStatsCollector collector)
+// 🔹 기존 _DeferredCollect()를 아래처럼 수정
+    private IEnumerator _DeferredCollectAndUpdateUI(FamilyStatsCollector collector)
     {
         yield return null;
+
+        // 1) 최신 스탯 수집
         collector.CollectFromBothTeams();
+
+        // 2) CalculateManager 갱신
+        var calcMgr = FindObjectOfType<CalculateManager>(true);
+        if (calcMgr != null)
+        {
+            calcMgr.RefreshFromCollectorOnce();
+        }
+
+        // 3) StatWindowManager 갱신
+        var uiMgr = FindObjectOfType<BattleK.Scripts.UI.StatWindowManager>(true);
+        if (uiMgr != null)
+        {
+            uiMgr.StatsUpdate();
+            Debug.Log("[BattleStart] StatWindowManager → StatsUpdate() 호출 완료");
+        }
     }
+
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using BattleK.Scripts.UI;
 using UnityEngine;
 using Newtonsoft.Json;
 
@@ -33,7 +34,10 @@ public class CalculateManager : MonoBehaviour
 
     [Tooltip("최대 재시도 횟수")]
     public int maxRetries = 40;
-
+    
+    [Header("상태창 매니저")]
+    public StatWindowManager StatWindowManager;
+    
     [Header("디버그 로그")]
     public bool debugLogging = true;
 
@@ -61,6 +65,7 @@ public class CalculateManager : MonoBehaviour
     {
         if (refreshOnStart)
             StartCoroutine(RefreshFlow());
+        StatWindowManager.StatsUpdate();
     }
 
     /// <summary>
