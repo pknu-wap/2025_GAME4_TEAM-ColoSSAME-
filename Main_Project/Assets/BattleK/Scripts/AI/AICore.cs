@@ -1,14 +1,22 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using BattleK.Scripts.UI;
 using Pathfinding;
 using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(PlayerObjC))]
 public class AICore : MonoBehaviour, IDamageable
 {
     public PlayerObjC player;
 
+    [Header("Name")]
+    public string Ko_Name;
+    public string En_Name;
+
+    [Header("Image")] public Sprite Image;
+    
     [Header("Stats")]
     public int hp;
     public int def;
@@ -149,7 +157,6 @@ public class AICore : MonoBehaviour, IDamageable
                 targeting = new Targeting(new NearestClassTargeting(targetClasses));
                 break;
         }
-
         if (skillDatabase != null) skillDatabase.Init();
         StateMachine.ChangeState(new IdleState(this));
     }

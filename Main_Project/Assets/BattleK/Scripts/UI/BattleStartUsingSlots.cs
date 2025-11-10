@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using BattleK.Scripts.UI;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.AddressableAssets;
@@ -305,6 +306,55 @@ public class BattleStartUsingSlots : MonoBehaviour
         }
     }
 
+    // === (NEW) 슬롯 → 타겟 로컬 좌표 해석기 ===
+    private bool TryResolveSlotTargetLocal(
+        Slot slot,
+        Transform unitsRoot,
+        float uiToWorldScale,
+        Vector3 baseOffset,
+        out Vector3 targetLocal)
+    {
+        targetLocal = Vector3.zero;
+
+        // 1) 슬롯 자신의 RectTransform
+        var slotRT = slot ? slot.GetComponent<RectTransform>() : null;
+        if (slotRT != null)
+        {
+            var uiPos = slotRT.anchoredPosition;
+            if (uiPos.sqrMagnitude > 0.0001f)
+            {
+                targetLocal = new Vector3(uiPos.x * uiToWorldScale, uiPos.y * uiToWorldScale, 0f) + baseOffset;
+                return true;
+            }
+        }
+
+        // 2) Occupant RectTransform
+        RectTransform occRT = null;
+        if (slot && slot.Occupant) occRT = slot.Occupant.GetComponent<RectTransform>();
+        if (occRT != null)
+        {
+            var uiPos = occRT.anchoredPosition;
+            if (uiPos.sqrMagnitude > 0.0001f)
+            {
+                targetLocal = new Vector3(uiPos.x * uiToWorldScale, uiPos.y * uiToWorldScale, 0f) + baseOffset;
+                Debug.LogWarning($"[BattleStart] 슬롯 RectTransform이 비정상(0,0)이라 Occupant의 anchoredPosition을 사용했습니다: {slot.name}");
+                return true;
+            }
+        }
+
+        // 3) 폴백: 슬롯 트랜스폼의 월드 → unitsRoot 로컬
+        if (slot && unitsRoot != null)
+        {
+            var world = slot.transform.position;
+            var local = unitsRoot.InverseTransformPoint(world);
+            targetLocal = new Vector3(local.x, local.y, 0f); // 이미 월드→로컬 변환된 좌표. UI 스케일/오프셋 적용 안 함.
+            Debug.LogWarning($"[BattleStart] RectTransform.anchoredPosition을 사용할 수 없어 월드좌표 폴백을 적용했습니다: {slot.name}");
+            return true;
+        }
+
+        return false;
+    }
+
     private void ProcessTeam(
         bool isPlayer,
         Slot[] teamSlots,
@@ -337,9 +387,11 @@ public class BattleStartUsingSlots : MonoBehaviour
                 continue;
             }
 
-            var slotRT = slot.GetComponent<RectTransform>();
-            Vector2 uiPos = slotRT ? slotRT.anchoredPosition : Vector2.zero;
-            Vector3 targetLocal = new Vector3(uiPos.x * uiToWorldScale, uiPos.y * uiToWorldScale, 0f) + baseOffset;
+            if (!TryResolveSlotTargetLocal(slot, unitsRoot, uiToWorldScale, baseOffset, out var targetLocal))
+            {
+                Debug.LogWarning($"[BattleStart] {(isPlayer ? "플레이어" : "적")} 슬롯 {i + 1}: 좌표 해석 실패");
+                continue;
+            }
 
             targetLocalPositions.Add(targetLocal);
             slotInfos.Add((i, slot, key));
@@ -484,20 +536,31 @@ public class BattleStartUsingSlots : MonoBehaviour
             playerLocalTargetsInEnemySpace = _lastPlayerTargets_Local_EnemyRoot.ToArray(),
             uiToWorldScale = enemyUiToWorldScale,
             baseOffset = enemyLocalOffset,
-            formationStartCenter = enemyUseFormationCenterAnim ? enemyFormationStartCenter : enemyFormationEndCenter,
+
+            // [Refactor-②] 애니메이션을 쓰지 않더라도 Inspector의 Start/End Center가 적용되도록,
+            // 요청에도 그대로 넣어준다(전략이 필요 시 활용 가능).
+            formationStartCenter = enemyFormationStartCenter,
             formationEndCenter   = enemyFormationEndCenter
         };
 
-        // 전략 시도 + 세트 내 폴백 + 최종 라인 폴백
+        // 전략 시도 + 세트 내 폴백
         var targets = TryBuildWithFallbacks(set, req, tryCount: Mathf.Max(1, set.strategies.Count));
+
+        // [Refactor-③] 폴백 라인도 Formation "End" Center 기준으로 생성
         if (targets == null || targets.Length == 0)
         {
-            // 최종 안전망: 가운데 정렬 라인 생성
-            targets = BuildCenteredLine(keys.Count, enemyUiToWorldScale, enemyLocalOffset, 120f);
-            Debug.LogWarning("[BattleStart] 모든 전략이 좌표를 생성하지 않아 기본 라인으로 폴백합니다.");
+            targets = BuildCenteredLine(
+                count: keys.Count,
+                scale: enemyUiToWorldScale,
+                baseOffset: enemyLocalOffset,
+                cellPxX: 120f,
+                center: enemyFormationEndCenter // ← 중심 반영
+            );
+            Debug.LogWarning("[BattleStart] 모든 전략이 좌표를 생성하지 않아 Formation End Center 기준 기본 라인으로 폴백합니다.");
         }
 
-        Vector3 centerStart = enemyUseFormationCenterAnim ? enemyFormationStartCenter : enemyFormationEndCenter;
+        // [Refactor-②] 실제 이동 시작/끝 중심도 Inspector 설정을 확실히 반영
+        Vector3 centerStart = enemyUseFormationCenterAnim ? enemyFormationStartCenter : enemyFormationStartCenter;
         Vector3 centerEnd   = enemyFormationEndCenter;
         float   travelTime  = enemyUseFormationCenterAnim ? Mathf.Max(0f, enemyFormationTravelTime) : 0f;
 
@@ -575,14 +638,12 @@ public class BattleStartUsingSlots : MonoBehaviour
 
     private Vector3[] TryBuildWithFallbacks(EnemyStrategySet set, EnemyStrategyRequest req, int tryCount)
     {
-        // 1) 우선 가중 랜덤으로 하나
         var first = set.PickRandom();
         var tried = new HashSet<EnemyStrategyBase>();
         Vector3[] attempt = BuildSafe(first, req);
         if (attempt != null && attempt.Length > 0) return attempt;
         tried.Add(first);
 
-        // 2) 남은 전략들 순차 시도 (등록 순서)
         foreach (var w in set.strategies)
         {
             if (w.strategy == null || tried.Contains(w.strategy)) continue;
@@ -592,7 +653,6 @@ public class BattleStartUsingSlots : MonoBehaviour
             if (tried.Count >= tryCount) break;
         }
 
-        // 3) 실패
         return new Vector3[0];
     }
 
@@ -610,7 +670,8 @@ public class BattleStartUsingSlots : MonoBehaviour
         return arr;
     }
 
-    private Vector3[] BuildCenteredLine(int count, float scale, Vector3 baseOffset, float cellPxX)
+    // [Refactor-③] center를 인자로 받아 폴백 라인을 "지정 중심" 기준으로 생성
+    private Vector3[] BuildCenteredLine(int count, float scale, Vector3 baseOffset, float cellPxX, Vector3 center)
     {
         var arr = new Vector3[count];
         float cell = Mathf.Max(1f, cellPxX) * scale;
@@ -618,7 +679,7 @@ public class BattleStartUsingSlots : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             float x = startX + i * cell;
-            arr[i] = new Vector3(x, 0f, 0f) + baseOffset;
+            arr[i] = new Vector3(x, 0f, 0f) + baseOffset + center; // center 반영
         }
         return arr;
     }
@@ -730,6 +791,7 @@ public class BattleStartUsingSlots : MonoBehaviour
         t.localPosition = toLocalPos;
     }
 
+    // ====== 전투 세팅 완료 후 스탯 수집 + UI 반영 ======
     private void NotifySetupCompleteWhenReady()
     {
         if (aiManager == null) return;
@@ -740,19 +802,18 @@ public class BattleStartUsingSlots : MonoBehaviour
 
         aiManager.SetUnitList();
 
-        // ====== 추가: 스폰/세팅 완전히 끝난 후 스탯 수집 트리거 ======
+        // ===== 스탯 수집 (CalculateManager) =====
 #if UNITY_2020_1_OR_NEWER
         if (statsCollector == null) statsCollector = FindObjectOfType<FamilyStatsCollector>(true);
 #else
-        if (statsCollector == null) statsCollector = FindObjectOfType<FamilyStatsCollector>();
+    if (statsCollector == null) statsCollector = FindObjectOfType<FamilyStatsCollector>();
 #endif
         if (statsCollector != null)
         {
             if (!statsCollector.gameObject.activeSelf)
                 statsCollector.gameObject.SetActive(true);
 
-            // ✅ 수정안 1: 비활성될 수 있는 이 객체 대신, 항상 살아있는 Runner로 코루틴 실행
-            CoroutineRunner.Run(_DeferredCollect(statsCollector));
+            CoroutineRunner.Run(_DeferredCollectAndUpdateUI(statsCollector));
         }
         else
         {
@@ -760,10 +821,28 @@ public class BattleStartUsingSlots : MonoBehaviour
         }
     }
 
-    private IEnumerator _DeferredCollect(FamilyStatsCollector collector)
+// 🔹 기존 _DeferredCollect()를 아래처럼 수정
+    private IEnumerator _DeferredCollectAndUpdateUI(FamilyStatsCollector collector)
     {
-        // 필요시 한 프레임 대기(스폰 직후 컴포넌트 초기화 보장)
         yield return null;
+
+        // 1) 최신 스탯 수집
         collector.CollectFromBothTeams();
+
+        // 2) CalculateManager 갱신
+        var calcMgr = FindObjectOfType<CalculateManager>(true);
+        if (calcMgr != null)
+        {
+            calcMgr.RefreshFromCollectorOnce();
+        }
+
+        // 3) StatWindowManager 갱신
+        var uiMgr = FindObjectOfType<BattleK.Scripts.UI.StatWindowManager>(true);
+        if (uiMgr != null)
+        {
+            uiMgr.SetStrategyList();
+            Debug.Log("[BattleStart] StatWindowManager → StatsUpdate() 호출 완료");
+        }
     }
+
 }
