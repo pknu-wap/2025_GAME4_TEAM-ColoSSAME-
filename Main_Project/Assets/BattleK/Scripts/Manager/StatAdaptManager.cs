@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using BattleK.Scripts.UI;
 using UnityEngine;
 
 /// <summary>
@@ -13,6 +14,9 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class StatAdaptManager : MonoBehaviour
 {
+    [Header("StatWindowManager")]
+    [SerializeField] private StatWindowManager statWindowManager;
+    
     [Header("필수 참조")]
     [Tooltip("씬에 존재하는 CalculateManager를 Drag&Drop. 비워두면 자동 탐색합니다.")]
     public CalculateManager calculateManager;
@@ -139,6 +143,7 @@ public class StatAdaptManager : MonoBehaviour
         RebuildIndexIfNeeded(force: true);
         ApplyToAllUnits();
         _lastStamp = ComputeStampSafe(calculateManager);
+        statWindowManager.ApplyStatWindow();
     }
 
     private IEnumerator WatchAndReapplyLoop()
@@ -370,6 +375,8 @@ public class StatAdaptManager : MonoBehaviour
         int newHp  = Mathf.RoundToInt(row.HP  * hpScale);
         int newAgi = Mathf.RoundToInt(row.AGI * agiScale);
 
+        ai.Ko_Name = row.Unit_Name;
+        ai.En_Name = row.Unit_ID;
         ai.attackDamage = MapInt(ai.attackDamage, newAtk, atkMapping);
         ai.def          = MapInt(ai.def,          newDef, defMapping);
         ai.hp           = MapInt(ai.hp,           newHp,  hpMapping);

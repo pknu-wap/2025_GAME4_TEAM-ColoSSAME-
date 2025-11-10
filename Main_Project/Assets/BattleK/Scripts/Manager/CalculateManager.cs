@@ -65,7 +65,6 @@ public class CalculateManager : MonoBehaviour
     {
         if (refreshOnStart)
             StartCoroutine(RefreshFlow());
-        StatWindowManager.StatsUpdate();
     }
 
     /// <summary>

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using BattleK.Scripts.UI;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.AddressableAssets;
@@ -839,7 +840,7 @@ public class BattleStartUsingSlots : MonoBehaviour
         var uiMgr = FindObjectOfType<BattleK.Scripts.UI.StatWindowManager>(true);
         if (uiMgr != null)
         {
-            uiMgr.StatsUpdate();
+            uiMgr.SetStrategyList();
             Debug.Log("[BattleStart] StatWindowManager → StatsUpdate() 호출 완료");
         }
     }
