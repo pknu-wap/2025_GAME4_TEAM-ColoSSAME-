@@ -379,7 +379,7 @@ public class StatAdaptManager : MonoBehaviour
         ai.En_Name = row.Unit_ID;
         ai.attackDamage = MapInt(ai.attackDamage, newAtk, atkMapping);
         ai.def          = MapInt(ai.def,          newDef, defMapping);
-        ai.hp           = MapInt(ai.hp,           newHp,  hpMapping);
+        ai.maxHp           = MapInt(ai.hp,           newHp,  hpMapping);
 
         // 예시: AGI → 이동속/회피
         //ai.moveSpeed    = MapInt  (ai.moveSpeed,   100 + newAgi * 3, StatMappingMode.Overwrite);

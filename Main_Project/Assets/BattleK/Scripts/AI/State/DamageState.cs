@@ -25,6 +25,7 @@ public class DamageState : IState
         // 피격 즉시 모든 액션 정리
         ai.meleeAttack?.CancelAll();
         ai.rangedAttack?.CancelAll();
+        ai.hpBar.UpdateHPBar();
 
         // 하드 정지(짧은 시간)
         ai.StopMovementHard(alsoZeroMaxSpeed: false);

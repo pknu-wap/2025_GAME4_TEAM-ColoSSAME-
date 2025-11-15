@@ -17,7 +17,10 @@ public class AICore : MonoBehaviour, IDamageable
 
     [Header("Image")] public Sprite Image;
     
+    [Header("HPBar")] public HPBar hpBar;
+
     [Header("Stats")]
+    public int maxHp;
     public int hp;
     public int def;
     public int moveSpeed;
@@ -90,6 +93,7 @@ public class AICore : MonoBehaviour, IDamageable
 
     private void Awake()
     {
+        hp = maxHp;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
         player = GetComponent<PlayerObjC>();
         player._prefabs = GetComponentInChildren<SPUM_Prefabs>();
 
