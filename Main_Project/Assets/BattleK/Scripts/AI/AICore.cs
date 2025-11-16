@@ -93,7 +93,6 @@ public class AICore : MonoBehaviour, IDamageable
 
     private void Awake()
     {
-        hp = maxHp;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
         player = GetComponent<PlayerObjC>();
         player._prefabs = GetComponentInChildren<SPUM_Prefabs>();
 
@@ -151,7 +150,7 @@ public class AICore : MonoBehaviour, IDamageable
     private void Start()
     {
         if (aiPath != null) aiPath.maxSpeed = moveSpeed;
-
+        
         switch (TargetStrategy)
         {
             case TargetStrategy.NearestTarget:
@@ -161,6 +160,7 @@ public class AICore : MonoBehaviour, IDamageable
                 targeting = new Targeting(new NearestClassTargeting(targetClasses));
                 break;
         }
+        hpBar.UpdateHPBar();
         if (skillDatabase != null) skillDatabase.Init();
         StateMachine.ChangeState(new IdleState(this));
     }
