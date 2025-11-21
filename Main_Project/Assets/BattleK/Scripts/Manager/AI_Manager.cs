@@ -16,7 +16,7 @@ public class AI_Manager : MonoBehaviour
 
     [Header("수집된 유닛 리스트(읽기전용 성격)")]
     public List<AICore> playerUnits = new List<AICore>();
-    public List<AICore> EnemyUnits  = new List<AICore>();
+    public List<AICore> enemyUnits  = new List<AICore>();
 
     [Header("레이어 설정")]
     [Tooltip("Project Settings > Tags and Layers 에서 만든 레이어 이름")]
@@ -32,6 +32,9 @@ public class AI_Manager : MonoBehaviour
 
     [Tooltip("AICore.targetLayer를 GameObject.layer를 기준으로 자동 산출할지(권장)")]
     public bool setTargetByLayer = true;
+    
+    [Header("ResultManager")]
+    [SerializeField] private LeagueSceneManager leagueSceneManager;
 
     // 내부 캐시(이름→인덱스)
     private int _playerLayer = -1;
@@ -71,7 +74,7 @@ public class AI_Manager : MonoBehaviour
     public void SetUnitList()
     {
         playerUnits.Clear();
-        EnemyUnits.Clear();
+        enemyUnits.Clear();
 
         ResolveLayers(); // 이름 → 인덱스 (없으면 Default(0)로 폴백)
 
@@ -106,11 +109,11 @@ public class AI_Manager : MonoBehaviour
                 }
                 else if (side == 1) // Enemy
                 {
-                    if (!EnemyUnits.Contains(core)) EnemyUnits.Add(core);
+                    if (!enemyUnits.Contains(core)) enemyUnits.Add(core);
                 }
             }
         }
-        // Debug.Log($"[AI_Manager] 등록 완료: Player={playerUnits.Count}, Enemy={EnemyUnits.Count} / Layers P={_playerLayer},E={_enemyLayer}");
+        // Debug.Log($"[AI_Manager] 등록 완료: Player={playerUnits.Count}, Enemy={enemyUnits.Count} / Layers P={_playerLayer},E={_enemyLayer}");
     }
 
     /// <summary>
@@ -136,7 +139,7 @@ public class AI_Manager : MonoBehaviour
         int targetMask = ComputeTargetMaskFrom(core.gameObject.layer, side);
         core.targetLayer = targetMask;
 
-        var list = (side == 0) ? playerUnits : EnemyUnits;
+        var list = (side == 0) ? playerUnits : enemyUnits;
         if (!list.Contains(core)) list.Add(core);
     }
 
@@ -147,7 +150,7 @@ public class AI_Manager : MonoBehaviour
     {
         if (core == null) return;
         playerUnits.Remove(core);
-        EnemyUnits.Remove(core);
+        enemyUnits.Remove(core);
     }
 
     // ─────────────────────────────────────────────────────────────────────────────
@@ -221,12 +224,24 @@ public class AI_Manager : MonoBehaviour
     {
         if (playerUnits.Count < 1)
         {
-            //Player Lost Enemy Won
+            leagueSceneManager.OnClickLose();
         }
 
-        if (EnemyUnits.Count < 1)
+        if (enemyUnits.Count < 1)
         {
-            //Enemy Lost Player Won
+            leagueSceneManager.OnClickWin();
+        }
+    }
+
+    public void KillAll()
+    {
+        foreach (var player in playerUnits)
+        {
+            player.Kill();
+        }
+        foreach (var enemy in enemyUnits)
+        {
+            enemy.Kill();
         }
     }
 }

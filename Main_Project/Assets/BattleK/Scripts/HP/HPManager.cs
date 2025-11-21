@@ -17,7 +17,7 @@ public class HPManager : MonoBehaviour
     public void setUnits()
     {
         PlayerUnits = ai_Manager.playerUnits;
-        EnemyUnits = ai_Manager.EnemyUnits;
+        EnemyUnits = ai_Manager.enemyUnits;
     }
     public void ApplyHpToHPBar()
     {

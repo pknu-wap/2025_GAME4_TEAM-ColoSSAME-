@@ -32,7 +32,7 @@ namespace BattleK.Scripts.UI
         public void SetStrategyList()
         {
             PlayerStats = _aiManager ? _aiManager.playerUnits : new List<AICore>();
-            EnemyStats  = _aiManager ? _aiManager.EnemyUnits  : new List<AICore>();
+            EnemyStats  = _aiManager ? _aiManager.enemyUnits  : new List<AICore>();
 
             ClearChildren(PlayerRow);
             ClearChildren(EnemyRow);

@@ -45,7 +45,7 @@ public class DeathState : IState
                 ai.aiManager?.playerUnits.Remove(ai);
                 break;
             case (int)TeamUnit.Enemy:
-                ai.aiManager?.EnemyUnits.Remove(ai);
+                ai.aiManager?.enemyUnits.Remove(ai);
                 break;
         }
 
