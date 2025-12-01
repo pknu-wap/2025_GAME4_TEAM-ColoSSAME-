@@ -17,7 +17,10 @@ public class AICore : MonoBehaviour, IDamageable
 
     [Header("Image")] public Sprite Image;
     
+    [Header("HPBar")] public HPBar hpBar;
+
     [Header("Stats")]
+    public int maxHp;
     public int hp;
     public int def;
     public int moveSpeed;
@@ -147,7 +150,7 @@ public class AICore : MonoBehaviour, IDamageable
     private void Start()
     {
         if (aiPath != null) aiPath.maxSpeed = moveSpeed;
-
+        
         switch (TargetStrategy)
         {
             case TargetStrategy.NearestTarget:
@@ -157,6 +160,7 @@ public class AICore : MonoBehaviour, IDamageable
                 targeting = new Targeting(new NearestClassTargeting(targetClasses));
                 break;
         }
+        hpBar.UpdateHPBar();
         if (skillDatabase != null) skillDatabase.Init();
         StateMachine.ChangeState(new IdleState(this));
     }

@@ -14,8 +14,9 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class StatAdaptManager : MonoBehaviour
 {
-    [Header("StatWindowManager")]
+    [Header("Manager")]
     [SerializeField] private StatWindowManager statWindowManager;
+    [SerializeField] private HPManager hpManager;
     
     [Header("필수 참조")]
     [Tooltip("씬에 존재하는 CalculateManager를 Drag&Drop. 비워두면 자동 탐색합니다.")]
@@ -144,6 +145,7 @@ public class StatAdaptManager : MonoBehaviour
         ApplyToAllUnits();
         _lastStamp = ComputeStampSafe(calculateManager);
         statWindowManager.ApplyStatWindow();
+        hpManager.ApplyHpToHPBar();
     }
 
     private IEnumerator WatchAndReapplyLoop()
@@ -379,6 +381,7 @@ public class StatAdaptManager : MonoBehaviour
         ai.En_Name = row.Unit_ID;
         ai.attackDamage = MapInt(ai.attackDamage, newAtk, atkMapping);
         ai.def          = MapInt(ai.def,          newDef, defMapping);
+        ai.maxHp           = MapInt(ai.hp,           newHp,  hpMapping);
         ai.hp           = MapInt(ai.hp,           newHp,  hpMapping);
 
         // 예시: AGI → 이동속/회피

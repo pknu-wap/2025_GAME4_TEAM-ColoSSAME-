@@ -843,6 +843,13 @@ public class BattleStartUsingSlots : MonoBehaviour
             uiMgr.SetStrategyList();
             Debug.Log("[BattleStart] StatWindowManager → StatsUpdate() 호출 완료");
         }
+        
+        // 4) HPManager 갱신
+        var hpMgr = FindObjectOfType<HPManager>(true);
+        if (hpMgr != null)
+        {
+            hpMgr.setUnits();
+        }
     }
 
 }
