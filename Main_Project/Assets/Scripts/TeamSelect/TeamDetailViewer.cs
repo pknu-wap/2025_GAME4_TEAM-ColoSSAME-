@@ -55,7 +55,6 @@ public class TeamDetailViewer : MonoBehaviour
             teamAttributes[i].sprite=Resources.Load<Sprite>(attributePath);
             cardImages[i].sprite=Resources.Load<Sprite>(cardPath);
             
-            
             int cardIndex = i;
             characterButtons[i].onClick.RemoveAllListeners();
             characterButtons[i].onClick.AddListener(() => OnCharacterCardClick(characterList.Characters[cardIndex],characterButtons[cardIndex].gameObject));
