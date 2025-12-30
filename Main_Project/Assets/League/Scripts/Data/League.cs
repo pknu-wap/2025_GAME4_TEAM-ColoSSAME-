@@ -18,6 +18,8 @@ using System.Collections.Generic;
         public PointRule pointRule;
         public int playerTeamId; // 내 팀 id
         public string playerTeamName; // 내 팀 이름
+        public int tier;          // ★1~★6
+        public string tierName;
     }
 
     [System.Serializable]

@@ -286,7 +286,64 @@ public class LeagueManager : MonoBehaviour
         saveManager.SaveLeague(league);
 
         Debug.Log("✅ 라운드 결과 처리 완료");
+        
+        if (IsLeagueFinished())
+        {
+            Debug.Log("🏁 리그 종료!");
+
+            if (IsPlayerChampion())
+            {
+                Debug.Log("🏆 우승! 다음 리그로 이동");
+                StartNextLeague();
+            }
+            else
+            {
+                Debug.Log("❌ 우승 실패 - 리그 종료");
+                // 여기서 엔딩 / 재도전 UI 띄우면 됨
+            }
+        }
     }
+    
+    public void StartNextLeague()
+    {
+        int nextTier = Mathf.Min(league.settings.tier + 1, 6);
+
+        // 새 리그 생성
+        league = settingManager.InitializeLeague();
+
+        league.settings.tier = nextTier;
+        league.settings.tierName = GetTierName(nextTier);
+
+        saveManager.SaveLeague(league);
+
+        Debug.Log($"{nextTier}성 {league.settings.tierName} 시작!");
+
+        // 필요하면 씬 이동
+        // SceneManager.LoadScene("LeagueScene");
+    }
+    
+
+    
+    public bool IsLeagueFinished()
+    {
+        int myTeamId = league.settings.playerTeamId;
+        Team myTeam = league.teams.Find(t => t.id == myTeamId);
+
+        if (myTeam == null) return false;
+
+        return myTeam.played >= league.settings.totalRounds;
+    }
+
+    public bool IsPlayerChampion()
+    {
+        int myTeamId = league.settings.playerTeamId;
+        Team myTeam = league.teams.Find(t => t.id == myTeamId);
+
+        if (myTeam == null) return false;
+
+        return myTeam.rank == 1;
+    }
+
 
     public Sprite GetTeamSprite(int teamId)
     {
@@ -300,4 +357,19 @@ public class LeagueManager : MonoBehaviour
 
         return sprite;
     }
+    
+    public string GetTierName(int tier)
+    {
+        switch (tier)
+        {
+            case 1: return "입문 리그";
+            case 2: return "도전자 리그";
+            case 3: return "검투사 리그";
+            case 4: return "챔피언 리그";
+            case 5: return "지배자 리그";
+            case 6: return "불멸자 리그";
+            default: return "알 수 없는 리그";
+        }
+    }
+
 }

@@ -16,8 +16,13 @@ public class LeagueSettingManager : MonoBehaviour
             name = "콜로세움 리그 시즌 1",
             totalRounds = 27, // (10-1)*3 = 27라운드
             pointRule = new PointRule { win = 3, draw = 1, lose = 0 },
+            
             playerTeamId = 1, // 플레이어 팀 ID
-            playerTeamName = "팀 A"
+            playerTeamName = "팀 A",
+            
+            tier = 1,
+            tierName = "입문 리그"
+            
         };
 
         // 팀 생성
