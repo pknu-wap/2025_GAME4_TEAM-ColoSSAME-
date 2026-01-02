@@ -1,4 +1,5 @@
 using System.Collections;
+using BattleK.Scripts.Manager;
 using UnityEngine;
 
 /// <summary>
@@ -52,7 +53,7 @@ public class StatsRefreshManager : MonoBehaviour
         if (reloadUserSaveOnClick && unitLoadManager != null)
         {
             if (debugLogging) Debug.Log("[StatsRefreshButton] Reload UserSave...");
-            unitLoadManager.LoadFromAbsolutePath(out var msg);
+            unitLoadManager.TryLoad(out var msg);
             if (debugLogging) Debug.Log($"[StatsRefreshButton] UserSave: {msg}");
         }
 

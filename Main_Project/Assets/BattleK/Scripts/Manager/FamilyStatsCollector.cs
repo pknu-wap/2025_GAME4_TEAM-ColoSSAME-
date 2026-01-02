@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using BattleK.Scripts.Manager;
 using UnityEngine;
 using Newtonsoft.Json;
 
@@ -136,7 +137,7 @@ public class FamilyStatsCollector : MonoBehaviour
         var comparison = caseInsensitiveMatch ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
 
         // 1) UnitLoadManager가 있고, 로드 완료 + myUnits 존재 → Find로 바로 조회
-        if (unitLoadManager != null && unitLoadManager.HasUser() && unitLoadManager.LoadedUser?.myUnits != null)
+        if (unitLoadManager != null && unitLoadManager.LoadedUser?.myUnits != null)
         {
             var mu = unitLoadManager.LoadedUser.myUnits.Find(u =>
                 !string.IsNullOrEmpty(u.unitId) &&
@@ -170,12 +171,12 @@ public class FamilyStatsCollector : MonoBehaviour
             unitLoadManager = FindObjectOfType<UnitLoadManager>();
         }
 
-        if (unitLoadManager != null && !unitLoadManager.HasUser())
+        if (unitLoadManager != null && unitLoadManager.LoadedUser == null)
         {
             // UnitLoadManager가 가진 absolutePath 기준으로 직접 로드 시도
-            if (!unitLoadManager.LoadFromAbsolutePath(out var msg) && debugLogging)
+            if (!unitLoadManager.TryLoad(out _) && debugLogging)
             {
-                Debug.LogWarning($"[FamilyStatsCollector] UnitLoadManager 로드 실패: {msg}");
+                Debug.LogWarning($"[FamilyStatsCollector] UnitLoadManager 로드 실패");
             }
         }
     }
