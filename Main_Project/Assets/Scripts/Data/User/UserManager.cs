@@ -207,17 +207,22 @@ public class UserManager : MonoBehaviour
     }
     
     // 돈 추가/차감 기능도 여기서 호출할 수 있음
+    
+    public event Action<int> OnMoneyChanged;
     public void AddGold(int amount)
     {
         user.AddGold(amount);
         SaveUser();
+        OnMoneyChanged?.Invoke(user.money);
     }
 
     public bool SpendGold(int amount)
     {
         bool success = user.SpendGold(amount);
         if (success) SaveUser();
+        OnMoneyChanged?.Invoke(user.money);
         return success;
+        
     }
 
     public string GetSavePath()

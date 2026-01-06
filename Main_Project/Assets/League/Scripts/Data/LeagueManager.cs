@@ -243,12 +243,16 @@ public class LeagueManager : MonoBehaviour
                     result.scoreA = match.teamAId == playerTeamId ? 1 : 0;
                     result.scoreB = match.teamBId == playerTeamId ? 1 : 0;
                     result.winner = playerTeamId;
+                    
+                    UserManager.Instance.AddGold(100);
                 }
                 else
                 {
                     result.scoreA = match.teamAId == playerTeamId ? 0 : 1;
                     result.scoreB = match.teamBId == playerTeamId ? 0 : 1;
                     result.winner = match.teamAId == playerTeamId ? match.teamBId : match.teamAId;
+                    
+                    UserManager.Instance.AddGold(50);
                 }
             }
             else
