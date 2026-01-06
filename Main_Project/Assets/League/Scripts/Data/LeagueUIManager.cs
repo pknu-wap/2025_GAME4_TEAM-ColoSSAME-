@@ -27,6 +27,8 @@ public class LeagueUIManager : MonoBehaviour
     public TMP_Text currentRoundInfoText;
     public TMP_Text nextRoundInfoText;
 
+    public TMP_Text leagueTierText;
+
     void Start()
     {
         if (leagueManager == null)
@@ -42,6 +44,7 @@ public class LeagueUIManager : MonoBehaviour
         UpdateRankingUI();
         ShowMyTeamNextMatch();
         UpdateRoundInfoUI(); 
+        UpdateLeagueTierUI();
     }
 
     private void UpdateRoundInfoUI()
@@ -193,6 +196,14 @@ public class LeagueUIManager : MonoBehaviour
         // 상대 팀
         nextMatchOpponentImage.sprite = GetTeamSprite(opponentTeam.id);
         nextMatchOpponentText.text = $"{opponentTeam.name}\n{opponentTeam.rank}등";
+    }
+
+    void UpdateLeagueTierUI()
+    {
+        int tier = leagueManager.league.settings.tier;
+        string tierName = leagueManager.league.settings.tierName;
+        
+        leagueTierText.text = $"★{tier} {tierName}";
     }
 
 }
