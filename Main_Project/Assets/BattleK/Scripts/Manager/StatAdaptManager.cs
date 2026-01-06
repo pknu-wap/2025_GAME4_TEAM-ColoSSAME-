@@ -19,15 +19,14 @@ public class StatAdaptManager : MonoBehaviour
     [SerializeField] private HPManager hpManager;
     
     [Header("필수 참조")]
-    [Tooltip("씬에 존재하는 CalculateManager를 Drag&Drop. 비워두면 자동 탐색합니다.")]
-    public CalculateManager calculateManager;
+    [SerializeField] private CalculateManager calculateManager;
 
     [Header("자동 적용")]
     [Tooltip("Start에서 자동으로 전체 AICore에 1회 적용합니다.")]
-    public bool applyOnStart = true;
+    [SerializeField] private bool applyOnStart = true;
 
     [Tooltip("CalculateManager 데이터 변화 감지 시 자동 재적용(폴링)")]
-    public bool reapplyOnChange = true;
+    [SerializeField] private bool reapplyOnChange = true;
 
     [Tooltip("reapply 폴링 주기(초)")]
     [Range(0.05f, 5f)]
