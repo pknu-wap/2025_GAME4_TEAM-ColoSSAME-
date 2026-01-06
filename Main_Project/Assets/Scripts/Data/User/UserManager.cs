@@ -30,6 +30,58 @@ public class UserManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+    // 현재 UI에서 선택된 유닛 ID (fighter 클릭 시 저장)
+    public string selectedUnitId { get; private set; }
+
+// 선택된 유닛을 저장하는 함수
+    public void SetSelectedUnit(string unitId)
+    {
+        selectedUnitId = unitId;
+        Debug.Log($"🟩 선택 유닛 저장됨: {selectedUnitId}");
+    }
+    /// <summary>
+    /// unitId로 유저의 myUnits에서 유닛을 찾아 반환
+    /// </summary>
+    public Unit GetMyUnitById(string unitId)
+    {
+        if (user == null || user.myUnits == null) return null;
+        if (string.IsNullOrEmpty(unitId)) return null;
+
+        for (int i = 0; i < user.myUnits.Count; i++)
+        {
+            Unit u = user.myUnits[i];
+            if (u != null && u.unitId == unitId)
+                return u;
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// 선택(또는 지정) 유닛의 경험치 추가 + 레벨업 처리 + 저장
+    /// </summary>
+    public bool AddUnitExp(string unitId, float amount)
+    {
+        Unit unit = GetMyUnitById(unitId);
+        if (unit == null)
+        {
+            Debug.LogWarning($"⚠️ AddUnitExp 실패: 유닛을 찾지 못함 (unitId={unitId})");
+            return false;
+        }
+
+        unit.exp += amount;
+        Debug.Log($"✨ 유닛 경험치 추가: {unit.unitName} +{amount}, 총합: {unit.exp}");
+        
+        while (unit.exp >= 100)
+        {
+            unit.exp -= 100;
+            unit.level++;
+            Debug.Log($"🎉 유닛 레벨업! {unit.unitName} -> Lv {unit.level}");
+        }
+
+        SaveUser();
+        return true;
+    }
+
 
     /// <summary>
     /// 유저 데이터 로드
