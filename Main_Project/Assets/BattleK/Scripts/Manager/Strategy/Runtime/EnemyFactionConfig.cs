@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using BattleK.Scripts.Data;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Battle/Enemy/Faction Config", fileName = "EF_Faction")]

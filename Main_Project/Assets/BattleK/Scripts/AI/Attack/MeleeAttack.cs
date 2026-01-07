@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using BattleK.Scripts.AI;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider2D))]

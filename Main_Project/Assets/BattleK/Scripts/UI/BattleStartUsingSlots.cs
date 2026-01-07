@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using BattleK.Scripts.Data;
+using BattleK.Scripts.Manager;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;

@@ -1,6 +1,9 @@
 using UnityEngine;
 
-public class FamilyID : MonoBehaviour
+namespace BattleK.Scripts.Data
 {
-    public string FamilyKey;
+    public class FamilyID : MonoBehaviour
+    {
+        public string FamilyKey;
+    }
 }

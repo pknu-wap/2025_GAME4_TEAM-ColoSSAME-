@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using BattleK.Scripts.AI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,10 +20,6 @@ namespace BattleK.Scripts.UI
         [SerializeField] private GameObject EnemyRow;
         [SerializeField] private float firstOffset = 147.5f;
         [SerializeField] private float rowSpacing  = 270f;
-
-        [Header("Layers")]
-        [SerializeField] private int _playerLayer = -1;
-        [SerializeField] private int _enemyLayer  = -1;
 
         [SerializeField] private string playerLayerName;
         [SerializeField] private string enemyLayerName;
@@ -57,12 +54,12 @@ namespace BattleK.Scripts.UI
                 return;
             }
 
-            for (int i = 0; i < list.Count; i++)
+            for (var i = 0; i < list.Count; i++)
             {
                 var go = Instantiate(prefab, rowRT, false);
                 if (!go) continue;
                 
-                float y = -(firstOffset + i * rowSpacing);
+                var y = -(firstOffset + i * rowSpacing);
                 var t = go.transform;
                 var lp = t.localPosition;
                 t.localPosition = new Vector3(lp.x, y, 0f);
@@ -86,7 +83,7 @@ namespace BattleK.Scripts.UI
         {
             if (!rowGO) return;
             var t = rowGO.transform;
-            for (int i = t.childCount - 1; i >= 0; i--)
+            for (var i = t.childCount - 1; i >= 0; i--)
                 Object.Destroy(t.GetChild(i).gameObject);
         }
     }

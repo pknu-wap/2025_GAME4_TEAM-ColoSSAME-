@@ -6,7 +6,7 @@ namespace BattleK.Scripts.JSON
 {
     public static class JsonFileLoader
     {
-        private static readonly JsonSerializerSettings DefaultSettings = new JsonSerializerSettings
+        private static readonly JsonSerializerSettings DefaultSettings = new()
         {
             MissingMemberHandling  = MissingMemberHandling.Ignore,
             NullValueHandling      = NullValueHandling.Include,
@@ -32,7 +32,7 @@ namespace BattleK.Scripts.JSON
         
             try
             {
-                string json = File.ReadAllText(filePath);
+                var json = File.ReadAllText(filePath);
                 data = JsonConvert.DeserializeObject<T>(json, settings ?? DefaultSettings);
 
                 if (data == null)

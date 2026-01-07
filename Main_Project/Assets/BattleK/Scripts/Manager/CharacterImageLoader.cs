@@ -52,7 +52,7 @@ namespace BattleK.Scripts.Manager
             _spriteCache.Clear();
         }
 
-        public IEnumerator LoadImagesToCharactersCoroutine()
+        private IEnumerator LoadImagesToCharactersCoroutine()
         {
             var slotCount = _characterParents?.Length ?? 0;
 
@@ -168,7 +168,7 @@ namespace BattleK.Scripts.Manager
             ApplySprite(img, parent, sprite, unitIdKey);
         }
 
-        private void ApplySprite(Image img, GameObject parent, Sprite sprite, string unitIdKey)
+        private static void ApplySprite(Image img, GameObject parent, Sprite sprite, string unitIdKey)
         {
             img.sprite = sprite;
 
