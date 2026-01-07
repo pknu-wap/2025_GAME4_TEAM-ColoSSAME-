@@ -247,7 +247,7 @@ namespace BattleK.Scripts.Manager
         {
             if (calculateManager == null || calculateManager.AllStats == null || calculateManager.AllStats.Count == 0)
             {
-                if (debugLogging) Debug.LogWarning("[StatAdaptManager] CalculateManager 데이터가 비었습니다.");
+                Debug.LogWarning("[StatAdaptManager] CalculateManager 데이터가 비었습니다.");
                 return;
             }
 

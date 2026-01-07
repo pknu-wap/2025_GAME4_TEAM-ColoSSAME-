@@ -30,7 +30,6 @@ namespace BattleK.Scripts.Manager
         [SerializeField] private List<CharacterStatsRow> _playerStats = new();
         [SerializeField] private List<CharacterStatsRow> _enemyStats  = new();
 
-        // 캐시: 같은 가문의 JSON은 한 번만 읽기
         private Dictionary<string, FamilyJson> _familyCache = new();
 
         public IReadOnlyList<CharacterStatsRow> PlayerStats => _playerStats;
@@ -55,14 +54,18 @@ namespace BattleK.Scripts.Manager
             result.AddRange(from character in characters
             let family = character.GetComponent<FamilyID>()
             let characterId = character.GetComponent<CharacterID>()
+            
             where family && characterId
             let familyKey = (family.FamilyKey ?? string.Empty).Trim()
             let characterKey = (characterId.characterKey ?? string.Empty).Trim()
+            
             where !string.IsNullOrEmpty(familyKey) && !string.IsNullOrEmpty(characterKey)
             let familyJson = LoadFamilyJson(familyKey)
+            
             where familyJson?.Characters != null && familyJson.Characters.Count != 0
             let comparison = _caseInsensitiveMatch ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal
             let matchCharacter = familyJson.Characters.FirstOrDefault(c => string.Equals(c.Unit_ID?.Trim(), characterKey, comparison))
+            
             where matchCharacter != null
             let atk = matchCharacter.Stat_Distribution?.ATK ?? 0
             let def = matchCharacter.Stat_Distribution?.DEF ?? 0
