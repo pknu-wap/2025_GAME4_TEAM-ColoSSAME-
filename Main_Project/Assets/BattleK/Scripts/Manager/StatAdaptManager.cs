@@ -12,70 +12,66 @@ namespace BattleK.Scripts.Manager
     public class StatAdaptManager : MonoBehaviour
     {
         [Header("Manager")]
-        [SerializeField] private StatWindowManager statWindowManager;
-        [SerializeField] private HPManager hpManager;
+        [SerializeField] private StatWindowManager _statWindowManager;
+        [SerializeField] private HPManager _hpManager;
     
         [Header("필수 참조")]
-        [SerializeField] private CalculateManager calculateManager;
+        [SerializeField] private CalculateManager _calculateManager;
 
         [Header("자동 적용")]
         [Tooltip("Start에서 자동으로 전체 AICore에 1회 적용합니다.")]
-        [SerializeField] private bool applyOnStart = true;
+        [SerializeField] private bool _applyOnStart = true;
 
         [Tooltip("CalculateManager 데이터 변화 감지 시 자동 재적용(폴링)")]
-        [SerializeField] private bool reapplyOnChange = true;
+        [SerializeField] private bool _reapplyOnChange = true;
 
         [Tooltip("reapply 폴링 주기(초)")]
         [Range(0.05f, 5f)]
-        public float recheckIntervalSeconds = 0.5f;
+        [SerializeField] private float _recheckIntervalSeconds = 0.5f;
 
         [Tooltip("CalculateManager가 비어 있을 때 대기 최대 시간(초)")]
-        public float initialWaitTimeoutSeconds = 10f;
+        [SerializeField] private float _initialWaitTimeoutSeconds = 10f;
 
         [Header("대상 검색 옵션")]
         [Tooltip("비활성 오브젝트까지 포함해서 AICore를 찾을지 여부")]
-        public bool includeInactiveUnits = false;
+        [SerializeField] private bool _includeInactiveUnits = false;
 
         [Header("적용 후 처리")]
         [Tooltip("적용 후 각 유닛에 StatsReady.MarkReady() 호출 (RangedAttack 게이트 해제)")]
-        public bool markStatsReady = true;
+        [SerializeField] private bool _markStatsReady = true;
 
         [Tooltip("자식 RangedAttack.ownerAI를 명시적으로 주입")]
-        public bool bindOwnerToChildRangedAttacks = true;
+        [SerializeField] private bool _bindOwnerToChildRangedAttacks = true;
 
         [Header("스탯 매핑 스케일(필요시 조정)")]
         [Tooltip("ATK = row.ATK * atkScale")]
-        public float atkScale = 1f;
+        [SerializeField] private float _atkScale = 1f;
 
         [Tooltip("DEF = row.DEF * defScale")]
-        public float defScale = 1f;
+        [SerializeField] private float _defScale = 1f;
 
         [Tooltip("HP = row.HP * hpScale (AICore에 maxHP가 없다면 현재 HP를 덮어씌웁니다)")]
-        public float hpScale = 1f;
+        [SerializeField] private float _hpScale = 1f;
 
         [Tooltip("AGI = row.AGI * agiScale")]
-        public float agiScale = 1f;
+        [SerializeField] private float _agiScale = 1f;
     
         [Tooltip("APS = row.APS * apsScale  (APS: Attacks Per Second, 초당 공격 횟수)")]
-        public float apsScale = 1f;
+        [SerializeField] private float _apsScale = 1f;
 
         public enum StatMappingMode { Overwrite, Additive, Max, Min }
 
         [Header("매핑 모드")]
-        public StatMappingMode atkMapping = StatMappingMode.Overwrite;
-        public StatMappingMode defMapping = StatMappingMode.Overwrite;
-        public StatMappingMode hpMapping  = StatMappingMode.Overwrite;
-
-        // ★ 변경: APS도 다른 스탯처럼 매핑할 수 있도록 옵션 노출
-        public StatMappingMode apsMapping  = StatMappingMode.Overwrite;
+        [SerializeField] private StatMappingMode _atkMapping = StatMappingMode.Overwrite;
+        [SerializeField] private StatMappingMode _defMapping = StatMappingMode.Overwrite;
+        [SerializeField] private StatMappingMode _hpMapping  = StatMappingMode.Overwrite;
+        [SerializeField] private StatMappingMode _apsMapping  = StatMappingMode.Overwrite;
 
         [Header("디버그")]
-        public bool debugLogging = true;
-        public bool warnIfRowMissing = true;
+        [SerializeField] private bool warnIfRowMissing = true;
         [Tooltip("매칭 실패 시 시도한 키들을 로그로 출력")]
-        public bool logTriedKeysOnMiss = true;
+        [SerializeField] private bool logTriedKeysOnMiss = true;
 
-        // ── 내부 상태 ────────────────────────────────────────────
         private int _lastStamp = 0;
         private WaitForSeconds _waitCache;
 
@@ -85,18 +81,18 @@ namespace BattleK.Scripts.Manager
 
         private void Awake()
         {
-            if (calculateManager == null)
-                calculateManager = FindObjectOfType<CalculateManager>();
+            if (_calculateManager == null)
+                _calculateManager = FindObjectOfType<CalculateManager>();
 
-            _waitCache = new WaitForSeconds(Mathf.Max(0.05f, recheckIntervalSeconds));
+            _waitCache = new WaitForSeconds(Mathf.Max(0.05f, _recheckIntervalSeconds));
         }
 
         private void Start()
         {
-            if (applyOnStart)
+            if (_applyOnStart)
                 StartCoroutine(ApplyFlow());
 
-            if (reapplyOnChange)
+            if (_reapplyOnChange)
                 StartCoroutine(WatchAndReapplyLoop());
         }
 
@@ -108,7 +104,7 @@ namespace BattleK.Scripts.Manager
 
             RebuildIndexIfNeeded();
             ApplyToAllUnits();
-            _lastStamp = ComputeStampSafe(calculateManager);
+            _lastStamp = ComputeStampSafe(_calculateManager);
         }
 
         // ── 메인 플로우 ──────────────────────────────────────────
@@ -116,21 +112,20 @@ namespace BattleK.Scripts.Manager
         {
             // 1) CM 대기
             float t = 0f;
-            while (!EnsureCalculateManager() && t < initialWaitTimeoutSeconds)
+            while (!EnsureCalculateManager() && t < _initialWaitTimeoutSeconds)
             {
                 yield return null;
                 t += Time.unscaledDeltaTime;
             }
             if (!EnsureCalculateManager())
             {
-                if (debugLogging) Debug.LogWarning("[StatAdaptManager] CalculateManager 없음 → 적용 불가");
                 yield break;
             }
 
             // 2) 데이터 채워질 때까지 잠깐 대기(최대 타임아웃)
             t = 0f;
-            while ((calculateManager.AllStats == null || calculateManager.AllStats.Count == 0) &&
-                   t < initialWaitTimeoutSeconds)
+            while ((_calculateManager.AllStats == null || _calculateManager.AllStats.Count == 0) &&
+                   t < _initialWaitTimeoutSeconds)
             {
                 yield return null;
                 t += Time.unscaledDeltaTime;
@@ -139,9 +134,9 @@ namespace BattleK.Scripts.Manager
             // 3) 인덱스 구축 + 1회 적용
             RebuildIndexIfNeeded(force: true);
             ApplyToAllUnits();
-            _lastStamp = ComputeStampSafe(calculateManager);
-            statWindowManager.ApplyStatWindow();
-            hpManager.ApplyHpToHPBar();
+            _lastStamp = ComputeStampSafe(_calculateManager);
+            _statWindowManager.ApplyStatWindow();
+            _hpManager.ApplyHpToHPBar();
         }
 
         private IEnumerator WatchAndReapplyLoop()
@@ -151,12 +146,9 @@ namespace BattleK.Scripts.Manager
 
             while (true)
             {
-                var stamp = ComputeStampSafe(calculateManager);
+                var stamp = ComputeStampSafe(_calculateManager);
                 if (stamp != 0 && stamp != _lastStamp)
                 {
-                    if (debugLogging)
-                        Debug.Log($"[StatAdaptManager] 스탯 변경 감지 → 재적용 (prev={_lastStamp}, now={stamp})");
-
                     RebuildIndexIfNeeded(force: true);
                     ApplyToAllUnits();
                     _lastStamp = stamp;
@@ -168,9 +160,9 @@ namespace BattleK.Scripts.Manager
 
         private bool EnsureCalculateManager()
         {
-            if (calculateManager != null) return true;
-            calculateManager = FindObjectOfType<CalculateManager>();
-            return calculateManager != null;
+            if (_calculateManager != null) return true;
+            _calculateManager = FindObjectOfType<CalculateManager>();
+            return _calculateManager != null;
         }
 
         // ── 인덱스(사전) 구축 ────────────────────────────────────
@@ -181,7 +173,7 @@ namespace BattleK.Scripts.Manager
             _byUnitId   = new Dictionary<string, CharacterStatsRow>(StringComparer.Ordinal);
             _byUnitName = new Dictionary<string, CharacterStatsRow>(StringComparer.OrdinalIgnoreCase);
 
-            var rows = calculateManager?.AllStats;
+            var rows = _calculateManager?.AllStats;
             if (rows == null) return;
 
             for (int i = 0; i < rows.Count; i++)
@@ -245,7 +237,7 @@ namespace BattleK.Scripts.Manager
         // ── 전체 적용 ────────────────────────────────────────────
         private void ApplyToAllUnits()
         {
-            if (calculateManager == null || calculateManager.AllStats == null || calculateManager.AllStats.Count == 0)
+            if (_calculateManager == null || _calculateManager.AllStats == null || _calculateManager.AllStats.Count == 0)
             {
                 Debug.LogWarning("[StatAdaptManager] CalculateManager 데이터가 비었습니다.");
                 return;
@@ -253,7 +245,7 @@ namespace BattleK.Scripts.Manager
 
             if (_byUnitId == null) RebuildIndexIfNeeded(force: true);
 
-            var units = FindObjectsOfType<AICore>(includeInactiveUnits);
+            var units = FindObjectsOfType<AICore>(_includeInactiveUnits);
             int applied = 0, missed = 0;
 
             for (int i = 0; i < units.Length; i++)
@@ -270,10 +262,7 @@ namespace BattleK.Scripts.Manager
                     missed++;
                     if (warnIfRowMissing)
                     {
-                        if (logTriedKeysOnMiss)
-                            Debug.LogWarning($"[StatAdaptManager] 매칭 실패: {GetPath(ai)}  tried=[{string.Join(", ", tried)}]", ai);
-                        else
-                            Debug.LogWarning($"[StatAdaptManager] 매칭 실패: {GetPath(ai)}", ai);
+                        Debug.LogWarning(logTriedKeysOnMiss ? $"[StatAdaptManager] 매칭 실패: {GetPath(ai)}  tried=[{string.Join((string)", ", (System.Collections.Generic.IEnumerable<string>)tried)}]" : $"[StatAdaptManager] 매칭 실패: {GetPath(ai)}", ai);
                     }
                     continue;
                 }
@@ -282,7 +271,7 @@ namespace BattleK.Scripts.Manager
                 applied++;
 
                 // ▶ Ready 신호 (RangedAttack 게이트 해제)
-                if (markStatsReady)
+                if (_markStatsReady)
                 {
                     var ready = ai.GetComponent<StatsReady>();
                     if (ready == null) ready = ai.gameObject.AddComponent<StatsReady>();
@@ -290,15 +279,12 @@ namespace BattleK.Scripts.Manager
                 }
 
                 // ▶ 자식 RangedAttack에 오너 명시 주입(선택)
-                if (bindOwnerToChildRangedAttacks)
+                if (_bindOwnerToChildRangedAttacks)
                 {
                     var ras = ai.GetComponentsInChildren<RangedAttack>(true);
                     foreach (var ra in ras) ra.ownerAI = ai;
                 }
             }
-
-            if (debugLogging)
-                Debug.Log($"[StatAdaptManager] 적용 완료 - 대상:{units.Length}, 성공:{applied}, 실패:{missed}");
         }
 
         // ── Row 찾기(여러 키 시도) ───────────────────────────────
@@ -368,17 +354,17 @@ namespace BattleK.Scripts.Manager
         private void ApplyRow(AICore ai, CharacterStatsRow row)
         {
             // 스케일 + 반올림
-            int newAtk = Mathf.RoundToInt(row.ATK * atkScale);
-            int newDef = Mathf.RoundToInt(row.DEF * defScale);
-            int newHp  = Mathf.RoundToInt(row.HP  * hpScale);
-            int newAgi = Mathf.RoundToInt(row.AGI * agiScale);
+            int newAtk = Mathf.RoundToInt(row.ATK * _atkScale);
+            int newDef = Mathf.RoundToInt(row.DEF * _defScale);
+            int newHp  = Mathf.RoundToInt(row.HP  * _hpScale);
+            int newAgi = Mathf.RoundToInt(row.AGI * _agiScale);
 
             ai.Ko_Name = row.Unit_Name;
             ai.En_Name = row.Unit_ID;
-            ai.attackDamage = MapInt(ai.attackDamage, newAtk, atkMapping);
-            ai.def          = MapInt(ai.def,          newDef, defMapping);
-            ai.maxHp           = MapInt(ai.hp,           newHp,  hpMapping);
-            ai.hp           = MapInt(ai.hp,           newHp,  hpMapping);
+            ai.attackDamage = MapInt(ai.attackDamage, newAtk, _atkMapping);
+            ai.def          = MapInt(ai.def,          newDef, _defMapping);
+            ai.maxHp           = MapInt(ai.hp,           newHp,  _hpMapping);
+            ai.hp           = MapInt(ai.hp,           newHp,  _hpMapping);
 
             // 예시: AGI → 이동속/회피
             //ai.moveSpeed    = MapInt  (ai.moveSpeed,   100 + newAgi * 3, StatMappingMode.Overwrite);
@@ -390,20 +376,11 @@ namespace BattleK.Scripts.Manager
             float incomingAPS;
             if (TryGetAPS(row, out incomingAPS))
             {
-                float scaledAPS = incomingAPS * Mathf.Max(0f, apsScale);
+                float scaledAPS = incomingAPS * Mathf.Max(0f, _apsScale);
                 if (scaledAPS > 0f)
                 {
-                    ai.attackSpeed = MapFloat(ai.attackSpeed, scaledAPS, apsMapping);
+                    ai.attackSpeed = MapFloat(ai.attackSpeed, scaledAPS, _apsMapping);
                 }
-            }
-
-            if (debugLogging)
-            {
-                string apsLog = TryGetAPS(row, out var apsVal) ? $"{apsVal * apsScale:0.###}" : "NA";
-                Debug.Log($"[StatAdaptManager] {SafeUnitKey(ai)} ← " +
-                          $"LV{row.Level} ATK:{newAtk}, DEF:{newDef}, HP:{newHp}, AGI:{row.AGI}, APS:{row.APS} " +
-                          $"(APS:{apsLog})  → ms:{ai.moveSpeed}, eva:{ai.evasionRate:0.##}, aspd:{ai.attackSpeed:0.###}",
-                    ai);
             }
         }
 

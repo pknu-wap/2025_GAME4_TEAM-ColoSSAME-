@@ -47,7 +47,7 @@ namespace BattleK.Scripts.Manager
             StopAllCoroutines();
             StartCoroutine(RefreshFlow());
         }
-        private IEnumerator RefreshFlow()
+        IEnumerator RefreshFlow()
         {
             yield return StartCoroutine(RefreshFromCollectorCoroutine());
 
@@ -123,27 +123,27 @@ namespace BattleK.Scripts.Manager
             var list = new List<CharacterStatsRow>(src?.Count ?? 0);
             if (src == null) return list;
 
-            list.AddRange(from s in src
-            let level = Mathf.Max(1, s.Level)
-            let baseAtk = s.ATK
-            let baseDef = s.DEF
-            let baseHp = s.HP
-            let baseAgi = s.AGI
+            list.AddRange(from stat in src
+            let level = Mathf.Max(1, stat.Level)
+            let baseAtk = stat.ATK
+            let baseDef = stat.DEF
+            let baseHp = stat.HP
+            let baseAgi = stat.AGI
             let calcAtk = 20 + (baseAtk * 2 * level)
             let calcDef = 20 + Mathf.RoundToInt(baseDef * 1.5f * level)
             let calcHp = 200 + (baseHp * 10 * level)
             let calcAPS = (float)Math.Round(1 + 3 * (float)baseAgi / ((float)baseAgi + 6), 2)
             select new CharacterStatsRow
             {
-                Unit_ID = s.Unit_ID,
-                Unit_Name = s.Unit_Name,
+                Unit_ID = stat.Unit_ID,
+                Unit_Name = stat.Unit_Name,
                 Level = level,
                 ATK = calcAtk,
                 DEF = calcDef,
                 HP = calcHp,
-                AGI = s.AGI,
+                AGI = stat.AGI,
                 APS = calcAPS,
-                Rarity = s.Rarity
+                Rarity = stat.Rarity
             });
             return list;
         }
