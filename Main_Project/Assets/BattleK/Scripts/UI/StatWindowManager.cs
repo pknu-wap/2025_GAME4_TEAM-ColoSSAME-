@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace BattleK.Scripts.UI
@@ -9,20 +10,20 @@ namespace BattleK.Scripts.UI
     public class StatWindowManager : MonoBehaviour
     {
         [Header("Stat Elements")]
-        public List<AICore> PlayerStats = new List<AICore>();
-        public List<AICore> EnemyStats  = new List<AICore>();
-        public List<StatWindow> StatWindows = new List<StatWindow>();
+        public List<AICore> PlayerStats = new();
+        public List<AICore> EnemyStats  = new();
+        public List<StatWindow> StatWindows = new();
 
         [Header("StatWindow")]
         public GameObject PlayerWindow;
         public GameObject EnemyWindow;
-        [SerializeField] private GameObject PlayerRow;
-        [SerializeField] private GameObject EnemyRow;
-        [SerializeField] private float firstOffset = 147.5f;
-        [SerializeField] private float rowSpacing  = 270f;
+        [SerializeField] private GameObject _playerRow;
+        [SerializeField] private GameObject _enemyRow;
+        [SerializeField] private float _firstOffset = 147.5f;
+        [SerializeField] private float _rowSpacing  = 270f;
 
-        [SerializeField] private string playerLayerName;
-        [SerializeField] private string enemyLayerName;
+        [SerializeField] private string _playerLayerName;
+        [SerializeField] private string _enemyLayerName;
 
         [SerializeField] private AI_Manager _aiManager;
 
@@ -31,16 +32,16 @@ namespace BattleK.Scripts.UI
             PlayerStats = _aiManager ? _aiManager.playerUnits : new List<AICore>();
             EnemyStats  = _aiManager ? _aiManager.enemyUnits  : new List<AICore>();
 
-            ClearChildren(PlayerRow);
-            ClearChildren(EnemyRow);
+            ClearChildren(_playerRow);
+            ClearChildren(_enemyRow);
 
             LinkAICore();
         }
 
         private void LinkAICore()
         {
-            SpawnRow(PlayerStats, PlayerWindow, PlayerRow, "PLAYER");
-            SpawnRow(EnemyStats,  EnemyWindow,  EnemyRow,  "ENEMY");
+            SpawnRow(PlayerStats, PlayerWindow, _playerRow, "PLAYER");
+            SpawnRow(EnemyStats,  EnemyWindow,  _enemyRow,  "ENEMY");
         }
 
         private void SpawnRow(List<AICore> list, GameObject prefab, GameObject rowGO, string tag)
@@ -59,7 +60,7 @@ namespace BattleK.Scripts.UI
                 var go = Instantiate(prefab, rowRT, false);
                 if (!go) continue;
                 
-                var y = -(firstOffset + i * rowSpacing);
+                var y = -(_firstOffset + i * _rowSpacing);
                 var t = go.transform;
                 var lp = t.localPosition;
                 t.localPosition = new Vector3(lp.x, y, 0f);
@@ -84,7 +85,7 @@ namespace BattleK.Scripts.UI
             if (!rowGO) return;
             var t = rowGO.transform;
             for (var i = t.childCount - 1; i >= 0; i--)
-                Object.Destroy(t.GetChild(i).gameObject);
+                Destroy(t.GetChild(i).gameObject);
         }
     }
 }

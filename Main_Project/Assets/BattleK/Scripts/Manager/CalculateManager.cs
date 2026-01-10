@@ -47,7 +47,8 @@ namespace BattleK.Scripts.Manager
             StopAllCoroutines();
             StartCoroutine(RefreshFlow());
         }
-        IEnumerator RefreshFlow()
+
+        private IEnumerator RefreshFlow()
         {
             yield return StartCoroutine(RefreshFromCollectorCoroutine());
 
@@ -142,7 +143,6 @@ namespace BattleK.Scripts.Manager
                 DEF = calcDef,
                 HP = calcHp,
                 AGI = stat.AGI,
-                APS = calcAPS,
                 Rarity = stat.Rarity
             });
             return list;
