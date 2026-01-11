@@ -14,11 +14,6 @@ namespace BattleK.Scripts.Manager
         [Tooltip("씬에 존재하는 FamilyStatsCollector를 Drag&Drop. 비워두면 자동 탐색합니다.")]
         [SerializeField] private FamilyStatsCollector _statsCollector;
 
-        [Header("자동 동작")]
-
-        [Tooltip("Refresh 시 컬렉터의 CollectFromBothTeams()를 먼저 호출")]
-        [SerializeField] private bool _invokeCollectorCollectBeforeRead = true;
-
         [Header("자동 재시도(유닛이 늦게 스폰될 때 대비)")]
         [Tooltip("처음 갱신에 실패(리스트 0)하면 일정 간격으로 재시도")]
         [SerializeField] private bool _autoRetryIfEmpty = true;

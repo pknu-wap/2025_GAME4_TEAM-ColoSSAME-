@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
 using BattleK.Scripts.Data;
+using BattleK.Scripts.HP;
 using BattleK.Scripts.UI;
 using UnityEngine;
 
@@ -14,30 +15,13 @@ namespace BattleK.Scripts.Manager
         [Header("Manager")]
         [SerializeField] private StatWindowManager _statWindowManager;
         [SerializeField] private HPManager _hpManager;
+        [SerializeField] private BattleStartUsingSlots _battleStart;
     
         [Header("필수 참조")]
         [SerializeField] private CalculateManager _calculateManager;
 
-        [Tooltip("reapply 폴링 주기(초)")]
-        [Range(0.05f, 5f)]
-        [SerializeField] private float _recheckIntervalSeconds = 0.5f;
-
-        [Tooltip("CalculateManager가 비어 있을 때 대기 최대 시간(초)")]
-        [SerializeField] private float _initialWaitTimeoutSeconds = 10f;
-
-        private int _lastStamp;
-        private WaitForSeconds _waitCache;
-
         private Dictionary<string, CharacterStatsRow> _byUnitId;
         private Dictionary<string, CharacterStatsRow> _byUnitName;
-
-        private void Awake()
-        {
-            if (_calculateManager == null)
-                _calculateManager = FindObjectOfType<CalculateManager>();
-
-            _waitCache = new WaitForSeconds(Mathf.Max(0.05f, _recheckIntervalSeconds));
-        }
 
         private void Start()
         {
@@ -130,7 +114,7 @@ namespace BattleK.Scripts.Manager
                 if (row == null) continue;
 
                 ApplyRow(ai, row);
-                
+                _battleStart.CheckSpawnComplete();
                 var ready = ai.GetComponent<StatsReady>();
                 if (ready == null) ready = ai.gameObject.AddComponent<StatsReady>();
                 ready.MarkReady();
@@ -138,9 +122,7 @@ namespace BattleK.Scripts.Manager
                 var ras = ai.GetComponentsInChildren<RangedAttack>(true);
                 foreach (var ra in ras) ra.ownerAI = ai;
             }
-            _lastStamp = ComputeStampSafe(_calculateManager);
-            _statWindowManager.ApplyStatWindow();
-            _hpManager.ApplyHpToHPBar();
+            ComputeStampSafe(_calculateManager);
         }
 
         private CharacterStatsRow FindRowFor(AICore ai, List<string> triedKeysCollector = null)

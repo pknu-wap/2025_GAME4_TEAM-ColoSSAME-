@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
+using BattleK.Scripts.Manager;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
