@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using BattleK.Scripts.AI;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,9 +9,6 @@ namespace BattleK.Scripts.UI
     {
         [Header("이름 텍스트")]
         public TextMeshProUGUI NameText;
-
-        [Header("캐릭터 팀 설정")]
-        public LayerMask TeamLayer;
 
         [Header("스탯 텍스트")]
         public TextMeshProUGUI AtkText;
@@ -26,7 +24,7 @@ namespace BattleK.Scripts.UI
         {
             if (CharacterImage) CharacterImage.sprite = OwnerAI.Image;
             if (NameText)   NameText.text   = $"{OwnerAI.Ko_Name}";
-            if (AtkText)    AtkText.text    = $"ATK: {OwnerAI.def}";
+            if (AtkText)    AtkText.text    = $"ATK: {OwnerAI.attackDamage}";
             if (DefText)    DefText.text    = $"DEF: {OwnerAI.def}";
         }
     }

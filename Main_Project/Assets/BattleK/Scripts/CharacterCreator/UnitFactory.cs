@@ -4,6 +4,8 @@
 // ============================================
 using UnityEngine;
 using System.Reflection;
+using BattleK.Scripts.AI;
+using BattleK.Scripts.Data;
 using Pathfinding;           // A* Pathfinding Project
 using Pathfinding.RVO;      // RVOController
 

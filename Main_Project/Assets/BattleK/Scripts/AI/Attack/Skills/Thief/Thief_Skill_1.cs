@@ -1,4 +1,5 @@
 using System.Collections;
+using BattleK.Scripts.AI;
 using UnityEngine;
 
 public class Thief_Skill_1 : SkillLogic

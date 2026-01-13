@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using BattleK.Scripts.AI;
 
 public class NearestClassTargeting : ITargetingStrategy
 {

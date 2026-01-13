@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using System.IO;
+using BattleK.Scripts.Data;
+using BattleK.Scripts.Manager;
 using UnityEngine.UI;
 using Scripts.Team.FighterRandomBuy;
 using TMPro;
