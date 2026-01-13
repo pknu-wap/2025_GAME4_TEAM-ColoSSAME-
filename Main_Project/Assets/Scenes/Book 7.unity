@@ -1306,7 +1306,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 1, g: 1, b: 1, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -8010,7 +8010,7 @@ MonoBehaviour:
   - {fileID: 233996711}
   - {fileID: 1741984953}
   CharacterGetCheck: 00000000000000000000000000000000000000000000000000000000000000000000000000000000
-  CharacterIDList: 00000000000000000000000000000000000000000000000000000000000000000000000000000000
+  CharacterIDList: []
   count: 0
   StarCount:
   - {fileID: 1712561039}
@@ -9071,8 +9071,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78d7de4367199904d8658b71646a8c32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  absolutePath: C:\Users\User\AppData\LocalLow\DefaultCompany\StateLearning\UserSave.json
-  loadOnAwake: 1
+  _absolutePath: 
+  _loadOnAwake: 1
 --- !u!4 &315251471
 Transform:
   m_ObjectHideFlags: 0
@@ -9830,7 +9830,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 1, g: 1, b: 1, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -23144,9 +23144,9 @@ MonoBehaviour:
   - {fileID: 209639266}
   - {fileID: 403684636}
   getplayer: {fileID: 268818573}
-  fivestarunit: 00000000
-  fourstarunit: 01000000020000000300000004000000
-  onestarunit: 0500000006000000070000000800000009000000
+  fiveStarIds: []
+  fourStarIds: []
+  oneStarIds: []
   NameText: {fileID: 1075264983}
   StatText: {fileID: 208044517}
 --- !u!224 &730669868
@@ -39984,7 +39984,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 1, g: 1, b: 1, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -40716,7 +40716,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 1, g: 1, b: 1, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -40761,7 +40761,31 @@ MonoBehaviour:
         m_CallState: 2
       - m_Target: {fileID: 730669867}
         m_TargetAssemblyTypeName: Scripts.Team.FighterViewer.UnitViewer, Assembly-CSharp
-        m_MethodName: LoadFamilyData
+        m_MethodName: LoadUserData
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 730669867}
+        m_TargetAssemblyTypeName: Scripts.Team.FighterViewer.UnitViewer, Assembly-CSharp
+        m_MethodName: UnitShow
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1968034773}
+        m_TargetAssemblyTypeName: StatsRefreshManager, Assembly-CSharp
+        m_MethodName: OnClickRefresh
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -43195,6 +43219,7 @@ MonoBehaviour:
   - {fileID: 447260756}
   currentRoundInfoText: {fileID: 1310944265}
   nextRoundInfoText: {fileID: 435171316}
+  leagueTierText: {fileID: 0}
   MyTeamImage: {fileID: 608184208}
   MyTeamText: {fileID: 1006418489}
   nextMatchMyTeamImage: {fileID: 1886079283}
@@ -64002,7 +64027,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 1, g: 1, b: 1, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
