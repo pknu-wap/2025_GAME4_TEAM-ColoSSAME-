@@ -22,11 +22,9 @@ namespace Scripts.Team.FighterViewer
         public GameObject[] StarCount;
 
         public GetPlayer getplayer;
-        public List<int> fivestarunit = new List<int> {0};
-        public List<int> fourstarunit = new List<int> {1,2,3,4};
-        List<int> threestarunit;
-        List<int> twostarunit;
-        public List<int> onestarunit = new List<int> {5,6,7,8,9};
+        public List<string> fiveStarIds = new();
+        public List<string> fourStarIds = new();
+        public List<string> oneStarIds = new();
 
         public TextMeshProUGUI NameText;
         string NameTextContain;
@@ -35,21 +33,62 @@ namespace Scripts.Team.FighterViewer
 
         private string savePath;
 
-        void Update()
+        /*void Update()
         {
             NameText.text = NameTextContain;
             StatText.text = StatTextContain;
+        }*/
+
+        void Start()
+        {
+            LoadUserData();
+            BuildRarityPools();   // 가문 기준 전체 풀
+            RemoveOwnedUnits();   // 보유 유닛 제거
         }
 
         public void LoadUserData()
         {
             string savePath = Path.Combine(Application.persistentDataPath, "UserSave.json");
             
+            
+            if (!File.Exists(savePath))
+            {
+                Debug.LogError("UserSave.json not found");
+            }
+            
             string json = File.ReadAllText(savePath);
             userData = JsonConvert.DeserializeObject<UserData>(json);
         }
 
-        public void LoadFamilyData()
+        void BuildRarityPools()
+        {
+            fiveStarIds.Clear();
+            fourStarIds.Clear();
+            oneStarIds.Clear();
+
+            foreach (var c in getplayer.familyData.Characters)
+            {
+                switch (c.Rarity)
+                {
+                    case 5: fiveStarIds.Add(c.Unit_ID); break;
+                    case 4: fourStarIds.Add(c.Unit_ID); break;
+                    case 1: oneStarIds.Add(c.Unit_ID); break;
+                }
+            }
+        }
+        void RemoveOwnedUnits()
+        {
+            HashSet<string> ownedIds = new();
+
+            foreach (var u in userData.myUnits)
+                ownedIds.Add(u.unitId);
+
+            fiveStarIds.RemoveAll(id => ownedIds.Contains(id));
+            fourStarIds.RemoveAll(id => ownedIds.Contains(id));
+            oneStarIds.RemoveAll(id => ownedIds.Contains(id));
+        }
+
+        /*public void LoadFamilyData()
         {
             for (int count = 0; count < userData.myUnits.Count; count++)
             {
@@ -68,14 +107,14 @@ namespace Scripts.Team.FighterViewer
                         }
                     }
                 }
-                /*if (userData.myUnits[count].rarity == 3)
+                if (userData.myUnits[count].rarity == 3)
                 {
                     fivestarunit.Remove(0); 
                 }
                 if (userData.myUnits[count].rarity == 2)
                 {
                     fivestarunit.Remove(0); 
-                }*/
+                }
                 if (userData.myUnits[count].rarity == 1)
                 {
                     for (int index = 5; index < 10; index++)
@@ -90,7 +129,7 @@ namespace Scripts.Team.FighterViewer
                 
             }
 
-        }
+        }*/
 
         public void UnitShow()//Load사용 안하고 쓰면 오류 
         {
@@ -122,7 +161,7 @@ namespace Scripts.Team.FighterViewer
         {
             NameTextContain = userData.myUnits[playerIndex].unitName;
 
-            StatTextContain = $"HP: {familystat.PlayerStats[playerIndex].HP}\nATK: {familystat.PlayerStats[playerIndex].ATK}\nDEF: {familystat.PlayerStats[playerIndex].DEF}\nAGI: {familystat.PlayerStats[playerIndex].AGI}";
+            //StatTextContain = $"HP: {familystat.PlayerStats[playerIndex].HP}\nATK: {familystat.PlayerStats[playerIndex].ATK}\nDEF: {familystat.PlayerStats[playerIndex].DEF}\nAGI: {familystat.PlayerStats[playerIndex].AGI}";
 
             CharacterObject[playerIndex].GetComponent<RectTransform>().anchoredPosition = new Vector2(-40f, 10f);
             
@@ -133,6 +172,9 @@ namespace Scripts.Team.FighterViewer
                     StarCount[i].SetActive(false);
                 }
             StarCount[userData.myUnits[playerIndex].rarity - 1].SetActive(true);
+
+            NameText.text = NameTextContain;
+            //StatText.text = StatTextContain;
   
         }
 
