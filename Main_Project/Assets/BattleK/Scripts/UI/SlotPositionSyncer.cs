@@ -1,3 +1,4 @@
+using BattleK.Scripts.Manager;
 using UnityEngine;
 
 public class SlotPositionSyncer : MonoBehaviour

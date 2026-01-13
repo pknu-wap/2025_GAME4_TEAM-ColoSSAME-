@@ -1,4 +1,5 @@
 using System;
+using BattleK.Scripts.AI;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(Collider2D))]
