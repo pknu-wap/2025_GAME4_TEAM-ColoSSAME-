@@ -23,7 +23,7 @@ namespace BattleK.Scripts.AI.StaticScoreState.ActionStates
         {
             while (true)
             {
-                if(!_ai.Target && _ai.Target.gameObject.activeInHierarchy) _ai.LookAt(_ai.Target.position);
+                if(_ai.Target && _ai.Target.gameObject.activeInHierarchy) _ai.LookAt(_ai.Target.position);
                 yield return null;
             }
         }

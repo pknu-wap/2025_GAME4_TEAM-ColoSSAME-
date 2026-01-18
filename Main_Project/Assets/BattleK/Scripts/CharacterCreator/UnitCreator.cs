@@ -18,6 +18,7 @@ namespace BattleK.Scripts.CharacterCreator
             bool isRecruit,
             bool isRanged,
             UnitClass unitClassName,
+            Sprite unitImage,
             GameObject spumPrefab,
             GameObject rangedPrefab,
             GameObject meleePrefab,
@@ -36,15 +37,13 @@ namespace BattleK.Scripts.CharacterCreator
             var rectTransform = visual.GetComponent<RectTransform>();
             if(rectTransform) rectTransform.anchoredPosition3D = new Vector3(0, -0.3f, 0);
             else visual.transform.localPosition = new Vector3(0, -0.3f, 0);
-
-            if(isRanged) InstantiatePrefab(rangedPrefab, parent.transform, "Ranged");
-            else InstantiatePrefab(meleePrefab, parent.transform, "Melee");
+            
+            var weapon = isRanged ? InstantiatePrefab(rangedPrefab, parent.transform, "Ranged") : InstantiatePrefab(meleePrefab, parent.transform, "Melee"); 
+            weapon.transform.localPosition = new Vector3(-0.5f, 0, 0);
             
             var hpBar = InstantiatePrefab(hpBarPrefab, parent.transform, "HP Bar");
-            hpBar.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.45f, 0);
-            hpBar.GetComponentInChildren<HPBar>().OwnerAi = parent.GetComponent<StaticAICore>();
             
-            ConfigureCore(parent, isRanged, unitClassName, visual);
+            ConfigureCore(parent, isRanged, unitClassName, visual, hpBar, unitImage);
             if (isUsingSPUMName)
             {
                 unitFullName = spumPrefab.gameObject.name;
@@ -68,7 +67,7 @@ namespace BattleK.Scripts.CharacterCreator
             parent.AddComponent<RVOController>();
         }
         
-        private static void ConfigureCore(GameObject parent, bool isRanged, UnitClass unitClassName, GameObject spumInstance)
+        private static void ConfigureCore(GameObject parent, bool isRanged, UnitClass unitClassName, GameObject spumInstance, GameObject hpBar, Sprite unitImage)
         {
             var aiCore = parent.GetComponent<StaticAICore>();
             aiCore.Stat = new UnitStat
@@ -81,9 +80,17 @@ namespace BattleK.Scripts.CharacterCreator
             if (isRanged) aiCore.Stat.AttackRange = 5f;
             aiCore.Stat.MoveSpeed = 2;
             aiCore.Stat.SightRange = 9f;
-            
+            aiCore.Stat.CharacterImage = unitImage;
+            aiCore.AttackIndex = unitClassName switch
+            {
+                UnitClass.Archer => 2,
+                UnitClass.Mage or UnitClass.Priest => 4,
+                _ => 0
+            };
+
             var playerObj = parent.GetComponent<PlayerObjC>();
             playerObj._prefabs = spumInstance.GetComponent<SPUM_Prefabs>();
+            
             var aiPath = parent.GetComponent<AIPath>();
             aiPath.maxSpeed = 3.5f;
             aiPath.canMove = true;
@@ -100,10 +107,15 @@ namespace BattleK.Scripts.CharacterCreator
             var rb = parent.GetComponent<Rigidbody2D>();
             rb.gravityScale = 0f;
             rb.freezeRotation = true;
+
+            var hpBarComponent = hpBar.GetComponentInChildren<HPBar>();
+            hpBar.GetComponent<RectTransform>().localPosition = new Vector3(0, -0.45f, 0);
+            hpBarComponent.OwnerAi = aiCore;
             
             aiCore.AiPath = aiPath;
             aiCore.Rigidbody = rb;
             aiCore.player = playerObj;
+            aiCore.HPBar = hpBarComponent;
             if (isRanged) aiCore.RangedWeapon = parent.GetComponentInChildren<StaticRangedAttack>();
             else aiCore.MeleeWeapon = parent.GetComponentInChildren<StaticMeleeAttack>();
         }

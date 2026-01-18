@@ -61,7 +61,7 @@ public enum ActionType
 public class UnitStat
 {
     public string Name;
-    public Sprite Icon;
+    public Sprite CharacterImage;
     public bool IsPlayer;
     
     [Header("클래스")]

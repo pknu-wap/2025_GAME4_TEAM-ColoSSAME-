@@ -29,7 +29,7 @@ namespace BattleK.Scripts.Manager.Battle
 
         private IEnumerator ProcessCCRoutine(CCData data)
         {
-            if(data.isHardCC) _aiCore.EnterCCState(data.duration, data.animName);
+            if(data.isHardCC) _aiCore.EnterCCState(data.animName);
             if(!Mathf.Approximately(data.speedMultiplier, 1.0f)) _aiCore.SetMoveSpeedMultiplier(data.speedMultiplier);
             GameObject vfxInstance = null;
             if(data.vfxPrefab) vfxInstance = Instantiate(data.vfxPrefab, transform.position, Quaternion.identity, transform);

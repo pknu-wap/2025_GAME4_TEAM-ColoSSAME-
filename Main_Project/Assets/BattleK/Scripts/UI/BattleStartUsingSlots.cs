@@ -98,6 +98,9 @@ namespace BattleK.Scripts.UI
             {
                 SpawnEnemyTeam();
             }
+
+            pendingSpawns--;
+            CheckSpawnComplete();
         }
         
         private void SpawnPlayerTeam()
@@ -204,7 +207,6 @@ namespace BattleK.Scripts.UI
 
             CoroutineRunner.Run(SpawnRoutine(req, ar, root, instanceMap, () => {
                 pendingSpawns--;
-                CheckSpawnComplete();
             }));
         }
         

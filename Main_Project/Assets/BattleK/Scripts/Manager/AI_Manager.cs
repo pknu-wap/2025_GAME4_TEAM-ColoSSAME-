@@ -74,6 +74,8 @@ namespace BattleK.Scripts.Manager
             {
                 if (!enemyUnits.Contains(unit)) enemyUnits.Add(unit);
             }
+            
+            unit.Initialize();
         }
         
         public void UnregisterUnit(StaticAICore unit)

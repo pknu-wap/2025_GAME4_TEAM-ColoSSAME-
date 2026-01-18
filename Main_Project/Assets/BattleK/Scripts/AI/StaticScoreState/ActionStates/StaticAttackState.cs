@@ -39,7 +39,7 @@ namespace BattleK.Scripts.AI.StaticScoreState.ActionStates
             _isAttacking = true;
             _ai.StopMovement();
             _ai.LookAt(_ai.Target.position);
-            _ai.PlayAnimation(PlayerState.ATTACK);
+            _ai.PlayAnimation(PlayerState.ATTACK, _ai.AttackIndex);
         }
 
         public IEnumerator Execute()

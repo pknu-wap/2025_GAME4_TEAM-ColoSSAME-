@@ -13,6 +13,7 @@ namespace BattleK.Scripts.Editor
         private bool _isRecruit;
         private bool _isRanged;
         private UnitClass _unitClass;
+        private Sprite _unitImage;
         private GameObject spumPrefab;
         private GameObject _rangedAttack;
         private GameObject _meleeAttack;
@@ -39,7 +40,11 @@ namespace BattleK.Scripts.Editor
             _unitClass = (UnitClass)EditorGUILayout.EnumPopup(new GUIContent("유닛 직업"), _unitClass);
         
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Prefabs", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("이미지 설정", EditorStyles.boldLabel);
+            _unitImage = (Sprite)EditorGUILayout.ObjectField(new GUIContent("캐릭터 이미지"), _unitImage, typeof(Sprite), true);
+            
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("프리팹 설정", EditorStyles.boldLabel);
             spumPrefab = (GameObject)EditorGUILayout.ObjectField(new GUIContent("SPUM Prefab"), spumPrefab, typeof(GameObject), false);
             _rangedAttack = (GameObject)EditorGUILayout.ObjectField(new GUIContent("RangedAttack Prefab"), _rangedAttack, typeof(GameObject), false);
             _meleeAttack = (GameObject)EditorGUILayout.ObjectField(new GUIContent("MeleeAttack Prefab"), _meleeAttack, typeof(GameObject), false);
@@ -87,6 +92,7 @@ namespace BattleK.Scripts.Editor
                 isUsingSPUMName: _isUsingSpumName,
                 isRanged: _isRanged,
                 unitClassName: _unitClass,
+                unitImage: _unitImage,
                 spumPrefab: spumPrefab,
                 rangedPrefab: _rangedAttack,
                 meleePrefab: _meleeAttack,

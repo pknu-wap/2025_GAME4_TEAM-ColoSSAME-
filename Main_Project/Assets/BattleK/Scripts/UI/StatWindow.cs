@@ -22,7 +22,7 @@ namespace BattleK.Scripts.UI
         
         public void Apply()
         {
-            if (CharacterImage) CharacterImage.sprite = OwnerAI.Stat.Icon;
+            if (CharacterImage) CharacterImage.sprite = OwnerAI.Stat.CharacterImage;
             if (NameText)   NameText.text   = $"{OwnerAI.Stat.Name}";
             if (AtkText)    AtkText.text    = $"ATK: {OwnerAI.Stat.AttackDamage}";
             if (DefText)    DefText.text    = $"DEF: {OwnerAI.Stat.Defense}";

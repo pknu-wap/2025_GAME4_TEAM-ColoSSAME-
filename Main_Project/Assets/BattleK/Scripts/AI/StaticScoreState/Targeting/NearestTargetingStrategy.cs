@@ -6,17 +6,15 @@ namespace BattleK.Scripts.AI.StaticScoreState.Targeting
     public class NearestTargetStrategy : IStaticTargetingStrategy
     {
         private readonly Collider2D[] _results;
-        private readonly LayerMask _targetLayer;
 
-        public NearestTargetStrategy(LayerMask targetLayer, int maxBufferSize = 10)
+        public NearestTargetStrategy(int maxBufferSize = 10)
         {
-            _targetLayer = targetLayer;
             _results = new Collider2D[maxBufferSize];
         }
 
         public Transform FindTarget(StaticAICore ai)
         {
-            var size = Physics2D.OverlapCircleNonAlloc(ai.transform.position, ai.Stat.SightRange, _results, _targetLayer);
+            var size = Physics2D.OverlapCircleNonAlloc(ai.transform.position, ai.Stat.SightRange, _results, ai.TargetLayer);
 
             Transform bestTarget = null;
             var closestDistSqr = Mathf.Infinity;
@@ -26,7 +24,7 @@ namespace BattleK.Scripts.AI.StaticScoreState.Targeting
             {
                 var col = _results[i];
                 
-                if (col.transform == ai.transform) continue;
+                if (col.gameObject.layer == ai.gameObject.layer) continue;
 
                 var targetAI = col.GetComponent<StaticAICore>();
                 

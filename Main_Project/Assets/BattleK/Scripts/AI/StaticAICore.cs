@@ -21,6 +21,9 @@ namespace BattleK.Scripts.AI
         [SerializeField] private float _windupTime = 0.5f;
         [SerializeField] private float _activeTime = 0.5f;
         [SerializeField] private float _recoveryTime = 0.5f;
+        public int AttackIndex;
+        public int SkillIndex;
+        public bool IsInitialized { get; private set; } = false;
         
         [Header("References")]
         public AIPath AiPath;
@@ -41,8 +44,9 @@ namespace BattleK.Scripts.AI
         public List<UnitClass> TargetClass;
         public TargetStrategy TargetingStrategy;
         public IStaticTargetingStrategy Targeting {get; private set;}
-
         public LayerMask TargetLayer;
+        
+        private StaticAICore _targetCore;
         public bool IsDead => OverrideMachine.CurrentState is StaticDeathState;
 
         [HideInInspector] public float LastRetreatFinishTime;
@@ -67,7 +71,7 @@ namespace BattleK.Scripts.AI
         {
             Targeting = TargetingStrategy switch
             {
-                TargetStrategy.NearestTarget => new NearestTargetStrategy(TargetLayer),
+                TargetStrategy.NearestTarget => new NearestTargetStrategy(),
                 TargetStrategy.NearestTargetWithClass => new ClassPriorityTargetStrategy(TargetLayer, TargetClass),
                 _ => Targeting
             };
@@ -76,8 +80,11 @@ namespace BattleK.Scripts.AI
 
         private void Update()
         {
+            if (!IsInitialized) return;
             if(_attackTimer > 0f) _attackTimer -= Time.deltaTime;
 
+            CheckTargetStatus();
+            
             if (OverrideMachine.CurrentState != null)
             {
                 if(MainMachine.CurrentState != null && MainMachine.CurrentState is not StaticIdleState) MainMachine.ChangeState(new StaticIdleState(this));
@@ -87,6 +94,21 @@ namespace BattleK.Scripts.AI
             if (Time.time < _lastDecisionTime + _aiUpdateInterval) return;
             _lastDecisionTime = Time.time;
             
+            DecideNextAction();
+        }
+        
+        public void Initialize()
+        {
+            IsInitialized = true; 
+        }
+
+        private void CheckTargetStatus()
+        {
+            if (!Target) return;
+            if(!_targetCore || _targetCore.transform != Target) _targetCore = Target.GetComponent<StaticAICore>();
+            if (_targetCore && _targetCore.gameObject.activeInHierarchy && !_targetCore.IsDead) return;
+            Target = null;
+            _targetCore = null;
             DecideNextAction();
         }
 
@@ -144,9 +166,11 @@ namespace BattleK.Scripts.AI
             AiPath.maxSpeed = Stat.MoveSpeed;
         }
         
-        public void PlayAnimation( PlayerState animState)
+        public void PlayAnimation( PlayerState animState, int animIndex = 0)
         {
-            player.SetStateAnimationIndex(animState);
+            if (!player.IndexPair.ContainsValue(animIndex)) animIndex = 0;
+            //수정해야 함
+            player.SetStateAnimationIndex(animState, animIndex);
             player.PlayStateAnimation(animState);
         }
         
@@ -173,7 +197,16 @@ namespace BattleK.Scripts.AI
         public void OnTakeDamage(int damage)
         {
             if (IsDead) return;
-            Stat.CurrentHP -= damage;
+            
+            var randomVal = Random.Range(0f, 100f);
+            if (randomVal < Stat.EvasionRate)
+            {
+                Debug.Log($"{name} is evaded");
+                return;
+            }
+            var realDamage = Mathf.Max(1, damage * (100 / (100 + Stat.Defense)));
+            Stat.CurrentHP -= realDamage;
+            HPBar.UpdateHPBar();
             if (Stat.CurrentHP <= 0)
             {
                 OnDead();
@@ -183,7 +216,7 @@ namespace BattleK.Scripts.AI
             if(OverrideMachine.CurrentState == null) OverrideMachine.ChangeState(new StaticHitState(this));
         }
 
-        public void EnterCCState(float duration, PlayerState state)
+        public void EnterCCState(PlayerState state)
         {
             if (IsDead) return;
             OverrideMachine.ChangeState(new StaticCCState(this, state));
@@ -198,8 +231,7 @@ namespace BattleK.Scripts.AI
         public void OnDead()
         {
             OverrideMachine.ChangeState(new StaticDeathState(this));
-            if (Stat.IsPlayer) AiManager.playerUnits.Remove(this);
-            else AiManager.enemyUnits.Remove(this);
+            AiManager.UnregisterUnit(this);
         }
 
         private void RegisterActionStates()

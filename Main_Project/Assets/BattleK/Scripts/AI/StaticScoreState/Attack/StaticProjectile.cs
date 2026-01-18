@@ -32,8 +32,8 @@ namespace BattleK.Scripts.AI.StaticScoreState.Attack
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (_owner && other.gameObject == _owner.gameObject) return;
-            if (other.GetComponent<Projectile>()) return;
+            if (_owner && other.gameObject.layer == _owner.gameObject.layer) return;
+            if (other.GetComponent<StaticProjectile>()) return;
             
             var target = other.GetComponent<StaticAICore>();
             if (!target || target.IsDead) return;

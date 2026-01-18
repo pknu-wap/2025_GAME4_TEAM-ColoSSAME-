@@ -16,10 +16,10 @@ namespace BattleK.Scripts.AI.StaticScoreState.Attack
 
         public void Fire(int damage)
         {
+            if (!_owner.Target) return;
+            
             var projectile = Instantiate(_projectilePrefab, transform.position, Quaternion.identity);
-            
-            var dir = _owner.transform.localScale.x > 0 ? Vector3.left : Vector3.right;
-            
+            var dir = (_owner.Target.position - transform.position).normalized;
             projectile.Initialize(_owner, damage, dir);
         }
     }
