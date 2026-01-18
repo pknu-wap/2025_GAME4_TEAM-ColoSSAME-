@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
 using BattleK.Scripts.Data;
+using BattleK.Scripts.Data.Type;
 using BattleK.Scripts.HP;
 using BattleK.Scripts.UI;
 using UnityEngine;
@@ -53,10 +54,10 @@ namespace BattleK.Scripts.Manager
             {
                 if (r == null) continue;
 
-                if (!string.IsNullOrEmpty(r.Unit_ID))   //Id와 스탯 매핑
+                if (!string.IsNullOrEmpty(r.Unit_ID))
                     _byUnitId[r.Unit_ID] = r;
 
-                if (string.IsNullOrEmpty(r.Unit_Name)) continue;    //한국어 이름 설정
+                if (string.IsNullOrEmpty(r.Unit_Name)) continue;
                 var k = NormalizeName(r.Unit_Name);
                 _byUnitName.TryAdd(k, r);
             }
@@ -102,11 +103,11 @@ namespace BattleK.Scripts.Manager
 
             if (_byUnitId == null) RebuildIndexIfNeeded(force: true);
 
-            var units = FindObjectsOfType<AICore>(false);
+            var units = FindObjectsOfType<StaticAICore>(false);
 
             foreach (var ai in units)
             {
-                if (ai == null) continue;
+                if (!ai) continue;
 
                 var tried = new List<string>(6);
                 var row = FindRowFor(ai, tried);
@@ -116,16 +117,16 @@ namespace BattleK.Scripts.Manager
                 ApplyRow(ai, row);
                 _battleStart.CheckSpawnComplete();
                 var ready = ai.GetComponent<StatsReady>();
-                if (ready == null) ready = ai.gameObject.AddComponent<StatsReady>();
+                if (!ready) ready = ai.gameObject.AddComponent<StatsReady>();
                 ready.MarkReady();
                 
-                var ras = ai.GetComponentsInChildren<RangedAttack>(true);
-                foreach (var ra in ras) ra.ownerAI = ai;
+                //var ras = ai.GetComponentsInChildren<RangedAttack>(true);
+                //foreach (var ra in ras) ra.ownerAI = ai;
             }
             ComputeStampSafe(_calculateManager);
         }
 
-        private CharacterStatsRow FindRowFor(AICore ai, List<string> triedKeysCollector = null)
+        private CharacterStatsRow FindRowFor(StaticAICore ai, List<string> triedKeysCollector = null)
         {
             var cid = ai.GetComponent<CharacterID>();
             if (!cid || string.IsNullOrWhiteSpace(cid.characterKey)) return null;
@@ -133,21 +134,20 @@ namespace BattleK.Scripts.Manager
             return _byUnitId.GetValueOrDefault(cid.characterKey);
         }
 
-        private static void ApplyRow(AICore ai, CharacterStatsRow row)
+        private static void ApplyRow(StaticAICore ai, CharacterStatsRow row)
         {
             var newAtk = Mathf.RoundToInt(row.ATK);
             var newDef = Mathf.RoundToInt(row.DEF);
             var newHp  = Mathf.RoundToInt(row.HP);
             var newAgi = Mathf.RoundToInt(row.AGI);
 
-            ai.Ko_Name = row.Unit_Name;
-            ai.En_Name = row.Unit_ID;
-            ai.attackDamage = newAtk;
-            ai.def = newDef;
-            ai.maxHp = newHp;
-            ai.hp = newHp;
-            ai.evasionRate = newAgi * 3;
-            ai.attackSpeed = 100 + newAgi * 5;
+            ai.Stat.Name = row.Unit_Name;
+            ai.Stat.AttackDamage = newAtk;
+            ai.Stat.Defense = newDef;
+            ai.Stat.MaxHP = newHp;
+            ai.Stat.CurrentHP = newHp;
+            ai.Stat.EvasionRate = Mathf.Min(newAgi * 0.03f, 0.35f);
+            ai.Stat.AttackSpeed =  newAgi * 1.05f;
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using BattleK.Scripts.AI;
 using BattleK.Scripts.Data;
 using BattleK.Scripts.Data.Type;
 using BattleK.Scripts.HP;
@@ -83,7 +84,7 @@ namespace BattleK.Scripts.UI
         {
             if (_startBattleButton) _startBattleButton.interactable = false;
             
-            pendingSpawns = 0;
+            pendingSpawns = 1;
             lastPlayerPositions.Clear();
             if (_uiRootToDisable) _uiRootToDisable.SetActive(false);
             _uiRootToDisable.SetActive(false);
@@ -97,6 +98,9 @@ namespace BattleK.Scripts.UI
             {
                 SpawnEnemyTeam();
             }
+
+            pendingSpawns--;
+            CheckSpawnComplete();
         }
         
         private void SpawnPlayerTeam()
@@ -231,6 +235,10 @@ namespace BattleK.Scripts.UI
             var layerIndex = LayerMask.NameToLayer(layerName);
             SetLayerRecursively(go, layerIndex);
             go.SetActive(true);
+
+            var aiCore = go.GetComponent<StaticAICore>();
+            var sideIndex = req.isPlayer ? 0 : 1;
+            _aiManager.RegisterUnit(aiCore, sideIndex);
             
             var s = go.transform.localScale;
             s.x = req.faceLeft ? -Mathf.Abs(s.x) : Mathf.Abs(s.x);
@@ -265,12 +273,11 @@ namespace BattleK.Scripts.UI
         {
             yield return new WaitUntil(() => _aiManager.playerUnits.Count > 0 && _aiManager.enemyUnits.Count > 0);
 
-            _aiManager.unitPool.Clear();
             _statsCollector.CollectFromBothTeams();
             _calculateManager.RefreshFromCollectorOnce();
+            _hpManager.setUnits();
             _statWindowManager.SetStrategyList();
             _statWindowManager.ApplyStatWindow();
-            _hpManager.setUnits();
             _hpManager.ApplyHpToHPBar();
         }
         private CharacterAddressBook GetBookOrNull(int idx) => (idx >= 0 && idx < _addressBooks.Count) ? _addressBooks[idx] : null;

@@ -11,8 +11,8 @@ namespace BattleK.Scripts.UI
     public class StatWindowManager : MonoBehaviour
     {
         [Header("Stat Elements")]
-        public List<AICore> PlayerStats = new();
-        public List<AICore> EnemyStats  = new();
+        public List<StaticAICore> PlayerStats = new();
+        public List<StaticAICore> EnemyStats  = new();
         public List<StatWindow> StatWindows = new();
 
         [Header("StatWindow")]
@@ -30,8 +30,8 @@ namespace BattleK.Scripts.UI
 
         public void SetStrategyList()
         {
-            PlayerStats = _aiManager ? _aiManager.playerUnits : new List<AICore>();
-            EnemyStats  = _aiManager ? _aiManager.enemyUnits  : new List<AICore>();
+            PlayerStats = _aiManager ? _aiManager.playerUnits : new List<StaticAICore>();
+            EnemyStats  = _aiManager ? _aiManager.enemyUnits  : new List<StaticAICore>();
 
             ClearChildren(_playerRow);
             ClearChildren(_enemyRow);
@@ -45,7 +45,7 @@ namespace BattleK.Scripts.UI
             SpawnRow(EnemyStats,  EnemyWindow,  _enemyRow,  "ENEMY");
         }
 
-        private void SpawnRow(List<AICore> list, GameObject prefab, GameObject rowGO, string tag)
+        private void SpawnRow(List<StaticAICore> list, GameObject prefab, GameObject rowGO, string tag)
         {
             if (!rowGO || !prefab || list == null) return;
 
