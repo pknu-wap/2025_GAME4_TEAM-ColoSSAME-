@@ -12,31 +12,22 @@ namespace BattleK.Scripts.Manager
         public static AI_Manager Instance { get; private set; }
         public static event Action<AI_Manager> OnReady;
 
-        [Tooltip("index 0 = Player 루트, index 1 = Enemy 루트(선택)")]
+        [Header("Roots")]
+        [Tooltip("0: Player 부모 Transform, 1: Enemy 부모 Transform")]
         public List<Transform> unitPool = new();
 
-        [Header("수집된 유닛 리스트(읽기전용 성격)")]
-        public List<AICore> playerUnits = new();
-        public List<AICore> enemyUnits  = new();
+        [Header("Lists")]
+        public List<StaticAICore> playerUnits = new();
+        public List<StaticAICore> enemyUnits  = new();
 
-        [Header("레이어 설정")]
-        [Tooltip("Project Settings > Tags and Layers 에서 만든 레이어 이름")]
+        [Header("Layer Settings")]
         public string playerLayerName = "Player";
         public string enemyLayerName  = "Enemy";
-
-        [Tooltip("유닛 오브젝트의 모든 하위 자식까지 레이어를 일괄 적용할지")]
-        public bool applyLayerRecursively = true;
-
-        [Header("팀/레이어 연동 옵션")]
-        [Tooltip("사이드(0=Player,1=Enemy)에 맞춰 레이어를 강제로 통일할지 여부")]
         public bool forceLayerBySide = true;
-
-        [Tooltip("AICore.targetLayer를 GameObject.layer를 기준으로 자동 산출할지(권장)")]
-        public bool setTargetByLayer = true;
-    
-        [Header("ResultManager")]
-        [SerializeField] private LeagueSceneManager leagueSceneManager;
         
+        [Header("리그매니저")]
+        [SerializeField] private LeagueSceneManager _leagueSceneManager;
+
         private int _playerLayer = -1;
         private int _enemyLayer  = -1;
         
@@ -48,6 +39,7 @@ namespace BattleK.Scripts.Manager
                 return;
             }
             Instance = this;
+            ResolveLayers();
         }
 
         private void OnEnable()
@@ -55,127 +47,54 @@ namespace BattleK.Scripts.Manager
             OnReady?.Invoke(this);
         }
 
-        private void Start()
+        public void RegisterUnit(StaticAICore unit, int sideIndex)
         {
-            if (unitPool.Count > 0) SetUnitList();
-        }
+            if (!unit) return;
 
-        private void SetUnitList()
-        {
-            playerUnits.Clear();
-            enemyUnits.Clear();
-
-            ResolveLayers();
-
-            for (var side = 0; side < unitPool.Count; side++)
+            if (unitPool.Count > sideIndex && unitPool[sideIndex])
             {
-                var root = unitPool[side];
-                if (!root) continue;
-
-                var cores = root.GetComponentsInChildren<AICore>(includeInactive: false);
-                foreach (var core in cores)
-                {
-                    if (!core || !core.gameObject.activeInHierarchy) continue;
-
-                    var go = core.gameObject;
-
-                    if (forceLayerBySide)
-                    {
-                        var wantLayer = (side == 0) ? _playerLayer : _enemyLayer;
-                        AssignLayer(go, wantLayer);
-                    }
-
-                    var targetMask = ComputeTargetMaskFrom(go.layer, side);
-                    core.targetLayer = targetMask;
-
-                    switch (side)
-                    {
-                        case 0:
-                        {
-                            if (!playerUnits.Contains(core)) playerUnits.Add(core);
-                            break;
-                        }
-                        case 1:
-                        {
-                            if (!enemyUnits.Contains(core)) enemyUnits.Add(core);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        public void TryRegister(AICore core, bool guessSideByLayer = true)
-        {
-            if (core == null) return;
-
-            if (_playerLayer < 0 || _enemyLayer < 0) ResolveLayers();
-
-            var side = 0;
-            if (guessSideByLayer)
-            {
-                if (core.gameObject.layer == _enemyLayer) side = 1;
+                unit.transform.SetParent(unitPool[sideIndex]);
             }
 
+            var go = unit.gameObject;
             if (forceLayerBySide)
             {
-                AssignLayer(core.gameObject, side == 0 ? _playerLayer : _enemyLayer);
+                var targetLayer = (sideIndex == 0) ? _playerLayer : _enemyLayer;
+                AssignLayer(go, targetLayer);
             }
 
-            var targetMask = ComputeTargetMaskFrom(core.gameObject.layer, side);
-            core.targetLayer = targetMask;
+            var enemyLayerMaskIndex = (sideIndex == 0) ? _enemyLayer : _playerLayer;
+            unit.TargetLayer = 1 << enemyLayerMaskIndex;
 
-            var list = (side == 0) ? playerUnits : enemyUnits;
-            if (!list.Contains(core)) list.Add(core);
+            if (sideIndex == 0)
+            {
+                if (!playerUnits.Contains(unit)) playerUnits.Add(unit);
+            }
+            else
+            {
+                if (!enemyUnits.Contains(unit)) enemyUnits.Add(unit);
+            }
         }
         
-        public void Unregister(AICore core)
+        public void UnregisterUnit(StaticAICore unit)
         {
-            if (core == null) return;
-            playerUnits.Remove(core);
-            enemyUnits.Remove(core);
+            if (playerUnits.Contains(unit)) playerUnits.Remove(unit);
+            if (enemyUnits.Contains(unit)) enemyUnits.Remove(unit);
         }
-        
+
         private void ResolveLayers()
         {
             _playerLayer = LayerMask.NameToLayer(playerLayerName);
             _enemyLayer  = LayerMask.NameToLayer(enemyLayerName);
-
-            if (_playerLayer < 0)
-            {
-                Debug.LogWarning($"[AI_Manager] '{playerLayerName}' 레이어를 찾을 수 없습니다. Default(0) 사용.");
-                _playerLayer = 0;
-            }
-
-            if (_enemyLayer >= 0) return;
-            Debug.LogWarning($"[AI_Manager] '{enemyLayerName}' 레이어를 찾을 수 없습니다. Default(0) 사용.");
-            _enemyLayer = 0;
+            
+            if (_playerLayer == -1) Debug.LogError($"Layer '{playerLayerName}' 가 없습니다! Project Settings 확인 필요.");
+            if (_enemyLayer == -1) Debug.LogError($"Layer '{enemyLayerName}' 가 없습니다! Project Settings 확인 필요.");
         }
-        
-        private int ComputeTargetMaskFrom(int selfLayerIndex, int sideIndex)
-        {
-            int targetLayerIndex;
 
-            if (setTargetByLayer)
-            {
-                if (selfLayerIndex == _playerLayer)      targetLayerIndex = _enemyLayer;
-                else if (selfLayerIndex == _enemyLayer)  targetLayerIndex = _playerLayer;
-                else                                     targetLayerIndex = (sideIndex == 0) ? _enemyLayer : _playerLayer;
-            }
-            else
-            {
-                targetLayerIndex = (sideIndex == 0) ? _enemyLayer : _playerLayer;
-            }
-
-            return 1 << targetLayerIndex;
-        }
-        
         private void AssignLayer(GameObject go, int layerIndex)
         {
-            if (go == null) return;
-            if (applyLayerRecursively)
-                SetLayerRecursively(go.transform, layerIndex);
-            else
-                go.layer = layerIndex;
+            if (layerIndex < 0) return;
+            SetLayerRecursively(go.transform, layerIndex);
         }
 
         private void SetLayerRecursively(Transform t, int layerIndex)
@@ -189,12 +108,12 @@ namespace BattleK.Scripts.Manager
         {
             if (playerUnits.Count < 1)
             {
-                leagueSceneManager.OnClickLose();
+                _leagueSceneManager.OnClickLose();
             }
 
             if (enemyUnits.Count < 1)
             {
-                leagueSceneManager.OnClickWin();
+                _leagueSceneManager.OnClickWin();
             }
         }
 
@@ -202,11 +121,11 @@ namespace BattleK.Scripts.Manager
         {
             foreach (var player in playerUnits)
             {
-                player.Kill();
+                player.OnDead();
             }
             foreach (var enemy in enemyUnits)
             {
-                enemy.Kill();
+                enemy.OnDead();
             }
         }
     }

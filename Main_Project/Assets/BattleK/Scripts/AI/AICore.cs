@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using BattleK.Scripts.HP;
 using BattleK.Scripts.Manager;
 using Pathfinding;
 using UnityEngine;
@@ -68,9 +69,6 @@ namespace BattleK.Scripts.AI
         [Header("Etc")]
         public LayerMask obstacleLayer;
         public StateMachine StateMachine { get; private set; }
-        public SkillUse skillUse;
-        public SkillDatabase skillDatabase;
-        public SkillCooldownManager cooldownManager;
 
         // SPUM 렌더러(선택)
         public SpriteRenderer[] renderers;
@@ -104,9 +102,6 @@ namespace BattleK.Scripts.AI
 
             rangedAttack = GetComponentInChildren<RangedAttack>();
 
-            skillUse = GetComponent<SkillUse>();
-            cooldownManager = GetComponent<SkillCooldownManager>();
-
             StateMachine = new StateMachine(this);
 
             _absBaseScale = Mathf.Abs(facingBaseScale) > 1e-4f ? Mathf.Abs(facingBaseScale) : 0.7f;
@@ -129,7 +124,6 @@ namespace BattleK.Scripts.AI
                 }
             }
 
-            if (aiManager != null) aiManager.TryRegister(this, guessSideByLayer: true);
         }
 
         private void OnDisable()
@@ -138,7 +132,6 @@ namespace BattleK.Scripts.AI
                 State = State.Death;
 
             AI_Manager.OnReady -= HandleManagerReady;
-            if (aiManager != null) aiManager.Unregister(this);
         }
 
         private void HandleManagerReady(AI_Manager mgr)
@@ -161,7 +154,6 @@ namespace BattleK.Scripts.AI
                     break;
             }
             hpBar.UpdateHPBar();
-            if (skillDatabase != null) skillDatabase.Init();
             StateMachine.ChangeState(new IdleState(this));
         }
 
@@ -199,7 +191,6 @@ namespace BattleK.Scripts.AI
         {
             meleeAttack?.CancelAll();
             rangedAttack?.CancelAll();
-            skillUse?.CancelAll();
 
             StopMovementHard(alsoZeroMaxSpeed: true);
 
@@ -301,19 +292,6 @@ namespace BattleK.Scripts.AI
         // ─── 스킬 헬퍼 ───
         public bool TryUseSkill()
         {
-            if (IsDead || skillDatabase == null) return false;
-
-            SkillData skill = skillDatabase.GetSkill(unitClass, 0);
-            if (skill == null || target == null) return false;
-
-            float distance = Vector2.Distance(transform.position, target.position);
-
-            if (distance <= skill.range && cooldownManager != null && cooldownManager.IsCooldownReady(skill.skillID))
-            {
-                cooldownManager.SetCooldown(skill.skillID, skill.cooldown);
-                if (skillUse != null) skillUse.UseSkill(skill, this, target);
-                return true;
-            }
             return false;
         }
 

@@ -1,63 +1,62 @@
+using System.Numerics;
 using BattleK.Scripts.AI;
 using UnityEngine;
 using UnityEngine.UI;
+using Quaternion = UnityEngine.Quaternion;
+using Vector3 = UnityEngine.Vector3;
 
-public class HPBar : MonoBehaviour
+namespace BattleK.Scripts.HP
 {
-    [SerializeField] private AICore OwnerAi;
-    [SerializeField] private Slider hpSlider;            // ← Scrollbar 대신 Slider
-    [Header("UI Settings")]
-    [SerializeField] private Canvas hpsCanvas;
-    [SerializeField] private Vector3 worldOffset = new Vector3(0f, -0.3f, 0f);
-
-    private RectTransform _rect;
-
-    private void Awake()
+    public class HPBar : MonoBehaviour
     {
-        if (hpSlider == null)
-            hpSlider = GetComponent<Slider>();
+        public StaticAICore OwnerAi;
+        [SerializeField] private Slider hpSlider;
+        [Header("UI Settings")]
+        [SerializeField] private Canvas hpsCanvas;
 
-        if (hpsCanvas == null)
-            hpsCanvas = GetComponentInParent<Canvas>(true);
+        private Vector3 _originalScale;
 
-        _rect = GetComponent<RectTransform>();
-        hpsCanvas.worldCamera = FindObjectOfType<Camera>();
-
-        hpSlider.minValue = 0f;
-        hpSlider.maxValue = 1f;
-        hpSlider.wholeNumbers = false;
-        hpSlider.interactable = false;
-
-        // 초기값 반영
-        if (OwnerAi != null && OwnerAi.maxHp > 0)
-            hpSlider.value = Mathf.Clamp01((float)OwnerAi.hp / OwnerAi.maxHp);
-    }
-
-    private void LateUpdate()
-    {
-        if (OwnerAi == null || _rect == null || hpsCanvas == null) return;
-
-        Vector3 worldPos = OwnerAi.transform.position + worldOffset;
-
-        if (hpsCanvas.renderMode == RenderMode.ScreenSpaceOverlay ||
-            hpsCanvas.renderMode == RenderMode.ScreenSpaceCamera)
+        private void Awake()
         {
-            Vector2 screenPt = RectTransformUtility.WorldToScreenPoint(hpsCanvas.worldCamera, worldPos);
-            RectTransform canvasRect = hpsCanvas.transform as RectTransform;
+            if (!hpSlider) hpSlider = GetComponent<Slider>();
+            if (!hpsCanvas) hpsCanvas = GetComponentInParent<Canvas>(true);
+            _originalScale = transform.localScale;
+            
+            hpsCanvas.worldCamera = FindObjectOfType<Camera>();
 
-            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPt, hpsCanvas.worldCamera, out Vector2 local))
-            {
-                _rect.anchoredPosition = local;
-                _rect.localPosition = new Vector3(_rect.localPosition.x, _rect.localPosition.y, 0f);
-            }
-            _rect.localScale = (OwnerAi.transform.localScale.x < 0) ? new Vector3(-1f,1f,1f) : new Vector3(1f,1f,1f);
+            hpSlider.minValue = 0f;
+            hpSlider.maxValue = 1f;
+            hpSlider.wholeNumbers = false;
+            hpSlider.interactable = false;
+
+            if (OwnerAi && OwnerAi.Stat.MaxHP > 0) hpSlider.value = Mathf.Clamp01((float)OwnerAi.Stat.CurrentHP / OwnerAi.Stat.MaxHP);
         }
-    }
 
-    public void UpdateHPBar()
-    {
-        if (hpSlider == null || OwnerAi == null) return;
-        float v = (OwnerAi.maxHp <= 0) ? 0f : Mathf.Clamp01((float)OwnerAi.hp / OwnerAi.maxHp);
-        hpSlider.value = v;
+        private void LateUpdate()
+        {
+            transform.rotation = Quaternion.identity;
+            
+            if (!transform.parent) return;
+            var newScale = _originalScale;
+            
+            if (transform.parent.lossyScale.x < 0)
+            {
+                newScale.x = -Mathf.Abs(_originalScale.x);
+            }
+            else
+            {
+                newScale.x = Mathf.Abs(_originalScale.x);
+            }
+
+            transform.localScale = newScale;
+            hpsCanvas.transform.localPosition = new Vector3(0, -0.4f, 0);
+        }
+        
+        public void UpdateHPBar()
+        {
+            if (!hpSlider || !OwnerAi) return;
+            var v = (OwnerAi.Stat.MaxHP <= 0) ? 0f : Mathf.Clamp01((float)OwnerAi.Stat.CurrentHP / OwnerAi.Stat.MaxHP);
+            hpSlider.value = v;
+        }
     }
 }

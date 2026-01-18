@@ -18,14 +18,14 @@ namespace BattleK.Scripts.UI
         [Header("캐릭터 이미지")]
         public Image CharacterImage;
         [Header("AICore")]
-        public AICore OwnerAI;
+        public StaticAICore OwnerAI;
         
         public void Apply()
         {
-            if (CharacterImage) CharacterImage.sprite = OwnerAI.Image;
-            if (NameText)   NameText.text   = $"{OwnerAI.Ko_Name}";
-            if (AtkText)    AtkText.text    = $"ATK: {OwnerAI.attackDamage}";
-            if (DefText)    DefText.text    = $"DEF: {OwnerAI.def}";
+            if (CharacterImage) CharacterImage.sprite = OwnerAI.Stat.Icon;
+            if (NameText)   NameText.text   = $"{OwnerAI.Stat.Name}";
+            if (AtkText)    AtkText.text    = $"ATK: {OwnerAI.Stat.AttackDamage}";
+            if (DefText)    DefText.text    = $"DEF: {OwnerAI.Stat.Defense}";
         }
     }
 }

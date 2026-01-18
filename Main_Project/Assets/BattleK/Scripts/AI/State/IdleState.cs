@@ -84,8 +84,6 @@ public class IdleState : IState
         // 스킬 우선
         if (ai.TryUseSkill())
         {
-            SkillData skill = ai.skillDatabase.GetSkill(ai.unitClass, 0);
-            ai.StateMachine.ChangeState(new SkillState(ai, skill, ai.target));
             yield break;
         }
 

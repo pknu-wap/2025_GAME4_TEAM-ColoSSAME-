@@ -3,6 +3,7 @@
 // ==========================
 #if UNITY_EDITOR
 using System;
+using BattleK.Scripts.CharacterCreator;
 using UnityEditor;
 using UnityEngine;
 
@@ -12,16 +13,14 @@ namespace BattleK.Scripts.Editor
     {
         private enum AttackType { Melee, Ranged }
 
-        // --- 입력 필드 ---
-        private string unitFullName = "Astra_Freyja"; // "가문_이름" 형식
+        private string unitFullName = "Astra_Freyja";
         private AttackType attackType = AttackType.Ranged;
 
-        // 프로젝트의 유닛클래스 enum을 연결한다. 없으면 문자열로 입력받도록 fallback.
         private UnitClass unitClassName = UnitClass.Archer;
 
-        private GameObject spumPrefab;            // SPUM 유형 프리팹
-        private GameObject rangedAttackPrefab;    // 원거리 공격 오브젝트 프리팹 (예: RangedAttackObject)
-        private GameObject meleeAttackPrefab;     // 근거리 공격 오브젝트 프리팹 (예: MeleeAttack)
+        private GameObject spumPrefab;
+        private GameObject rangedAttackPrefab;
+        private GameObject meleeAttackPrefab;
 
         [MenuItem("Tools/Colossam/Unit Factory")]
         public static void Open()
@@ -60,17 +59,17 @@ namespace BattleK.Scripts.Editor
                 EditorUtility.DisplayDialog("입력 오류", "Full Name은 반드시 'Family_Character' 형식이어야 합니다.", "확인");
                 return false;
             }
-            if (spumPrefab == null)
+            if (!spumPrefab)
             {
                 EditorUtility.DisplayDialog("입력 오류", "SPUM Prefab을 지정하세요.", "확인");
                 return false;
             }
             switch (attackType)
             {
-                case AttackType.Ranged when rangedAttackPrefab == null:
+                case AttackType.Ranged when !rangedAttackPrefab:
                     EditorUtility.DisplayDialog("입력 오류", "RangedAttack Prefab을 지정하세요.", "확인");
                     return false;
-                case AttackType.Melee when meleeAttackPrefab == null:
+                case AttackType.Melee when !meleeAttackPrefab:
                     EditorUtility.DisplayDialog("입력 오류", "MeleeAttack Prefab을 지정하세요.", "확인");
                     return false;
                 default:
@@ -92,7 +91,7 @@ namespace BattleK.Scripts.Editor
                     meleeAttackPrefab: meleeAttackPrefab
                 );
 
-                if (created == null) return;
+                if (!created) return;
                 Selection.activeGameObject = created;
                 EditorGUIUtility.PingObject(created);
                 Debug.Log($"[UnitFactory] Created '{created.name}' successfully.");

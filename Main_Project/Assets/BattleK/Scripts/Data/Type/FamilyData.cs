@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace BattleK.Scripts.Data
+namespace BattleK.Scripts.Data.Type
 {
     [System.Serializable]
     public class CharacterStatsRow
@@ -29,5 +29,11 @@ namespace BattleK.Scripts.Data
         public int DEF;
         public int HP;
         public int AGI;
+    }
+
+    public enum FamilyName
+    {
+        Astra,
+        
     }
 }

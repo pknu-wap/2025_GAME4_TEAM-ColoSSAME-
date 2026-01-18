@@ -40,15 +40,15 @@ public class DeathState : IState
         yield return new WaitForSeconds(wait);
 
         // 매니저에서 제거
-        switch (ai.gameObject.layer)
-        {
-            case (int)TeamUnit.Player:
-                ai.aiManager?.playerUnits.Remove(ai);
-                break;
-            case (int)TeamUnit.Enemy:
-                ai.aiManager?.enemyUnits.Remove(ai);
-                break;
-        }
+        // switch (ai.gameObject.layer)
+        // {
+        //     case (int)TeamUnit.Player:
+        //         ai.aiManager?.playerUnits.Remove(ai);
+        //         break;
+        //     case (int)TeamUnit.Enemy:
+        //         ai.aiManager?.enemyUnits.Remove(ai);
+        //         break;
+        // }
 
         if (ai.aiManager != null) ai.aiManager.IsWinner();
 

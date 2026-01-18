@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 // [✓] 유닛 종류
 public enum UnitClass
@@ -59,19 +60,25 @@ public enum ActionType
 [System.Serializable]
 public class UnitStat
 {
-    public UnitClass unitClass;
-    public TeamUnit team;
-    public State defaultState;
-    public TargetStrategy targetStrategy;
+    public string Name;
+    public Sprite Icon;
+    public bool IsPlayer;
+    
+    [Header("클래스")]
+    public UnitClass UnitClass;
+    public bool IsRanged;
 
-    [Header("전투 관련")]
-    public float attackDelay;
-    public float skillCooldown;
-
-    [Header("기본 능력치")]
-    public int baseHP;
-    public int baseDamage;
-    public float moveSpeed;
-    public float attackRange;
-    public float sightRange;
+    [Header("시야 범위")]
+    public float SightRange;
+    
+    [Header("능력치")]
+    public int MaxHP;
+    public int CurrentHP;
+    public int AttackDamage;
+    public float AttackSpeed;
+    public float AttackRange;
+    public float AttackDelay;
+    public int Defense;
+    public float MoveSpeed;
+    public float EvasionRate;
 }
