@@ -48,11 +48,13 @@ namespace Scripts.Team.FighterViewer
             RemoveOwnedUnits();   // 보유 유닛 제거
         }
 
-        public void LoadUserData()
+        void Awake()
         {
-            string savePath = Path.Combine(Application.persistentDataPath, "UserSave.json");
-            
-            
+            savePath = Path.Combine(Application.persistentDataPath, "UserSave.json");
+        }
+
+        public void LoadUserData()
+        {   
             if (!File.Exists(savePath))
             {
                 Debug.LogError("UserSave.json not found");
@@ -90,49 +92,6 @@ namespace Scripts.Team.FighterViewer
             oneStarIds.RemoveAll(id => ownedIds.Contains(id));
         }
 
-        /*public void LoadFamilyData()
-        {
-            for (int count = 0; count < userData.myUnits.Count; count++)
-            {
-                if (userData.myUnits[count].rarity == 5)
-                {
-                    fivestarunit.Remove(0); 
-                }
-                if (userData.myUnits[count].rarity == 4)
-                {
-                    for (int index = 1; index < 5; index++)
-                    {
-                        if (userData.myUnits[count].unitName == getplayer.familyData.Characters[index].Unit_Name)
-                        {
-                            fourstarunit.Remove(index);
-                            break;
-                        }
-                    }
-                }
-                if (userData.myUnits[count].rarity == 3)
-                {
-                    fivestarunit.Remove(0); 
-                }
-                if (userData.myUnits[count].rarity == 2)
-                {
-                    fivestarunit.Remove(0); 
-                }
-                if (userData.myUnits[count].rarity == 1)
-                {
-                    for (int index = 5; index < 10; index++)
-                    {
-                        if (userData.myUnits[count].unitName == getplayer.familyData.Characters[index].Unit_Name)
-                        {
-                            onestarunit.Remove(index);
-                            break;
-                        }
-                    } 
-                }
-                
-            }
-
-        }*/
-
         public void UnitShow()//Load사용 안하고 쓰면 오류 
         {
             int unitCount = userData.myUnits.Count;
@@ -154,7 +113,7 @@ namespace Scripts.Team.FighterViewer
                 CharacterObject[count].SetActive(true);
             }
 
-            for (int count = userData.myUnits.Count; count < 15; count++)
+            for (int count = userData.myUnits.Count; count < CharacterObject.Length; count++)
             {
                 CharacterObject[count].SetActive(false);
             }
@@ -182,7 +141,8 @@ namespace Scripts.Team.FighterViewer
 
         public void trainBack()
         {   
-            for (int i=0; i < 15; i++ )
+            int max = CharacterObject.Length;
+            for (int i=0; i < max; i++ )
             {
                 CharacterObject[i].GetComponent<RectTransform>().localScale = new Vector2(1f,1f);
             }

@@ -1,3 +1,5 @@
+
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,13 +11,21 @@ namespace Scripts.Team.CardAnimcontrol
     public class CardAnim : MonoBehaviour
     {   
         public GetPlayer getplayer;
-
         public CardClickStop blockclick;
+
+        private int myIndex; // 카드의 고유 인덱스
+
+        public void SetIndex(int index)
+        {
+            myIndex = index;
+        }
 
         public void CardAnimEnd()
         {
-            getplayer.CharacterGather[getplayer.count].SetActive(true);
-            blockclick.IsClickCard();
+            getplayer.CharacterGather[myIndex].SetActive(true);
+            getplayer.CharacterGetCheck[myIndex] = 2; 
+            //blockclick.IsClickCard();
+             getplayer.OnAnyCardAnimEnd();
         }
         public void CardResetAnim()
         {
