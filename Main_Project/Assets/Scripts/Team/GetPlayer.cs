@@ -188,22 +188,18 @@ namespace Scripts.Team.FighterRandomBuy
 
         public void OnCardClick(int index)
         {
-            if (isAnyCardAnimating)
-            return; 
-            
-            if (CharacterGetCheck[index] == 1)
-                return;
-                
             if (CharacterGetCheck[index] == 0)
             {
                 RandomSelect(index);
-                return;
             }
+
+            if (isAnyCardAnimating)
+                return; 
+                
 
             if (CharacterGetCheck[index] == 2)
             {
                 ShowExplain(index);
-                return;
             }
 
         }
@@ -274,7 +270,6 @@ namespace Scripts.Team.FighterRandomBuy
             cardsstate.SetActive(false);
             cards.SetActive(true);
         }
-
 
     }
     public class FamilyData

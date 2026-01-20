@@ -35,11 +35,8 @@ namespace Scripts.Team.FighterViewer
 
         private string savePath;
 
-        /*void Update()
-        {
-            NameText.text = NameTextContain;
-            StatText.text = StatTextContain;
-        }*/
+        private Vector2[] originalPositions;
+        private Vector3[] originalScales;
 
         void Start()
         {
@@ -51,6 +48,15 @@ namespace Scripts.Team.FighterViewer
         void Awake()
         {
             savePath = Path.Combine(Application.persistentDataPath, "UserSave.json");
+            originalPositions = new Vector2[CharacterObject.Length];
+            originalScales = new Vector3[CharacterObject.Length];
+
+            for (int i = 0; i < CharacterObject.Length; i++)
+            {
+                RectTransform rt = CharacterObject[i].GetComponent<RectTransform>();
+                originalPositions[i] = rt.anchoredPosition;
+                originalScales[i] = rt.localScale;
+            }
         }
 
         public void LoadUserData()
@@ -141,27 +147,12 @@ namespace Scripts.Team.FighterViewer
 
         public void trainBack()
         {   
-            int max = CharacterObject.Length;
-            for (int i=0; i < max; i++ )
+            for (int i = 0; i < CharacterObject.Length; i++)
             {
-                CharacterObject[i].GetComponent<RectTransform>().localScale = new Vector2(1f,1f);
+                RectTransform rt = CharacterObject[i].GetComponent<RectTransform>();
+                rt.anchoredPosition = originalPositions[i];
+                rt.localScale = originalScales[i];
             }
-            
-            CharacterObject[0].GetComponent<RectTransform>().anchoredPosition = new Vector2(-90f, -15f);//선수 위치 원래대로
-            CharacterObject[1].GetComponent<RectTransform>().anchoredPosition = new Vector2(50f, -15f);
-            CharacterObject[2].GetComponent<RectTransform>().anchoredPosition = new Vector2(190f, -15f);
-            CharacterObject[3].GetComponent<RectTransform>().anchoredPosition = new Vector2(-90f, -135f);
-            CharacterObject[4].GetComponent<RectTransform>().anchoredPosition = new Vector2(50f, -135f);
-            CharacterObject[5].GetComponent<RectTransform>().anchoredPosition = new Vector2(190f, -135f);
-            CharacterObject[6].GetComponent<RectTransform>().anchoredPosition = new Vector2(-90f, -255f);
-            CharacterObject[7].GetComponent<RectTransform>().anchoredPosition = new Vector2(50f, -255f);
-            CharacterObject[8].GetComponent<RectTransform>().anchoredPosition = new Vector2(190f, -255f);
-            CharacterObject[9].GetComponent<RectTransform>().anchoredPosition = new Vector2(-90f, -375f);
-            CharacterObject[10].GetComponent<RectTransform>().anchoredPosition = new Vector2(50f, -375f);
-            CharacterObject[11].GetComponent<RectTransform>().anchoredPosition = new Vector2(190f, -375f);
-            CharacterObject[12].GetComponent<RectTransform>().anchoredPosition = new Vector2(-90f, -495f);
-            CharacterObject[13].GetComponent<RectTransform>().anchoredPosition = new Vector2(50f, -495f);
-            CharacterObject[14].GetComponent<RectTransform>().anchoredPosition = new Vector2(190f, -495f);
 
         }   
     }
