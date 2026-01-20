@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using BattleK.Scripts.Data;
+using BattleK.Scripts.Data.Type;
 using BattleK.Scripts.JSON;
 using UnityEngine;
 

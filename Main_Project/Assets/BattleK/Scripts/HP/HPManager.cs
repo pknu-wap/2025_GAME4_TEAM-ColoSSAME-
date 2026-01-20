@@ -12,8 +12,8 @@ namespace BattleK.Scripts.HP
         [SerializeField] private AI_Manager _aiManager;
     
         [Header("AICore")]
-        public List<AICore> _playerUnits = new();
-        public List<AICore> _enemyUnits  = new();
+        public List<StaticAICore> _playerUnits = new();
+        public List<StaticAICore> _enemyUnits  = new();
 
         public void setUnits()
         {
@@ -22,14 +22,14 @@ namespace BattleK.Scripts.HP
         }
         public void ApplyHpToHPBar()
         {
-            foreach (var target in _playerUnits.Where(target => target.hpBar != null))
+            foreach (var target in _playerUnits.Where(target => target.HPBar))
             {
-                target.hpBar.UpdateHPBar();
+                target.HPBar.UpdateHPBar();
             }
 
-            foreach (var target in _enemyUnits.Where(target => target.hpBar != null))
+            foreach (var target in _enemyUnits.Where(target => target.HPBar))
             {
-                target.hpBar.UpdateHPBar();
+                target.HPBar.UpdateHPBar();
             }
         }
     }
