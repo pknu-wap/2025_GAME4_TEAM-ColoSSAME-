@@ -204,7 +204,7 @@ namespace BattleK.Scripts.AI
                 Debug.Log($"{name} is evaded");
                 return;
             }
-            var realDamage = Mathf.Max(1, damage * (100 / (100 + Stat.Defense)));
+            var realDamage = (int)Mathf.Max(1, damage * (float)(100.0 / (100 + Stat.Defense)));
             Stat.CurrentHP -= realDamage;
             HPBar.UpdateHPBar();
             if (Stat.CurrentHP <= 0)
