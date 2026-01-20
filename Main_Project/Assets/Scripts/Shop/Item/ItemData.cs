@@ -1,6 +1,7 @@
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Game/Item", fileName = "NewItem")]
+
 public class ItemData : ScriptableObject
 {
     [Header("고유 ID (중복 금지)")]
@@ -18,4 +19,6 @@ public class ItemData : ScriptableObject
     [Header("설명")]
     [TextArea(3, 8)]
     public string description;
+    
+    public ItemCategory category;
 }

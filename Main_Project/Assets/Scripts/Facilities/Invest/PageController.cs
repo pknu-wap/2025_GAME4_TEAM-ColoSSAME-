@@ -1,4 +1,4 @@
-using System.Collections;
+   using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,7 +10,9 @@ public class BookPageController : MonoBehaviour
     
     private int currentIndex = 0;
     private bool isFlipping = false;
-
+    
+    
+    
     void Update()
     {
         AnimatorStateInfo stateInfo = bookAnimator.GetCurrentAnimatorStateInfo(0);
@@ -53,4 +55,5 @@ public class BookPageController : MonoBehaviour
             button.interactable = true;
         }
     }
+    
 }
