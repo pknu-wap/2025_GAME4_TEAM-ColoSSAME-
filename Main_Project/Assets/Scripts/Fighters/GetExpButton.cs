@@ -6,42 +6,51 @@ public class GetExpButton : MonoBehaviour
     [Header("버튼 클릭 시 획득 경험치")]
     public float expGain = 10f;
 
-    [Header("playerTrain 표시 텍스트(Text Legacy)")]
-    public Text curLevelText; // playerTrain/CurLevel/Text(Legacy)
-    public Text curExpText;   // playerTrain/CurEXP/Text(Legacy)
+    [Header("playerTrain UI")]
+    public Text curLevelText;     // Level 텍스트
+    public Text curExpText;
+    public Slider expSlider;      // CurEXP (Slider)
 
-    /// <summary>
-    /// GetEXP 버튼 OnClick에 연결할 함수
-    /// </summary>
     public void OnClickGetExp()
     {
         Debug.Log("🟦 GetEXP 버튼 클릭됨");
-        // 1) 매니저 준비 확인
+
+        // 1) 매니저 체크
         if (UserManager.Instance == null || UserManager.Instance.user == null)
         {
             Debug.LogError("❌ UserManager 또는 user가 준비되지 않았습니다.");
             return;
         }
 
-        // 2) 선택된 유닛 확인
+        // 2) 선택 유닛 확인
         string unitId = UserManager.Instance.selectedUnitId;
         if (string.IsNullOrEmpty(unitId))
         {
-            Debug.LogWarning("⚠️ 선택된 유닛이 없습니다. fighter 슬롯을 먼저 클릭하세요.");
+            Debug.LogWarning("⚠️ 선택된 유닛이 없습니다.");
             return;
         }
 
-        // 3) 유닛 EXP 증가 요청 (저장까지 UserManager가 처리)
+        // 3) EXP 증가
         bool success = UserManager.Instance.AddUnitExp(unitId, expGain);
         if (!success) return;
 
-        // 4) 변경된 유닛 다시 가져와서 UI 갱신
+        // 4) 최신 유닛 정보
         Unit unit = UserManager.Instance.GetMyUnitById(unitId);
         if (unit == null) return;
 
-        if (curLevelText != null) curLevelText.text = unit.level.ToString();
-        if (curExpText != null) curExpText.text = unit.exp.ToString();
+        // 5) UI 갱신
+        if (curLevelText != null)
+            curLevelText.text = unit.level.ToString();
 
-        Debug.Log($"✅ GetEXP 완료: {unit.unitName} / Lv {unit.level} / Exp {unit.exp}");
+        if (curExpText != null)
+            curExpText.text = unit.exp.ToString();
+        
+        if (expSlider != null)
+        {
+            expSlider.maxValue = 100f; // 레벨당 필요 EXP
+            expSlider.value = unit.exp;
+        }
+
+        Debug.Log($"✅ EXP 반영: {unit.unitName} Lv.{unit.level} Exp:{unit.exp}");
     }
 }

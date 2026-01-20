@@ -11,7 +11,7 @@ public class FighterNameBinder : MonoBehaviour
     [Header("playerTrain 안의 표시 텍스트(Text Legacy)")]
     public Text curLevelText; // playerTrain/CurLevel/Text(Legacy)
     public Text curExpText;   // playerTrain/CurEXP/Text(Legacy)
-
+    public Slider expSlider;
     private IEnumerator Start()
     {
         yield return null;
@@ -56,7 +56,8 @@ public class FighterNameBinder : MonoBehaviour
             show.slotData = data;
             show.curLevelText = curLevelText;
             show.curExpText = curExpText;
-
+            show.expSlider = expSlider;
+            
             // 5) 유닛이 있는 슬롯이면 이름 + unitId 저장
             if (i < myUnits.Count && myUnits[i] != null)
             {
