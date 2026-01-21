@@ -11,19 +11,17 @@ namespace BattleK.Scripts.Manager
 {
     public class FamilyStatsCollector : MonoBehaviour
     {
-        [Header("플레이어/적 유닛이 배치된 월드 루트(= BattleStartUsingSlots 의 playerUnitsRoot/enemyUnitsRoot)")]
+        [Header("UnitRoots)")]
         [SerializeField] private Transform _playerUnitsRoot;
         [SerializeField] private Transform _enemyUnitsRoot;
 
-        [Header("가문 JSON 루트 템플릿 ( {FAMILY} 토큰 치환 )")]
-        [Tooltip("예: Assets/BattleK/Family/{FAMILY}/{FAMILY}.json")]
+        [Header("Json 설정")]
         [SerializeField] private string _familyJsonTemplate = "Assets/BattleK/Family/{FAMILY}/{FAMILY}.json";
 
         [Header("레벨 소스 (UnitLoadManager)")]
-        [Tooltip("씬에 있는 UnitLoadManager를 Drag&Drop. 비워두면 런타임에 자동 탐색합니다.")]
         [SerializeField] private UnitLoadManager _unitLoadManager;
 
-        [Header("키 매칭 옵션")]
+        [Header("key setting")]
         [Tooltip("true면 unitId/characterKey 비교 시 대소문자 무시")]
         [SerializeField] private bool _caseInsensitiveMatch = true;
 
@@ -31,7 +29,7 @@ namespace BattleK.Scripts.Manager
         [SerializeField] private List<CharacterStatsRow> _playerStats = new();
         [SerializeField] private List<CharacterStatsRow> _enemyStats  = new();
 
-        private Dictionary<string, FamilyJson> _familyCache = new();
+        private readonly Dictionary<string, FamilyJson> _familyCache = new();
 
         public IReadOnlyList<CharacterStatsRow> PlayerStats => _playerStats;
         public IReadOnlyList<CharacterStatsRow> EnemyStats  => _enemyStats;
@@ -45,64 +43,56 @@ namespace BattleK.Scripts.Manager
         private List<CharacterStatsRow> CollectFromRoot(Transform unitsRoot)
         {
             var result = new List<CharacterStatsRow>();
-            if (unitsRoot == null) return result;
+            if (!unitsRoot) return result;
 
-            var characters = unitsRoot.GetComponentsInChildren<Transform>(includeInactive: false)
-                .Select(trans => trans.gameObject)
-                .Where(characterID => characterID.GetComponent<CharacterID>())
-                .ToList();
+            var unitTransforms = unitsRoot.GetComponentsInChildren<Transform>(includeInactive: false);
 
-            result.AddRange(from character in characters
-            let family = character.GetComponent<FamilyID>()
-            let characterId = character.GetComponent<CharacterID>()
-            
-            where family && characterId
-            let familyKey = (family.FamilyKey ?? string.Empty).Trim()
-            let characterKey = (characterId.characterKey ?? string.Empty).Trim()
-            
-            where !string.IsNullOrEmpty(familyKey) && !string.IsNullOrEmpty(characterKey)
-            let familyJson = LoadFamilyJson(familyKey)
-            
-            where familyJson?.Characters != null && familyJson.Characters.Count != 0
-            let comparison = _caseInsensitiveMatch ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal
-            let matchCharacter = familyJson.Characters.FirstOrDefault(c => string.Equals(c.Unit_ID?.Trim(), characterKey, comparison))
-            
-            where matchCharacter != null
-            let atk = matchCharacter.Stat_Distribution?.ATK ?? 0
-            let def = matchCharacter.Stat_Distribution?.DEF ?? 0
-            let hp = matchCharacter.Stat_Distribution?.HP ?? 0
-            let agi = matchCharacter.Stat_Distribution?.AGI ?? 0
-            let rarity = matchCharacter.Rarity
-            let level = ResolveLevelFromUserSave(characterKey, matchCharacter.Level)
-            select new CharacterStatsRow
+            foreach (var unit in unitTransforms)
             {
-                Unit_ID = matchCharacter.Unit_ID,
-                Unit_Name = matchCharacter.Unit_Name,
-                ATK = atk,
-                DEF = def,
-                HP = hp,
-                AGI = agi,
-                Rarity = rarity,
-                Level = level
-            });
+                if(!unit.TryGetComponent(out CharacterID characterIdComp)) continue;
+                if(!unit.TryGetComponent(out FamilyID familyIdComp)) continue;
+
+                var charKey = characterIdComp.characterKey?.Trim();
+                var familyKey = familyIdComp.FamilyKey?.Trim();
+                
+                if(string.IsNullOrEmpty(charKey) || string.IsNullOrEmpty(familyKey)) continue;
+                
+                var familyJson = LoadFamilyJson(familyKey);
+                if(familyJson?.Characters == null) continue;
+                
+                var comparison = _caseInsensitiveMatch ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+                var matchData = familyJson.Characters.FirstOrDefault(c => string.Equals(c.Unit_ID?.Trim(), charKey, comparison));
+                
+                if(matchData == null) continue;
+                
+                var level = ResolveLevelFromUserSave(charKey, matchData.Level);
+                
+                result.Add(new CharacterStatsRow
+                {
+                    Unit_ID = matchData.Unit_ID,
+                    Unit_Name = matchData.Unit_Name,
+                    ATK = matchData.Stat_Distribution?.ATK ?? 0,
+                    DEF = matchData.Stat_Distribution?.DEF ?? 0,
+                    HP = matchData.Stat_Distribution?.HP ?? 0,
+                    AGI = matchData.Stat_Distribution?.AGI ?? 0,
+                    Rarity = matchData.Rarity,
+                    Level = level
+                });
+            }
 
             return result;
         }
-        private int ResolveLevelFromUserSave(string characterKey, int familyJsonLevel)
+        private int ResolveLevelFromUserSave(string characterKey, int defaultLevel)
         {
-            var comparison = _caseInsensitiveMatch ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+            var baseLevel = defaultLevel > 0 ? defaultLevel : 1;
 
-            if (_unitLoadManager == null || _unitLoadManager.LoadedUser?.myUnits == null)
-                return familyJsonLevel > 0 ? familyJsonLevel : 1;
+            if (!_unitLoadManager || _unitLoadManager.LoadedUser?.myUnits == null)
+                return baseLevel;
             
-            var mu = _unitLoadManager.LoadedUser.myUnits.Find(u =>
-                !string.IsNullOrEmpty(u.unitId) &&
-                string.Equals(u.unitId.Trim(), characterKey, comparison));
+            var comparison = _caseInsensitiveMatch ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+            var myUnit = _unitLoadManager.LoadedUser.myUnits.Find(u => string.Equals(u.unitId?.Trim(), characterKey, comparison));
 
-            if (mu == null) return familyJsonLevel > 0 ? familyJsonLevel : 1;
-            var lv = Mathf.Max(1, mu.level);
-            return lv;
-
+            return myUnit == null ? baseLevel : Mathf.Max(1, myUnit.level);
         }
         private FamilyJson LoadFamilyJson(string familyKey)
         {
@@ -110,29 +100,23 @@ namespace BattleK.Scripts.Manager
 
             var path = BuildFamilyJsonAbsolutePath(familyKey);
             
-            if (!JsonFileLoader.TryLoadJsonFile<FamilyJson>(path, out var familyChache, out var msg))
+            if (JsonFileHandler.TryLoadJsonFile<FamilyJson>(path, out var loadedData, out var msg))
             {
-                _familyCache[familyKey] = null;
-                return null;
+                _familyCache[familyKey] = loadedData;
+                return loadedData;
             }
-            _familyCache[familyKey] = familyChache;
-            return familyChache;
+            _familyCache[familyKey] = null;
+            return null;
         }
         private string BuildFamilyJsonAbsolutePath(string familyKey)
         {
-            var rel = (_familyJsonTemplate ?? string.Empty).Replace("{FAMILY}", familyKey);
-            return BuildAbsolutePath(rel);
+            var relativePath = _familyJsonTemplate.Replace("{FAMILY}", familyKey);
+            if(Path.IsPathRooted(relativePath)) return relativePath;
+            
+            var basePath = Application.dataPath;
+            var projectRoot = Directory.GetParent(basePath)?.FullName;
+            
+            return relativePath.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase) ? Path.Combine(projectRoot ?? basePath, relativePath) : Path.Combine(basePath, relativePath);
         }
-
-        private static string BuildAbsolutePath(string relPath)
-        {
-            relPath = NormalizePath(relPath);
-            if (Path.IsPathRooted(relPath)) return relPath;
-
-            var assetsPath  = NormalizePath(Application.dataPath);
-            var projectRoot = NormalizePath(Directory.GetParent(assetsPath)?.FullName);
-            return NormalizePath(relPath.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase) ? Path.Combine(projectRoot, relPath) : Path.Combine(assetsPath, relPath));
-        }
-        private static string NormalizePath(string p) => string.IsNullOrEmpty(p) ? p : p.Replace('\\', '/');
     }
 }

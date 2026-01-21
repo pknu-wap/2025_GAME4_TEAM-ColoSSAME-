@@ -1,4 +1,7 @@
+using System.Collections.Generic;
+using BattleK.Scripts.AI.SO.Base;
 using BattleK.Scripts.CharacterCreator;
+using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Data.Type;
 using UnityEditor;
 using UnityEngine;
@@ -18,11 +21,17 @@ namespace BattleK.Scripts.Editor
         private GameObject _rangedAttack;
         private GameObject _meleeAttack;
         private GameObject _hpBar;
+        private List<SkillSO> _skillPrefabs = new();
 
+        private const float BaseHeight = 520f;
+        private const float SkillSlotHeight = 23f;
+        private const float WindowWidth = 450f;
+        
         [MenuItem("Tools/Colossame/Create Unit")]
         public static void ShowWindow()
         {
-            GetWindow<UnitCreatorWindow>("Unit Creator");
+            var window = GetWindow<UnitCreatorWindow>("Unit Creator");
+            window.UpdateWindowSize();
         }
 
         private void OnGUI()
@@ -49,13 +58,59 @@ namespace BattleK.Scripts.Editor
             _rangedAttack = (GameObject)EditorGUILayout.ObjectField(new GUIContent("RangedAttack Prefab"), _rangedAttack, typeof(GameObject), false);
             _meleeAttack = (GameObject)EditorGUILayout.ObjectField(new GUIContent("MeleeAttack Prefab"), _meleeAttack, typeof(GameObject), false);
             _hpBar = (GameObject)EditorGUILayout.ObjectField(new GUIContent("HP Bar"), _hpBar, typeof(GameObject), false);
-            EditorGUILayout.Space();
+            
+            EditorGUILayout.Space(10);
+            EditorGUILayout.LabelField("스킬 설정", EditorStyles.boldLabel);
+            EditorGUILayout.BeginVertical("box");
+            {
+                _skillPrefabs ??= new List<SkillSO>();
+                var indexToRemove = -1;
+                for (var i = 0; i < _skillPrefabs.Count; i++)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    GUILayout.Label($"Skill {i + 1}", GUILayout.Width(60));
+                    _skillPrefabs[i] = EditorGUILayout.ObjectField(_skillPrefabs[i], typeof(SkillSO), false) as SkillSO;
 
+                    if (GUILayout.Button("-", GUILayout.Width(25)))
+                    {
+                        indexToRemove = i;
+                    }
+                    EditorGUILayout.EndHorizontal();
+                }
+
+                if (indexToRemove >= 0)
+                {
+                    _skillPrefabs.RemoveAt(indexToRemove);
+                    GUI.FocusControl(null);
+                    UpdateWindowSize();
+                }
+                
+                GUILayout.Space(5);
+                if (GUILayout.Button("+", GUILayout.Height(30)))
+                {
+                    _skillPrefabs.Add(null);
+                    UpdateWindowSize();
+                }
+            }
+            EditorGUILayout.EndVertical();
+            
+            GUILayout.Space(10);
+            
             if (!GUILayout.Button("유닛 생성 (Create)", GUILayout.Height(30))) return;
             if (ValidateInputs())
             {
                 CreateUnitEditor();
             }
+        }
+
+        private void UpdateWindowSize()
+        {
+            var count =_skillPrefabs?.Count ?? 0;
+            var targetHeight = BaseHeight + (count * SkillSlotHeight);
+            var newSize = new Vector2(WindowWidth, targetHeight);
+            
+            this.minSize = newSize;
+            this.maxSize = newSize;
         }
         
         private bool ValidateInputs()
@@ -96,7 +151,8 @@ namespace BattleK.Scripts.Editor
                 spumPrefab: spumPrefab,
                 rangedPrefab: _rangedAttack,
                 meleePrefab: _meleeAttack,
-                hpBarPrefab: _hpBar
+                hpBarPrefab: _hpBar,
+                skillPrefabs: _skillPrefabs
             );
 
             if (!created) return;

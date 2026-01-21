@@ -4,26 +4,21 @@ using Newtonsoft.Json;
 
 namespace BattleK.Scripts.JSON
 {
-    public static class JsonFileLoader
+    public static class JsonFileHandler
     {
         private static readonly JsonSerializerSettings DefaultSettings = new()
         {
+            Formatting = Formatting.Indented,
             MissingMemberHandling  = MissingMemberHandling.Ignore,
             NullValueHandling      = NullValueHandling.Include,
-            ObjectCreationHandling = ObjectCreationHandling.Replace
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
         };
 
-        public static bool TryLoadJsonFile<T>(string filePath, out T data, out string message,
-            JsonSerializerSettings settings = null)
+        public static bool TryLoadJsonFile<T>(string filePath, out T data, out string message)
         {
             data = default;
             message = string.Empty;
-            if (string.IsNullOrWhiteSpace(filePath))
-            {
-                message = "Path is empty.";
-                return false;
-            }
-
+            
             if (!File.Exists(filePath))
             {
                 message = "File does not exist.";
@@ -33,11 +28,11 @@ namespace BattleK.Scripts.JSON
             try
             {
                 var json = File.ReadAllText(filePath);
-                data = JsonConvert.DeserializeObject<T>(json, settings ?? DefaultSettings);
+                data = JsonConvert.DeserializeObject<T>(json, DefaultSettings);
 
                 if (data == null)
                 {
-                    message = "data is null.";
+                    message = "data is null/empty.";
                     return false;
                 }
 
@@ -50,5 +45,23 @@ namespace BattleK.Scripts.JSON
                 return false;
             }
         }
+
+        public static bool TrySaveJsonFile<T>(string filePath, T data, out string message)
+        {
+            message = string.Empty;
+
+            try
+            {
+                var directory = Path.GetDirectoryName(filePath);
+                if(!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) Directory.CreateDirectory(directory);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                message = $"Exception: {ex.Message}";
+                return false;
+            }
+        }
+        
     }
 }

@@ -1,5 +1,6 @@
 // TargetClassMap.cs
 using System.Collections.Generic;
+using BattleK.Scripts.Data.ClassInfo;
 
 public static class TargetClassMap
 {

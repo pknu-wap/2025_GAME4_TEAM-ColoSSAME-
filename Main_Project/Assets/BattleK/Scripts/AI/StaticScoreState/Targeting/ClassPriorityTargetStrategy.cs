@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using BattleK.Scripts.Data.ClassInfo;
 using UnityEngine;
 
 namespace BattleK.Scripts.AI.StaticScoreState.Targeting

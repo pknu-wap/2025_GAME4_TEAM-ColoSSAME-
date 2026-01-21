@@ -5,11 +5,22 @@ namespace BattleK.Scripts.AI.SO.Base
     [CreateAssetMenu(fileName = "New Skill", menuName = "BattleK/Skills")]
     public class SkillSO : ScriptableObject
     {
+        [Header("이름")]
         public string SkillName;
-        public float Damage;
-    
+        
+        [Header("Combat Config")]
+        public int Damage;
+        public float WindupTime;
+        public float ActiveTime;
+        public float RecoveryTime;
+        public float Range;
+
+        [Header("Animation Config")]
+        public int AnimationIndex;
+        public int SkillPrefabAnimationIndex;
+        
         [Header("Crowd Control")]
-        public bool HasCC; // CC기가 있는 스킬인가?
-        public CCProfileSO CcProfile; // 여기에 "StunProfile" 에셋을 드래그앤드롭
+        public bool HasCC;
+        public CCProfileSO CcProfile;
     }
 }

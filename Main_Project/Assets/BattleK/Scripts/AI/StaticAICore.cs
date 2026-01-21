@@ -4,6 +4,7 @@ using BattleK.Scripts.AI.StaticScoreState.ActionStates;
 using BattleK.Scripts.AI.StaticScoreState.Attack;
 using BattleK.Scripts.AI.StaticScoreState.StaticVerStates;
 using BattleK.Scripts.AI.StaticScoreState.Targeting;
+using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.HP;
 using BattleK.Scripts.Manager;
 using Pathfinding;
