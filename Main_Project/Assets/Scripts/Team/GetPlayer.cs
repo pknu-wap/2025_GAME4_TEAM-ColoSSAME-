@@ -10,6 +10,8 @@ using Scripts.Team.IsAnimStopClick;
 using Scripts.Team.CardAnimcontrol;
 using Scripts.Team.FighterViewer;
 
+//나중에 가지고 있는 유닛 수가 최대일때 못뽑게하기 
+
 namespace Scripts.Team.FighterRandomBuy
 {
     public class GetPlayer : MonoBehaviour
@@ -71,7 +73,8 @@ namespace Scripts.Team.FighterRandomBuy
         private List<string> gachaFourStarIds = new();
         private List<string> gachaOneStarIds = new();
         
-        
+        private bool isAnyCardAnimating = false; //카드 뒤집기 애니메이션 구분(겹치지않게)
+
         void Start()
         {
             league = LoadLeague();
@@ -151,11 +154,6 @@ namespace Scripts.Team.FighterRandomBuy
 
         public void RandomSetting()
         {
-            /*List<string> SwordClass = new List<string> {"검투사","군단병"};
-            List<string> WizardClass = new List<string> {"주술사","사제"};
-            List<string> ArcherClass = new List<string> {"척후병"};
-            List<string> AssassinClass = new List<string> {"암살자"};*/
-
             for (int i = 0; i < 10; i++)
             {
                 string id = GetRandomCharacterId();
@@ -188,54 +186,70 @@ namespace Scripts.Team.FighterRandomBuy
             return sprite;
         }
 
-        public void RandomSelect(int index)
+        public void OnCardClick(int index)
         {
-            count = index;
-            if (CharacterGetCheck[count] == 0)
-            {   
-                blockclick.IsAnimStopClick();
-                anim[count].SetTrigger("Iscardclick");
+            if (CharacterGetCheck[index] == 0)
+            {
+                RandomSelect(index);
+            }
 
-                CharacterData randomCharacter = characterDict[CharacterIDList[count]];
-                Debug.Log($"총 {familyData.Characters.Count}개 | Unit_ID: {randomCharacter.Unit_ID}, Unit_Name: {randomCharacter.Unit_Name}, Rarity: {randomCharacter.Rarity}");
+            if (isAnyCardAnimating)
+                return; 
+                
 
-                string imageName = Path.GetFileNameWithoutExtension(randomCharacter.Visuals.Portrait);
-                CharacterImage[count].sprite = GetPortrait(imageName);
-                Debug.Log($"[GetPlayer] 스프라이트 적용 완료: {imageName}");
-
-                CharacterGetCheck[count] = 1;
-
-                CharacterImage[count].preserveAspect = true;//비율 유지
+            if (CharacterGetCheck[index] == 2)
+            {
+                ShowExplain(index);
             }
 
         }
 
-        public void ShowExplain(int index)
+        private void RandomSelect(int index)
         {
-            if (CharacterGetCheck[index] == 1)
+            isAnyCardAnimating = true;
+
+            CharacterGetCheck[index] = 1;
+
+            CardAnim cardAnim = anim[index].GetComponent<CardAnim>();
+            cardAnim.SetIndex(index);
+            anim[index].SetTrigger("Iscardclick");
+
+            CharacterData randomCharacter = characterDict[CharacterIDList[index]];
+            string imageName = Path.GetFileNameWithoutExtension(randomCharacter.Visuals.Portrait);
+            CharacterImage[index].sprite = GetPortrait(imageName);
+            CharacterImage[index].preserveAspect = true;
+        }
+
+        private void ShowExplain(int index)
+        {
+            
+            CharacterData characterdata = characterDict[CharacterIDList[index]];
+
+            string imageName = Path.GetFileNameWithoutExtension(characterdata.Visuals.Portrait);
+            SelectCharaterImage.sprite = GetPortrait(imageName);
+            SelectCharaterImage.preserveAspect = true;
+
+            unit = new Unit(characterdata.Unit_ID, characterdata.Rarity, characterdata.Unit_Name);
+
+            NameText.text = $"이름:{characterdata.Unit_Name}";
+            ClassText.text = $"직업:{characterdata.Class}";
+            StoryText.text = characterdata.Story;
+            StateText.text = $"ATK: {characterdata.Stat_Distribution.ATK}\nDEF: {characterdata.Stat_Distribution.DEF}\nHP: {characterdata.Stat_Distribution.HP}\nAGI: {characterdata.Stat_Distribution.AGI}";
+
+            for (int i = 0; i < 5; i++)
             {
-                CharacterData characterdata = characterDict[CharacterIDList[index]];
-
-                string imageName = Path.GetFileNameWithoutExtension(characterdata.Visuals.Portrait);
-                SelectCharaterImage.sprite = GetPortrait(imageName);
-                SelectCharaterImage.preserveAspect = true;
-
-                unit = new Unit(characterdata.Unit_ID, characterdata.Rarity, characterdata.Unit_Name);
-
-                NameText.text = $"이름:{characterdata.Unit_Name}";
-                ClassText.text = $"직업:{characterdata.Class}";
-                StoryText.text = characterdata.Story;
-                StateText.text = $"ATK: {characterdata.Stat_Distribution.ATK}\nDEF: {characterdata.Stat_Distribution.DEF}\nHP: {characterdata.Stat_Distribution.HP}\nAGI: {characterdata.Stat_Distribution.AGI}";
-
-                for (int i = 0; i < 5; i++)
-                {
-                    StarCount[i].SetActive(false);
-                }
-                StarCount[characterdata.Rarity - 1].SetActive(true);
-
-                cardsstate.SetActive(true);
-                cards.SetActive(false);
+                StarCount[i].SetActive(false);
             }
+            StarCount[characterdata.Rarity - 1].SetActive(true);
+
+            cardsstate.SetActive(true);
+            cards.SetActive(false);
+
+        }
+
+        public void OnAnyCardAnimEnd()
+        {
+            isAnyCardAnimating = false;
         }
 
         public void BuyRandomUnit()
@@ -256,7 +270,6 @@ namespace Scripts.Team.FighterRandomBuy
             cardsstate.SetActive(false);
             cards.SetActive(true);
         }
-
 
     }
     public class FamilyData

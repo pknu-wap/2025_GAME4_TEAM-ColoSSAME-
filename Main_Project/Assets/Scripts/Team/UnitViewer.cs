@@ -35,11 +35,8 @@ namespace Scripts.Team.FighterViewer
 
         private string savePath;
 
-        /*void Update()
-        {
-            NameText.text = NameTextContain;
-            StatText.text = StatTextContain;
-        }*/
+        private Vector2[] originalPositions;
+        private Vector3[] originalScales;
 
         void Start()
         {
@@ -48,11 +45,22 @@ namespace Scripts.Team.FighterViewer
             RemoveOwnedUnits();   // 보유 유닛 제거
         }
 
-        public void LoadUserData()
+        void Awake()
         {
-            string savePath = Path.Combine(Application.persistentDataPath, "UserSave.json");
-            
-            
+            savePath = Path.Combine(Application.persistentDataPath, "UserSave.json");
+            originalPositions = new Vector2[CharacterObject.Length];
+            originalScales = new Vector3[CharacterObject.Length];
+
+            for (int i = 0; i < CharacterObject.Length; i++)
+            {
+                RectTransform rt = CharacterObject[i].GetComponent<RectTransform>();
+                originalPositions[i] = rt.anchoredPosition;
+                originalScales[i] = rt.localScale;
+            }
+        }
+
+        public void LoadUserData()
+        {   
             if (!File.Exists(savePath))
             {
                 Debug.LogError("UserSave.json not found");
@@ -90,49 +98,6 @@ namespace Scripts.Team.FighterViewer
             oneStarIds.RemoveAll(id => ownedIds.Contains(id));
         }
 
-        /*public void LoadFamilyData()
-        {
-            for (int count = 0; count < userData.myUnits.Count; count++)
-            {
-                if (userData.myUnits[count].rarity == 5)
-                {
-                    fivestarunit.Remove(0); 
-                }
-                if (userData.myUnits[count].rarity == 4)
-                {
-                    for (int index = 1; index < 5; index++)
-                    {
-                        if (userData.myUnits[count].unitName == getplayer.familyData.Characters[index].Unit_Name)
-                        {
-                            fourstarunit.Remove(index);
-                            break;
-                        }
-                    }
-                }
-                if (userData.myUnits[count].rarity == 3)
-                {
-                    fivestarunit.Remove(0); 
-                }
-                if (userData.myUnits[count].rarity == 2)
-                {
-                    fivestarunit.Remove(0); 
-                }
-                if (userData.myUnits[count].rarity == 1)
-                {
-                    for (int index = 5; index < 10; index++)
-                    {
-                        if (userData.myUnits[count].unitName == getplayer.familyData.Characters[index].Unit_Name)
-                        {
-                            onestarunit.Remove(index);
-                            break;
-                        }
-                    } 
-                }
-                
-            }
-
-        }*/
-
         public void UnitShow()//Load사용 안하고 쓰면 오류 
         {
             int unitCount = userData.myUnits.Count;
@@ -154,7 +119,7 @@ namespace Scripts.Team.FighterViewer
                 CharacterObject[count].SetActive(true);
             }
 
-            for (int count = userData.myUnits.Count; count < 15; count++)
+            for (int count = userData.myUnits.Count; count < CharacterObject.Length; count++)
             {
                 CharacterObject[count].SetActive(false);
             }
@@ -182,26 +147,12 @@ namespace Scripts.Team.FighterViewer
 
         public void trainBack()
         {   
-            for (int i=0; i < 15; i++ )
+            for (int i = 0; i < CharacterObject.Length; i++)
             {
-                CharacterObject[i].GetComponent<RectTransform>().localScale = new Vector2(1f,1f);
+                RectTransform rt = CharacterObject[i].GetComponent<RectTransform>();
+                rt.anchoredPosition = originalPositions[i];
+                rt.localScale = originalScales[i];
             }
-            
-            CharacterObject[0].GetComponent<RectTransform>().anchoredPosition = new Vector2(-90f, -15f);//선수 위치 원래대로
-            CharacterObject[1].GetComponent<RectTransform>().anchoredPosition = new Vector2(50f, -15f);
-            CharacterObject[2].GetComponent<RectTransform>().anchoredPosition = new Vector2(190f, -15f);
-            CharacterObject[3].GetComponent<RectTransform>().anchoredPosition = new Vector2(-90f, -135f);
-            CharacterObject[4].GetComponent<RectTransform>().anchoredPosition = new Vector2(50f, -135f);
-            CharacterObject[5].GetComponent<RectTransform>().anchoredPosition = new Vector2(190f, -135f);
-            CharacterObject[6].GetComponent<RectTransform>().anchoredPosition = new Vector2(-90f, -255f);
-            CharacterObject[7].GetComponent<RectTransform>().anchoredPosition = new Vector2(50f, -255f);
-            CharacterObject[8].GetComponent<RectTransform>().anchoredPosition = new Vector2(190f, -255f);
-            CharacterObject[9].GetComponent<RectTransform>().anchoredPosition = new Vector2(-90f, -375f);
-            CharacterObject[10].GetComponent<RectTransform>().anchoredPosition = new Vector2(50f, -375f);
-            CharacterObject[11].GetComponent<RectTransform>().anchoredPosition = new Vector2(190f, -375f);
-            CharacterObject[12].GetComponent<RectTransform>().anchoredPosition = new Vector2(-90f, -495f);
-            CharacterObject[13].GetComponent<RectTransform>().anchoredPosition = new Vector2(50f, -495f);
-            CharacterObject[14].GetComponent<RectTransform>().anchoredPosition = new Vector2(190f, -495f);
 
         }   
     }

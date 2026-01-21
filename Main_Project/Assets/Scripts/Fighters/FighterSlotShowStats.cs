@@ -10,6 +10,7 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
     [Header("표시 대상(Text Legacy)")]
     public Text curLevelText;
     public Text curExpText;
+    public Slider expSlider;
 
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -55,6 +56,7 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
         // Level/Exp 표시
         if (curLevelText != null) curLevelText.text = found.level.ToString();
         if (curExpText != null) curExpText.text = found.exp.ToString();
+        if (expSlider != null) expSlider.value = found.exp;
 
         Debug.Log($"✅ UI 갱신: {found.unitName} / Lv {found.level} / Exp {found.exp}");
     }
