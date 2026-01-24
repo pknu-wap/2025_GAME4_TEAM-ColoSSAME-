@@ -119,9 +119,6 @@ namespace BattleK.Scripts.Manager
                 var ready = ai.GetComponent<StatsReady>();
                 if (!ready) ready = ai.gameObject.AddComponent<StatsReady>();
                 ready.MarkReady();
-                
-                //var ras = ai.GetComponentsInChildren<RangedAttack>(true);
-                //foreach (var ra in ras) ra.ownerAI = ai;
             }
             ComputeStampSafe(_calculateManager);
         }
