@@ -233,6 +233,8 @@ namespace BattleK.Scripts.AI
         {
             OverrideMachine.ChangeState(new StaticDeathState(this));
             AiManager.UnregisterUnit(this);
+            if (AiManager.IsAlreadyDone) return;
+            AiManager.IsWinner();
         }
 
         private void RegisterActionStates()
