@@ -154,6 +154,8 @@ namespace Scripts.Team.FighterRandomBuy
 
         public void RandomSetting()
         {
+            unitviewer.RebuildGachaPools();
+            
             for (int i = 0; i < 10; i++)
             {
                 string id = GetRandomCharacterId();
