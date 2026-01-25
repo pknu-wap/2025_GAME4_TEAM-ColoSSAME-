@@ -4,6 +4,7 @@ using BattleK.Scripts.AI.StaticScoreState.ActionStates;
 using BattleK.Scripts.AI.StaticScoreState.Attack;
 using BattleK.Scripts.AI.StaticScoreState.StaticVerStates;
 using BattleK.Scripts.AI.StaticScoreState.Targeting;
+using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.HP;
 using BattleK.Scripts.Manager;
 using Pathfinding;
@@ -168,8 +169,6 @@ namespace BattleK.Scripts.AI
         
         public void PlayAnimation( PlayerState animState, int animIndex = 0)
         {
-            if (!player.IndexPair.ContainsValue(animIndex)) animIndex = 0;
-            //수정해야 함
             player.SetStateAnimationIndex(animState, animIndex);
             player.PlayStateAnimation(animState);
         }
@@ -204,7 +203,7 @@ namespace BattleK.Scripts.AI
                 Debug.Log($"{name} is evaded");
                 return;
             }
-            var realDamage = Mathf.Max(1, damage * (100 / (100 + Stat.Defense)));
+            var realDamage = (int)Mathf.Max(1, damage * (float)(100.0 / (100 + Stat.Defense)));
             Stat.CurrentHP -= realDamage;
             HPBar.UpdateHPBar();
             if (Stat.CurrentHP <= 0)
@@ -232,6 +231,8 @@ namespace BattleK.Scripts.AI
         {
             OverrideMachine.ChangeState(new StaticDeathState(this));
             AiManager.UnregisterUnit(this);
+            if (AiManager.IsAlreadyDone) return;
+            AiManager.IsWinner();
         }
 
         private void RegisterActionStates()

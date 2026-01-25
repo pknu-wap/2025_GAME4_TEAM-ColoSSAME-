@@ -20,6 +20,8 @@ namespace BattleK.Scripts.Manager
         public List<StaticAICore> playerUnits = new();
         public List<StaticAICore> enemyUnits  = new();
 
+        public bool IsAlreadyDone = false;
+        
         [Header("Layer Settings")]
         public string playerLayerName = "Player";
         public string enemyLayerName  = "Enemy";
@@ -111,15 +113,21 @@ namespace BattleK.Scripts.Manager
             if (playerUnits.Count < 1)
             {
                 _leagueSceneManager.OnClickLose();
+                Debug.Log("패배");
+                IsAlreadyDone = true;
+                KillAll();
             }
 
             if (enemyUnits.Count < 1)
             {
                 _leagueSceneManager.OnClickWin();
+                Debug.Log("승리");
+                IsAlreadyDone = true;
+                KillAll();
             }
         }
 
-        public void KillAll()
+        private void KillAll()
         {
             foreach (var player in playerUnits)
             {

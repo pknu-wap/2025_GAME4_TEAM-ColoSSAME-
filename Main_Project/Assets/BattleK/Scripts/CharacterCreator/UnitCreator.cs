@@ -1,6 +1,9 @@
+using System.Collections.Generic;
 using BattleK.Scripts.AI;
+using BattleK.Scripts.AI.SO.Base;
 using BattleK.Scripts.AI.StaticScoreState.Attack;
 using BattleK.Scripts.Data;
+using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Data.Type;
 using BattleK.Scripts.HP;
 using Pathfinding;
@@ -22,7 +25,8 @@ namespace BattleK.Scripts.CharacterCreator
             GameObject spumPrefab,
             GameObject rangedPrefab,
             GameObject meleePrefab,
-            GameObject hpBarPrefab)
+            GameObject hpBarPrefab,
+            List<SkillSO> skillPrefabs)
         {
             var unitFullName = isRecruit ? $"{familyName}_Recruit_{characterName}": $"{familyName}_{characterName}";
             var parent = new GameObject(unitFullName)
@@ -43,7 +47,7 @@ namespace BattleK.Scripts.CharacterCreator
             
             var hpBar = InstantiatePrefab(hpBarPrefab, parent.transform, "HP Bar");
             
-            ConfigureCore(parent, isRanged, unitClassName, visual, hpBar, unitImage);
+            ConfigureCore(parent, isRanged, unitClassName, visual, hpBar, unitImage, skillPrefabs);
             if (isUsingSPUMName)
             {
                 unitFullName = spumPrefab.gameObject.name;
@@ -67,24 +71,27 @@ namespace BattleK.Scripts.CharacterCreator
             parent.AddComponent<RVOController>();
         }
         
-        private static void ConfigureCore(GameObject parent, bool isRanged, UnitClass unitClassName, GameObject spumInstance, GameObject hpBar, Sprite unitImage)
+        private static void ConfigureCore(GameObject parent, bool isRanged, UnitClass unitClassName, GameObject spumInstance, GameObject hpBar, Sprite unitImage, List<SkillSO> skills)
         {
             var aiCore = parent.GetComponent<StaticAICore>();
             aiCore.Stat = new UnitStat
             {
                 IsRanged = isRanged,
-                UnitClass = unitClassName
+                UnitClass = unitClassName,
+                CharacterImage = unitImage,
+                AttackRange = isRanged ? 5f : 0.9f,
+                MoveSpeed = 2f,
+                SightRange = 9f,
+                Skills = skills ?? new List<SkillSO>()
             };
             if(aiCore.Stat.UnitClass is UnitClass.Archer or UnitClass.Mage or UnitClass.Priest)  aiCore.Stat.IsRanged = true;
-            aiCore.Stat.AttackRange = 0.9f;
-            if (isRanged) aiCore.Stat.AttackRange = 5f;
-            aiCore.Stat.MoveSpeed = 2;
-            aiCore.Stat.SightRange = 9f;
-            aiCore.Stat.CharacterImage = unitImage;
             aiCore.AttackIndex = unitClassName switch
             {
                 UnitClass.Archer => 2,
                 UnitClass.Mage or UnitClass.Priest => 4,
+                UnitClass.Axeman => 5,
+                UnitClass.Spearman => 6,
+                UnitClass.Thief => 7,
                 _ => 0
             };
 

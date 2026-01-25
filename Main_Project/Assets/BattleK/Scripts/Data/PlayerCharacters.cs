@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using BattleK.Scripts.Data.ClassInfo;
 
 // 전체 저장 데이터(여러 캐릭터 포함)
 [Serializable]
 public class PlayerCharacters
 {
-    public List<CharacterRecord> characters = new List<CharacterRecord>();
+    public List<CharacterRecord> characters = new();
 }
 
 // 개별 캐릭터의 데이터 구조
@@ -26,7 +27,7 @@ public class CharacterRecord
     public float skillDelay;
     public string unitClass;
 
-    public List<UnitClass> targetClasses = new List<UnitClass>();
-    public string target1; // 예: "검사"
-    public string target2; // 예: "도끼병"
+    public List<UnitClass> targetClasses = new();
+    public string target1;
+    public string target2;
 }

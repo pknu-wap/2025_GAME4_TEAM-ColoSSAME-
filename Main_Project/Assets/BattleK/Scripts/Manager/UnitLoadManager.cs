@@ -6,46 +6,35 @@ namespace BattleK.Scripts.Manager
 {
     public class UnitLoadManager : MonoBehaviour
     {
-        [Header("Absolute Path")]
-        [SerializeField] private string _absolutePath = @"";
-
-        [Header("Is Load on Awake")]
+        [Header("Absolute Path")] [SerializeField]
+        private string _absolutePath = "";
         [SerializeField] private bool _loadOnAwake = true;
 
         public User LoadedUser { get; private set; }
 
-        #region Base
+        private string SavePath => string.IsNullOrWhiteSpace(_absolutePath)
+            ? Path.Combine(Application.persistentDataPath, "UserSave.json")
+            : _absolutePath;
+        
 
         private void Awake()
         {
-            if (string.IsNullOrWhiteSpace(_absolutePath))
-                _absolutePath = Path.Combine(Application.persistentDataPath, "UserSave.json");
-
             if (!_loadOnAwake) return;
-            if (!TryLoad(out var message))
-                Debug.LogWarning($"[UnitLoadManager] Load Failed → {_absolutePath} Reason: {message}");
+            TryLoad(out var message);
+            if(LoadedUser == null) Debug.LogWarning($"[UnitLoadManager] Load Failed → {_absolutePath} Reason: {message}");
         }
-
-        #endregion
-
-        #region Load
 
         public bool TryLoad(out string message)
         {
-            var ok = JsonFileLoader.TryLoadJsonFile<User>(_absolutePath, out var user, out message);
-
-            if (!ok)
+            if (JsonFileHandler.TryLoadJsonFile<User>(SavePath, out var user, out message))
             {
-                LoadedUser = null;
-                return false;
+                UserDefaults.Ensure(user);
+                LoadedUser = user;
+                return true;
             }
-
-            UserDefaults.Ensure(user);
-
-            LoadedUser = user;
-            return true;
+            
+            LoadedUser = null;
+            return false;
         }
-
-        #endregion
     }
 }

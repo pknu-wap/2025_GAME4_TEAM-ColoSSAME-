@@ -1,24 +1,38 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-public class SlotManager : MonoBehaviour
+namespace BattleK.Scripts.UI
 {
-    public Slot[] allSlots;
-
-    public void ClearAllSlots()
+    public class SlotManager : MonoBehaviour
     {
-        foreach (var slot in allSlots)
-        {
-            if (slot.IsOccupied && slot.Occupant != null)
-            {
-                // 캐릭터 원래 자리로 이동
-                slot.Occupant.ReturnToOriginalPosition();
+        public static SlotManager Instance { get; private set; }
+        [SerializeField] private List<Slot> _allSlots = new();
+        public IReadOnlyList<Slot> AllSlots => _allSlots;
 
-                // 슬롯 초기화
-                slot.IsOccupied = false;
-                slot.Occupant = null;
+        private void Awake()
+        {
+            if (Instance && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            Instance = this;
+        }
+        
+        public void ClearAllSlots()
+        {
+            var count = 0;
+            foreach (var slot in _allSlots.Where(slot => slot.IsOccupied && slot.Occupant))
+            {
+                slot.Clear();
+                count++;
+            }
+            
+            if (count > 0)
+            {
+                Debug.Log($"[SlotManager] 유닛 {count}개를 모두 해제했습니다.");
             }
         }
-
-        Debug.Log("[ClearAllSlots] 모든 슬롯이 초기화되었습니다.");
     }
 }

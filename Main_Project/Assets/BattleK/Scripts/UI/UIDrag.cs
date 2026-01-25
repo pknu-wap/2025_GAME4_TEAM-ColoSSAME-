@@ -1,222 +1,228 @@
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class UIDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
+namespace BattleK.Scripts.UI
 {
-    private RectTransform rectTransform;
-    private Canvas canvas;
-
-    // 드래그 중 복귀 지점(이번 드래그의 시작점: 취소/미스 드롭 시 돌아갈 곳)
-    private Vector2 originalPosition;
-
-    // ✅ 최초 목록(풀) 위치: 우클릭 제외 시 항상 여기로
-    [Header("원래 목록 영역(풀)으로 돌려보낼 부모 (선택)")]
-    public RectTransform homeParent;  // 비워두면 현재 parent 유지
-    private Vector2 homePosition;     // 최초 Awake 시점 anchoredPosition
-    private int homeSiblingIndex;     // 보기 순서 복원용
-
-    private Slot currentSlot;
-
-    [Header("스냅 판정 거리 (픽셀)")]
-    public float slotSnapDistance = 80f;
-
-    [Header("스냅 위치 보정 오프셋")]
-    public Vector2 correctionOffset = Vector2.zero;
-
-    [Header("더블클릭 시간 간격 (초)")]
-    public float doubleClickThreshold = 0.25f;
-    private float lastClickTime = -1f;
-
-    [Header("타겟 선택창 오브젝트 (씬 상의 원본)")]
-    public GameObject targetingWindow;
-
-    // ✅ CharacterID 연동
-    private CharacterID characterID;
-
-    // 현재 열려있는 캐릭터 키(전역 공유)
-    private static string currentOpenCharacterKey = null;
-
-    void Awake()
+    [RequireComponent(typeof(CanvasGroup))]
+    [RequireComponent(typeof(RectTransform))]
+    public class UIDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
     {
-        rectTransform = GetComponent<RectTransform>();
-        canvas = GetComponentInParent<Canvas>();
+        private RectTransform _rectTransform;
+        private Canvas _canvas;
+        private CanvasGroup _canvasGroup;
+        private CharacterID _characterID;
+        private Vector2 _dragOffset;
 
-        // home 정보는 "최초 자리"로 고정 저장
-        homeParent = homeParent ?? rectTransform.parent as RectTransform;
-        homePosition = rectTransform.anchoredPosition;
-        homeSiblingIndex = rectTransform.GetSiblingIndex();
+        [Header("설정")] [SerializeField] private float _slotSnapDistance = 80f;
+        [SerializeField] private Vector2 _correctionOffset = Vector2.zero;
 
-        if (targetingWindow == null)
-            targetingWindow = GameObject.Find("TargetingWindow");
-        if (targetingWindow != null)
-            targetingWindow.SetActive(false);
+        [Header("더블클릭 시간 간격 (초)")] [SerializeField]
+        private float _doubleClickThreshold = 0.25f;
 
-        // ✅ CharacterID 캐시
-        characterID = GetComponent<CharacterID>();
-        if (characterID == null)
+        [Header("타겟 선택창 오브젝트 (씬 상의 원본)")]
+        [SerializeField] private  TargetWindowController _targetWindowController;
+
+        private Transform _homeParent;
+        private Vector2 _homePosition;
+        private int _homeSiblingIndex;
+
+        private Vector2 _dragStartPosition;
+        private Slot _currentSlot;
+        private float _lastClickTime = -1f;
+        
+        private static string _currentOpenCharacterKey;
+
+        private void Awake()
         {
-            Debug.LogWarning($"[UIDrag] {gameObject.name}에 CharacterID 컴포넌트가 없습니다. 타겟창 연동이 제한될 수 있습니다.");
+            InitializeComponents();
+            InitializeHomeState();
         }
-    }
 
     public void OnBeginDrag(PointerEventData eventData)
-    {
-        // 이번 드래그의 되돌릴 자리(슬롯→슬롯 실패 시 돌아갈 위치)
-        originalPosition = rectTransform.anchoredPosition;
-
-        // 현재 슬롯 점유 해제
-        if (currentSlot != null)
         {
-            currentSlot.IsOccupied = false;
-            currentSlot.Occupant = null;
-            currentSlot = null;
-        }
-    }
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            rectTransform.parent as RectTransform,
-            eventData.position,
-            eventData.pressEventCamera,
-            out Vector2 localMousePos))
-        {
-            rectTransform.anchoredPosition = localMousePos;
-        }
-    }
-
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        // 가장 가까운 비어있는 슬롯 찾기
-        Slot[] slots = GameObject.FindObjectsOfType<Slot>();
-        Slot closestValidSlot = null;
-        float closestDistance = float.MaxValue;
-
-        foreach (var slot in slots)
-        {
-            if (slot.IsOccupied) continue;
-            RectTransform slotRect = slot.GetComponent<RectTransform>();
-            float distance = Vector2.Distance(rectTransform.anchoredPosition, slotRect.anchoredPosition);
-            if (distance < slotSnapDistance && distance < closestDistance)
+            _dragStartPosition = _rectTransform.anchoredPosition;
+            _canvasGroup.blocksRaycasts = false;
+            DetachFromSlot();
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    _rectTransform.parent as RectTransform,
+                    eventData.position,
+                    eventData.pressEventCamera,
+                    out var localMousePos))
             {
-                closestDistance = distance;
-                closestValidSlot = slot;
+                _dragOffset = _rectTransform.anchoredPosition - localMousePos;
             }
         }
 
-        if (closestValidSlot != null)
+        public void OnDrag(PointerEventData eventData)
         {
-            // 슬롯에 성공적으로 앉음 → 창은 유지
-            RectTransform slotRect = closestValidSlot.GetComponent<RectTransform>();
-            rectTransform.anchoredPosition = slotRect.anchoredPosition + correctionOffset;
-
-            currentSlot = closestValidSlot;
-            closestValidSlot.IsOccupied = true;
-            closestValidSlot.Occupant = this;
-        }
-        else
-        {
-            // ❗슬롯 스냅 실패 → 직전 자리(슬롯/목록)로만 복귀, 창은 유지
-            ReturnToOriginalPosition(closeTargetWindow: false);
-        }
-    }
-
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        if (eventData.button == PointerEventData.InputButton.Left)
-        {
-            if (Time.unscaledTime - lastClickTime < doubleClickThreshold)
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    _rectTransform.parent as RectTransform,
+                    eventData.position,
+                    eventData.pressEventCamera,
+                    out var localMousePos))
             {
-                if (currentSlot != null)
-                {
-                    HandleTargetWindowToggleOrUpdate();
-                }
+                _rectTransform.anchoredPosition = localMousePos + _dragOffset;
             }
-            lastClickTime = Time.unscaledTime;
         }
 
-        if (eventData.button == PointerEventData.InputButton.Right)
+        public void OnEndDrag(PointerEventData eventData)
         {
-            // ❗우클릭 = 배치에서 제외 → 항상 목록(풀)로 복귀 + 창 닫기
-            if (currentSlot != null)
+            _canvasGroup.blocksRaycasts = true;
+            if (TrySnapToNearestSlot(out var targetSlot))
             {
-                currentSlot.IsOccupied = false;
-                currentSlot.Occupant = null;
-                currentSlot = null;
+                AttachToSlot(targetSlot);
             }
-            ReturnToHome(closeTargetWindow: true);
-        }
-    }
-
-    private void HandleTargetWindowToggleOrUpdate()
-    {
-        if (targetingWindow == null) return;
-        var controller = targetingWindow.GetComponent<TargetWindowController>();
-        if (controller == null) return;
-
-        // ✅ CharacterID에서 키를 얻는다.
-        string key = characterID != null ? characterID.characterKey : null;
-        if (string.IsNullOrEmpty(key))
-        {
-            Debug.LogWarning("[UIDrag] CharacterID.characterKey 가 비어있습니다. 타겟창에 올바른 키를 전달할 수 없습니다.");
-            return;
+            else
+            {
+                _rectTransform.anchoredPosition = _dragStartPosition;
+            }
         }
 
-        if (!targetingWindow.activeSelf)
+        public void OnPointerClick(PointerEventData eventData)
         {
-            targetingWindow.SetActive(true);
-            controller.SetCharacter(key);
-            currentOpenCharacterKey = key;
-            return;
+            switch (eventData.button)
+            {
+                case PointerEventData.InputButton.Left:
+                    HandleLeftClick();
+                    break;
+                case PointerEventData.InputButton.Right:
+                    HandleRightClick();
+                    break;
+                case PointerEventData.InputButton.Middle:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
-        if (currentOpenCharacterKey == key)
+        private void HandleLeftClick()
         {
-            targetingWindow.SetActive(false);
-            currentOpenCharacterKey = null;
-        }
-        else
-        {
-            controller.SetCharacter(key);
-            currentOpenCharacterKey = key;
-        }
-    }
-
-    public void ReturnToOriginalPosition(bool closeTargetWindow = false)
-    {
-        rectTransform.anchoredPosition = originalPosition;
-
-        if (closeTargetWindow)
-            CloseTargetWindowIfOpenForThis();
-    }
-
-    // ✅ 목록(풀)로 복귀: 우클릭 제외 시 항상 호출
-    public void ReturnToHome(bool closeTargetWindow = false)
-    {
-        // 부모 변경이 필요하면(목록 컨테이너가 다를 때)
-        if (homeParent != null && rectTransform.parent != homeParent)
-        {
-            rectTransform.SetParent(homeParent, worldPositionStays: false);
+            if (Time.unscaledTime - _lastClickTime < _doubleClickThreshold)
+            {
+                if (_currentSlot) ToggleTargetWindow();
+            }
+            _lastClickTime = Time.unscaledTime;
         }
 
-        rectTransform.anchoredPosition = homePosition;
-        rectTransform.SetSiblingIndex(homeSiblingIndex);
-
-        if (closeTargetWindow)
-            CloseTargetWindowIfOpenForThis();
-    }
-
-    private void CloseTargetWindowIfOpenForThis()
-    {
-        if (targetingWindow == null) return;
-
-        string key = characterID != null ? characterID.characterKey : null;
-        if (string.IsNullOrEmpty(key)) return;
-
-        if (targetingWindow.activeSelf && currentOpenCharacterKey == key)
+        private void HandleRightClick()
         {
-            targetingWindow.SetActive(false);
-            currentOpenCharacterKey = null;
+            if (!_currentSlot) return;
+            DetachFromSlot();
+            ReturnToHome(closeWindow: true);
+        }
+
+        private bool TrySnapToNearestSlot(out Slot targetSlot)
+        {
+            targetSlot = null;
+            if (!SlotManager.Instance) return false;
+            var slots = SlotManager.Instance.AllSlots;
+            var closestDistance = float.MaxValue;
+            foreach (var slot in slots)
+            {
+                if (slot.IsOccupied) continue;
+                var dist = Vector2.Distance(transform.position, slot.transform.position);
+                if (!(dist < _slotSnapDistance) || !(dist < closestDistance)) continue;
+                closestDistance = dist;
+                targetSlot = slot;
+            }
+            return targetSlot;
+        }
+
+        private void AttachToSlot(Slot slot)
+        {
+            _currentSlot = slot;
+            _currentSlot.IsOccupied = true;
+            _currentSlot.Occupant = this;
+            _rectTransform.position = slot.transform.position; 
+            _rectTransform.anchoredPosition += _correctionOffset;
+        }
+        
+        private void DetachFromSlot()
+        {
+            if (!_currentSlot) return;
+            _currentSlot.IsOccupied = false;
+            _currentSlot.Occupant = null;
+            _currentSlot = null;
+        }
+
+        public void ReturnToHome(bool closeWindow)
+        {
+            if (_homeParent && _rectTransform.parent != _homeParent)
+            {
+                _rectTransform.SetParent(_homeParent, false);
+            }
+
+            _rectTransform.anchoredPosition = _homePosition;
+            _rectTransform.SetSiblingIndex(_homeSiblingIndex);
+
+            if (closeWindow)
+            {
+                CloseWindowIfMine();
+            }
+        }
+
+        private void ToggleTargetWindow()
+        {
+            if(!_targetWindowController) return;
+            var key = GetCharacterKey();
+            if(string.IsNullOrEmpty(key)) return;
+            var windowObj = _targetWindowController.gameObject;
+
+            if (!windowObj.activeSelf)
+            {
+                OpenWindow(key);
+                return;
+            }
+            
+            if (_currentOpenCharacterKey == key)
+            {
+                windowObj.SetActive(false);
+                _currentOpenCharacterKey = null;
+            }
+            else
+            {
+                OpenWindow(key);
+            }
+        }
+
+        private void OpenWindow(string key)
+        {
+            _targetWindowController.gameObject.SetActive(true);
+            _targetWindowController.SetCharacter(key);
+            _currentOpenCharacterKey = key;
+        }
+
+        private void CloseWindowIfMine()
+        {
+            if(!_targetWindowController || !_targetWindowController.gameObject.activeSelf) return;
+            var key = GetCharacterKey();
+            if (string.IsNullOrEmpty(key) || _currentOpenCharacterKey != key) return;
+            _targetWindowController.gameObject.SetActive(false);
+            _currentOpenCharacterKey = null;
+        }
+
+        private void InitializeComponents()
+        {
+            _rectTransform = GetComponent<RectTransform>();
+            _canvasGroup = GetComponent<CanvasGroup>();
+            _characterID = GetComponent<CharacterID>();
+            _canvas = GetComponentInParent<Canvas>();
+            
+            if (_canvas && _canvas.rootCanvas) _canvas = _canvas.rootCanvas;
+            if(!_characterID) Debug.LogWarning("Character ID is missing");
+        }
+
+        private void InitializeHomeState()
+        {
+            _homeParent = _rectTransform.parent;
+            _homePosition = _rectTransform.anchoredPosition;
+            _homeSiblingIndex = _rectTransform.GetSiblingIndex();
+        }
+        
+        private string GetCharacterKey()
+        {
+            return _characterID ? _characterID.characterKey : null;
         }
     }
 }
