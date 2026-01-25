@@ -169,8 +169,6 @@ namespace BattleK.Scripts.AI
         
         public void PlayAnimation( PlayerState animState, int animIndex = 0)
         {
-            if (!player.IndexPair.ContainsValue(animIndex)) animIndex = 0;
-            //수정해야 함
             player.SetStateAnimationIndex(animState, animIndex);
             player.PlayStateAnimation(animState);
         }

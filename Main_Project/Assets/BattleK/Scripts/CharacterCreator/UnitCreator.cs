@@ -89,6 +89,9 @@ namespace BattleK.Scripts.CharacterCreator
             {
                 UnitClass.Archer => 2,
                 UnitClass.Mage or UnitClass.Priest => 4,
+                UnitClass.Axeman => 5,
+                UnitClass.Spearman => 6,
+                UnitClass.Thief => 7,
                 _ => 0
             };
 
