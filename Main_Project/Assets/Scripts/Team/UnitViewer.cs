@@ -16,8 +16,7 @@ namespace Scripts.Team.FighterViewer
         public UserData userData;
         public FamilyStatsCollector familystat;
 
-        public CharacterID characterid;
-        public FamilyID familyid;
+        public int selectedIndex = -1;
 
         public Image[] CharacterImage;
         public GameObject[] CharacterObject;
@@ -98,6 +97,13 @@ namespace Scripts.Team.FighterViewer
             oneStarIds.RemoveAll(id => ownedIds.Contains(id));
         }
 
+        public void RebuildGachaPools() //선수 판매시 뽑기 재구성
+        {
+            BuildRarityPools();   
+            RemoveOwnedUnits();   
+        }
+
+
         public void UnitShow()//Load사용 안하고 쓰면 오류 
         {
             int unitCount = userData.myUnits.Count;
@@ -126,6 +132,8 @@ namespace Scripts.Team.FighterViewer
         }
         public void selectPlayer(int playerIndex)//선수 선택
         {
+            selectedIndex = playerIndex; 
+
             NameTextContain = userData.myUnits[playerIndex].unitName;
 
             //StatTextContain = $"HP: {familystat.PlayerStats[playerIndex].HP}\nATK: {familystat.PlayerStats[playerIndex].ATK}\nDEF: {familystat.PlayerStats[playerIndex].DEF}\nAGI: {familystat.PlayerStats[playerIndex].AGI}";
