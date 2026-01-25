@@ -7,6 +7,8 @@ public class GetStateShow : MonoBehaviour
 {
     public GameObject canvas;
     public GameObject drawfight;
+    public GameObject[] allPanels; //ui 설정
+   
 
     [SerializeField] private UnitViewer unitViewer;
     private const int MAX_UNIT_COUNT = 15;
@@ -29,4 +31,16 @@ public class GetStateShow : MonoBehaviour
         canvas.SetActive(false);
         drawfight.SetActive(true);
     }
+
+     public void ShowPanel()//ui 창 변경
+    {
+        foreach (GameObject panel in allPanels)
+        {
+            panel.SetActive(true);
+        }
+        
+    }
+
+    
+
 }
