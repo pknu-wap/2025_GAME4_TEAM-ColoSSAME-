@@ -237,12 +237,9 @@ namespace BattleK.Scripts.AI
 
         private void RegisterActionStates()
         {
-            if (Stat.Skills != null)
+            if (Stat.Skills is { Count: > 0 })
             {
-                foreach (var skill in Stat.Skills)
-                {
-                    _actionCandidates.Add(new StaticSkillState(this, skill));
-                }
+                _actionCandidates.Add(new StaticSkillState(this, Stat.Skills));
             }
             _actionCandidates.Add(new StaticRetreatState(this));
             _actionCandidates.Add(new StaticAttackState(this, _windupTime, _activeTime, _recoveryTime));
