@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using BattleK.Scripts.AI.SO.Base;
+using BattleK.Scripts.AI.Skill.Base;
 using BattleK.Scripts.CharacterCreator;
 using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Data.Type;

@@ -1,50 +1,51 @@
 using System.Collections;
+using BattleK.Scripts.AI.Skill.Base;
+using UnityEngine;
 
 namespace BattleK.Scripts.AI.StaticScoreState.ActionStates
 {
     public class StaticSkillState : IStaticActionState
     {
         private readonly StaticAICore _ai;
-        private readonly float _windupTime;
-        private readonly float _activeTime;
-        private readonly float _recoveryTime;
-
-        private bool _isUsingSkill;
+        private readonly RuntimeSkill _skillRunner;
+        private bool _isExecuting;
         
-        public int Priority => 105;
+        public int Priority => 110;
 
-        public StaticSkillState(StaticAICore ai, float windupTime, float activeTime, float recoveryTime)
+        public StaticSkillState(StaticAICore ai, SkillSO skillData)
         {
             _ai = ai;
-            _windupTime = windupTime;
-            _activeTime = activeTime;
-            _recoveryTime = recoveryTime;
+            _skillRunner = new RuntimeSkill(skillData);
         }
-        
+
         public bool CanExecute()
         {
-            if (_isUsingSkill) return true;
-            if (!_ai.Target || !_ai.Target.gameObject.activeInHierarchy) return false;
-            if (!_ai.IsAttackReady) return false;
+            if (_isExecuting) return true;
+            if (!_ai.Target) return false;
+            if (!_skillRunner.IsReady) return false;
             
             var distSq = (_ai.Target.position - _ai.transform.position).sqrMagnitude;
-            var range = _ai.Stat.AttackRange + 0.1f;
+            var range = _skillRunner.Data.Range;
+        
             return distSq <= range * range;
         }
-        
-        public void Enter()
-        {
-            throw new System.NotImplementedException();
-        }
+
+        public void Enter() => _isExecuting = true;
 
         public IEnumerator Execute()
         {
-            throw new System.NotImplementedException();
+            _ai.StopMovement();
+            _ai.LookAt(_ai.Target.position);
+
+            _ai.PlayAnimation(PlayerState.ATTACK, _skillRunner.Data.AnimationIndex);
+            yield return new WaitForSeconds(_skillRunner.Data.WindupTime);
+            yield return new WaitForSeconds(_skillRunner.Data.ActiveTime);
+            yield return new WaitForSeconds(_skillRunner.Data.RecoveryTime);
+
+            _isExecuting = false;
+            _ai.MainMachine.ChangeState(new StaticIdleState(_ai));
         }
 
-        public void Exit()
-        {
-            throw new System.NotImplementedException();
-        }
+        public void Exit() => _isExecuting = false;
     }
 }
