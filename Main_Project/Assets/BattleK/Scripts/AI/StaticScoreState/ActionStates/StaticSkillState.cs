@@ -36,9 +36,7 @@ namespace BattleK.Scripts.AI.StaticScoreState.ActionStates
             {
                 if (!skill.IsReady) continue;
 
-                var distSq = (_ai.Target.position - _ai.transform.position).sqrMagnitude;
-                var range = skill.Data.Range;
-                if (!(distSq < range * range)) continue;
+                if (!skill.Data.IsInArea(_ai.transform, _ai.Target)) continue;
                 if (skill.Data.InternalPriority <= highestPriority) continue;
                 highestPriority = skill.Data.InternalPriority;
                 _selectedSkill = skill;

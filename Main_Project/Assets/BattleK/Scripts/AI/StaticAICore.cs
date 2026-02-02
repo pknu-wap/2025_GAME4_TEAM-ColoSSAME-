@@ -211,7 +211,6 @@ namespace BattleK.Scripts.AI
                 OnDead();
                 return;
             }
-            
             if(OverrideMachine.CurrentState == null) OverrideMachine.ChangeState(new StaticHitState(this));
         }
 
