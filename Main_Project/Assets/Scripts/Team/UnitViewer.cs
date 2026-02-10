@@ -13,8 +13,7 @@ namespace Scripts.Team.FighterViewer
 {
     public class UnitViewer : MonoBehaviour
     {
-        //private UserData userData;
-        public UserManager userManager;
+        public UserData userData;
         public FamilyStatsCollector familystat;
 
         public int selectedIndex = -1;
@@ -33,22 +32,21 @@ namespace Scripts.Team.FighterViewer
         public TextMeshProUGUI StatText;
         string StatTextContain;
 
-        //private string savePath;
+        private string savePath;
 
         private Vector2[] originalPositions;
         private Vector3[] originalScales;
 
         void Start()
         {
-            //LoadUserData();
-            //BuildRarityPools();   // 가문 기준 전체 풀
-            //RemoveOwnedUnits();   // 보유 유닛 제거
+            LoadUserData();
+            BuildRarityPools();   // 가문 기준 전체 풀
+            RemoveOwnedUnits();   // 보유 유닛 제거
         }
 
         void Awake()
         {
-            userManager = UserManager.Instance;
-
+            savePath = Path.Combine(Application.persistentDataPath, "UserSave.json");
             originalPositions = new Vector2[CharacterObject.Length];
             originalScales = new Vector3[CharacterObject.Length];
 
@@ -60,7 +58,7 @@ namespace Scripts.Team.FighterViewer
             }
         }
 
-        /*public void LoadUserData()
+        public void LoadUserData()
         {   
             if (!File.Exists(savePath))
             {
@@ -69,7 +67,7 @@ namespace Scripts.Team.FighterViewer
             
             string json = File.ReadAllText(savePath);
             userData = JsonConvert.DeserializeObject<UserData>(json);
-        }*/
+        }
 
         void BuildRarityPools()
         {
@@ -77,10 +75,7 @@ namespace Scripts.Team.FighterViewer
             fourStarIds.Clear();
             oneStarIds.Clear();
 
-            var units = UnitDataManager.Instance.GetFamilyUnits(getplayer.familyname);
-            Debug.Log("Units count: " + (units?.Count ?? 0));
-
-            foreach (var c in units)
+            foreach (var c in getplayer.familyData.Characters)
             {
                 switch (c.Rarity)
                 {
@@ -89,15 +84,12 @@ namespace Scripts.Team.FighterViewer
                     case 1: oneStarIds.Add(c.Unit_ID); break;
                 }
             }
-
-            Debug.Log($"5성: {fiveStarIds.Count}, 4성: {fourStarIds.Count}, 1성: {oneStarIds.Count}");
         }
-
         void RemoveOwnedUnits()
         {
             HashSet<string> ownedIds = new();
 
-            foreach (var u in userManager.user.myUnits)
+            foreach (var u in userData.myUnits)
                 ownedIds.Add(u.unitId);
 
             fiveStarIds.RemoveAll(id => ownedIds.Contains(id));
@@ -114,55 +106,50 @@ namespace Scripts.Team.FighterViewer
 
         public void UnitShow()//Load사용 안하고 쓰면 오류 
         {
-            var myUnits = userManager.user.myUnits;
+            int unitCount = userData.myUnits.Count;
 
-            for (int i = 0; i < myUnits.Count; i++)
+            for (int count = 0; count < userData.myUnits.Count; count++)
             {
-                Unit unit = myUnits[i];
+                string imageName = userData.myUnits[count].unitId;
+                Sprite portraitSprite = Resources.Load<Sprite>($"CharacterData/{imageName}");
 
-                var unitSO = UnitDataManager.Instance.GetCharacterData(unit.unitId);;
+                CharacterID characterid = CharacterObject[count].GetComponent<CharacterID>();
+                characterid.characterKey = userData.myUnits[count].unitId;
 
-                //CharacterImage[i].preserveAspect = true;
-
-                CharacterID characterid = CharacterObject[i].GetComponent<CharacterID>();
-                characterid.characterKey = unit.unitId;
-
-                FamilyID familyid = CharacterObject[i].GetComponent<FamilyID>();
+                FamilyID familyid = CharacterObject[count].GetComponent<FamilyID>();
                 familyid.FamilyKey = getplayer.familyname;
 
-                //CharacterImage[i].sprite = portraitSprite;
-                CharacterImage[i].sprite =  Resources.Load<Sprite>($"CharacterData/{unitSO.Unit_ID}");
-                CharacterImage[i].preserveAspect = true;
 
-                CharacterObject[i].SetActive(true);
+                CharacterImage[count].sprite = portraitSprite;
+                CharacterImage[count].preserveAspect = true; //비율유지
+                CharacterObject[count].SetActive(true);
             }
 
-            for (int i = myUnits.Count; i < CharacterObject.Length; i++)
-                CharacterObject[i].SetActive(false);
-
+            for (int count = userData.myUnits.Count; count < CharacterObject.Length; count++)
+            {
+                CharacterObject[count].SetActive(false);
+            }
         }
-
         public void selectPlayer(int playerIndex)//선수 선택
         {
-            selectedIndex = playerIndex;
+            selectedIndex = playerIndex; 
 
-            Unit unit = userManager.user.myUnits[playerIndex];
+            NameTextContain = userData.myUnits[playerIndex].unitName;
 
-            var unitData = UnitDataManager.Instance.GetCharacterData(unit.unitId);
-            if (unitData == null) return;
+            //StatTextContain = $"HP: {familystat.PlayerStats[playerIndex].HP}\nATK: {familystat.PlayerStats[playerIndex].ATK}\nDEF: {familystat.PlayerStats[playerIndex].DEF}\nAGI: {familystat.PlayerStats[playerIndex].AGI}";
 
-            NameText.text = unitData.Unit_Name; // 또는 JSON에 있는 이름 필드
+            CharacterObject[playerIndex].GetComponent<RectTransform>().anchoredPosition = new Vector2(-40f, 10f);
+            
+            CharacterObject[playerIndex].GetComponent<RectTransform>().localScale = new Vector2(3f,3f);
 
-            RectTransform rt = CharacterObject[playerIndex].GetComponent<RectTransform>();
-            rt.anchoredPosition = new Vector2(-40f, 10f);
-            rt.localScale = Vector3.one * 3f;
+            for (int i = 0; i < 5; i++)
+                {
+                    StarCount[i].SetActive(false);
+                }
+            StarCount[userData.myUnits[playerIndex].rarity - 1].SetActive(true);
 
-            for (int i = 0; i < StarCount.Length; i++)
-                StarCount[i].SetActive(false);
-
-            StarCount[unit.rarity - 1].SetActive(true);
-
-            userManager.SetSelectedUnit(unit.unitId);
+            NameText.text = NameTextContain;
+            //StatText.text = StatTextContain;
   
         }
 
@@ -178,7 +165,7 @@ namespace Scripts.Team.FighterViewer
         }   
     }
 
-    /*public class UserData
+    public class UserData
     {
         public string userName;
         public int level;
@@ -195,7 +182,7 @@ namespace Scripts.Team.FighterViewer
         public int rarity;
         public int level;
         public float exp;
-    }*/
+    }
      
 }
 

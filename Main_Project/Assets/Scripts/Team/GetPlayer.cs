@@ -9,8 +9,6 @@ using TMPro;
 using Scripts.Team.IsAnimStopClick;
 using Scripts.Team.CardAnimcontrol;
 using Scripts.Team.FighterViewer;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 
 //나중에 가지고 있는 유닛 수가 최대일때 못뽑게하기 
 
@@ -56,16 +54,16 @@ namespace Scripts.Team.FighterRandomBuy
 
         private static readonly Dictionary<int, string> FamilyMap = new()   //가문
         {
-            {1, "카이루스"},
-            {2, "플로라"},
-            {3, "이그니스"},
-            {4, "루멘"},
-            {5, "녹스"},
-            {6, "모르스"},
-            {7, "폴그르"},
-            {8, "마레"},
-            {9, "테라"},
-            {10, "아스트라"},
+            {1, "Caelus"},
+            {2, "Flora"},
+            {3, "Ignis"},
+            {4, "Lumen"},
+            {5, "Nox"},
+            {6, "Mors"},
+            {7, "Fulger"},
+            {8, "Mare"},
+            {9, "Terra"},
+            {10, "Astra"},
         };
 
         private Dictionary<string, Sprite> spriteCache = new(); //sprite저장
@@ -110,20 +108,11 @@ namespace Scripts.Team.FighterRandomBuy
                 Debug.LogError($"잘못된 가문 id: {teamId}");
                 return;
             }
-            
-            familyname = family;
+
             TextAsset json = Resources.Load<TextAsset>($"CharacterData/{family}");
-
-            List<CharacterData> units = UnitDataManager.Instance.GetFamilyUnits(familyname);
-
-            // FamilyData 객체로 변환
-            familyData = new FamilyData
-            {
-                Family_Name = familyname,
-                Characters = units
-            };
+            familyData = JsonConvert.DeserializeObject<FamilyData>(json.text);
+            familyname = family;
         }
-        
         private League LoadLeague()
         {
             string path = Path.Combine(Application.persistentDataPath, "LeagueSave.json");
@@ -199,7 +188,7 @@ namespace Scripts.Team.FighterRandomBuy
             return sprite;
         }
 
-        public void OnCardClick(int index)  //카드 클릭
+        public void OnCardClick(int index)
         {
             if (CharacterGetCheck[index] == 0)
             {
@@ -217,19 +206,7 @@ namespace Scripts.Team.FighterRandomBuy
 
         }
 
-        public void AllCardOpen(int index)
-        {
-            for(int i = 0; i < 10; i++)
-            {
-                if (CharacterGetCheck[i] == 0)
-                {
-                    RandomSelect(i);
-                }
-                
-            }
-        }
-
-        private void RandomSelect(int index)    //카드 열기
+        private void RandomSelect(int index)
         {
             isAnyCardAnimating = true;
 
@@ -239,7 +216,7 @@ namespace Scripts.Team.FighterRandomBuy
             cardAnim.SetIndex(index);
             anim[index].SetTrigger("Iscardclick");
 
-            CharacterData randomCharacter = UnitDataManager.Instance.GetCharacterData(CharacterIDList[index]);
+            CharacterData randomCharacter = characterDict[CharacterIDList[index]];
             string imageName = Path.GetFileNameWithoutExtension(randomCharacter.Visuals.Portrait);
             CharacterImage[index].sprite = GetPortrait(imageName);
             CharacterImage[index].preserveAspect = true;
@@ -248,7 +225,7 @@ namespace Scripts.Team.FighterRandomBuy
         private void ShowExplain(int index)
         {
             
-            CharacterData characterdata = UnitDataManager.Instance.GetCharacterData(CharacterIDList[index]);
+            CharacterData characterdata = characterDict[CharacterIDList[index]];
 
             string imageName = Path.GetFileNameWithoutExtension(characterdata.Visuals.Portrait);
             SelectCharaterImage.sprite = GetPortrait(imageName);
@@ -277,7 +254,7 @@ namespace Scripts.Team.FighterRandomBuy
             isAnyCardAnimating = false;
         }
 
-        public void BuyRandomUnit(int count)
+        public void BuyRandomUnit()
         {
             for (int i = 0; i < 10; i++)
             {
@@ -287,10 +264,7 @@ namespace Scripts.Team.FighterRandomBuy
                 CharacterGather[i].SetActive(false);
             }
             CharacterGetCheck = CharacterGetCheck.ConvertAll(x => 0);
-            if (count == 0)
-            {
-                UserManager.Instance.AddUnit(unit);
-            }
+            UserManager.Instance.AddUnit(unit);
         }
 
         public void BackExplain()
@@ -308,7 +282,7 @@ namespace Scripts.Team.FighterRandomBuy
         public List<CharacterData> Characters;
     }
 
-    /*public class CharacterData
+    public class CharacterData
     {
         public string Unit_ID;
         public string Unit_Name;
@@ -319,7 +293,7 @@ namespace Scripts.Team.FighterRandomBuy
         public string Story;
         public StatDistribution Stat_Distribution;
         public Visuals Visuals;
-    }*/
+    }
 
     public class StatDistribution
     {

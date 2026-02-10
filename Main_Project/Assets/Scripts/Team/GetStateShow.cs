@@ -22,9 +22,7 @@ public class GetStateShow : MonoBehaviour
     //아직 테스트는 X
     public void EnterButton()
     {
-        var userManager = UserManager.Instance;
-
-        if (userManager.user.myUnits.Count >= MAX_UNIT_COUNT)
+        if (unitViewer.userData.myUnits.Count >= MAX_UNIT_COUNT)
         {
             Debug.Log("유닛 보유 수가 최대입니다.");
             return;
