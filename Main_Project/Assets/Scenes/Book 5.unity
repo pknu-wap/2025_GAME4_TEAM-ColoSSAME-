@@ -318,7 +318,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 0
+        m_CallState: 2
       - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
         m_MethodName: CardSelect
@@ -766,7 +766,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 0
+        m_CallState: 2
       - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
         m_MethodName: CardShow
@@ -9940,7 +9940,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 0
+        m_CallState: 2
       - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
         m_MethodName: CardSelect
@@ -21338,7 +21338,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 0
+        m_CallState: 2
       - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
         m_MethodName: CardSelect
@@ -23058,7 +23058,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 0
+        m_CallState: 2
       - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
         m_MethodName: CardSelect
@@ -36808,7 +36808,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 0
+        m_CallState: 2
       - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
         m_MethodName: CardSelect
@@ -38043,7 +38043,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 0
+        m_CallState: 2
       - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
         m_MethodName: CardSelect
@@ -43310,7 +43310,7 @@ MonoBehaviour:
       - m_Target: {fileID: 268818573}
         m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
         m_MethodName: BuyRandomUnit
-        m_Mode: 1
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -48605,7 +48605,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 0
+        m_CallState: 2
       - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
         m_MethodName: CardSelect
@@ -51067,6 +51067,68 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1162813819}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1597564423
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1597564425}
+  - component: {fileID: 1597564424}
+  m_Layer: 0
+  m_Name: CharacterImageManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1597564424
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1597564423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aec2594cc36e9bf449fc211817663382, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _unitLoadManager: {fileID: 315251470}
+  _characterParents:
+  - {fileID: 1340846019}
+  - {fileID: 1248232221}
+  - {fileID: 582236952}
+  - {fileID: 1938804539}
+  - {fileID: 790971823}
+  - {fileID: 692600389}
+  - {fileID: 300417090}
+  - {fileID: 157256317}
+  - {fileID: 2141157692}
+  - {fileID: 345324064}
+  - {fileID: 1669480530}
+  - {fileID: 2100628632}
+  - {fileID: 236195401}
+  - {fileID: 963741824}
+  - {fileID: 341359240}
+  _deactivateIfMissing: 1
+--- !u!4 &1597564425
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1597564423}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1604054607
 GameObject:
   m_ObjectHideFlags: 0
@@ -53187,7 +53249,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 0
+        m_CallState: 2
       - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
         m_MethodName: CardSelect
@@ -58973,7 +59035,7 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
-        m_CallState: 0
+        m_CallState: 2
       - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Scripts.Team.FighterRandomBuy.GetPlayer, Assembly-CSharp
         m_MethodName: CardSelect
@@ -69523,3 +69585,4 @@ SceneRoots:
   - {fileID: 315251471}
   - {fileID: 1826528675}
   - {fileID: 1234576285}
+  - {fileID: 1597564425}

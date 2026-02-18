@@ -81,7 +81,7 @@ namespace Scripts.Team.FighterRandomBuy
         {
             league = LoadLeague();
             SelectFamily();
-            BuildCharacterDict();  
+            //BuildCharacterDict();  
         }
 
         void Awake()
@@ -181,7 +181,7 @@ namespace Scripts.Team.FighterRandomBuy
             }
         }
 
-        private Sprite GetPortrait(string imageName)    //sprite 로드 저장
+        /*private Sprite GetPortrait(string imageName)    //sprite 로드 저장
         {
             if (!spriteCache.TryGetValue(imageName, out Sprite sprite))
             {
@@ -197,13 +197,13 @@ namespace Scripts.Team.FighterRandomBuy
             }
 
             return sprite;
-        }
+        }*/
 
         public void OnCardClick(int index)  //카드 클릭
         {
             if (CharacterGetCheck[index] == 0)
             {
-                RandomSelect(index);
+                StartCoroutine(LoadSprite(CharacterImage[index], CharacterIDList[index]));
             }
 
             if (isAnyCardAnimating)
@@ -240,9 +240,8 @@ namespace Scripts.Team.FighterRandomBuy
             anim[index].SetTrigger("Iscardclick");
 
             CharacterData randomCharacter = UnitDataManager.Instance.GetCharacterData(CharacterIDList[index]);
-            string imageName = Path.GetFileNameWithoutExtension(randomCharacter.Visuals.Portrait);
-            CharacterImage[index].sprite = GetPortrait(imageName);
-            CharacterImage[index].preserveAspect = true;
+
+             StartCoroutine(LoadSprite(CharacterImage[index], randomCharacter.Unit_ID));
         }
 
         private void ShowExplain(int index)
@@ -250,9 +249,7 @@ namespace Scripts.Team.FighterRandomBuy
             
             CharacterData characterdata = UnitDataManager.Instance.GetCharacterData(CharacterIDList[index]);
 
-            string imageName = Path.GetFileNameWithoutExtension(characterdata.Visuals.Portrait);
-            SelectCharaterImage.sprite = GetPortrait(imageName);
-            SelectCharaterImage.preserveAspect = true;
+            StartCoroutine(LoadSprite(SelectCharaterImage, characterdata.Unit_ID));
 
             unit = new Unit(characterdata.Unit_ID, characterdata.Rarity, characterdata.Unit_Name);
 
@@ -297,6 +294,22 @@ namespace Scripts.Team.FighterRandomBuy
         {
             cardsstate.SetActive(false);
             cards.SetActive(true);
+        }
+
+        private IEnumerator LoadSprite(Image img, string unitId)
+        {
+            var handle = Addressables.LoadAssetAsync<Sprite>(unitId);
+            yield return handle;
+
+            if (handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                img.sprite = handle.Result;
+                img.preserveAspect = true;
+            }
+            else
+            {
+                Debug.LogError($"로드 실패: {unitId}");
+            }
         }
 
     }

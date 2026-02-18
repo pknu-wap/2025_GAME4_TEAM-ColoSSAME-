@@ -8,6 +8,8 @@ using BattleK.Scripts.Manager;
 using UnityEngine.UI;
 using Scripts.Team.FighterRandomBuy;
 using TMPro;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Scripts.Team.FighterViewer
 {
@@ -112,7 +114,7 @@ namespace Scripts.Team.FighterViewer
         }
 
 
-        public void UnitShow()//Load사용 안하고 쓰면 오류 
+        public void UnitShow()//?Load사용 안하고 쓰면 오류 
         {
             var myUnits = userManager.user.myUnits;
 
@@ -131,8 +133,7 @@ namespace Scripts.Team.FighterViewer
                 familyid.FamilyKey = getplayer.familyname;
 
                 //CharacterImage[i].sprite = portraitSprite;
-                CharacterImage[i].sprite =  Resources.Load<Sprite>($"CharacterData/{unitSO.Unit_ID}");
-                CharacterImage[i].preserveAspect = true;
+                StartCoroutine(LoadSprite(CharacterImage[i], unitSO.Unit_ID));
 
                 CharacterObject[i].SetActive(true);
             }
@@ -176,7 +177,25 @@ namespace Scripts.Team.FighterViewer
             }
 
         }   
+
+        private IEnumerator LoadSprite(Image img, string unitId)    //이미지
+        {
+            var handle = Addressables.LoadAssetAsync<Sprite>(unitId);
+            yield return handle;
+
+            if (handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                img.sprite = handle.Result;
+                img.preserveAspect = true;
+            }
+            else
+            {
+                Debug.LogError($"스프라이트 로드 실패: {unitId}");
+            }
+        }
     }
+
+    
 
     /*public class UserData
     {
