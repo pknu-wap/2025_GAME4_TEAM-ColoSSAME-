@@ -91,7 +91,7 @@ namespace BattleK.Scripts.Manager
 
             if (_spriteCache.TryGetValue(Addressable, out var cached) && cached)
             {
-                ApplySprite(img, parent, cached, Addressable);
+                ApplySprite(img, parent, cached, unitId);
                 yield break;
             }
             
@@ -103,7 +103,7 @@ namespace BattleK.Scripts.Manager
             {
                 var sprite = handle.Result;
                 _spriteCache[Addressable] = sprite;
-                ApplySprite(img, parent, sprite, Addressable);
+                ApplySprite(img, parent, sprite, unitId);
             }
             else
             {
