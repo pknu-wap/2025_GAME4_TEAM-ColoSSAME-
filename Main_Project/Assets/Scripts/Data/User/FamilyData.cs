@@ -6,5 +6,6 @@ using UnityEngine;
 public class FamilyData
 {
     public string Family_Name;
+    public string Family_ID;
     public List<CharacterData> Characters;
 }

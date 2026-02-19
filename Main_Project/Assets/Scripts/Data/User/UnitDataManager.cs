@@ -1,15 +1,25 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using UnityEngine.AddressableAssets;               
+using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.TextCore.Text;
+using TextAsset = UnityEngine.TextAsset;
+
 
 public class UnitDataManager : MonoBehaviour
 {
     public static UnitDataManager Instance { get; private set; }
 
-    // 모든 유닛 데이터를 Family_Name을 키로 하는 딕셔너리에 저장
+    // 모든 유닛 데이터를 Family_ID을 키로 하는 딕셔너리에 저장
     public Dictionary<string, List<CharacterData>> familyUnitDataDict;
     // 유닛 ID를 키로, 유닛 데이터를 값으로 하는 딕셔너리 (추가)
     public Dictionary<string, CharacterData> unitDataDict;
+    
+    private AsyncOperationHandle<IList<TextAsset>> loadHandle; 
+    public bool IsLoaded { get; private set; }   
+    
+    //public System.Action OnDataLoaded; 
 
     void Awake()
     {
@@ -27,52 +37,105 @@ public class UnitDataManager : MonoBehaviour
 
     private void LoadAllUnitData()
     {
-        familyUnitDataDict = new Dictionary<string, List<CharacterData>>();
-        unitDataDict = new Dictionary<string, CharacterData>(); 
-        // Resources 폴더의 모든 JSON 파일을 불러온다.
-        TextAsset[] allDataAssets = Resources.LoadAll<TextAsset>("CharacterData");
+        this.familyUnitDataDict = new Dictionary<string, List<CharacterData>>();
+        this.unitDataDict = new Dictionary<string, CharacterData>(); 
+        
+        // Label 기반 전체 JSON 로드
+        this.loadHandle = Addressables.LoadAssetsAsync<TextAsset>(
+            "FamilyData",
+            null
+        );
+        this.loadHandle.Completed += this.OnAllDataLoaded;
+        
+        Debug.Log($"✅ 총 {familyUnitDataDict.Count}개의 유닛 데이터 로드 완료.");
+    }
 
-        foreach (TextAsset asset in allDataAssets)
+    private void OnAllDataLoaded(
+        AsyncOperationHandle<IList<TextAsset>> handle)
+    {
+        if (handle.Status != AsyncOperationStatus.Succeeded)
         {
-            // JSON을 FamilyData 객체로 변환 (역직렬화)한다.
+            Debug.LogError("유닛 데이터 로드 실패");
+            return;
+        }
+
+        foreach (TextAsset asset in handle.Result)
+        {
             FamilyData familyData = JsonConvert.DeserializeObject<FamilyData>(asset.text);
+
+            string familyId = familyData.Family_ID;
             string familyName = familyData.Family_Name;
-            
-            // Family_Name에 해당하는 리스트가 없으면 새로 생성
-            if (!familyUnitDataDict.ContainsKey(familyName))
+
+
+            if (!this.familyUnitDataDict.ContainsKey(familyId))
             {
-                familyUnitDataDict[familyName] = new List<CharacterData>();
+                this.familyUnitDataDict[familyId] = new List<CharacterData>();
             }
 
-            // 각 캐릭터 데이터를 리스트에 추가 (이때 순서가 유지된다)
             foreach (var character in familyData.Characters)
             {
                 character.Family_Name = familyName;
-                familyUnitDataDict[familyName].Add(character);
-                unitDataDict[character.Unit_ID] = character; // Unit_ID로 개별 유닛 저장
+                character.Family_ID = familyId;
+                
+                this.familyUnitDataDict[familyId].Add(character);
+                this.unitDataDict[character.Unit_ID] = character;
             }
+            
         }
-        Debug.Log($"✅ 총 {familyUnitDataDict.Count}개의 유닛 데이터 로드 완료.");
+        
+        this.IsLoaded = true;
+            
+        Debug.Log($" 총 {this.familyUnitDataDict.Count}개의 가문 데이터 로드 완료.");
+        
+        foreach (var key in this.familyUnitDataDict.Keys)
+        {
+            Debug.Log($"[Loaded Family Key] = '{key}'");
+        }
+
+    }
+    
+    private void OnDestroy()
+    {
+        if (this.loadHandle.IsValid())
+        {
+            Addressables.Release(this.loadHandle);
+        }
     }
     
     /// 패밀리 ID를 통해 상세 데이터를 가져오는 메서드.
-    public List<CharacterData> GetFamilyUnits(string familyName)
+    public List<CharacterData> GetFamilyUnits(string familyId)
     {
-        if (familyUnitDataDict.ContainsKey(familyName))
+        if (!this.IsLoaded)
         {
-            return familyUnitDataDict[familyName];
+            Debug.LogWarning("❗ 아직 데이터 로딩이 완료되지 않았습니다.");
+            return null;
         }
-        Debug.LogWarning($"❌ 가문 데이터 '{familyName}'를 찾을 수 없습니다.");
+
+        if (this.familyUnitDataDict.ContainsKey(familyId))
+        {
+            return this.familyUnitDataDict[familyId];
+        }
+        
+        Debug.Log($"[Requested Family Key] = '{familyId}'");
+
+        Debug.LogWarning($"❌ 가문 데이터 '{familyId}'를 찾을 수 없습니다.");
         return null;
     }
     
     /// 유닛 ID를 통해 상세 데이터를 가져오는 메서드.
     public CharacterData GetCharacterData(string unitId)
     {
-        if (unitDataDict.ContainsKey(unitId))
+        if (!this.IsLoaded)
         {
-            return unitDataDict[unitId];
+            Debug.LogWarning("❗ 아직 데이터 로딩이 완료되지 않았습니다.");
+            return null;
         }
+
+        if (this.unitDataDict.ContainsKey(unitId))
+        {
+            return this.unitDataDict[unitId];
+        }
+
         Debug.LogWarning($"❌ 유닛 데이터 ID를 찾을 수 없습니다: {unitId}");
         return null;
     }
