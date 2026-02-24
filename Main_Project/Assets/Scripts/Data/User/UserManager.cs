@@ -17,20 +17,6 @@ public class UserManager : MonoBehaviour
     public User user;
 
     private string savePath;
-
-    //수정
-    private static readonly Dictionary<string, string> FamilyNameMap = new Dictionary<string, string>() {
-        { "카이루스", "Caelus" },
-        { "플로라", "Flora" },
-        { "이그니스", "Ignis" },
-        { "루멘", "Lumen" },
-        { "녹스", "Nox" },
-        { "모르스", "Mors" },
-        { "폴그르", "Folgr" },
-        { "테라", "Terra" },
-        { "마레", "Mare" },
-        { "아스트라", "Astra" }
-    };
     
 
     void Awake()
@@ -250,16 +236,15 @@ public class UserManager : MonoBehaviour
     //수정
     public void AddInitialUnitsByFamily(string familyId)
     {
-        if (FamilyNameMap.TryGetValue(familyId, out string englishId))
-        {
-            StartCoroutine(AddInitialUnitsRoutine(englishId));
-        }
+
+        StartCoroutine(AddInitialUnitsRoutine(familyId));
     }
 
     private IEnumerator AddInitialUnitsRoutine(string familyId)
     {
         var handle = Addressables.LoadAssetAsync<TextAsset>(familyId);
         yield return handle;
+
 
         if (handle.Status != AsyncOperationStatus.Succeeded)
         {
