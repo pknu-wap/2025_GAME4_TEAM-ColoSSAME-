@@ -180,7 +180,7 @@ namespace Scripts.Team.FighterViewer
 
         private IEnumerator LoadSprite(Image img, string unitId)    //이미지
         {
-            var handle = Addressables.LoadAssetAsync<Sprite>(unitId);
+            var handle = Addressables.LoadAssetAsync<Sprite>($"Portrait/{unitId}");
             yield return handle;
 
             if (handle.Status == AsyncOperationStatus.Succeeded)

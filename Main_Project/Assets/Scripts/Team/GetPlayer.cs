@@ -65,7 +65,7 @@ namespace Scripts.Team.FighterRandomBuy
             {7, "폴그르"},
             {8, "마레"},
             {9, "테라"},
-            {10, "아스트라"},
+            {10, "Astra"},
         };
 
         private Dictionary<string, Sprite> spriteCache = new(); //sprite저장
@@ -241,7 +241,7 @@ namespace Scripts.Team.FighterRandomBuy
 
             CharacterData randomCharacter = UnitDataManager.Instance.GetCharacterData(CharacterIDList[index]);
 
-             StartCoroutine(LoadSprite(CharacterImage[index], randomCharacter.Unit_ID));
+            StartCoroutine(LoadSprite(CharacterImage[index], randomCharacter.Unit_ID));
         }
 
         private void ShowExplain(int index)
@@ -298,7 +298,7 @@ namespace Scripts.Team.FighterRandomBuy
 
         private IEnumerator LoadSprite(Image img, string unitId)
         {
-            var handle = Addressables.LoadAssetAsync<Sprite>(unitId);
+            var handle = Addressables.LoadAssetAsync<Sprite>($"Portrait/{unitId}");
             yield return handle;
 
             if (handle.Status == AsyncOperationStatus.Succeeded)
