@@ -107,18 +107,17 @@ public class UnitDataManager : MonoBehaviour
     {
         if (!this.IsLoaded)
         {
-            Debug.LogWarning("❗ 아직 데이터 로딩이 완료되지 않았습니다.");
+            Debug.LogWarning("아직 데이터 로딩이 완료되지 않았습니다.");
             return null;
         }
 
-        if (this.familyUnitDataDict.ContainsKey(familyId))
+        if (familyUnitDataDict.ContainsKey(familyId))
         {
-            return this.familyUnitDataDict[familyId];
+            return familyUnitDataDict[familyId];
         }
         
         Debug.Log($"[Requested Family Key] = '{familyId}'");
-
-        Debug.LogWarning($"❌ 가문 데이터 '{familyId}'를 찾을 수 없습니다.");
+        Debug.LogWarning($"가문 데이터 '{familyId}'를 찾을 수 없습니다.");
         return null;
     }
     

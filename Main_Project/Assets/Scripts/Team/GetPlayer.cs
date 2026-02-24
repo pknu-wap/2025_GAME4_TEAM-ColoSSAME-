@@ -65,7 +65,7 @@ namespace Scripts.Team.FighterRandomBuy
             {7, "폴그르"},
             {8, "마레"},
             {9, "테라"},
-            {10, "아스트라"},
+            {10, "Astra"},
         };
 
         private Dictionary<string, Sprite> spriteCache = new(); //sprite저장

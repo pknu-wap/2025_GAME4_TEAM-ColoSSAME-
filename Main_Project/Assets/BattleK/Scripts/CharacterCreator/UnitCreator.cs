@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
-using BattleK.Scripts.AI.SO.Base;
+using BattleK.Scripts.AI.Skill.Base;
 using BattleK.Scripts.AI.StaticScoreState.Attack;
 using BattleK.Scripts.Data;
 using BattleK.Scripts.Data.ClassInfo;

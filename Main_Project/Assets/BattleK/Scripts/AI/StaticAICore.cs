@@ -24,7 +24,7 @@ namespace BattleK.Scripts.AI
         [SerializeField] private float _recoveryTime = 0.5f;
         public int AttackIndex;
         public int SkillIndex;
-        public bool IsInitialized { get; private set; } = false;
+        public bool IsInitialized { get; private set; }
         
         [Header("References")]
         public AIPath AiPath;
@@ -211,7 +211,6 @@ namespace BattleK.Scripts.AI
                 OnDead();
                 return;
             }
-            
             if(OverrideMachine.CurrentState == null) OverrideMachine.ChangeState(new StaticHitState(this));
         }
 
@@ -237,6 +236,10 @@ namespace BattleK.Scripts.AI
 
         private void RegisterActionStates()
         {
+            if (Stat.Skills is { Count: > 0 })
+            {
+                _actionCandidates.Add(new StaticSkillState(this, Stat.Skills));
+            }
             _actionCandidates.Add(new StaticRetreatState(this));
             _actionCandidates.Add(new StaticAttackState(this, _windupTime, _activeTime, _recoveryTime));
             _actionCandidates.Add(new StaticChaseState(this));

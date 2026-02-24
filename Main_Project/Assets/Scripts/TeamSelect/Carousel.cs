@@ -112,7 +112,7 @@ public class Carousel : MonoBehaviour
         leagueManager.saveManager.SaveLeague(leagueManager.league);
         if (UserManager.Instance != null)
         {
-            UserManager.Instance.AddInitialUnitsByFamily(myTeam.name);
+            UserManager.Instance.AddInitialUnitsByFamily(myTeam.fid);
         }
         else
         {
