@@ -1,3 +1,7 @@
+using System.Collections;
+using System.Collections.Generic;
+using BattleK.Scripts.AI.Skill.Base.Logic.LogicBase;
+using BattleK.Scripts.Utils;
 using UnityEngine;
 
 namespace BattleK.Scripts.AI.Skill.Base
@@ -8,20 +12,21 @@ namespace BattleK.Scripts.AI.Skill.Base
         public string SkillName;
         public int InternalPriority;
     
-        [Header("Skill Perfab Settings")]
+        [Header("Skill Prefab Settings")]
         public GameObject SkillPrefab;
         public float SkillAnimDuration;
         
         [Header("Combat Config")]
-        public int Damage;
-        public float WindupTime;
-        public float ActiveTime;
-        public float RecoveryTime;
         public float Cooldown;
         public Vector2 SkillArea;
         
-        [Header("CC Config")]
-        public CCProfileSO CCProfile;
+        [Header("Timing Settings")]
+        public float WindupTime;
+        public float ActiveTime;
+        public float RecoveryTime;
+        
+        [SerializeReference, SelectableReference]
+        public List<ISkillLogic> SkillLogics = new ();
         
         public enum SpawnPosition { Owner, Target }
         public SpawnPosition SpawnAt;
@@ -30,11 +35,16 @@ namespace BattleK.Scripts.AI.Skill.Base
         public int AnimationIndex;
 
         public abstract void ExecuteSkill(StaticAICore owner, Transform target);
-        public abstract bool IsInArea(Transform owner, Transform target);
-        protected Collider2D[] GetTargetsInArea(StaticAICore owner, Vector2 centerOffset, Vector2 size)
+        
+        public virtual IEnumerator ExecuteSkillRoutine(StaticAICore owner, Transform target)
         {
-            var worldCenter = owner.transform.TransformPoint(centerOffset);
-            return Physics2D.OverlapBoxAll(worldCenter, size * 0.5f, owner.transform.eulerAngles.z, owner.TargetLayer);
+            yield return new WaitForSeconds(WindupTime);
+            ExecuteSkill(owner, target);
+            yield return new WaitForSeconds(ActiveTime);
+            yield return new WaitForSeconds(RecoveryTime);
         }
+        public abstract bool IsInArea(Transform owner, Transform target);
+        
+        public virtual void DrawGizmos(Transform owner) { }
     }
 }

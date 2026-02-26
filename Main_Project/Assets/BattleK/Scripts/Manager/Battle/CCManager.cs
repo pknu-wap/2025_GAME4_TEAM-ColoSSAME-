@@ -14,60 +14,30 @@ namespace BattleK.Scripts.Manager.Battle
 
         public void ApplyCC(CCData data)
         {
-            if(_activeCCs.ContainsKey(data.ccType))
+            if (_activeCCs.TryGetValue(data.ccType, out var routine))
             {
-                if (_activeCCs[data.ccType] != null)
-                {
-                    StopCoroutine(_activeCCs[data.ccType]);
-                    CleanupCC(data);
-                }
+                if (routine != null) StopCoroutine(routine);
                 _activeCCs.Remove(data.ccType);
             }
-            var newRoutine = StartCoroutine(ProcessCCRoutine(data));
-            _activeCCs.Add(data.ccType, newRoutine);
+    
+            _activeCCs.Add(data.ccType, StartCoroutine(ProcessCCRoutine(data)));
         }
 
         private IEnumerator ProcessCCRoutine(CCData data)
         {
-            if(data.isHardCC) _aiCore.EnterCCState(data.animName);
-            if(!Mathf.Approximately(data.speedMultiplier, 1.0f)) _aiCore.SetMoveSpeedMultiplier(data.speedMultiplier);
-            GameObject vfxInstance = null;
-            if(data.vfxPrefab) vfxInstance = Instantiate(data.vfxPrefab, transform.position, Quaternion.identity, transform);
+            foreach (var action in data.Actions ) action.OnStart(_aiCore, data);
 
             var timer = 0f;
-            var dotTimer = 0f;
-
             while (timer < data.duration)
             {
-                var deltaTime = Time.deltaTime;
-                timer += deltaTime;
-
-                if (data.isDoT)
-                {
-                    dotTimer += deltaTime;
-                    if (!(dotTimer >= data.tickInterval)) continue;
-                    ApplyDamage(data.damagePerTick);
-                    dotTimer = 0f;
-                }
+                timer += Time.deltaTime;
+                
+                foreach(var action in data.Actions) action.OnTick(_aiCore, data);
                 yield return null;
             }
             
-            CleanupCC(data);
-            if(vfxInstance) Destroy(vfxInstance);
-            if(_activeCCs.ContainsKey(data.ccType)) _activeCCs.Remove(data.ccType);
+            foreach(var action in data.Actions) action.OnEnd(_aiCore, data);
+            _activeCCs.Remove(data.ccType);
         }
-
-        private void CleanupCC(CCData data)
-        {
-            if(!Mathf.Approximately(data.speedMultiplier, 1.0f)) _aiCore.ResetMoveSpeed();
-            if(data.isHardCC) _aiCore.ExitCCState();
-        }
-
-        private void ApplyDamage(float amount)
-        {
-            _aiCore.OnTakeDamage((int)amount);
-            Debug.Log($"<color=red>DoT 데미지: {amount}</color>");
-        }
-        
     }
 }
