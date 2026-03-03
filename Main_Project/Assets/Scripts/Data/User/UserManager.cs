@@ -4,6 +4,11 @@ using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using Random = UnityEngine.Random;
+//수정
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using System.Collections;
+//
 
 public class UserManager : MonoBehaviour
 {
@@ -12,6 +17,7 @@ public class UserManager : MonoBehaviour
     public User user;
 
     private string savePath;
+    
 
     void Awake()
     {
@@ -199,7 +205,7 @@ public class UserManager : MonoBehaviour
         Debug.Log($"🗡️ 새로운 유닛 영입: {newUnit.unitId}");
         SaveUser();
     }
-    public void AddInitialUnitsByFamily(string familyName)
+    /*public void AddInitialUnitsByFamily(string familyName)
     {
         if (UnitDataManager.Instance == null)
         {
@@ -226,7 +232,59 @@ public class UserManager : MonoBehaviour
             Debug.Log($"✅ 초기 유닛 추가: {familyUnits[i].Unit_Name}");
         }
         SaveUser();
+    }*/
+    //수정
+    public void AddInitialUnitsByFamily(string familyId)
+    {
+
+        StartCoroutine(AddInitialUnitsRoutine(familyId));
     }
+
+    private IEnumerator AddInitialUnitsRoutine(string familyId)
+    {
+        var handle = Addressables.LoadAssetAsync<TextAsset>(familyId);
+        yield return handle;
+
+
+        if (handle.Status != AsyncOperationStatus.Succeeded)
+        {
+            Debug.LogError($"❌ 가문 '{familyId}' 로드 실패");
+            yield break;
+        }
+
+        TextAsset jsonFile = handle.Result;
+
+        var root = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonFile.text);
+
+        var charactersJson = root["Characters"].ToString();
+
+        List<CharacterData> familyUnits = JsonConvert.DeserializeObject<List<CharacterData>>(charactersJson);
+
+        if (familyUnits == null || familyUnits.Count < 6)
+        {
+            Debug.LogError($"❌ 가문 '{familyId}'의 유닛 데이터가 부족합니다.");
+            yield break;
+        }
+
+        int start = 5;
+        int end = Mathf.Min(start + 5, familyUnits.Count);
+
+        for (int i = start; i < end; i++)
+        {
+            Unit newUnit = new Unit(
+                familyUnits[i].Unit_ID,
+                familyUnits[i].Rarity,
+                familyUnits[i].Unit_Name
+            );
+
+            user.myUnits.Add(newUnit);
+            Debug.Log($"✅ 초기 유닛 추가: {familyUnits[i].Unit_Name}");
+        }
+
+        SaveUser();
+        Addressables.Release(handle);
+    }
+    //
     
     // 돈 추가/차감 기능도 여기서 호출할 수 있음
     
