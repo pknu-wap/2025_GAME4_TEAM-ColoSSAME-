@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,7 +14,21 @@ public class User
     
     public List<Unit> myUnits;
     
-    public User() { }
+    public Dictionary<string, int> achievementProgress; // 그룹ID -> 현재 단계 인덱스(0=1단계)
+    public Dictionary<string, int> usedItemCounts;      // 아이템ID(string) 사용 누적 횟수
+    public List<BuildingLevelSave> buildingLevels = new List<BuildingLevelSave>();
+    
+    [Serializable]
+    public class BuildingLevelSave
+    {
+        public BuildingType type;
+        public int level;
+    }
+    
+    public User()
+    {
+        EnsureDictionaries();
+    }
     public User(string nickname)
     {
         this.userName = nickname;
@@ -45,5 +60,13 @@ public class User
             Debug.LogWarning($"❌ 골드 부족: {money} / {amount}");
             return false;
         }
+    }
+    public void EnsureDictionaries()
+    {
+        if (inventory == null) inventory = new Dictionary<string, int>();
+        if (myUnits == null) myUnits = new List<Unit>();
+
+        if (achievementProgress == null) achievementProgress = new Dictionary<string, int>();
+        if (usedItemCounts == null) usedItemCounts = new Dictionary<string, int>();
     }
 }
