@@ -5,6 +5,11 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
+//수정
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using System.Collections;
+//
 
 public class UserManager : MonoBehaviour
 {
@@ -13,6 +18,7 @@ public class UserManager : MonoBehaviour
     public User user;
 
     private string savePath;
+    
 
     [Header("Achievement")]
     [SerializeField] private AchievementManager achievementManager;
@@ -242,35 +248,6 @@ public class UserManager : MonoBehaviour
             Debug.LogWarning($"❌ 제거할 아이템이 없습니다: {itemName}");
         }
     }
-    /*public void GetRandomUnit()
-    {
-        if (UnitDataManager.Instance == null)
-        {
-            Debug.LogError("❌ DataManager가 초기화되지 않았습니다.");
-            return;
-        }
-
-        // DataManager에서 로드된 모든 유닛 ID 목록을 가져온다.
-        List<string> allUnitIds = new List<string>(UnitDataManager.Instance.unitDataDict.Keys);
-        if (allUnitIds.Count == 0)
-        {
-            Debug.LogWarning("❌ 로드된 유닛 데이터가 없습니다.");
-            return;
-        }
-
-        // 목록에서 무작위로 유닛 ID를 하나 선택한다.
-        string randomUnitId = allUnitIds[Random.Range(0, allUnitIds.Count)];
-        
-        // 선택된 ID로 새로운 Unit 인스턴스를 생성한다.
-        Unit newUnit = new Unit(randomUnitId);
-
-        // 생성된 유닛을 유저의 myUnits 리스트에 추가한다.
-        AddUnit(newUnit);
-        
-        // 획득한 유닛의 이름을 DataManager를 통해 가져와 로그를 출력한다.
-        CharacterData acquiredData = UnitDataManager.Instance.GetCharacterData(randomUnitId);
-        Debug.Log($"🎉 새로운 유닛 획득! 이름: {acquiredData.Unit_Name}, 희귀도: {acquiredData.Rarity}");
-    }*/
     
     public void AddUnit(Unit newUnit)
     {
@@ -278,7 +255,7 @@ public class UserManager : MonoBehaviour
         Debug.Log($"🗡️ 새로운 유닛 영입: {newUnit.unitId}");
         SaveUser();
     }
-    public void AddInitialUnitsByFamily(string familyName)
+    /*public void AddInitialUnitsByFamily(string familyName)
     {
         if (UnitDataManager.Instance == null)
         {
@@ -295,7 +272,6 @@ public class UserManager : MonoBehaviour
             return;
         }
 
-        // JSON 파일의 순서대로 5번부터 10번까지의 유닛을 추가한다.
         int start = 5; // 6번째 캐릭터 (인덱스 5)
         int end = start + 5; // 5개를 추가 (5, 6, 7, 8, 9, 10)
 
@@ -306,7 +282,59 @@ public class UserManager : MonoBehaviour
             Debug.Log($"✅ 초기 유닛 추가: {familyUnits[i].Unit_Name}");
         }
         SaveUser();
+    }*/
+    //수정
+    public void AddInitialUnitsByFamily(string familyId)
+    {
+
+        StartCoroutine(AddInitialUnitsRoutine(familyId));
     }
+
+    private IEnumerator AddInitialUnitsRoutine(string familyId)
+    {
+        var handle = Addressables.LoadAssetAsync<TextAsset>(familyId);
+        yield return handle;
+
+
+        if (handle.Status != AsyncOperationStatus.Succeeded)
+        {
+            Debug.LogError($"❌ 가문 '{familyId}' 로드 실패");
+            yield break;
+        }
+
+        TextAsset jsonFile = handle.Result;
+
+        var root = JsonConvert.DeserializeObject<Dictionary<string, object>>(jsonFile.text);
+
+        var charactersJson = root["Characters"].ToString();
+
+        List<CharacterData> familyUnits = JsonConvert.DeserializeObject<List<CharacterData>>(charactersJson);
+
+        if (familyUnits == null || familyUnits.Count < 6)
+        {
+            Debug.LogError($"❌ 가문 '{familyId}'의 유닛 데이터가 부족합니다.");
+            yield break;
+        }
+
+        int start = 5;
+        int end = Mathf.Min(start + 5, familyUnits.Count);
+
+        for (int i = start; i < end; i++)
+        {
+            Unit newUnit = new Unit(
+                familyUnits[i].Unit_ID,
+                familyUnits[i].Rarity,
+                familyUnits[i].Unit_Name
+            );
+
+            user.myUnits.Add(newUnit);
+            Debug.Log($"✅ 초기 유닛 추가: {familyUnits[i].Unit_Name}");
+        }
+
+        SaveUser();
+        Addressables.Release(handle);
+    }
+    //
     
     // 돈 추가/차감 기능도 여기서 호출할 수 있음
     

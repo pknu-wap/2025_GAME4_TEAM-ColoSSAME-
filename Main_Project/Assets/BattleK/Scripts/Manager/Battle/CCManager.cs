@@ -65,6 +65,7 @@ namespace BattleK.Scripts.Manager.Battle
 
         private void ApplyDamage(float amount)
         {
+            _aiCore.OnTakeDamage((int)amount);
             Debug.Log($"<color=red>DoT 데미지: {amount}</color>");
         }
         

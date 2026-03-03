@@ -87,25 +87,27 @@ namespace BattleK.Scripts.Manager
                 yield break;
             }
 
-            if (_spriteCache.TryGetValue(unitId, out var cached) && cached)
+            var Addressable = "Portrait/" + unitId;
+
+            if (_spriteCache.TryGetValue(Addressable, out var cached) && cached)
             {
                 ApplySprite(img, parent, cached, unitId);
                 yield break;
             }
             
-            var handle = Addressables.LoadAssetAsync<Sprite>(unitId);
+            var handle = Addressables.LoadAssetAsync<Sprite>(Addressable);
             _handles.Add(handle);
             yield return handle;
 
             if (handle.Status == AsyncOperationStatus.Succeeded || handle.Result)
             {
                 var sprite = handle.Result;
-                _spriteCache[unitId] = sprite;
+                _spriteCache[Addressable] = sprite;
                 ApplySprite(img, parent, sprite, unitId);
             }
             else
             {
-                Debug.LogWarning($"[CharacterImageLoader] 로드 실패.\nUnitID: {unitId}");
+                Debug.LogWarning($"[CharacterImageLoader] 로드 실패.\nUnitID: {Addressable}");
                 Deactivate(parent);
             }
         }

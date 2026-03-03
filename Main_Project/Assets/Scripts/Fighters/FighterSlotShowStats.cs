@@ -12,6 +12,11 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
     public Text curExpText;
     public Slider expSlider;
 
+    //수정
+    public SkillUpgradeManager upgradeManager;
+    public int selectedSkillIndex = 0;
+    //
+
     public void OnPointerClick(PointerEventData eventData)
     {
         // playerTrain 활성화는 다른 로직이 이미 처리한다고 가정
@@ -59,5 +64,14 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
         if (expSlider != null) expSlider.value = found.exp;
 
         Debug.Log($"✅ UI 갱신: {found.unitName} / Lv {found.level} / Exp {found.exp}");
+    }
+
+    //수정
+    public void OnUpgradeButtonClicked()
+    {
+        if (slotData == null || string.IsNullOrEmpty(slotData.unitId))
+            return;
+
+        upgradeManager.UpgradeSkill(slotData.unitId, selectedSkillIndex);
     }
 }

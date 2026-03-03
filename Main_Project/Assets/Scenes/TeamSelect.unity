@@ -2996,6 +2996,7 @@ GameObject:
   - component: {fileID: 993726472}
   - component: {fileID: 993726474}
   - component: {fileID: 993726473}
+  - component: {fileID: 993726475}
   m_Layer: 5
   m_Name: units
   m_TagString: Untagged
@@ -3068,6 +3069,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 993726471}
   m_CullTransparentMesh: 1
+--- !u!225 &993726475
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 993726471}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &995219780
 GameObject:
   m_ObjectHideFlags: 0
@@ -5464,7 +5477,8 @@ MonoBehaviour:
   - {fileID: 1132427747}
   - {fileID: 1184954630}
   characterExplanationText: {fileID: 1459787456}
-  familyName: {fileID: 547867202}
+  familyNameText: {fileID: 547867202}
+  panelCanvasGroup: {fileID: 993726475}
 --- !u!4 &1554495994
 Transform:
   m_ObjectHideFlags: 0

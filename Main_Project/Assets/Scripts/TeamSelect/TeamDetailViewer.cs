@@ -1,140 +1,177 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using DG.Tweening;
 using System.Collections.Generic;
-using JetBrains.Annotations;
-using Unity.VisualScripting;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class TeamDetailViewer : MonoBehaviour
 {
-    public GameObject characterDetailsPanel;
-    public List<Image> characterPortraits;
-    public List<Image> cardImages;
-    public List<Image> teamAttributes;
-    public List<TMP_Text> characterName;
-    public List<Button> characterButtons;
-    public TMP_Text characterExplanationText;
-    public TMP_Text familyName;
+    [Header("UI References")]
+    [SerializeField] private GameObject characterDetailsPanel;
+    [SerializeField] private List<Image> characterPortraits;
+    [SerializeField] private List<Image> cardImages;       // 가문 공통 배경
+    [SerializeField] private List<Image> teamAttributes;   // 가문 공통 속성
+    [SerializeField] private List<TMP_Text> characterName;
+    [SerializeField] private List<Button> characterButtons;
+    [SerializeField] private TMP_Text characterExplanationText;
+    [SerializeField] private TMP_Text familyNameText;
+    [SerializeField] private CanvasGroup panelCanvasGroup;
 
-    // 이전에 선택된 카드 오브젝트를 추적하기 위한 변수
-    private GameObject selectedCharacterObject = null;
-    
-    void Start()
+
+    private GameObject _selectedCharacterObject;
+    private readonly List<AsyncOperationHandle<Sprite>> _portraitHandles = new();
+
+    private void Start()
     {
-        characterDetailsPanel.SetActive(false);
+        this.characterDetailsPanel.SetActive(false);
     }
-    
-    public void ShowDetails(string fid)
+
+    public void ShowDetails(string familyName)
     {
-        characterDetailsPanel.SetActive(true);
-        
-        string jsonPath = $"CharacterData/{fid}";
-        string attributePath = $"TeamAttributes/{fid}attribute";
-        string cardPath = $"TeamCards/{fid}card";
-        TextAsset textAsset = Resources.Load<TextAsset>(jsonPath);
-        
-        if (textAsset == null)
+        if (!UnitDataManager.Instance.IsLoaded)
         {
-            Debug.LogError($"❌ JSON 파일을 찾을 수 없습니다: {jsonPath}");
+            Debug.LogWarning("❗ 유닛 데이터가 아직 로드되지 않았습니다.");
             return;
         }
 
-        // ➡️ JSON 데이터를 클래스 객체로 파싱합니다.
-        CharacterList characterList = JsonUtility.FromJson<CharacterList>(textAsset.text);
-        familyName.text = characterList.Family_Name;
-        OnCharacterCardClick(characterList.Characters[0],characterButtons[0].gameObject);
-        for (int i = 0; i < 5; i++)
+        List<CharacterData> characters =
+            UnitDataManager.Instance.GetFamilyUnits(familyName);
+
+        if (characters == null || characters.Count == 0)
         {
-            // 초상화 이미지 로드 및 할당
-            string portraitFile = characterList.Characters[i].Visuals.Portrait.Replace(".png", "");
-            string portraitPath = $"CharacterData/{portraitFile}";
-            Sprite loadedSprite = Resources.Load<Sprite>(portraitPath);
-            characterPortraits[i].sprite = loadedSprite;
-            characterName[i].text = characterList.Characters[i].Unit_Name;
-            
-            teamAttributes[i].sprite=Resources.Load<Sprite>(attributePath);
-            cardImages[i].sprite=Resources.Load<Sprite>(cardPath);
-            
-            
-            int cardIndex = i;
-            characterButtons[i].onClick.RemoveAllListeners();
-            characterButtons[i].onClick.AddListener(() => OnCharacterCardClick(characterList.Characters[cardIndex],characterButtons[cardIndex].gameObject));
+            Debug.LogWarning($"❌ 가문 데이터 없음: {familyName}");
+            return;
+        }
+
+        this.characterDetailsPanel.SetActive(true);
+        this.panelCanvasGroup.alpha = 0f;
+        this.panelCanvasGroup.DOFade(1f, 0.25f)
+            .OnComplete(() =>
+            {
+                // 기본 선택 캐릭터
+                this.OnCharacterCardClick(
+                    characters[0],
+                    this.characterButtons[0].gameObject);
+            });
+
+        this.familyNameText.text = familyName;
+        
+        // 가문 공통 이미지 (Resources)
+        string attributePath = $"TeamAttributes/{familyName}attribute";
+        string cardPath = $"TeamCards/{familyName}card";
+
+        Sprite attributeSprite = Resources.Load<Sprite>(attributePath);
+        Sprite cardSprite = Resources.Load<Sprite>(cardPath);
+
+        foreach (Image img in this.teamAttributes)
+            img.sprite = attributeSprite;
+
+        foreach (Image img in this.cardImages)
+            img.sprite = cardSprite;
+        
+
+        // =========================
+        // 🔹 캐릭터 개별 Portrait (Addressables)
+        // =========================
+        for (int i = 0; i < characters.Count; i++)
+        {
+            CharacterData character = characters[i];
+
+            string portraitFile = character.Visuals.Portrait;
+            string fileName = System.IO.Path.GetFileNameWithoutExtension(portraitFile);
+            string key = $"Portrait/{fileName}";
+
+            int index = i; // 클로저 방지
+
+            AsyncOperationHandle<Sprite> handle =
+                Addressables.LoadAssetAsync<Sprite>(key);
+
+            handle.Completed += op =>
+            {
+                if (op.Status == AsyncOperationStatus.Succeeded)
+                {
+                    this.characterPortraits[index].sprite = op.Result;
+                }
+                else
+                {
+                    Debug.LogError($"❌ Portrait 로드 실패: {key}");
+                }
+            };
+
+            this._portraitHandles.Add(handle);
+
+            this.characterName[i].text = character.Unit_Name;
+
+            int buttonIndex = i;
+            this.characterButtons[i].onClick.RemoveAllListeners();
+            this.characterButtons[i].onClick.AddListener(() =>
+                this.OnCharacterCardClick(
+                    characters[buttonIndex],
+                    this.characterButtons[buttonIndex].gameObject));
         }
     }
-    
+
+    private void ClearSelection()
+    {
+        if (this._selectedCharacterObject == null)
+            return;
+
+        Image img = this._selectedCharacterObject.GetComponent<Image>();
+        if (img != null && ShaderController.Instance != null)
+        {
+            img.material = ShaderController.Instance.normalOutlineMaterial;
+        }
+
+        this._selectedCharacterObject = null;
+    }
+
     public void OnCloseButtonClick()
     {
-        characterDetailsPanel.SetActive(false);
-        characterExplanationText.text = "";
+        this.ClearSelection();
+        
+        this.panelCanvasGroup.DOFade(0f, 0.2f)
+            .OnComplete(() =>
+            {
+                this.characterDetailsPanel.SetActive(false);
+            });
+
+        this.characterExplanationText.text = string.Empty;
+        this.ReleasePortraits();
     }
 
-    private void OnCharacterCardClick(CharacterData character,GameObject clickedCardObject)
+    private void ReleasePortraits()
     {
-        // 1. 이전에 선택된 캐릭터가 있다면 외곽선 제거
-        if (selectedCharacterObject != null)
+        foreach (AsyncOperationHandle<Sprite> handle in this._portraitHandles)
         {
-            Image prevImage = selectedCharacterObject.GetComponent<Image>();
+            if (handle.IsValid())
+                Addressables.Release(handle);
+        }
+
+        this._portraitHandles.Clear();
+    }
+
+    private void OnCharacterCardClick(CharacterData character, GameObject clickedCardObject)
+    {
+        // 이전 선택 해제
+        if (this._selectedCharacterObject != null)
+        {
+            Image prevImage = this._selectedCharacterObject.GetComponent<Image>();
             if (prevImage != null && ShaderController.Instance != null)
             {
-                prevImage.material = ShaderController.Instance.normalOutlineMaterial; 
+                prevImage.material = ShaderController.Instance.normalOutlineMaterial;
             }
         }
-    
-        // 2. 새로운 선택된 카드에 머티리얼 적용
+
+        // 새로운 선택
         Image newImage = clickedCardObject.GetComponent<Image>();
-        if (newImage != null)
+        if (newImage != null && ShaderController.Instance != null)
         {
-            // ShaderController에서 UI 전용 외곽선 머티리얼을 가져와 적용한다.
-            if (ShaderController.Instance != null)
-            {
-                newImage.material = ShaderController.Instance.cardOutlineMaterial;
-            }
-        
-            // 현재 선택된 오브젝트를 저장한다.
-            selectedCharacterObject = clickedCardObject;
+            newImage.material = ShaderController.Instance.cardOutlineMaterial;
+            this._selectedCharacterObject = clickedCardObject;
         }
-        
-        characterExplanationText.text = character.Description;
-    }
-    
-    // ➡️ JSON 데이터를 담을 클래스 구조입니다.
-    // 이 클래스들은 모두 [System.Serializable] 속성이 있어야 유니티가 JSON 파싱을 할 수 있습니다.
 
-    [System.Serializable]
-    public class CharacterList
-    {
-        public string Family_Name;
-        public string Family_Description;
-        public List<CharacterData> Characters;
-    }
-    
-    [System.Serializable]
-    public class CharacterData
-    {
-        public string Unit_ID;
-        public string Unit_Name;
-        public int Rarity;
-        public int Level;
-        public string Class;
-        public string Description;
-        public string Story;
-        public StatDistribution Stat_Distribution;
-        public Visuals Visuals;
-    }
-
-    [System.Serializable]
-    public class StatDistribution
-    {
-        public int ATK;
-        public int DEF;
-        public int HP;
-        public int AGI;
-    }
-
-    [System.Serializable]
-    public class Visuals
-    {
-        public string Portrait;
-        public string Prefab;
+        this.characterExplanationText.text = character.Description;
     }
 }
