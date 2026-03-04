@@ -115,8 +115,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2192690552741630272}
-  - component: {fileID: 2499514515646777647}
   - component: {fileID: 1113220605425434098}
+  - component: {fileID: -6043067214015630799}
   m_Layer: 0
   m_Name: UltimateAxeSkill
   m_TagString: Untagged
@@ -140,18 +140,6 @@ Transform:
   - {fileID: 2192690552068995024}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2499514515646777647
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2192690552741630273}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 628c911f8119949449c01a3d12721436, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!61 &1113220605425434098
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -197,3 +185,17 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &-6043067214015630799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2192690552741630273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b03b1e8cf71a48d41b622e3b27702b81, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _areaSize: {x: 10, y: 10}
+  _isContinuous: 0

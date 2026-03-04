@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66dde979e03bda544b072d40c5c61912, type: 3}
+  m_Name: AxeTest
+  m_EditorClassIdentifier: 
+  SkillName: AxeTest
+  InternalPriority: 200
+  SkillPrefab: {fileID: 2192690552741630273, guid: 808e7ac792e36ef4586be392842db4ad, type: 3}
+  SkillAnimDuration: 1
+  Cooldown: 1
+  SkillArea: {x: 10, y: 10}
+  WindupTime: 1
+  ActiveTime: 1
+  RecoveryTime: 1
+  SkillLogics:
+  - rid: 4000806756658708480
+  SpawnAt: 0
+  AnimationIndex: 0
+  IsContinuous: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 4000806756658708480
+      type: {class: AxeDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic, asm: Assembly-CSharp}
+      data:
+        DamageMultiplier: 2
+        FlatBonusDamage: 50
+        HitCCData:
+          ccName: 
+          ccType: 1
+          duration: 10
+          vfxPrefab: {fileID: 0}
+          animName: 0
+          Actions:
+          - rid: 4000806756658708485
+          tickInterval: 0.5
+          speedMultiplier: 0
+    - rid: 4000806756658708485
+      type: {class: HardCCAction, ns: BattleK.Scripts.AI.Skill.Base, asm: Assembly-CSharp}
+      data: 
