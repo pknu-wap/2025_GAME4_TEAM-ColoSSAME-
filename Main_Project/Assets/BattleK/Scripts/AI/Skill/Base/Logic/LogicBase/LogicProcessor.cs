@@ -8,11 +8,14 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.LogicBase
         protected StaticAICore _owner;
         private List<ISkillLogic> _logics;
 
-        public void Initialize(StaticAICore owner, List<ISkillLogic> logics) 
+        public void Initialize(StaticAICore owner, List<ISkillLogic> logics, float lifeTime)
         {
             _owner = owner;
             _logics = logics;
+            Destroy(gameObject, lifeTime);
         }
+        
+        public abstract void StartProcess();
 
         protected void ApplyLogicsToTarget(StaticAICore target) 
         {

@@ -6,24 +6,24 @@ using UnityEngine;
 
 namespace BattleK.Scripts.Manager.Battle
 {
-    public class CCManager : MonoBehaviour
+    public class StatusEffectManager : MonoBehaviour
     {
         [Header("References")]
-        [SerializeField] private StaticAICore _aiCore;
-        private readonly Dictionary<CCType, Coroutine> _activeCCs = new();
+        public StaticAICore _aiCore;
+        private readonly Dictionary<StatusType, Coroutine> _activeCCs = new();
 
-        public void ApplyCC(CCData data)
+        public void ApplyCC(StatusData data)
         {
-            if (_activeCCs.TryGetValue(data.ccType, out var routine))
+            if (_activeCCs.TryGetValue(data.StatusType, out var routine))
             {
                 if (routine != null) StopCoroutine(routine);
-                _activeCCs.Remove(data.ccType);
+                _activeCCs.Remove(data.StatusType);
             }
     
-            _activeCCs.Add(data.ccType, StartCoroutine(ProcessCCRoutine(data)));
+            _activeCCs.Add(data.StatusType, StartCoroutine(ProcessCCRoutine(data)));
         }
 
-        private IEnumerator ProcessCCRoutine(CCData data)
+        private IEnumerator ProcessCCRoutine(StatusData data)
         {
             foreach (var action in data.Actions ) action.OnStart(_aiCore, data);
 
@@ -37,7 +37,7 @@ namespace BattleK.Scripts.Manager.Battle
             }
             
             foreach(var action in data.Actions) action.OnEnd(_aiCore, data);
-            _activeCCs.Remove(data.ccType);
+            _activeCCs.Remove(data.StatusType);
         }
     }
 }

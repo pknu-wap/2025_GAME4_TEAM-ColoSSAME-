@@ -1,21 +1,19 @@
 using BattleK.Scripts.AI.Skill.Base.Logic.LogicBase;
 using UnityEngine;
 
-namespace BattleK.Scripts.AI.Skill.Base.Logic
+namespace BattleK.Scripts.AI.Skill.Base.Logic.ColliderLogics
 {
     public class BoxLogicHandler : LogicProcessor 
     {
         [SerializeField] private Vector2 _areaSize;
         [SerializeField] private bool _isContinuous;
-        
-        public void SetAreaSize(Vector2 size) => _areaSize = size;
 
-        public void StartProcess()
+        public override void StartProcess()
         {
             var targets = Physics2D.OverlapBoxAll(
                 transform.position, 
                 _areaSize, 
-                transform.eulerAngles.z, 
+                transform.eulerAngles.z,
                 _owner.TargetLayer
             );
 

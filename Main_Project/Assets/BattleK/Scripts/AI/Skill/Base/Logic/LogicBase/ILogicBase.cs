@@ -9,8 +9,8 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.LogicBase
     
     public interface ICCAction
     {
-        void OnStart(StaticAICore target, CCData data);
-        void OnTick(StaticAICore target, CCData data);
-        void OnEnd(StaticAICore target, CCData data);
+        void OnStart(StaticAICore target, StatusData data);
+        void OnTick(StaticAICore target, StatusData data);
+        void OnEnd(StaticAICore target, StatusData data);
     }
 }

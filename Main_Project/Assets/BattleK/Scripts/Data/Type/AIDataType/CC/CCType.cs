@@ -7,14 +7,14 @@ namespace BattleK.Scripts.Data.Type.AIDataType.CC
 {
 
     [System.Serializable]
-    public class CCData
+    public class StatusData
     {
         [Header("Basic Info")]
-        public string ccName;
-        public CCType ccType;
+        public string StatusName;
+        public StatusType StatusType;
         public float duration;
         public GameObject vfxPrefab;
-        
+
         [Header("Hard CC Settings")]
         public PlayerState animName;
 
@@ -27,7 +27,7 @@ namespace BattleK.Scripts.Data.Type.AIDataType.CC
         public float speedMultiplier = 1.0f;
     }
     
-    public enum CCType
+    public enum StatusType
     {
         None,
         Stun,

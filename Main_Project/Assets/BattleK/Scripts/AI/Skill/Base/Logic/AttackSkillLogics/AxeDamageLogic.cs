@@ -1,10 +1,10 @@
 using System;
 using BattleK.Scripts.AI.Skill.Base.Logic.LogicBase;
-using BattleK.Scripts.Manager.Battle;
 using BattleK.Scripts.Data.Type.AIDataType.CC;
+using BattleK.Scripts.Manager.Battle;
 using UnityEngine;
 
-namespace BattleK.Scripts.AI.Skill.Base.Logic
+namespace BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics
 {
     [Serializable]
     public class AxeDamageLogic : ISkillLogic
@@ -14,7 +14,7 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic
         public int FlatBonusDamage = 50;
 
         [Header("CC Settings")]
-        public CCData HitCCData;
+        public StatusData HitCCData;
 
         public void Execute(StaticAICore owner, StaticAICore target)
         {
@@ -24,9 +24,9 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic
             var finalDamage = Mathf.RoundToInt(owner.Stat.AttackDamage * DamageMultiplier) + FlatBonusDamage;
             target.OnTakeDamage(finalDamage);
 
-            if (HitCCData != null && target.TryGetComponent(out CCManager ccManager))
+            if (HitCCData != null && target.TryGetComponent(out StatusEffectManager statManager))
             {
-                ccManager.ApplyCC(HitCCData);
+                statManager.ApplyCC(HitCCData);
             }
 
             UnityEngine.Debug.Log($"[AxeSkill] {target.name}에게 {finalDamage} 데미지 적용!");

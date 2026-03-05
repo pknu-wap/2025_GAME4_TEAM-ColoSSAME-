@@ -10,14 +10,14 @@ namespace BattleK.Scripts.AI.Skill.Base
         public float DamagePerTick;
         private float _timer;
 
-        public void OnStart(StaticAICore target, CCData data) => _timer = 0;
-        public void OnTick(StaticAICore target, CCData data)
+        public void OnStart(StaticAICore target, StatusData data) => _timer = 0;
+        public void OnTick(StaticAICore target, StatusData data)
         {
             _timer += Time.deltaTime;
             if (!(_timer >= data.tickInterval)) return;
             target.OnTakeDamage((int)DamagePerTick);
             _timer = 0;
         }
-        public void OnEnd(StaticAICore target, CCData data) { }
+        public void OnEnd(StaticAICore target, StatusData data) { }
     }
 }
