@@ -6,8 +6,10 @@ using BattleK.Scripts.Data;
 using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Data.Type;
 using BattleK.Scripts.HP;
+using BattleK.Scripts.Manager.Battle;
 using Pathfinding;
 using Pathfinding.RVO;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace BattleK.Scripts.CharacterCreator
@@ -61,6 +63,7 @@ namespace BattleK.Scripts.CharacterCreator
         private static void AddCoreComponents(GameObject parent)
         {
             parent.AddComponent<StaticAICore>();
+            parent.AddComponent<StatusEffectManager>();
             parent.AddComponent<Rigidbody2D>();
             parent.AddComponent<PlayerObjC>();
             parent.AddComponent<CharacterID>();
@@ -74,6 +77,8 @@ namespace BattleK.Scripts.CharacterCreator
         private static void ConfigureCore(GameObject parent, bool isRanged, UnitClass unitClassName, GameObject spumInstance, GameObject hpBar, Sprite unitImage, List<SkillSO> skills)
         {
             var aiCore = parent.GetComponent<StaticAICore>();
+            var statusManager = parent.GetComponent<StatusEffectManager>();
+            
             aiCore.Stat = new UnitStat
             {
                 IsRanged = isRanged,
@@ -84,7 +89,11 @@ namespace BattleK.Scripts.CharacterCreator
                 SightRange = 9f,
                 Skills = skills ?? new List<SkillSO>()
             };
+
+            statusManager._aiCore = aiCore;
+            
             if(aiCore.Stat.UnitClass is UnitClass.Archer or UnitClass.Mage or UnitClass.Priest)  aiCore.Stat.IsRanged = true;
+            
             aiCore.AttackIndex = unitClassName switch
             {
                 UnitClass.Archer => 2,

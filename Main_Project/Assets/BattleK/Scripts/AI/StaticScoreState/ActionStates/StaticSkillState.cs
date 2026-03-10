@@ -52,22 +52,14 @@ namespace BattleK.Scripts.AI.StaticScoreState.ActionStates
             
             _isExecuting = true;
             _ai.StopMovement();
-            _ai.LookAt(_ai.Target.position);
             
             var data = _selectedSkill.Data;
 
             _ai.PlayAnimation(PlayerState.ATTACK, data.AnimationIndex);
             _selectedSkill.ResetCooldown();
-            yield return new WaitForSeconds(data.WindupTime);
             
-            if (_ai.Target)
-            {
-                data.ExecuteSkill(_ai, _ai.Target);
-            }
+            yield return data.ExecuteSkillRoutine(_ai, _ai.Target);
             
-            yield return new WaitForSeconds(data.ActiveTime);
-            yield return new WaitForSeconds(data.RecoveryTime);
-
             _isExecuting = false;
             _ai.MainMachine.ChangeState(new StaticIdleState(_ai));
         }

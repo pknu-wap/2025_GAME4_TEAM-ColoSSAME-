@@ -1,31 +1,33 @@
+using System.Collections.Generic;
+using BattleK.Scripts.AI.Skill.Base.Logic.LogicBase;
+using BattleK.Scripts.Utils;
 using UnityEngine;
 
 namespace BattleK.Scripts.Data.Type.AIDataType.CC
 {
 
     [System.Serializable]
-    public class CCData
+    public class StatusData
     {
         [Header("Basic Info")]
-        public string ccName;
-        public CCType ccType;
+        public string StatusName;
+        public StatusType StatusType;
         public float duration;
         public GameObject vfxPrefab;
-        
+
         [Header("Hard CC Settings")]
-        public bool isHardCC;
         public PlayerState animName;
 
-        [Header("DoT Settings (Optional)")]
-        public bool isDoT;
-        public float damagePerTick;
-        public float tickInterval;
+        [Header("Dynamic Logic Actions")]
+        [SerializeReference, SelectableReference]
+        public List<ICCAction> Actions = new();
 
         [Header("Stat Modifier (Optional)")]
+        public float tickInterval = 0.5f; 
         public float speedMultiplier = 1.0f;
     }
     
-    public enum CCType
+    public enum StatusType
     {
         None,
         Stun,
