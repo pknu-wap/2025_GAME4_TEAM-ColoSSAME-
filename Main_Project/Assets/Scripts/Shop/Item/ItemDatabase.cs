@@ -5,7 +5,7 @@ using UnityEngine;
 public class ItemDatabase : ScriptableObject
 {
     [Header("아이템 목록")]
-    public List<ItemData> items = new();
+    public List<ItemData> items = new List<ItemData>();
 
     private Dictionary<int, ItemData> cache;
 
