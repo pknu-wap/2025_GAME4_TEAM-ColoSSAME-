@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using BattleK.Scripts.AI.Skill.Base;
 
 public class SkillUpgradeManager : MonoBehaviour
 {
@@ -18,7 +19,7 @@ public class SkillUpgradeManager : MonoBehaviour
 
         skillLevels[unitId][skillIndex]++;
 
-        Debug.Log($"✅ {unitId} {skillIndex}스킬 Lv.{skillLevels[unitId][skillIndex]}");
+        Debug.Log($"{unitId} SkillIndex {skillIndex} Lv.{skillLevels[unitId][skillIndex]}");
     }
 
     public int GetSkillLevel(string unitId, int skillIndex)

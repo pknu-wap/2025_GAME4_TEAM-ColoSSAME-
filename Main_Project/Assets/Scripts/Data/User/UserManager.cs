@@ -324,7 +324,8 @@ public class UserManager : MonoBehaviour
             Unit newUnit = new Unit(
                 familyUnits[i].Unit_ID,
                 familyUnits[i].Rarity,
-                familyUnits[i].Unit_Name
+                familyUnits[i].Unit_Name,
+                familyUnits[i].Class
             );
 
             user.myUnits.Add(newUnit);

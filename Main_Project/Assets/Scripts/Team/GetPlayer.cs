@@ -11,6 +11,7 @@ using Scripts.Team.CardAnimcontrol;
 using Scripts.Team.FighterViewer;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using BattleK.Scripts.AI.Skill.Base;
 
 //나중에 가지고 있는 유닛 수가 최대일때 못뽑게하기 
 
@@ -18,7 +19,7 @@ namespace Scripts.Team.FighterRandomBuy
 {
     public class GetPlayer : MonoBehaviour
     {
-        public UserManager userManager;
+        private UserManager userManager;
         private Unit unit;
 
         public FamilyData familyData;
@@ -36,6 +37,7 @@ namespace Scripts.Team.FighterRandomBuy
         public GameObject[] StarCount;
 
         public UnitViewer unitviewer;
+        public RandomSkillGrant randomSkillGrant;
         
         public GameObject cards;
         public GameObject cardsstate;
@@ -44,6 +46,7 @@ namespace Scripts.Team.FighterRandomBuy
         public TextMeshProUGUI NameText;
         public TextMeshProUGUI ClassText;
         public TextMeshProUGUI StoryText;
+        public TextMeshProUGUI SkillText;
 
         public Animator[] anim;
         public Sprite cardback; 
@@ -251,7 +254,29 @@ namespace Scripts.Team.FighterRandomBuy
 
             StartCoroutine(LoadSprite(SelectCharaterImage, characterdata.Unit_ID));
 
-            unit = new Unit(characterdata.Unit_ID, characterdata.Rarity, characterdata.Unit_Name);
+            List<string> skills = randomSkillGrant.GetRandomSkills(characterdata.Class, characterdata.Rarity);
+
+            unit = new Unit(
+                characterdata.Unit_ID,
+                characterdata.Rarity,
+                characterdata.Unit_Name,
+                characterdata.Class
+            );
+
+            // 스킬 추가
+            foreach (var skillId in skills)
+            {
+                unit.skills.Add(new UnitSkill(skillId, 1));
+            }
+
+            string skillInfo = "스킬:\n";
+
+            foreach (var s in unit.skills)
+            {
+                skillInfo += $"{s.skillId} (Lv.{s.level})\n";
+            }
+
+            SkillText.text = skillInfo;
 
             NameText.text = $"이름:{characterdata.Unit_Name}";
             ClassText.text = $"직업:{characterdata.Class}";
