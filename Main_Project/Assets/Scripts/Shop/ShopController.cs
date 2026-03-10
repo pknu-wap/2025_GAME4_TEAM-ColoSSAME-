@@ -11,17 +11,32 @@ public class ShopController : MonoBehaviour
     public ShopToastUI toastUI;
 
     [Header("시설 업그레이드 매니저(상점 할인 적용용)")]
-    public BuildingUpgradeManager upgradeManager; // ✅ 인스펙터에서 연결 (선택이지만 권장)
+    public BuildingUpgradeManager upgradeManager; // ✅ 인스펙터에서 연결 (선택)
+
+    [Header("Gacha")]
+    public GachaTableSO gachaTable;
+    public int gachaCost = 200;
+
+    // ✅ Page03 Right 패널 표시용: 마지막 가챠 결과 캐시
+    public bool HasLastGachaResult { get; private set; }
+    public GachaResult LastGachaResult { get; private set; }
+
+    // (선택) UI가 이벤트로 받게 하고 싶다면 사용
+    public System.Action<GachaResult> OnGachaRolled;
 
     private void Awake()
     {
         if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
     }
 
     /// <summary>
-    /// 기존 호환용: (할인 적용을 ShopController에서 계산하려면 upgradeManager가 필요)
-    /// StorePageUI에서 finalPrice를 넘기는 구조라면 이 함수는 안 써도 됨.
+    /// 기존 호환용: 내부에서 할인 적용까지 처리
+    /// (StorePageUI에서 finalPrice를 넘기면 이 함수는 사용 안 해도 됨)
     /// </summary>
     public bool TryBuy(int itemId)
     {
@@ -30,7 +45,7 @@ public class ShopController : MonoBehaviour
 
         int finalPrice = data.price;
 
-        // ✅ upgradeManager가 연결되어 있으면 여기서도 할인 적용 가능(보험)
+        // ✅ 일반 상점 아이템만 할인 적용(보험)
         if (upgradeManager != null)
             finalPrice = upgradeManager.GetDiscountedShopPrice(data.price);
 
@@ -38,14 +53,14 @@ public class ShopController : MonoBehaviour
     }
 
     /// <summary>
-    /// ✅ 권장: StorePageUI가 할인 적용된 finalPrice를 계산해서 넘겨주는 구매 함수
+    /// ✅ 권장: StorePageUI에서 할인 적용된 finalPrice를 계산해서 넘겨주는 구매 함수
     /// </summary>
     public bool TryBuy(int itemId, int finalPrice)
     {
         if (!TryGetItemData(itemId, out ItemData data))
             return false;
 
-        // ✅ finalPrice 유효성 보정(실수로 0/음수 넘어오는 상황 방지)
+        // ✅ finalPrice 유효성 보정
         if (finalPrice < 1) finalPrice = 1;
 
         // 돈 차감 (핵심: data.price가 아니라 finalPrice)
@@ -57,7 +72,6 @@ public class ShopController : MonoBehaviour
         }
 
         // 인벤 추가
-        // (참고) 지금 구조는 itemId.ToString()을 key로 쓰고 있으니 그대로 유지
         UserManager.Instance.AddItem(itemId.ToString(), 1);
 
         toastUI?.Show("구매 완료!", 1f);
@@ -65,7 +79,65 @@ public class ShopController : MonoBehaviour
     }
 
     /// <summary>
-    /// 구매 공통 검증 로직 분리
+    /// 가챠 1회 실행
+    /// - ⚠️ 가챠 비용에는 할인 적용 금지
+    /// </summary>
+    public bool TryGachaRoll()
+    {
+        if (UserManager.Instance == null || UserManager.Instance.user == null)
+        {
+            Debug.LogError("❌ UserManager 또는 user가 준비되지 않았습니다.");
+            return false;
+        }
+
+        if (gachaTable == null)
+        {
+            Debug.LogError("❌ ShopController: gachaTable이 연결되지 않았습니다.");
+            return false;
+        }
+
+        if (itemDatabase == null)
+        {
+            Debug.LogError("❌ ShopController: itemDatabase가 연결되지 않았습니다.");
+            return false;
+        }
+
+        // ✅ 1) 비용 차감(할인 적용 금지: gachaCost 그대로)
+        if (!UserManager.Instance.SpendGold(gachaCost))
+        {
+            toastUI?.Show("돈이 부족합니다", 1f);
+            return false;
+        }
+
+        // ✅ 2) 무조건 결과 반환(가챠 결과 실패 없음)
+        GachaResult result = GachaRoller.Roll(gachaTable, itemDatabase);
+
+        // ✅ 3) 결과 캐시 (Page03 Right 표시용)
+        HasLastGachaResult = true;
+        LastGachaResult = result;
+        OnGachaRolled?.Invoke(result);
+
+        // ✅ 4) 지급 + 토스트
+        if (result.isItem)
+        {
+            UserManager.Instance.AddItem(result.itemId.ToString(), result.itemCount);
+
+            ItemData data = itemDatabase.GetById(result.itemId);
+            string itemName = (data != null) ? data.itemName : $"Item({result.itemId})";
+
+            toastUI?.Show($"획득: {itemName} x{result.itemCount}", 1f);
+            return true;
+        }
+        else
+        {
+            UserManager.Instance.AddGold(result.goldAmount);
+            toastUI?.Show($"획득: 골드 +{result.goldAmount}", 1f);
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// 구매 공통 검증 로직
     /// </summary>
     private bool TryGetItemData(int itemId, out ItemData data)
     {
