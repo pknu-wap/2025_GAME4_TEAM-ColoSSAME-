@@ -52,6 +52,7 @@ namespace BattleK.Scripts.Data.ClassInfo
         public int MaxHP;
         public int CurrentHP;
         public int AttackDamage;
+        public int SkillPoint;
         public float AttackSpeed;
         public float AttackRange;
         public float AttackDelay;
