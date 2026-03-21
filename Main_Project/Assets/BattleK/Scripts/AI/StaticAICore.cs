@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using BattleK.Scripts.AI.StaticScoreState;
 using BattleK.Scripts.AI.StaticScoreState.ActionStates;
@@ -5,10 +6,12 @@ using BattleK.Scripts.AI.StaticScoreState.Attack;
 using BattleK.Scripts.AI.StaticScoreState.StaticVerStates;
 using BattleK.Scripts.AI.StaticScoreState.Targeting;
 using BattleK.Scripts.Data.ClassInfo;
+using BattleK.Scripts.Data.Type.AIDataType.CC;
 using BattleK.Scripts.HP;
 using BattleK.Scripts.Manager;
 using Pathfinding;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace BattleK.Scripts.AI
 {
@@ -37,6 +40,11 @@ namespace BattleK.Scripts.AI
 
         [Header("Stats")]
         public UnitStat Stat;
+        public float CurrentMoveSpeed { get; private set; }
+        public int CurrentAttackDamage { get; private set; }
+        public int CurrentDefense { get; private set; }
+        public int CurrentSkillPoint { get; private set; }
+        public float CurrentEvasionRate { get; private set; }
         
         [Header("Runtime Info")]
         public Transform Target;
@@ -55,6 +63,7 @@ namespace BattleK.Scripts.AI
         private float _lastDecisionTime;
 
         private readonly List<IStaticActionState> _actionCandidates = new();
+        private readonly Dictionary<StatusType, Dictionary<object, float>> _modifiers = new();
 
         public bool IsAttackReady => _attackTimer <= 0f;
         private void Awake()
@@ -115,8 +124,8 @@ namespace BattleK.Scripts.AI
 
         public void EnableWeapon()
         {
-            if(Stat.IsRanged) RangedWeapon.Fire(Stat.AttackDamage);
-            else MeleeWeapon.EnableHitBox(Stat.AttackDamage);
+            if(Stat.IsRanged) RangedWeapon.Fire(CurrentAttackDamage);
+            else MeleeWeapon.EnableHitBox(CurrentAttackDamage);
         }
 
         public void DisableWeapon()
@@ -156,12 +165,52 @@ namespace BattleK.Scripts.AI
             transform.localScale = scale;
         }
 
-        public void SetMoveSpeedMultiplier(float multiplier)
+        public void SetStatMultiplier(StatusType type, object source, float multiplier)
         {
-            var newSpeed = Stat.MoveSpeed * multiplier;
-            AiPath.maxSpeed = newSpeed;
+            if (!_modifiers.ContainsKey(type)) _modifiers[type] = new Dictionary<object, float>();
+            _modifiers[type][source] = multiplier;
+            UpdateFinalStat(type);
         }
 
+        public void RemoveStatMultiplier(StatusType type, object source)
+        {
+            if (!_modifiers.TryGetValue(type, out var sourceDict)) return;
+            sourceDict.Remove(source);
+            UpdateFinalStat(type);
+        }
+        
+        private void UpdateFinalStat(StatusType type)
+        {
+            var finalMul = 1f;
+
+            if (_modifiers.TryGetValue(type, out var sourceDict))
+            {
+                foreach (var val in sourceDict.Values)
+                {
+                    finalMul *= val; 
+                }
+            }
+            switch (type)
+            {
+                case StatusType.MoveSpeedMultiplier:
+                    CurrentMoveSpeed = Stat.MoveSpeed * finalMul;
+                    AiPath.maxSpeed = CurrentMoveSpeed;
+                    break;
+                case StatusType.AttackDamageMultiplier:
+                    CurrentAttackDamage = (int)(Stat.AttackDamage * finalMul);
+                    break;
+                case StatusType.DefenseMultiplier:
+                    CurrentDefense = (int)(Stat.Defense * finalMul);
+                    break;
+                case StatusType.SkillPointMultiplier:
+                    CurrentSkillPoint = (int)(Stat.SkillPoint * finalMul);
+                    break;
+                case StatusType.EvasionRateMultiplier:
+                    CurrentEvasionRate = (int)(Stat.EvasionRate * finalMul);
+                    break;
+            }
+        }
+        
         public void ResetMoveSpeed()
         {
             AiPath.maxSpeed = Stat.MoveSpeed;
@@ -198,12 +247,12 @@ namespace BattleK.Scripts.AI
             if (IsDead || Stat.CurrentHP == 0) return;
             
             var randomVal = Random.Range(0f, 100f);
-            if (randomVal < Stat.EvasionRate)
+            if (randomVal < CurrentEvasionRate)
             {
                 Debug.Log($"{name} is evaded");
                 return;
             }
-            var realDamage = isPenetrating ? damage : (int)Mathf.Max(1, damage * (float)(100.0 / (100 + Stat.Defense)));
+            var realDamage = isPenetrating ? damage : (int)Mathf.Max(1, damage * (float)(100.0 / (100 + CurrentDefense)));
             Stat.CurrentHP -= realDamage;
             HPBar.UpdateHPBar();
             if (Stat.CurrentHP <= 0)

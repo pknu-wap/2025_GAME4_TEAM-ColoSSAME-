@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
+using BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic;
 using BattleK.Scripts.Data.Type.AIDataType.CC;
 using UnityEngine;
 
@@ -10,17 +11,23 @@ namespace BattleK.Scripts.Manager.Battle
     {
         [Header("References")]
         public StaticAICore _aiCore;
-        private readonly Dictionary<StatusType, Coroutine> _activeCCs = new();
+        private readonly List<Coroutine> _runningRoutines = new();
 
-        public void ApplyCC(StatusData data)
+        public void ApplyCustomCC(ApplyCC logic, StaticAICore target)
         {
-            if (_activeCCs.TryGetValue(data.StatusType, out var routine))
-            {
-                if (routine != null) StopCoroutine(routine);
-                _activeCCs.Remove(data.StatusType);
-            }
-    
-            _activeCCs.Add(data.StatusType, StartCoroutine(ProcessCCRoutine(data)));
+            // 동일한 로직 인스턴스가 중복 실행되는 것을 방지하거나 
+            // 그냥 독립적으로 실행 (우리의 결정대로 독립 실행)
+            StartCoroutine(CCRoutine(logic, target));
+        }
+        
+        private IEnumerator CCRoutine(ApplyCC logic, StaticAICore target)
+        {
+            if (logic.IsHardCC) target.EnterCCState(logic.AnimState);
+            target.SetStatMultiplier(logic.StatusType, logic, logic.Multiplier);
+
+            yield return new WaitForSeconds(logic.Duration);
+            if (logic.IsHardCC) target.ExitCCState();
+            target.RemoveStatMultiplier(logic.StatusType, logic);
         }
 
         private IEnumerator ProcessCCRoutine(StatusData data)
@@ -37,7 +44,6 @@ namespace BattleK.Scripts.Manager.Battle
             }
             
             foreach(var action in data.Actions) action.OnEnd(_aiCore, data);
-            _activeCCs.Remove(data.StatusType);
         }
     }
 }

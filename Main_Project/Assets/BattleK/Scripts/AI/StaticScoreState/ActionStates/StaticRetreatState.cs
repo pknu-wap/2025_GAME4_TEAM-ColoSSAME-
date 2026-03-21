@@ -1,4 +1,5 @@
 using System.Collections;
+using BattleK.Scripts.Data.Type.AIDataType.CC;
 using UnityEngine;
 
 namespace BattleK.Scripts.AI.StaticScoreState.ActionStates
@@ -41,7 +42,7 @@ namespace BattleK.Scripts.AI.StaticScoreState.ActionStates
             isCornered = false;
             
             _ai.PlayAnimation(PlayerState.MOVE);
-            _ai.SetMoveSpeedMultiplier(retreatSpeedMultiplier);
+            // _ai.SetStatMultiplier(retreatSpeedMultiplier, StatusType.Retreat);
         }
 
         public IEnumerator Execute()

@@ -14,22 +14,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TargetType: 0
   ExecutionCondition:
-    rid: 5257176768022315011
+  - rid: 5257176787301433344
   SkillName: AssasinUltimate
-  InternalPriority: 0
+  InternalPriority: 300
   SkillPrefab: {fileID: 6433028759829344782, guid: 1ad96d57b9f409643bfdf9c6ded0be19, type: 3}
-  SkillAnimDuration: 0
-  Cooldown: 0
-  SkillArea: {x: 0, y: 0}
+  SkillAnimDuration: 1
+  Cooldown: 1
+  SkillArea: {x: 100, y: 100}
   SpawnAt: 0
   WindupTime: 0
-  ActiveTime: 0
+  ActiveTime: 1
   RecoveryTime: 0
-  SkillLogics: []
+  SkillLogics:
+  - rid: 5257176787301433345
   AnimationIndex: 0
   references:
     version: 2
     RefIds:
-    - rid: 5257176768022315011
+    - rid: 5257176787301433344
       type: {class: ClassTargetLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic, asm: Assembly-CSharp}
-      data: 
+      data:
+        TargetClasses: 010000000200000006000000
+    - rid: 5257176787301433345
+      type: {class: HealthPerDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
+      data:
+        BaseDamageRatio: 0.35
+        SkillPointBonusRatio: 0.02

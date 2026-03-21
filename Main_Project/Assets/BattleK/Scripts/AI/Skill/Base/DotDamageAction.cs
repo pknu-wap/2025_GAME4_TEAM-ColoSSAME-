@@ -7,7 +7,7 @@ namespace BattleK.Scripts.AI.Skill.Base
     [System.Serializable]
     public class DotDamageAction : ICCAction
     {
-        public float DamagePerTick;
+        [SerializeField] private float DamagePerTick;
         private float _timer;
 
         public void OnStart(StaticAICore target, StatusData data) => _timer = 0;
