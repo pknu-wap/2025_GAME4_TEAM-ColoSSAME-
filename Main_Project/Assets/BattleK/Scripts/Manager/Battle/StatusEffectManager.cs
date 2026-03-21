@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
+using BattleK.Scripts.AI.Skill.Base;
 using BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic;
-using BattleK.Scripts.Data.Type.AIDataType.CC;
 using UnityEngine;
 
 namespace BattleK.Scripts.Manager.Battle
@@ -15,9 +15,7 @@ namespace BattleK.Scripts.Manager.Battle
 
         public void ApplyCustomCC(ApplyCC logic, StaticAICore target)
         {
-            // 동일한 로직 인스턴스가 중복 실행되는 것을 방지하거나 
-            // 그냥 독립적으로 실행 (우리의 결정대로 독립 실행)
-            StartCoroutine(CCRoutine(logic, target));
+            _runningRoutines.Add(StartCoroutine(CCRoutine(logic, target)));
         }
         
         private IEnumerator CCRoutine(ApplyCC logic, StaticAICore target)
@@ -29,21 +27,29 @@ namespace BattleK.Scripts.Manager.Battle
             if (logic.IsHardCC) target.ExitCCState();
             target.RemoveStatMultiplier(logic.StatusType, logic);
         }
-
-        private IEnumerator ProcessCCRoutine(StatusData data)
+        
+        public void ApplyDotDamage(DotDamageLogic logic)
         {
-            foreach (var action in data.Actions ) action.OnStart(_aiCore, data);
-
+            _runningRoutines.Add(StartCoroutine(DotDamageRoutine(logic)));
+        }
+        
+        private IEnumerator DotDamageRoutine(DotDamageLogic logic)
+        {
             var timer = 0f;
-            while (timer < data.duration)
+            var tickTimer = 0f;
+
+            while (timer < logic.Duration)
             {
                 timer += Time.deltaTime;
-                
-                foreach(var action in data.Actions) action.OnTick(_aiCore, data);
+                tickTimer += Time.deltaTime;
+
+                if (tickTimer >= logic.TickInterval)
+                {
+                    _aiCore.OnTakeDamage((int)logic.DamagePerTick);
+                    tickTimer = 0f;
+                }
                 yield return null;
             }
-            
-            foreach(var action in data.Actions) action.OnEnd(_aiCore, data);
         }
     }
 }
