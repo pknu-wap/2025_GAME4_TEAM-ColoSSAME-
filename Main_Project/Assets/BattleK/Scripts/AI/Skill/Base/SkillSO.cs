@@ -7,9 +7,15 @@ using UnityEngine;
 namespace BattleK.Scripts.AI.Skill.Base
 {
     [CreateAssetMenu(fileName = "NewSkill", menuName = "BattleK/Skill/GeneralSkill")]
-    public class SkillSO : ScriptableObject
+    public sealed class SkillSO : ScriptableObject
     {
         public enum SpawnPosition { Owner, Target }
+        public enum TargetingType { Enemy, Ally, None }
+        
+        [Header("Targeting Settings")]
+        public TargetingType TargetType;
+        [SerializeReference, SelectableReference]
+        public List<IConditionLogic> ExecutionCondition = new();
         
         [Header("Basic Settings")]
         public string SkillName;
@@ -39,26 +45,33 @@ namespace BattleK.Scripts.AI.Skill.Base
         public void ExecuteSkill(StaticAICore owner, Transform target)
         {
             if (!SkillPrefab) return;
-
-            var spawnPos = owner.transform.position;
+            var finalPos = (target) ? target.position : owner.transform.position;
             var spawnRot = owner.transform.rotation;
-
-            spawnPos = SpawnAt switch
+            var spawnPos = SpawnAt switch
             {
                 SpawnPosition.Owner => owner.transform.position,
-                SpawnPosition.Target when target => target.position,
-                _ => spawnPos
+                SpawnPosition.Target when target => finalPos,
+                _ => owner.transform.position
             };
 
             var instance = Instantiate(SkillPrefab, spawnPos, spawnRot);
+            var processors = instance.GetComponents<LogicProcessor>();
             
-            if (!instance.TryGetComponent(out LogicProcessor processor)) return;
-            processor.Initialize(owner, SkillLogics, ActiveTime);
+            LayerMask targetMask = TargetType switch
+            {
+                TargetingType.Enemy => owner.TargetLayer,
+                TargetingType.Ally => (LayerMask)(1 << owner.gameObject.layer),
+                _ => 0
+            };
             
-            processor.StartProcess();
+            foreach (var p in processors)
+            {
+                p.Initialize(owner, SkillLogics, ActiveTime, targetMask, target, spawnPos);
+                p.StartProcess();
+            }
         }
         
-        public virtual IEnumerator ExecuteSkillRoutine(StaticAICore owner, Transform target)
+        public IEnumerator ExecuteSkillRoutine(StaticAICore owner, Transform target)
         {
             yield return new WaitForSeconds(WindupTime);
             ExecuteSkill(owner, target);
@@ -66,18 +79,29 @@ namespace BattleK.Scripts.AI.Skill.Base
             yield return new WaitForSeconds(RecoveryTime);
         }
         
-        public virtual bool IsInArea(Transform owner, Transform target)
+        public bool CanExecute(StaticAICore owner, out Transform foundTarget)
         {
-            if (!target) return false;
+            foundTarget = null;
             
-            var relativePos = owner.InverseTransformPoint(target.position);
-            
-            var inSide = Mathf.Abs(relativePos.x) <= SkillArea.x * 0.5f;
-            var inFront = relativePos.y >= 0 && relativePos.y <= SkillArea.y;
+            if (ExecutionCondition == null) return false;
 
-            return inSide && inFront;
+            LayerMask mask = TargetType switch
+            {
+                TargetingType.Enemy => owner.TargetLayer,
+                TargetingType.Ally => owner.gameObject.layer,
+                _ => 0
+            };
+            
+            if (TargetType != TargetingType.None)
+                return ExecutionCondition[0].Evaluate(owner, mask, SkillArea, out foundTarget);
+            foundTarget = owner.transform;
+            return true;
         }
-        
-        public virtual void DrawGizmos(Transform owner) { }
+
+        public void DrawGizmos(Transform owner)
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireCube(owner.position, new Vector3(SkillArea.x, SkillArea.y, 1));
+        }
     }
 }

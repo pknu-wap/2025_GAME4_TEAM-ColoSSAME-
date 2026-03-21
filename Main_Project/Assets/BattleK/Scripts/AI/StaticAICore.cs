@@ -193,9 +193,9 @@ namespace BattleK.Scripts.AI
             }
         }
 
-        public void OnTakeDamage(int damage)
+        public void OnTakeDamage(int damage, bool isPenetrating = false)
         {
-            if (IsDead) return;
+            if (IsDead || Stat.CurrentHP == 0) return;
             
             var randomVal = Random.Range(0f, 100f);
             if (randomVal < Stat.EvasionRate)
@@ -203,7 +203,7 @@ namespace BattleK.Scripts.AI
                 Debug.Log($"{name} is evaded");
                 return;
             }
-            var realDamage = (int)Mathf.Max(1, damage * (float)(100.0 / (100 + Stat.Defense)));
+            var realDamage = isPenetrating ? damage : (int)Mathf.Max(1, damage * (float)(100.0 / (100 + Stat.Defense)));
             Stat.CurrentHP -= realDamage;
             HPBar.UpdateHPBar();
             if (Stat.CurrentHP <= 0)
