@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic
 {
-    public class TeleportToTargetLogic : LogicProcessor
+    public class TeleportToTargetProcessor : LogicProcessor
     {
         public override void StartProcess()
         {

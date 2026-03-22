@@ -169,6 +169,7 @@ namespace BattleK.Scripts.AI
         {
             if (!_modifiers.ContainsKey(type)) _modifiers[type] = new Dictionary<object, float>();
             _modifiers[type][source] = multiplier;
+            Debug.Log($"현재 {name}의 {type}형 stat이 {multiplier} 배율로 변화");
             UpdateFinalStat(type);
         }
 
@@ -187,7 +188,7 @@ namespace BattleK.Scripts.AI
             {
                 foreach (var val in sourceDict.Values)
                 {
-                    finalMul *= val; 
+                    finalMul *= val;
                 }
             }
             switch (type)

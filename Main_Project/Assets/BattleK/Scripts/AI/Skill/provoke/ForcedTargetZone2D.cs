@@ -162,7 +162,7 @@ namespace BattleK.Scripts.AI.Skill.General
                 Instantiate(_hitVfxPrefab, enemy.transform.position + _hitVfxOffset, Quaternion.identity);
             }
 
-            Debug.Log($"[ForcedTargetZone2D] {enemy.name} is now targeting {_owner.name} for {_forceTargetDuration:F2}s");
+            UnityEngine.Debug.Log($"[ForcedTargetZone2D] {enemy.name} is now targeting {_owner.name} for {_forceTargetDuration:F2}s");
         }
 
         private void ReleaseForcedTarget(StaticAICore enemy, ForcedTargetRecord record)
@@ -186,7 +186,7 @@ namespace BattleK.Scripts.AI.Skill.General
                 enemy.Target = null;
             }
 
-            Debug.Log($"[ForcedTargetZone2D] Released forced target on {enemy.name}");
+            UnityEngine.Debug.Log($"[ForcedTargetZone2D] Released forced target on {enemy.name}");
         }
 
         private void ClearAllForcedTargets()

@@ -13,27 +13,27 @@ namespace BattleK.Scripts.Manager.Battle
         public StaticAICore _aiCore;
         private readonly List<Coroutine> _runningRoutines = new();
 
-        public void ApplyCustomCC(ApplyCC logic, StaticAICore target)
+        public void ApplyCustomCC(ApplyCC logic, StaticAICore target, float multiplier)
         {
-            _runningRoutines.Add(StartCoroutine(CCRoutine(logic, target)));
+            _runningRoutines.Add(StartCoroutine(CCRoutine(logic, target, multiplier)));
         }
         
-        private IEnumerator CCRoutine(ApplyCC logic, StaticAICore target)
+        private IEnumerator CCRoutine(ApplyCC logic, StaticAICore target, float multiplier)
         {
             if (logic.IsHardCC) target.EnterCCState(logic.AnimState);
-            target.SetStatMultiplier(logic.StatusType, logic, logic.Multiplier);
+            target.SetStatMultiplier(logic.StatusType, logic, multiplier);
 
             yield return new WaitForSeconds(logic.Duration);
             if (logic.IsHardCC) target.ExitCCState();
             target.RemoveStatMultiplier(logic.StatusType, logic);
         }
         
-        public void ApplyDotDamage(DotDamageLogic logic)
+        public void ApplyDotDamage(DotDamageLogic logic, float damagePerTick, bool isPenetrating)
         {
-            _runningRoutines.Add(StartCoroutine(DotDamageRoutine(logic)));
+            _runningRoutines.Add(StartCoroutine(DotDamageRoutine(logic, damagePerTick, isPenetrating)));
         }
         
-        private IEnumerator DotDamageRoutine(DotDamageLogic logic)
+        private IEnumerator DotDamageRoutine(DotDamageLogic logic, float tickDamage, bool isPenetrating)
         {
             var timer = 0f;
             var tickTimer = 0f;
@@ -45,7 +45,8 @@ namespace BattleK.Scripts.Manager.Battle
 
                 if (tickTimer >= logic.TickInterval)
                 {
-                    _aiCore.OnTakeDamage((int)logic.DamagePerTick);
+                    _aiCore.OnTakeDamage((int)tickDamage, isPenetrating);
+                    Debug.Log($"[HealthPerDamage] {_aiCore.name}에게 {tickDamage} 데미지 적용!");
                     tickTimer = 0f;
                 }
                 yield return null;

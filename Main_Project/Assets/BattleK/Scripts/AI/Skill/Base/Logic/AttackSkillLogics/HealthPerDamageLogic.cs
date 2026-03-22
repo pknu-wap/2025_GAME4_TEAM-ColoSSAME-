@@ -10,7 +10,7 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics
         public void Execute(StaticAICore owner, StaticAICore target)
         {
             if (!target || target == owner) return;
-            if (target.gameObject.layer == owner.TargetLayer) return;
+            if (((1 << target.gameObject.layer) & owner.TargetLayer) == 0) return;
             var finalDamage = Mathf.RoundToInt(target.Stat.MaxHP * BaseDamageRatio + SkillPointBonusRatio * owner.Stat.SkillPoint);
             target.OnTakeDamage(finalDamage, true);
             UnityEngine.Debug.Log($"[HealthPerDamage] {target.name}에게 {finalDamage} 데미지 적용!");
