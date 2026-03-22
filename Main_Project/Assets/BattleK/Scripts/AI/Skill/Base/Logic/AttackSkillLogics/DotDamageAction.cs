@@ -2,7 +2,7 @@ using BattleK.Scripts.AI.Skill.Base.Logic.LogicBase;
 using BattleK.Scripts.Manager.Battle;
 using UnityEngine;
 
-namespace BattleK.Scripts.AI.Skill.Base
+namespace BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics
 {
     [System.Serializable]
     public class DotDamageLogic : ISkillLogic
@@ -12,7 +12,7 @@ namespace BattleK.Scripts.AI.Skill.Base
         public float SkillPointRatio;
         public float TickInterval = 0.5f;
         public float Duration = 3.0f;
-        public bool bIsPenetrating;
+        public bool IsPenetrating;
         
         public void Execute(StaticAICore owner, StaticAICore target)
         {
@@ -22,7 +22,7 @@ namespace BattleK.Scripts.AI.Skill.Base
             var statusManager = target.GetComponent<StatusEffectManager>();
             if (statusManager)
             {
-                statusManager.ApplyDotDamage(this, calculatedDamagePerTick, bIsPenetrating);
+                statusManager.ApplyDotDamage(this, calculatedDamagePerTick, IsPenetrating);
             }
         }
     }

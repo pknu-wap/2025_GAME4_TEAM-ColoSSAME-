@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
 using BattleK.Scripts.AI.Skill.Base;
+using BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics;
 using BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic;
 using UnityEngine;
 

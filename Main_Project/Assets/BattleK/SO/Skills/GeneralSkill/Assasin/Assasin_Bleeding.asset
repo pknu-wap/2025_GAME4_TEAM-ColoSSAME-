@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TargetType: 0
   ExecutionCondition:
-  - rid: 5257176816999989249
+  - rid: 5257176820532117505
   SkillName: Assasin
   InternalPriority: 200
   SkillPrefab: {fileID: 295864181276554417, guid: 43b39b68ebdaa3a40bbbd81a460695fe, type: 3}
@@ -26,18 +26,19 @@ MonoBehaviour:
   ActiveTime: 1
   RecoveryTime: 0
   SkillLogics:
-  - rid: 5257176816999989248
+  - rid: 5257176820532117504
   AnimationIndex: 0
   references:
     version: 2
     RefIds:
-    - rid: 5257176816999989248
-      type: {class: DotDamageLogic, ns: BattleK.Scripts.AI.Skill.Base, asm: Assembly-CSharp}
+    - rid: 5257176820532117504
+      type: {class: DotDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
       data:
-        BaseDamage: 0.22
-        SkillPointRatio: 0.02
-        TickInterval: 1
+        BaseDamage: 0
+        SkillPointRatio: 0
+        TickInterval: 0.5
         Duration: 3
-    - rid: 5257176816999989249
+        IsPenetrating: 0
+    - rid: 5257176820532117505
       type: {class: NearestTargetLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic, asm: Assembly-CSharp}
       data: 
