@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using BattleK.Scripts.AI.Skill.Base.Logic.LogicBase;
+using BattleK.Scripts.AI.Skill.Base.Projectile;
 using BattleK.Scripts.Utils;
 using UnityEngine;
 
@@ -52,6 +53,14 @@ namespace BattleK.Scripts.AI.Skill.Base
 
             var instance = Instantiate(SkillPrefab, spawnPos, spawnRot);
             
+            //임시-----------------------
+            var movement = instance.GetComponent<ProjectileMovement>();
+            if (movement != null)
+            {
+                movement.Init(owner.transform.right);
+            }
+            //임시----------------------
+
             if (!instance.TryGetComponent(out LogicProcessor processor)) return;
             processor.Initialize(owner, SkillLogics, ActiveTime);
             
