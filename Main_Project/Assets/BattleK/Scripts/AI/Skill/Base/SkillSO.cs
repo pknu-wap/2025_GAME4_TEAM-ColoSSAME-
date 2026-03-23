@@ -23,7 +23,6 @@ namespace BattleK.Scripts.AI.Skill.Base
     
         [Header("Skill Prefab Settings")]
         public GameObject SkillPrefab;
-        public float SkillAnimDuration;
         
         [Header("Combat Config")]
         public float Cooldown;
