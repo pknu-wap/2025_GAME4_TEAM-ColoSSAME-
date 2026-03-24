@@ -11,6 +11,7 @@ namespace BattleK.Scripts.AI.StaticScoreState.ActionStates
         private readonly List<RuntimeSkill> _runtimeSkills = new();
         private RuntimeSkill _selectedSkill;
         private bool _isExecuting;
+        private Transform _targetForSkill;
         
         public int Priority => 110;
 
@@ -26,20 +27,19 @@ namespace BattleK.Scripts.AI.StaticScoreState.ActionStates
         public bool CanExecute()
         {
             if (_isExecuting) return true;
-            if (!_ai.Target) return false;
             _selectedSkill = null;
             
-            _selectedSkill = null;
-            var highestPriority = int.MinValue;
+            var highestPriority = -1;
             
             foreach (var skill in _runtimeSkills)
             {
                 if (!skill.IsReady) continue;
 
-                if (!skill.Data.IsInArea(_ai.transform, _ai.Target)) continue;
+                if (!skill.Data.CanExecute(_ai, out var target)) continue;
                 if (skill.Data.InternalPriority <= highestPriority) continue;
                 highestPriority = skill.Data.InternalPriority;
                 _selectedSkill = skill;
+                _targetForSkill = target;
             }
             return _selectedSkill != null;
         }
@@ -58,7 +58,7 @@ namespace BattleK.Scripts.AI.StaticScoreState.ActionStates
             _ai.PlayAnimation(PlayerState.ATTACK, data.AnimationIndex);
             _selectedSkill.ResetCooldown();
             
-            yield return data.ExecuteSkillRoutine(_ai, _ai.Target);
+            yield return data.ExecuteSkillRoutine(_ai, _targetForSkill);
             
             _isExecuting = false;
             _ai.MainMachine.ChangeState(new StaticIdleState(_ai));

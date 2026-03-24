@@ -7,22 +7,26 @@ namespace BattleK.Scripts.AI.Skill.Base
     [System.Serializable]
     public class StatModifierAction : ICCAction
     {
-        public void OnStart(StaticAICore target, StatusData data)
-        {
-            target.EnterCCState(data.animName);
+        [Header("Status Settings")]
+        public StatusType TargetStat;
+        public float Multiplier = 1.0f;
 
-            if (!Mathf.Approximately(data.speedMultiplier, 1.0f))
-            {
-                target.SetMoveSpeedMultiplier(data.speedMultiplier);
-            }
+        [Header("Visual Settings")]
+        public bool IsHardCC;
+        public PlayerState AnimName = PlayerState.DEBUFF;
+
+        public void OnStart(StaticAICore target, StatusData data) 
+        {
+            if (IsHardCC) target.EnterCCState(data.animName);
+            target.SetStatMultiplier(TargetStat, this, Multiplier);
         }
 
         public void OnTick(StaticAICore target, StatusData data) { }
 
         public void OnEnd(StaticAICore target, StatusData data)
         {
-            target.ExitCCState();
-            target.ResetMoveSpeed();
+            if (IsHardCC) target.ExitCCState();
+            target.RemoveStatMultiplier(TargetStat, this);
         }
     }
 }
