@@ -23,8 +23,17 @@ MonoBehaviour:
   WindupTime: 0
   ActiveTime: 0
   RecoveryTime: 0
-  SkillLogics: []
+  SkillLogics:
+  - rid: 5257176843558322179
   AnimationIndex: 0
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 5257176843558322179
+      type: {class: DotDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
+      data:
+        BaseDamage: 0
+        SkillPointRatio: 0
+        TickInterval: 0.5
+        Duration: 3
+        IsPenetrating: 0

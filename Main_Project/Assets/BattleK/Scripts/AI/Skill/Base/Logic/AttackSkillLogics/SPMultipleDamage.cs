@@ -13,7 +13,7 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics
             if (target.gameObject.layer == owner.TargetLayer) return;
             var finalDamage = Mathf.RoundToInt( basicBonusPoint + SkillPointRatio * owner.Stat.SkillPoint) * owner.CurrentAttackDamage;
             target.OnTakeDamage(finalDamage, true);
-            UnityEngine.Debug.Log($"[HealthPerDamage] {target.name}에게 {finalDamage} 데미지 적용!");
+            UnityEngine.Debug.Log($"[SPMultipleDamage] {target.name}에게 {finalDamage} 데미지 적용!");
         }
     }
 }
