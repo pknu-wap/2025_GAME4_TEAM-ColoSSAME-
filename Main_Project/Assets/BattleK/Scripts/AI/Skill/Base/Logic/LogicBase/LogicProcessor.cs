@@ -7,11 +7,17 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.LogicBase
     {
         protected StaticAICore _owner;
         private List<ISkillLogic> _logics;
+        protected LayerMask _targetMask;
+        protected Transform _targetTransform;
+        protected Vector2 _targetPosition;
 
-        public void Initialize(StaticAICore owner, List<ISkillLogic> logics, float lifeTime)
+        public void Initialize(StaticAICore owner, List<ISkillLogic> logics, float lifeTime, LayerMask mask, Transform target, Vector2 targetPos)
         {
             _owner = owner;
             _logics = logics;
+            _targetMask = mask;
+            _targetTransform = target;
+            _targetPosition = targetPos;
             Destroy(gameObject, lifeTime);
         }
         

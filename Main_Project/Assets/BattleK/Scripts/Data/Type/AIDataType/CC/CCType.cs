@@ -30,10 +30,11 @@ namespace BattleK.Scripts.Data.Type.AIDataType.CC
     public enum StatusType
     {
         None,
-        Stun,
-        Freeze,
-        Burn,
-        Poison,
-        Slow
+        AttackDamageMultiplier,
+        SkillPointMultiplier,
+        AttackSpeedMultiplier,
+        DefenseMultiplier,
+        MoveSpeedMultiplier,
+        EvasionRateMultiplier
     }
 }

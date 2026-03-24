@@ -1,0 +1,19 @@
+using BattleK.Scripts.AI.Skill.Base.Logic.LogicBase;
+using UnityEngine;
+
+namespace BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics
+{
+    public class SPMultipleDamage : ISkillLogic
+    {
+        [SerializeField] private float SkillPointRatio = 0f;
+        [SerializeField] private float basicBonusPoint = 0f;
+        public void Execute(StaticAICore owner, StaticAICore target)
+        {
+            if (!target || target == owner) return;
+            if (target.gameObject.layer == owner.TargetLayer) return;
+            var finalDamage = Mathf.RoundToInt( basicBonusPoint + SkillPointRatio * owner.Stat.SkillPoint) * owner.CurrentAttackDamage;
+            target.OnTakeDamage(finalDamage, true);
+            UnityEngine.Debug.Log($"[SPMultipleDamage] {target.name}에게 {finalDamage} 데미지 적용!");
+        }
+    }
+}
