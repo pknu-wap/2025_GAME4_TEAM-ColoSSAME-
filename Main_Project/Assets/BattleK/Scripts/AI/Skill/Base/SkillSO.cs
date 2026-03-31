@@ -61,7 +61,14 @@ namespace BattleK.Scripts.AI.Skill.Base
             var movement = instance.GetComponent<ProjectileMovement>();
             if (movement != null)
             {
-                movement.Init(owner.transform.right);
+                Vector2 direction = Vector2.zero;
+
+                if (target != null)
+                {
+                    direction = ((Vector2)(target.position - spawnPos)).normalized;
+                }
+
+                movement.Init(direction);
             }
             //임시----------------------
 

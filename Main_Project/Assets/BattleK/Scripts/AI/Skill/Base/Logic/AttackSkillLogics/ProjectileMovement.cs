@@ -13,6 +13,12 @@ namespace BattleK.Scripts.AI.Skill.Base.Projectile
         public void Init(Vector2 direction)
         {
             this._direction = direction.normalized;
+
+            if (this._direction != Vector2.zero)
+            {
+                float angle = Mathf.Atan2(this._direction.y, this._direction.x) * Mathf.Rad2Deg;
+                this.transform.rotation = Quaternion.Euler(0f, 0f, angle);
+            }
         }
 
         private void Update()

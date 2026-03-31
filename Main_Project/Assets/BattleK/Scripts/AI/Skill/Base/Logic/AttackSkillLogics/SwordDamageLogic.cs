@@ -11,24 +11,24 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics
     public class SwordDamageLogic : ISkillLogic
     {
         [Header("Damage Settings")]
-        public float DamageMultiplier = 2.0f;
-        public int FlatBonusDamage = 50;
+        [SerializeField] private float _damageMultiplier = 2.0f;
+        [SerializeField] private int _flatBonusDamage = 50;
 
         [Header("CC Settings")]
-        public StatusData HitCCData;
+        [SerializeField] private StatusData _hitCCData;
 
         public void Execute(StaticAICore owner, StaticAICore target)
         {
             if (!target || target == owner) return;
-            // LayerMask에 포함된 레이어인지 비트마스크로 검사 (포함되지 않으면 리턴)
+
             if ((owner.TargetLayer.value & (1 << target.gameObject.layer)) == 0) return;
-            
-            var finalDamage = Mathf.RoundToInt(owner.Stat.AttackDamage * DamageMultiplier) + FlatBonusDamage;
+
+            int finalDamage = Mathf.RoundToInt(owner.Stat.AttackDamage * _damageMultiplier) + _flatBonusDamage;
             target.OnTakeDamage(finalDamage);
 
-            if (HitCCData != null && target.TryGetComponent(out StatusEffectManager statManager))
+            if (_hitCCData != null && target.TryGetComponent(out StatusEffectManager statusEffectManager))
             {
-                statManager.ApplyCC(HitCCData);
+                // statusEffectManager.ApplyCC(_hitCCData);
             }
 
             UnityEngine.Debug.Log($"[SwordSkill] {target.name}에게 {finalDamage} 데미지 적용!");
