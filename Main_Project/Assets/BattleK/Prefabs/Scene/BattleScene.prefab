@@ -44,10 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f112ff2f1b66529439f06364dc3d90fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ai_Manager: {fileID: 1160425972069385896}
-  PlayerUnits: []
-  EnemyUnits: []
-  HPBar: {fileID: 0}
+  _aiManager: {fileID: 1160425972069385896}
+  _playerUnits: []
+  _enemyUnits: []
 --- !u!1 &641099847356128564
 GameObject:
   m_ObjectHideFlags: 0
@@ -90,6 +89,7 @@ Transform:
   - {fileID: 3928920525286399044}
   - {fileID: 4949271857051557734}
   - {fileID: 1777332896645651858}
+  - {fileID: 4136114058106849613}
   m_Father: {fileID: 342188048049387792}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &919142243728273301
@@ -136,14 +136,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb7d0980584fb704c8a6e9ec54b563cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  statsCollector: {fileID: 8116832239421772936}
-  refreshOnStart: 1
-  invokeCollectorCollectBeforeRead: 1
-  autoRetryIfEmpty: 1
-  retryIntervalSeconds: 0.25
-  maxRetries: 40
-  StatWindowManager: {fileID: 3232473603364408230}
-  debugLogging: 1
+  _statsCollector: {fileID: 8116832239421772936}
+  _autoRetryIfEmpty: 1
+  _retryIntervalSeconds: 0.25
+  _maxRetries: 40
   _playerStats: []
   _enemyStats: []
   _allStats: []
@@ -234,6 +230,8 @@ MonoBehaviour:
         lose: 0
       playerTeamId: 0
       playerTeamName: 
+      tier: 0
+      tierName: 
     teams: []
     schedule: []
   saveManager: {fileID: 1004227241535086837}
@@ -286,14 +284,12 @@ MonoBehaviour:
   StatWindows: []
   PlayerWindow: {fileID: 1632033380303973377, guid: 839ae1f351faf4240b60357069a37471, type: 3}
   EnemyWindow: {fileID: 5517785114912444677, guid: 8dfc65e2942cdbb4f9b7bb06bb929e57, type: 3}
-  PlayerRow: {fileID: 6950760209872219694}
-  EnemyRow: {fileID: 8066140303599634192}
-  firstOffset: 147.5
-  rowSpacing: 270
-  _playerLayer: -1
-  _enemyLayer: -1
-  playerLayerName: Player
-  enemyLayerName: Enemy
+  _playerRow: {fileID: 6950760209872219694}
+  _enemyRow: {fileID: 8066140303599634192}
+  _firstOffset: 147.5
+  _rowSpacing: 270
+  _playerLayerName: Player
+  _enemyLayerName: Enemy
   _aiManager: {fileID: 1160425972069385896}
 --- !u!1 &2855089182638056838
 GameObject:
@@ -656,8 +652,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78d7de4367199904d8658b71646a8c32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  absolutePath: C:\Users\User\AppData\LocalLow\DefaultCompany\StateLearning\UserSave.json
-  loadOnAwake: 1
+  _absolutePath: 
+  _loadOnAwake: 1
 --- !u!1 &4675433347936590401
 GameObject:
   m_ObjectHideFlags: 0
@@ -744,7 +740,7 @@ GameObject:
   - component: {fileID: 6115828947028796997}
   - component: {fileID: 4679028278550165995}
   - component: {fileID: 7987156516844099288}
-  m_Layer: 9
+  m_Layer: 12
   m_Name: Square (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -971,7 +967,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7166107487774898563}
-  m_Layer: 9
+  m_Layer: 12
   m_Name: Map
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1047,7 +1043,7 @@ GameObject:
   - component: {fileID: 385392094663135810}
   - component: {fileID: 5946222906873466426}
   - component: {fileID: 8930279055777092993}
-  m_Layer: 9
+  m_Layer: 12
   m_Name: Square
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1320,7 +1316,7 @@ GameObject:
   - component: {fileID: 888225531650758716}
   - component: {fileID: 728544604984526422}
   - component: {fileID: 6845809070365583600}
-  m_Layer: 9
+  m_Layer: 12
   m_Name: Square (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1514,28 +1510,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c91ef77091e57cc499c5e8187fdf70ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  statWindowManager: {fileID: 3232473603364408230}
-  hpManager: {fileID: 8808550664364146167}
-  calculateManager: {fileID: 7754367905373421671}
-  applyOnStart: 1
-  reapplyOnChange: 1
-  recheckIntervalSeconds: 0.5
-  initialWaitTimeoutSeconds: 10
-  includeInactiveUnits: 0
-  markStatsReady: 1
-  bindOwnerToChildRangedAttacks: 1
-  atkScale: 1
-  defScale: 1
-  hpScale: 1
-  agiScale: 1
-  apsScale: 1
-  atkMapping: 0
-  defMapping: 0
-  hpMapping: 0
-  apsMapping: 0
-  debugLogging: 1
-  warnIfRowMissing: 1
-  logTriedKeysOnMiss: 1
+  _statWindowManager: {fileID: 3232473603364408230}
+  _hpManager: {fileID: 8808550664364146167}
+  _battleStart: {fileID: 0}
+  _calculateManager: {fileID: 7754367905373421671}
 --- !u!1 &8066140303599634192
 GameObject:
   m_ObjectHideFlags: 0
@@ -1575,6 +1553,52 @@ RectTransform:
   m_AnchoredPosition: {x: -125, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &8141569823683451232
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4136114058106849613}
+  - component: {fileID: 5352722185043368519}
+  m_Layer: 0
+  m_Name: SkillDebugManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4136114058106849613
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8141569823683451232}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7128980981049067930}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5352722185043368519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8141569823683451232}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9298eaac135e37347b3d06cf89d3e904, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _skillSOList:
+  - {fileID: 11400000, guid: 6a7b7d0c0a96d404e84d003085073811, type: 2}
 --- !u!1 &8629171346275086618
 GameObject:
   m_ObjectHideFlags: 0
@@ -1619,7 +1643,7 @@ GameObject:
   - component: {fileID: 9192466868367129685}
   - component: {fileID: 3184665020267693972}
   - component: {fileID: 1425528589973871563}
-  m_Layer: 9
+  m_Layer: 12
   m_Name: Square (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1782,14 +1806,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76aaadf361aaaef4f827768bfa8a4a1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerUnitsRoot: {fileID: 4185177606197206826}
-  enemyUnitsRoot: {fileID: 694902108949482927}
-  familyJsonTemplate: Assets/BattleK/Family/{FAMILY}/{FAMILY}.json
-  unitLoadManager: {fileID: 0}
-  caseInsensitiveMatch: 1
-  debugLogging: 1
-  playerStats: []
-  enemyStats: []
+  _playerUnitsRoot: {fileID: 4185177606197206826}
+  _enemyUnitsRoot: {fileID: 694902108949482927}
+  _familyJsonTemplate: Assets/BattleK/Family/{FAMILY}/{FAMILY}.json
+  _unitLoadManager: {fileID: 5756451760395963063}
+  _caseInsensitiveMatch: 1
+  _playerStats: []
+  _enemyStats: []
 --- !u!1001 &529504439484745835
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2573,6 +2596,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4588440183282707451, guid: 867df1c34c023224d827ad64bacefbd1, type: 3}
       propertyPath: leagueSceneManager
+      value: 
+      objectReference: {fileID: 2718474757587175906}
+    - target: {fileID: 4588440183282707451, guid: 867df1c34c023224d827ad64bacefbd1, type: 3}
+      propertyPath: _leagueSceneManager
       value: 
       objectReference: {fileID: 2718474757587175906}
     - target: {fileID: 4588440183282707451, guid: 867df1c34c023224d827ad64bacefbd1, type: 3}

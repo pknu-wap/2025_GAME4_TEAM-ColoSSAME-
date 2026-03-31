@@ -9,25 +9,64 @@ public class StorePageUI : MonoBehaviour
     [Header("DB")]
     public ItemDatabase itemDatabase;
 
+    [Header("시설 업그레이드(상점 할인 적용용)")]
+    public BuildingUpgradeManager upgradeManager; // ✅ 인스펙터에서 연결
+
     [Header("UI 연결")]
-    public Image iconImage;       // left/Image
-    public Text nameText;         // left/Name (Text or Text Legacy)
-    public Text priceText;        // left/Price
-    public Text descriptionText;  // left/Description
-    public Button buyButton;      // left/Buy
+    public Image iconImage;       
+    public Text nameText;         
+    public Text priceText;        
+    public Text descriptionText;  
+    public Button buyButton;      
 
-    private ItemData currentData; // 현재 표시 중인 아이템 데이터 캐싱
+    private ItemData currentData; 
+    private int cachedFinalPrice; // ✅ 현재 UI에 표시된(=결제에 써야 하는) 최종 가격 캐시
 
-    private void Start()
+    private void OnEnable()
     {
         RefreshUI();
 
-        // ✅ Buy 버튼에 클릭 이벤트 자동 연결 (인스펙터에서 안 해도 됨)
+        // ✅ Buy 버튼 이벤트 연결
         if (buyButton != null)
         {
             buyButton.onClick.RemoveListener(OnClickBuy);
             buyButton.onClick.AddListener(OnClickBuy);
         }
+
+        // ✅ 상점 업그레이드 후 가격 자동 갱신
+        if (upgradeManager != null)
+        {
+            upgradeManager.OnBuildingUpgraded -= HandleBuildingUpgraded;
+            upgradeManager.OnBuildingUpgraded += HandleBuildingUpgraded;
+        }
+
+        // ✅ 돈 변화 시 버튼 interactable 갱신하고 싶다면(선택)
+        if (UserManager.Instance != null)
+        {
+            UserManager.Instance.OnMoneyChanged -= HandleMoneyChanged;
+            UserManager.Instance.OnMoneyChanged += HandleMoneyChanged;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (upgradeManager != null)
+            upgradeManager.OnBuildingUpgraded -= HandleBuildingUpgraded;
+
+        if (UserManager.Instance != null)
+            UserManager.Instance.OnMoneyChanged -= HandleMoneyChanged;
+    }
+
+    private void HandleBuildingUpgraded(BuildingType type, int level)
+    {
+        // 상점 업그레이드일 때만 가격 갱신
+        if (type == BuildingType.Shop)
+            RefreshUI();
+    }
+
+    private void HandleMoneyChanged(int money)
+    {
+        UpdateBuyButtonInteractable();
     }
 
     /// <summary>
@@ -55,13 +94,35 @@ public class StorePageUI : MonoBehaviour
             iconImage.enabled = (currentData.icon != null);
         }
 
-        // 텍스트 표시
+        // 이름/설명
         if (nameText != null) nameText.text = currentData.itemName;
-        if (priceText != null) priceText.text = currentData.price.ToString();
         if (descriptionText != null) descriptionText.text = currentData.description;
 
-        // (선택) 돈이 부족하면 버튼 비활성화하고 싶다면 여기서 처리 가능
-        // 예: buyButton.interactable = (UserManager.Instance.user.money >= currentData.price);
+        // ✅ 할인 적용된 최종 가격 계산 + 표시
+        cachedFinalPrice = currentData.price;
+        if (upgradeManager != null)
+            cachedFinalPrice = upgradeManager.GetDiscountedShopPrice(currentData.price);
+
+        if (priceText != null) priceText.text = cachedFinalPrice.ToString();
+
+        UpdateBuyButtonInteractable();
+
+        // ✅ 디버그(원가/할인율/최종가 확인)
+        // if (upgradeManager != null)
+        //     Debug.Log($"[StorePageUI] base={currentData.price}, discount={upgradeManager.GetCurrentDiscountRate(BuildingType.Shop)}, final={cachedFinalPrice}");
+    }
+
+    private void UpdateBuyButtonInteractable()
+    {
+        if (buyButton == null) return;
+
+        if (UserManager.Instance == null || UserManager.Instance.user == null)
+        {
+            buyButton.interactable = false;
+            return;
+        }
+
+        buyButton.interactable = (UserManager.Instance.user.money >= cachedFinalPrice);
     }
 
     /// <summary>
@@ -81,6 +142,10 @@ public class StorePageUI : MonoBehaviour
             return;
         }
 
-        ShopController.Instance.TryBuy(currentData.id);
+        // ✅ 핵심: 할인 적용된 최종 가격으로 구매 요청
+        ShopController.Instance.TryBuy(currentData.id, cachedFinalPrice);
+
+        // 구매 후 UI 갱신(돈/버튼 상태)
+        UpdateBuyButtonInteractable();
     }
 }

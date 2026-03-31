@@ -66,12 +66,14 @@ public class FighterNameBinder : MonoBehaviour
 
                 // ✅ 추천 B의 핵심: 슬롯에 unitId 저장
                 data.unitId = myUnits[i].unitId;
+                data.unitClass = myUnits[i].unitClass;
             }
             else
             {
                 // 유닛이 없는 슬롯은 비워두고 클릭 시 무시되게
                 if (nameText != null) nameText.text = "";
                 data.unitId = "";
+                data.unitClass = "";
             }
         }
 

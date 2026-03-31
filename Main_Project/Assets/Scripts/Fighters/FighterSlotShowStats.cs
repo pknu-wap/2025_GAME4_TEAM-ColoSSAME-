@@ -72,6 +72,12 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
         if (slotData == null || string.IsNullOrEmpty(slotData.unitId))
             return;
 
+        if (upgradeManager == null)
+        {
+            Debug.LogError("❌ SkillUpgradeManager 연결 안됨");
+            return;
+        }
+
         upgradeManager.UpgradeSkill(slotData.unitId, selectedSkillIndex);
     }
 }
