@@ -117,6 +117,7 @@ GameObject:
   - component: {fileID: 4154312416218518510}
   - component: {fileID: 3529681005229850898}
   - component: {fileID: 7065771161074425872}
+  - component: {fileID: -9083764410030541793}
   m_Layer: 0
   m_Name: GLD_T2_2_P
   m_TagString: Untagged
@@ -195,11 +196,30 @@ MonoBehaviour:
   m_GameObject: {fileID: 7496547674212387651}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b03b1e8cf71a48d41b622e3b27702b81, type: 3}
+  m_Script: {fileID: 11500000, guid: 812922d8a03f54616a9a5fac0295576f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _areaSize: {x: 20, y: 20}
-  _isContinuous: 0
+  _areaSize: {x: 2, y: 3.9}
+  _offset: {x: 1, y: 0.2}
+  _isContinuous: 1
+--- !u!114 &-9083764410030541793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7496547674212387651}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 450eab84cba464d73b559c4b3cbd0ed6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _useMovement: 0
+  _speed: 10
+  _lifeTime: 3
+  _useFlip: 1
+  _useRotation: 1
+  _baseAngleOffset: 0
 --- !u!1 &8106402918882637235
 GameObject:
   m_ObjectHideFlags: 0
