@@ -2,6 +2,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.ResourceManagement.ResourceLocations;
 
 public class FighterNameBinder : MonoBehaviour
 {
@@ -9,12 +12,32 @@ public class FighterNameBinder : MonoBehaviour
     public Transform fighterListParent;
 
     [Header("playerTrain 안의 표시 텍스트(Text Legacy)")]
-    public Text curLevelText; // playerTrain/CurLevel/Text(Legacy)
-    public Text curExpText;   // playerTrain/CurEXP/Text(Legacy)
+    public Text curLevelText;
+    public Text curExpText;
     public Slider expSlider;
+    public Text selectedNameText;
+    public Image selectedPortraitImage;  
+    public Text expCostText;
+    
+    [Header("playerTrain 안의 버튼")]
+    public GetExpButton getExpButton;
+    
+    [Header("슬롯 자식 오브젝트 이름")]
+    public string nameTextObjectName = "Text (Legacy)";
+    public string portraitImageObjectName = "playerImage";
+
+    private List<AsyncOperationHandle<Sprite>> loadedHandles = new List<AsyncOperationHandle<Sprite>>();
+
     private IEnumerator Start()
     {
         yield return null;
+        
+        // ← 씬 시작 시 선택 초상화 미리 비활성화
+        if (selectedPortraitImage != null)
+        {
+            selectedPortraitImage.sprite  = null;
+            selectedPortraitImage.enabled = false;
+        }
 
         if (UserManager.Instance == null || UserManager.Instance.user == null)
         {
@@ -24,7 +47,7 @@ public class FighterNameBinder : MonoBehaviour
 
         if (fighterListParent == null)
         {
-            Debug.LogError("❌ fighterListParent가 비어있습니다. Inspector에 fighterList를 넣어주세요.");
+            Debug.LogError("❌ fighterListParent가 비어있습니다.");
             yield break;
         }
 
@@ -34,49 +57,166 @@ public class FighterNameBinder : MonoBehaviour
             Debug.LogError("❌ myUnits가 null입니다.");
             yield break;
         }
-
-        int count = Mathf.Min(fighterListParent.childCount, myUnits.Count);
+        
+        if (getExpButton != null)
+        {
+            getExpButton.curLevelText = curLevelText;
+            getExpButton.curExpText   = curExpText;
+            getExpButton.expSlider    = expSlider;
+            getExpButton.expCostText  = expCostText;
+        }
+        else
+        {
+            Debug.LogWarning("⚠️ GetExpButton 참조가 비어있습니다.");
+        }
 
         for (int i = 0; i < fighterListParent.childCount; i++)
         {
             Transform slot = fighterListParent.GetChild(i);
 
-            // 1) 슬롯 내 텍스트 찾기(이름 표시용)
-            Text nameText = slot.GetComponentInChildren<Text>(true);
+            Text nameText = FindNameText(slot);
+            Image portraitImage = FindPortraitImage(slot);
 
-            // 2) 슬롯 데이터 컴포넌트 확보(없으면 자동 추가)
             FighterSlotData data = slot.GetComponent<FighterSlotData>();
             if (data == null) data = slot.gameObject.AddComponent<FighterSlotData>();
 
-            // 3) 클릭 표시 스크립트 확보(없으면 자동 추가)
             FighterSlotShowStats show = slot.GetComponent<FighterSlotShowStats>();
             if (show == null) show = slot.gameObject.AddComponent<FighterSlotShowStats>();
 
-            // 4) 슬롯에 공용 UI 참조 연결(한 번만 해두면 됨)
-            show.slotData = data;
-            show.curLevelText = curLevelText;
-            show.curExpText = curExpText;
-            show.expSlider = expSlider;
-            
-            // 5) 유닛이 있는 슬롯이면 이름 + unitId 저장
+            show.slotData              = data;
+            show.curLevelText          = curLevelText;
+            show.curExpText            = curExpText;
+            show.expSlider             = expSlider;
+            show.selectedNameText      = selectedNameText;
+            show.selectedPortraitImage = selectedPortraitImage;
+            show.expCostText           = expCostText;
+
             if (i < myUnits.Count && myUnits[i] != null)
             {
-                // 이름 표시
-                if (nameText != null) nameText.text = myUnits[i].unitName;
+                Unit unit = myUnits[i];
 
-                // ✅ 추천 B의 핵심: 슬롯에 unitId 저장
-                data.unitId = myUnits[i].unitId;
-                data.unitClass = myUnits[i].unitClass;
+                if (nameText != null)
+                    nameText.text = unit.unitName;
+
+                data.unitId    = unit.unitId;
+                data.unitClass = unit.unitClass;
+
+                if (portraitImage != null && !string.IsNullOrEmpty(unit.unitId))
+                {
+                    portraitImage.sprite  = null;
+                    portraitImage.enabled = false;
+                    
+                    string portraitAddress = GetPortraitAddress(unit.unitId);
+                    Debug.Log($"[Portrait Load Try] unitId={unit.unitId}, address={portraitAddress}");
+
+                    yield return StartCoroutine(LoadUnitPortrait(portraitAddress, portraitImage));
+                }
+                else
+                {
+                    Debug.LogWarning($"⚠️ [{slot.name}]에서 playerImage를 찾지 못했거나 unitId가 비어있습니다.");
+                }
             }
             else
             {
-                // 유닛이 없는 슬롯은 비워두고 클릭 시 무시되게
-                if (nameText != null) nameText.text = "";
-                data.unitId = "";
+                if (nameText != null)
+                    nameText.text = "";
+
+                data.unitId    = "";
                 data.unitClass = "";
+
+                if (portraitImage != null)
+                {
+                    portraitImage.sprite  = null;
+                    portraitImage.enabled = false;
+                }
             }
         }
 
-        Debug.Log("✅ FighterNameBinder: 슬롯 이름+unitId+클릭(표시) 세팅 완료");
+        Debug.Log("✅ FighterNameBinder 세팅 완료");
+    }
+
+    private string GetPortraitAddress(string unitId)
+    {
+        return $"Portrait/{unitId}";
+    }
+
+    private Text FindNameText(Transform slot)
+    {
+        Transform textTr = slot.Find(nameTextObjectName);
+        if (textTr == null) return null;
+        return textTr.GetComponent<Text>();
+    }
+
+    private Image FindPortraitImage(Transform slot)
+    {
+        Transform imgTr = slot.Find(portraitImageObjectName);
+        if (imgTr == null) return null;
+        return imgTr.GetComponent<Image>();
+    }
+
+    private IEnumerator LoadUnitPortrait(string addressKey, Image targetImage)
+    {
+        // ← 로드 시작 전 비활성화
+        if (targetImage != null)
+            targetImage.enabled = false;
+        
+        AsyncOperationHandle<IList<IResourceLocation>> locHandle =
+            Addressables.LoadResourceLocationsAsync(addressKey, typeof(Sprite));
+
+        yield return locHandle;
+
+        if (locHandle.Status != AsyncOperationStatus.Succeeded ||
+            locHandle.Result == null ||
+            locHandle.Result.Count == 0)
+        {
+            Debug.LogError($"❌ Addressables key를 찾지 못했습니다: {addressKey}");
+
+            if (targetImage != null)
+            {
+                targetImage.sprite  = null;
+                targetImage.enabled = false;
+            }
+
+            Addressables.Release(locHandle);
+            yield break;
+        }
+
+        AsyncOperationHandle<Sprite> handle = Addressables.LoadAssetAsync<Sprite>(addressKey);
+        loadedHandles.Add(handle);
+
+        yield return handle;
+
+        if (handle.Status == AsyncOperationStatus.Succeeded && handle.Result != null)
+        {
+            if (targetImage != null)
+            {
+                targetImage.sprite         = handle.Result;
+                targetImage.enabled        = true;  // ← 로드 완료 후 활성화
+                targetImage.preserveAspect = true;
+            }
+        }
+        else
+        {
+            Debug.LogError($"❌ Addressables Sprite 로드 실패: {addressKey}");
+
+            if (targetImage != null)
+            {
+                targetImage.sprite  = null;
+                targetImage.enabled = false;
+            }
+        }
+
+        Addressables.Release(locHandle);
+    }
+
+    private void OnDestroy()
+    {
+        foreach (var handle in loadedHandles)
+        {
+            if (handle.IsValid())
+                Addressables.Release(handle);
+        }
+
+        loadedHandles.Clear();
     }
 }
