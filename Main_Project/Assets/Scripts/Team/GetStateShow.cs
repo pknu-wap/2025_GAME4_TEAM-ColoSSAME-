@@ -24,11 +24,24 @@ public class GetStateShow : MonoBehaviour
     {
         var userManager = UserManager.Instance;
 
+        Debug.Log("현재 유닛 수: " + userManager.user.myUnits.Count);
+
         if (userManager.user.myUnits.Count >= MAX_UNIT_COUNT)
         {
             Debug.Log("유닛 보유 수가 최대입니다.");
             return;
         }
+
+        bool result = userManager.SpendGold(100);
+        Debug.Log("SpendGold 결과: " + result);
+
+        if (!result)
+        {
+            Debug.Log("돈이 부족합니다.");
+            return;
+        }
+
+        Debug.Log("입장 시도 통과");
 
         canvas.SetActive(false);
         drawfight.SetActive(true);

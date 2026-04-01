@@ -102,7 +102,7 @@ namespace BattleK.Scripts.AI.Skill.Base
             LayerMask mask = TargetType switch
             {
                 TargetingType.Enemy => owner.TargetLayer,
-                TargetingType.Ally => owner.gameObject.layer,
+                TargetingType.Ally => (LayerMask)(1 << owner.gameObject.layer),
                 _ => 0
             };
             

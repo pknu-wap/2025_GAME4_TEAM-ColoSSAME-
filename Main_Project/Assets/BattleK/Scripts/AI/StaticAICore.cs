@@ -264,6 +264,12 @@ namespace BattleK.Scripts.AI
             if(OverrideMachine.CurrentState == null) OverrideMachine.ChangeState(new StaticHitState(this));
         }
 
+        public void OnHeal(int amount)
+        {
+            Stat.CurrentHP = Mathf.Min(Stat.CurrentHP + amount, Stat.MaxHP);
+            HPBar.UpdateHPBar();
+        }
+
         public void EnterCCState(PlayerState state)
         {
             if (IsDead) return;
