@@ -13,9 +13,10 @@ MonoBehaviour:
   m_Name: Assasin_Tier3_Sting
   m_EditorClassIdentifier: 
   TargetType: 0
-  ExecutionCondition: []
-  SkillName: 
-  InternalPriority: 0
+  ExecutionCondition:
+  - rid: 8120591626785259521
+  SkillName: Sting
+  InternalPriority: 200
   SkillPrefab: {fileID: 0}
   Cooldown: 0
   SkillArea: {x: 0, y: 0}
@@ -23,8 +24,17 @@ MonoBehaviour:
   WindupTime: 0
   ActiveTime: 0
   RecoveryTime: 0
-  SkillLogics: []
+  SkillLogics:
+  - rid: 8120591626785259520
   AnimationIndex: 0
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 8120591626785259520
+      type: {class: SPMultipleDamage, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
+      data:
+        SkillPointRatio: 0.1
+        basicBonusPoint: 1.4
+    - rid: 8120591626785259521
+      type: {class: NearestTargetLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic, asm: Assembly-CSharp}
+      data: 
