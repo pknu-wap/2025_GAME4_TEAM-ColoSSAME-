@@ -145,7 +145,14 @@ public class BookEnterExitController : MonoBehaviour
         for (int i = 0; i < enterMappings.Length; i++)
         {
             if (enterMappings[i].enterButton == null) continue;
-            enterMappings[i].enterButton.gameObject.SetActive(visible);
+
+            GameObject buttonObject = enterMappings[i].enterButton.gameObject;
+            Transform parentTransform = buttonObject.transform.parent;
+
+            if (parentTransform != null)
+                parentTransform.gameObject.SetActive(visible);
+            else
+                buttonObject.SetActive(visible);
         }
     }
 
