@@ -179,6 +179,37 @@ namespace BattleK.Scripts.AI
             sourceDict.Remove(source);
             UpdateFinalStat(type);
         }
+
+        public bool HasDebuff() //디버프 확인(임시)
+        {
+            foreach (var type in _modifiers)
+            {
+                foreach (var value in type.Value.Values)
+                {
+                    if (value < 1f)
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        public void RemoveAllDebuffs() //디버프 전체 제거()
+        {
+            var types = new List<StatusType>(_modifiers.Keys);
+
+            foreach (var type in types)
+            {
+                var sources = new List<object>(_modifiers[type].Keys);
+
+                foreach (var src in sources)
+                {
+                    if (_modifiers[type][src] < 1f)
+                    {
+                        RemoveStatMultiplier(type, src);
+                    }
+                }
+            }
+        }
         
         private void UpdateFinalStat(StatusType type)
         {
