@@ -2,7 +2,7 @@ using BattleK.Scripts.AI.Skill.Base.Logic.LogicBase;
 using UnityEngine;
 using BattleK.Scripts.AI;
 
-public class AllyWithDebuffLogic : IConditionLogic
+public class AllyDebuffLogic : IConditionLogic
 {
     public bool Evaluate(StaticAICore owner, LayerMask targetLayer, Vector2 areaSize, out Transform bestTarget)
     {

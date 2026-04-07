@@ -14,21 +14,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TargetType: 1
   ExecutionCondition:
-  - rid: -2
+  - rid: 2642380600883019778
   SkillName: 
-  InternalPriority: 0
-  SkillPrefab: {fileID: 0}
+  InternalPriority: 1
+  SkillPrefab: {fileID: 3297036654887846894, guid: 6eb28771c172cda4ebb7d99389f71b4d, type: 3}
   Cooldown: 0
-  SkillArea: {x: 0, y: 0}
+  SkillArea: {x: 10, y: 10}
   SpawnAt: 0
   WindupTime: 0
-  ActiveTime: 0
+  ActiveTime: 1
   RecoveryTime: 0
   SkillLogics:
-  - rid: -2
+  - rid: 2642380600883019777
   AnimationIndex: 0
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
+    - rid: 2642380600883019777
+      type: {class: RemoveDebuffLogic, ns: , asm: Assembly-CSharp}
+      data: 
+    - rid: 2642380600883019778
+      type: {class: AllyDebuffLogic, ns: , asm: Assembly-CSharp}
+      data: 
