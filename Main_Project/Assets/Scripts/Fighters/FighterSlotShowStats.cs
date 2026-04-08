@@ -25,13 +25,7 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
     [HideInInspector] public BuildingUpgradeManager buildingUpgradeManager;
     private int GetDiscountedTrainingCost(int baseCost)
     {
-        if (buildingUpgradeManager == null)
-            buildingUpgradeManager = FindFirstObjectByType<BuildingUpgradeManager>();
-
-        if (buildingUpgradeManager != null)
-            return buildingUpgradeManager.GetDiscountedTrainingCost(baseCost);
-
-        return baseCost;
+        return buildingUpgradeManager.GetDiscountedTrainingCost(baseCost);
     }
 
     public void OnPointerClick(PointerEventData eventData)
