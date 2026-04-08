@@ -7,11 +7,13 @@ namespace BattleK.Scripts.AI.Skill.Base.Projectile
         [Header("Movement")]
         [SerializeField] private bool _useMovement = true;
         [SerializeField] private float _speed = 10f;
-        [SerializeField] private float _lifeTime = 3f;
 
         [Header("Direction Settings")]
-        [SerializeField] private bool _useFlip = true;
+        [SerializeField] private bool _useFlip = false;
         [SerializeField] private bool _useRotation = true;
+
+        [Header("Visual Reference")]
+        [SerializeField] private Transform _visualRoot;
 
         [Header("Art Offset")]
         [SerializeField] private float _baseAngleOffset = 0f;
@@ -27,21 +29,20 @@ namespace BattleK.Scripts.AI.Skill.Base.Projectile
 
             bool isLeft = this._direction.x < 0f;
 
+            if (this._useRotation)
+            {
+                this.ApplyRotation(this._direction);
+            }
+
             if (this._useFlip)
             {
                 this.ApplyFlip(isLeft);
-            }
-
-            if (this._useRotation)
-            {
-                this.ApplyRotation(this._direction, isLeft);
             }
         }
 
         private void Update()
         {
             this.Move();
-            this.CheckLifeTime();
         }
 
         private void Move()
@@ -51,32 +52,23 @@ namespace BattleK.Scripts.AI.Skill.Base.Projectile
             this.transform.position += (Vector3)(this._direction * this._speed * Time.deltaTime);
         }
 
-        private void CheckLifeTime()
-        {
-            this._timer += Time.deltaTime;
-
-            if (this._timer >= this._lifeTime)
-            {
-                Destroy(this.gameObject);
-            }
-        }
-
         private void ApplyFlip(bool isLeft)
         {
-            Vector3 scale = this.transform.localScale;
-            scale.x = Mathf.Abs(scale.x) * (isLeft ? -1f : 1f);
-            this.transform.localScale = scale;
+            if (this._visualRoot == null) return;
+
+            Vector3 scale = this._visualRoot.localScale;
+            
+            scale.x = Mathf.Abs(scale.x);
+
+            // 왼쪽일 때만 위아래 반전
+            scale.y = Mathf.Abs(scale.y) * (isLeft ? -1f : 1f);
+
+            this._visualRoot.localScale = scale;
         }
 
-        private void ApplyRotation(Vector2 direction, bool isLeft)
+        private void ApplyRotation(Vector2 direction)
         {
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-
-            if (isLeft)
-            {
-                angle += 180f;
-            }
-
             this.transform.rotation = Quaternion.Euler(0f, 0f, angle + this._baseAngleOffset);
         }
     }
