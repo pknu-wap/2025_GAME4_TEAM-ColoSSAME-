@@ -136,24 +136,15 @@ public class BookEnterExitController : MonoBehaviour
         SetAllEnterButtonsVisible(true);
         isFlipping = false;
     }
-
-    /// <summary>
-    /// enterButton 6개 전부 보이기/숨기기
-    /// </summary>
+    
     private void SetAllEnterButtonsVisible(bool visible)
     {
         for (int i = 0; i < enterMappings.Length; i++)
         {
             if (enterMappings[i].enterButton == null) continue;
-            enterMappings[i].enterButton.gameObject.SetActive(visible);
-        }
-    }
 
-    /// <summary>
-    /// (선택) 애니메이션 끝 프레임에 Animation Event로 호출
-    /// </summary>
-    public void OnFlipFinished()
-    {
-        isFlipping = false;
+            GameObject buttonObject = enterMappings[i].enterButton.gameObject;
+            buttonObject.transform.parent.gameObject.SetActive(visible);
+        }
     }
 }

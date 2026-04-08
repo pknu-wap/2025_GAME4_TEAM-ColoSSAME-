@@ -22,6 +22,12 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
     public SkillUpgradeManager upgradeManager;
     public int selectedSkillIndex = 0;
 
+    [HideInInspector] public BuildingUpgradeManager buildingUpgradeManager;
+    private int GetDiscountedTrainingCost(int baseCost)
+    {
+        return buildingUpgradeManager.GetDiscountedTrainingCost(baseCost);
+    }
+
     public void OnPointerClick(PointerEventData eventData)
     {
         if (UserManager.Instance == null || UserManager.Instance.user == null)
@@ -63,7 +69,11 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
 
         if (curLevelText != null) curLevelText.text = found.level.ToString();
         if (curExpText != null)   curExpText.text   = found.exp.ToString();
-        if (expSlider != null)    expSlider.value   = found.exp;
+        if (expSlider != null)
+        {
+            expSlider.maxValue = 100f;
+            expSlider.value = found.exp;
+        }
 
         if (selectedNameText != null)
             selectedNameText.text = found.unitName;
@@ -91,7 +101,8 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
                 Debug.LogWarning("⚠️ 슬롯에서 'playerImage'를 찾지 못했습니다.");
             }
         }
-        int cost = UnitCostCalculator.CalculateGoldCost(found.level);
+        int baseCost = UnitCostCalculator.CalculateGoldCost(found.level);
+        int cost = GetDiscountedTrainingCost(baseCost);
 
         if (expCostText != null)
         {
