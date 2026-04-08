@@ -172,6 +172,7 @@ namespace BattleK.Scripts.AI
             CurrentEvasionRate = Stat.EvasionRate;
             CurrentMoveSpeed = Stat.MoveSpeed;
             CurrentSkillPoint = Stat.SkillPoint;
+            _modifiers.Clear();
         }
         
         public void SetStatMultiplier(StatusType type, object source, float multiplier)
