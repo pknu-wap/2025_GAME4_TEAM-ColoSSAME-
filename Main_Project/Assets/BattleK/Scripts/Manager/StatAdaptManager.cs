@@ -145,6 +145,7 @@ namespace BattleK.Scripts.Manager
             ai.Stat.CurrentHP = newHp;
             ai.Stat.EvasionRate = Mathf.Min(newAgi * 0.03f, 0.35f);
             ai.Stat.AttackSpeed =  newAgi * 1.05f;
+            ai.SetInitialStats();
         }
     }
 }
