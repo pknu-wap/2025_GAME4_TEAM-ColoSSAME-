@@ -234,9 +234,11 @@ namespace Scripts.Team.FighterRandomBuy
 
         private void RandomSelect(int index)    //카드 열기
         {
-            isAnyCardAnimating = true;
+            OnCardClick(index);
 
-            CharacterGetCheck[index] = 1;
+            CharacterGetCheck[index] = 2;
+
+            
 
             CardAnim cardAnim = anim[index].GetComponent<CardAnim>();
             cardAnim.SetIndex(index);
@@ -346,18 +348,7 @@ namespace Scripts.Team.FighterRandomBuy
         public List<CharacterData> Characters;
     }
 
-    /*public class CharacterData
-    {
-        public string Unit_ID;
-        public string Unit_Name;
-        public int Rarity;
-        public int Level;
-        public string Class;
-        public string Description;
-        public string Story;
-        public StatDistribution Stat_Distribution;
-        public Visuals Visuals;
-    }*/
+   
 
     public class StatDistribution
     {

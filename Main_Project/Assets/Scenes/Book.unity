@@ -7418,7 +7418,7 @@ MonoBehaviour:
   _playerUnitsRoot: {fileID: 0}
   _enemyUnitsRoot: {fileID: 0}
   _familyJsonTemplate: Assets/BattleK/Family/{FAMILY}/{FAMILY}.json
-  _unitLoadManager: {fileID: 0}
+  _unitLoadManager: {fileID: 315251470}
   _caseInsensitiveMatch: 1
   _playerStats: []
   _enemyStats: []
@@ -10036,18 +10036,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tankSkill:
-  - {fileID: 11400000, guid: 6a7b7d0c0a96d404e84d003085073811, type: 2}
-  - {fileID: 11400000, guid: 6a7b7d0c0a96d404e84d003085073811, type: 2}
+  - {fileID: 11400000, guid: 6a945d3f10f6df148bd030ca2065b4e5, type: 2}
   archerSkill:
-  - {fileID: 11400000, guid: 6a7b7d0c0a96d404e84d003085073811, type: 2}
+  - {fileID: 11400000, guid: 6a945d3f10f6df148bd030ca2065b4e5, type: 2}
   mageSkill:
-  - {fileID: 11400000, guid: 6a7b7d0c0a96d404e84d003085073811, type: 2}
+  - {fileID: 11400000, guid: 6a945d3f10f6df148bd030ca2065b4e5, type: 2}
   swordSkill:
-  - {fileID: 11400000, guid: 6a7b7d0c0a96d404e84d003085073811, type: 2}
+  - {fileID: 11400000, guid: 5231f7172acad4842b89322fd5c2d1e7, type: 2}
   thiefSkill:
-  - {fileID: 11400000, guid: 6a7b7d0c0a96d404e84d003085073811, type: 2}
+  - {fileID: 11400000, guid: 5231f7172acad4842b89322fd5c2d1e7, type: 2}
   bufferSkill:
-  - {fileID: 11400000, guid: 6a7b7d0c0a96d404e84d003085073811, type: 2}
+  - {fileID: 11400000, guid: 5231f7172acad4842b89322fd5c2d1e7, type: 2}
 --- !u!1 &273763342
 GameObject:
   m_ObjectHideFlags: 0
@@ -18085,6 +18084,12 @@ MonoBehaviour:
   curLevelText: {fileID: 917516319}
   curExpText: {fileID: 76596321}
   expSlider: {fileID: 738325583}
+  selectedNameText: {fileID: 0}
+  selectedPortraitImage: {fileID: 0}
+  expCostText: {fileID: 0}
+  getExpButton: {fileID: 0}
+  nameTextObjectName: Text (Legacy)
+  portraitImageObjectName: playerImage
 --- !u!114 &522235088
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -51053,7 +51058,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -647, y: 120}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 100, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1531157935
 GameObject:
@@ -53297,10 +53302,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f64ee928ed3dce44afa5d34039a697d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  expGain: 10
   curLevelText: {fileID: 917516319}
   curExpText: {fileID: 76596321}
   expSlider: {fileID: 738325583}
+  expCostText: {fileID: 0}
 --- !u!1 &1593963540
 GameObject:
   m_ObjectHideFlags: 0
@@ -60610,7 +60615,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb7d0980584fb704c8a6e9ec54b563cf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _statsCollector: {fileID: 0}
+  _statsCollector: {fileID: 204779698}
   _autoRetryIfEmpty: 1
   _retryIntervalSeconds: 0.25
   _maxRetries: 40
@@ -67290,9 +67295,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 77fc67a96cd1c644b9d0467b11d5b6fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _unitLoadManager: {fileID: 0}
-  _familyStatsCollector: {fileID: 0}
-  _calculateManager: {fileID: 0}
+  _unitLoadManager: {fileID: 315251470}
+  _familyStatsCollector: {fileID: 204779698}
+  _calculateManager: {fileID: 1783171192}
   _waitOneFrameBeforeCollect: 1
   _waitOneFrameBeforeCalculate: 1
   _useCalculateManagerRefreshFlow: 1
