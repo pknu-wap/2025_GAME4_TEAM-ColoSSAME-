@@ -206,12 +206,9 @@ namespace Scripts.Team.FighterRandomBuy
         {
             if (CharacterGetCheck[index] == 0)
             {
-                StartCoroutine(LoadSprite(CharacterImage[index], CharacterIDList[index]));
+                RandomSelect(index);
+                return;
             }
-
-            if (isAnyCardAnimating)
-                return; 
-                
 
             if (CharacterGetCheck[index] == 2)
             {
@@ -234,19 +231,23 @@ namespace Scripts.Team.FighterRandomBuy
 
         private void RandomSelect(int index)    //카드 열기
         {
-            OnCardClick(index);
 
-            CharacterGetCheck[index] = 2;
+                if (isAnyCardAnimating)
+                    return;
 
+                isAnyCardAnimating = true;
+
+                CharacterGetCheck[index] = 1;
+
+                CardAnim cardAnim = anim[index].GetComponent<CardAnim>();
+                cardAnim.SetIndex(index);
+
+                // 애니메이션 즉시 실행
+                anim[index].SetTrigger("Iscardclick");
+
+                // 이미지 로드는 따로
+                StartCoroutine(LoadSprite(CharacterImage[index], CharacterIDList[index]));
             
-
-            CardAnim cardAnim = anim[index].GetComponent<CardAnim>();
-            cardAnim.SetIndex(index);
-            anim[index].SetTrigger("Iscardclick");
-
-            CharacterData randomCharacter = UnitDataManager.Instance.GetCharacterData(CharacterIDList[index]);
-
-            StartCoroutine(LoadSprite(CharacterImage[index], randomCharacter.Unit_ID));
         }
 
         private void ShowExplain(int index)
