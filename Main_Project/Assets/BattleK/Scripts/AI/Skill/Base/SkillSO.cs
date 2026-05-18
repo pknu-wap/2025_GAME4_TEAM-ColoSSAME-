@@ -57,19 +57,6 @@ namespace BattleK.Scripts.AI.Skill.Base
             var instance = Instantiate(SkillPrefab, spawnPos, spawnRot);
             var processors = instance.GetComponents<LogicProcessor>();
             
-            // 방향 계산
-            Vector2 direction = Vector2.zero;
-            if (target != null)
-            {
-                direction = ((Vector2)(target.position - spawnPos)).normalized;
-            }
-
-            // 이동 초기화
-            var movement = instance.GetComponent<ProjectileMovement>();
-            if (movement != null)
-            {
-                movement.Init(direction);
-            }
        
             LayerMask targetMask = TargetType switch
             {

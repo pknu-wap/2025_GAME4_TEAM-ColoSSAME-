@@ -76,7 +76,7 @@ namespace BattleK.Scripts.AI
             
             RegisterActionStates();
         }
-
+        
         private void Start()
         {
             Targeting = TargetingStrategy switch
@@ -165,6 +165,16 @@ namespace BattleK.Scripts.AI
             transform.localScale = scale;
         }
 
+        public void SetInitialStats()
+        {
+            CurrentAttackDamage = Stat.AttackDamage;
+            CurrentDefense = Stat.Defense;
+            CurrentEvasionRate = Stat.EvasionRate;
+            CurrentMoveSpeed = Stat.MoveSpeed;
+            CurrentSkillPoint = Stat.SkillPoint;
+            _modifiers.Clear();
+        }
+        
         public void SetStatMultiplier(StatusType type, object source, float multiplier)
         {
             if (!_modifiers.ContainsKey(type)) _modifiers[type] = new Dictionary<object, float>();
