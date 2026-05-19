@@ -118,6 +118,28 @@ public class Carousel : MonoBehaviour
         {
             Debug.LogError("❌ UserManager 인스턴스를 찾을 수 없습니다.");
         }
+        if (EnemySaveManager.Instance != null)
+
+        {
+
+            EnemySaveManager.Instance.Clear();
+
+            EnemyTeamInitializer initializer = new EnemyTeamInitializer();
+
+            initializer.InitializeFromLeague(leagueManager.league);
+
+        }
+
+        else
+
+        {
+
+            Debug.LogError("❌ EnemySaveManager 인스턴스를 찾을 수 없습니다.");
+
+        }
+        leagueManager.RefreshCurrentMatchInfo();
+
+        Debug.Log($"✅ 팀 선택 완료: {myTeam.name}");
     }
 
     public void OnViewStatusButtonClick()
