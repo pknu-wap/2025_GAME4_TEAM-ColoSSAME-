@@ -37,6 +37,7 @@ namespace Scripts.Team.FighterRandomBuy
         public GameObject[] StarCount;
 
         public UnitViewer unitviewer;
+        private int currentSelectedIndex = -1;
         public RandomSkillGrant randomSkillGrant;
         
         public GameObject cards;
@@ -72,14 +73,14 @@ namespace Scripts.Team.FighterRandomBuy
         };
 
         private Dictionary<string, Sprite> spriteCache = new(); //sprite저장
+        private List<Unit> rolledUnits = new();
 
         ///뽑기용
         private List<string> gachaFiveStarIds = new();
         private List<string> gachaFourStarIds = new();
         private List<string> gachaOneStarIds = new();
         
-        private bool isAnyCardAnimating = false; //카드 뒤집기 애니메이션 구분(겹치지않게)
-
+        
         void Start()
         {
             league = LoadLeague();
@@ -167,7 +168,14 @@ namespace Scripts.Team.FighterRandomBuy
         }
 
         public void RandomSetting()
+
         {
+            rolledUnits.Clear();
+
+            CharacterGetCheck = CharacterGetCheck.ConvertAll(x => 0);
+
+            currentSelectedIndex = -1;
+
             unitviewer.RebuildGachaPools();
             
             for (int i = 0; i < 10; i++)
@@ -181,6 +189,28 @@ namespace Scripts.Team.FighterRandomBuy
                 }
 
                 CharacterIDList[i] = id;
+                CharacterData data =
+                UnitDataManager.Instance.GetCharacterData(id);
+
+                Unit newUnit = new Unit(
+                    data.Unit_ID,
+                    data.Rarity,
+                    data.Unit_Name,
+                    data.Class
+                );
+
+                List<string> skills =
+                    randomSkillGrant.GetRandomSkills(
+                        data.Class,
+                        data.Rarity
+                    );
+
+                foreach (var skillId in skills)
+                {
+                    newUnit.skills.Add(new UnitSkill(skillId, 1));
+                }
+
+                rolledUnits.Add(newUnit);
             }
         }
 
@@ -229,48 +259,41 @@ namespace Scripts.Team.FighterRandomBuy
             }
         }
 
-        private void RandomSelect(int index)    //카드 열기
+        private void RandomSelect(int index)
         {
+            if (CharacterGetCheck[index] != 0)
+                return;
 
-                if (isAnyCardAnimating)
-                    return;
+            CharacterGetCheck[index] = 1;
 
-                isAnyCardAnimating = true;
+            CardAnim cardAnim = anim[index].GetComponent<CardAnim>();
+            cardAnim.SetIndex(index);
 
-                CharacterGetCheck[index] = 1;
+            anim[index].SetTrigger("Iscardclick");
 
-                CardAnim cardAnim = anim[index].GetComponent<CardAnim>();
-                cardAnim.SetIndex(index);
-
-                // 애니메이션 즉시 실행
-                anim[index].SetTrigger("Iscardclick");
-
-                // 이미지 로드는 따로
-                StartCoroutine(LoadSprite(CharacterImage[index], CharacterIDList[index]));
-            
+            StartCoroutine(LoadSprite(CharacterImage[index], CharacterIDList[index]));
         }
 
         private void ShowExplain(int index)
         {
-            
+            currentSelectedIndex = index;
+
             CharacterData characterdata = UnitDataManager.Instance.GetCharacterData(CharacterIDList[index]);
 
             StartCoroutine(LoadSprite(SelectCharaterImage, characterdata.Unit_ID));
 
-            List<string> skills = randomSkillGrant.GetRandomSkills(characterdata.Class, characterdata.Rarity);
+            /*테스트List<string> skills = randomSkillGrant.GetRandomSkills(characterdata.Class, characterdata.Rarity);
 
             unit = new Unit(
                 characterdata.Unit_ID,
                 characterdata.Rarity,
                 characterdata.Unit_Name,
                 characterdata.Class
-            );
+            );*/
+            Unit unit = rolledUnits[index];
 
             // 스킬 추가
-            foreach (var skillId in skills)
-            {
-                unit.skills.Add(new UnitSkill(skillId, 1));
-            }
+            
 
             string skillInfo = "스킬:\n";
 
@@ -297,12 +320,9 @@ namespace Scripts.Team.FighterRandomBuy
 
         }
 
-        public void OnAnyCardAnimEnd()
-        {
-            isAnyCardAnimating = false;
-        }
+    
 
-        public void BuyRandomUnit(int count)
+        public void BuyRandomUnit()
         {
             for (int i = 0; i < 10; i++)
             {
@@ -312,10 +332,14 @@ namespace Scripts.Team.FighterRandomBuy
                 CharacterGather[i].SetActive(false);
             }
             CharacterGetCheck = CharacterGetCheck.ConvertAll(x => 0);
-            if (count == 0)
+            
+            if (currentSelectedIndex >= 0 && currentSelectedIndex < rolledUnits.Count)
             {
-                UserManager.Instance.AddUnit(unit);
+                UserManager.Instance.AddUnit(
+                    rolledUnits[currentSelectedIndex]
+                );
             }
+            
         }
 
         public void BackExplain()

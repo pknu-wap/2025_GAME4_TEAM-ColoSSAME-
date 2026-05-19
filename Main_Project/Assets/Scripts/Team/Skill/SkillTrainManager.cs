@@ -1,34 +1,55 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
 public class SkillTrainingManager : MonoBehaviour
 {
-    public TextMeshProUGUI[] skillTexts; // 스킬 텍스트 배열
+    public TextMeshProUGUI[] skillTexts;
 
-    Unit currentUnit;
+    private Unit currentUnit;
+    private string lastUnitId;
 
-    void Start()
+    public void RefreshUnit()
     {
+        StopAllCoroutines();
+        StartCoroutine(RefreshRoutine());
+    }
+
+    private IEnumerator RefreshRoutine()
+    {
+        // 🔥 핵심: UI 프레임 밀어내기
+        ClearUI();
+
+        yield return null; // 한 프레임 강제 대기
+
         string unitId = UserManager.Instance.selectedUnitId;
+
+        // 같은 유닛이면 다시 안 그려도 됨
+        if (unitId == lastUnitId && currentUnit != null)
+            yield break;
+
+        lastUnitId = unitId;
+
         currentUnit = UserManager.Instance.GetMyUnitById(unitId);
 
-        if (currentUnit != null)
+        ShowSkillInfo();
+    }
+
+    private void ClearUI()
+    {
+        for (int i = 0; i < skillTexts.Length; i++)
         {
-            ShowSkillInfo();
+            skillTexts[i].text = "";
         }
     }
+
 
     public void UpgradeSkill(int skillIndex)
     {
         if (currentUnit == null) return;
 
         if (skillIndex < 0 || skillIndex >= currentUnit.skills.Count)
-        {
-            Debug.LogError("스킬 인덱스 오류");
             return;
-        }
 
         currentUnit.skills[skillIndex].level++;
 
@@ -39,7 +60,7 @@ public class SkillTrainingManager : MonoBehaviour
 
     public void ShowSkillInfo()
     {
-       for (int i = 0; i < skillTexts.Length; i++)
+        for (int i = 0; i < skillTexts.Length; i++)
         {
             if (currentUnit == null)
             {
@@ -50,14 +71,12 @@ public class SkillTrainingManager : MonoBehaviour
             if (i < currentUnit.skills.Count)
             {
                 var skill = currentUnit.skills[i];
-                skillTexts[i].text = $"{skill.skillId}  Lv.{skill.level}";
+                skillTexts[i].text = $"{skill.skillId} Lv.{skill.level}";
             }
             else
             {
-                skillTexts[i].text = "스킬 없음";
+                skillTexts[i].text = "";
             }
         }
-        
-
     }
 }
