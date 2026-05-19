@@ -16,13 +16,13 @@ public class LeagueSettingManager : MonoBehaviour
             name = "콜로세움 리그 시즌 1",
             totalRounds = 27, // (10-1)*3 = 27라운드
             pointRule = new PointRule { win = 3, draw = 1, lose = 0 },
-            
+
             playerTeamId = 1, // 플레이어 팀 ID
             playerTeamName = "팀 A",
-            
+
             tier = 1,
             tierName = "입문 리그"
-            
+
         };
 
         // 팀 생성
@@ -30,8 +30,13 @@ public class LeagueSettingManager : MonoBehaviour
 
         // 스케줄 생성 (각 팀별로 3번씩 대전)
         league.schedule = GenerateMultiRoundRobinSchedule(league.teams, 3);
+        
+        league.currentRound = 1;
+        league.currentMatchIndex = 0;
+        league.currentEnemyTeamId = -1;
+        league.currentMatchId = "";
 
-        Debug.Log("✅ 리그 초기화 완료 (LeagueSettingManager)");
+        Debug.Log(" 리그 초기화 완료 (LeagueSettingManager)");
         return league;
     }
 

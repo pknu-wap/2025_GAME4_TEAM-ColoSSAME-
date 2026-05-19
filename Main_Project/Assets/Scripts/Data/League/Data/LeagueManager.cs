@@ -287,22 +287,23 @@ public class LeagueManager : MonoBehaviour
 
         // 순위 계산 및 저장
         CalculateRanking();
+        RefreshCurrentMatchInfo();
         saveManager.SaveLeague(league);
 
-        Debug.Log("✅ 라운드 결과 처리 완료");
+        Debug.Log(" 라운드 결과 처리 완료");
         
         if (IsLeagueFinished())
         {
-            Debug.Log("🏁 리그 종료!");
+            Debug.Log(" 리그 종료!");
 
             if (IsPlayerChampion())
             {
-                Debug.Log("🏆 우승! 다음 리그로 이동");
+                Debug.Log(" 우승! 다음 리그로 이동");
                 StartNextLeague();
             }
             else
             {
-                Debug.Log("❌ 우승 실패 - 리그 종료");
+                Debug.Log(" 우승 실패 - 리그 종료");
                 // 여기서 엔딩 / 재도전 UI 띄우면 됨
             }
         }
@@ -374,6 +375,59 @@ public class LeagueManager : MonoBehaviour
             case 6: return "불멸자 리그";
             default: return "알 수 없는 리그";
         }
+    }
+    
+    public void RefreshCurrentMatchInfo()
+    {
+        if (league == null)
+        {
+            Debug.LogWarning(" league가 null입니다.");
+            return;
+        }
+
+        int playerTeamId = league.settings.playerTeamId;
+
+        Team playerTeam = league.teams.Find(t => t.id == playerTeamId);
+
+        if (playerTeam == null)
+        {
+            Debug.LogWarning($" 플레이어 팀을 찾을 수 없습니다. id: {playerTeamId}");
+            return;
+        }
+
+        int currentRoundNumber = playerTeam.played + 1;
+
+        Round currentRound = league.schedule.Find(r => r.roundNumber == currentRoundNumber);
+
+        if (currentRound == null)
+        {
+            Debug.LogWarning($" 현재 라운드를 찾을 수 없습니다. round: {currentRoundNumber}");
+            return;
+        }
+
+        LeagueMatch currentMatch = currentRound.matches.Find(
+            m => m.teamAId == playerTeamId || m.teamBId == playerTeamId
+        );
+
+        if (currentMatch == null)
+        {
+            Debug.LogWarning($" 현재 라운드에서 플레이어 경기를 찾을 수 없습니다. round: {currentRoundNumber}");
+            return;
+        }
+
+        int enemyTeamId = currentMatch.teamAId == playerTeamId
+            ? currentMatch.teamBId
+            : currentMatch.teamAId;
+
+        league.currentRound = currentRoundNumber;
+        league.currentMatchId = currentMatch.matchId;
+        league.currentEnemyTeamId = enemyTeamId;
+
+        league.currentMatchIndex = currentRound.matches.IndexOf(currentMatch);
+
+        saveManager.SaveLeague(league);
+
+        Debug.Log($" 현재 경기 갱신 완료 / Round: {league.currentRound}, Match: {league.currentMatchId}, Enemy: {league.currentEnemyTeamId}");
     }
 
 }
