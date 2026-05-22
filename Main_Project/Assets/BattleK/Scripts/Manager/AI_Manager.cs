@@ -129,13 +129,13 @@ namespace BattleK.Scripts.Manager
 
         private void KillAll()
         {
-            foreach (var player in playerUnits)
+            for (var i = playerUnits.Count - 1; i >= 0; i--)
             {
-                player.OnDead();
+                playerUnits[i].OnDead();
             }
-            foreach (var enemy in enemyUnits)
+            for (var i = enemyUnits.Count - 1; i >= 0; i--)
             {
-                enemy.OnDead();
+                enemyUnits[i].OnDead();
             }
         }
     }

@@ -143,6 +143,21 @@ MonoBehaviour:
   _playerStats: []
   _enemyStats: []
   _allStats: []
+  _basicCorrection:
+  - 0
+  - 0
+  - 0
+  - 0
+  _starCorrection:
+  - 0
+  - 0
+  - 0
+  - 0
+  _bornStarCorrection:
+  - 0
+  - 0
+  - 0
+  - 0
 --- !u!1 &1119953708594777593
 GameObject:
   m_ObjectHideFlags: 0
@@ -158,7 +173,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &4727239092795668170
 Transform:
   m_ObjectHideFlags: 0
@@ -234,6 +249,10 @@ MonoBehaviour:
       tierName: 
     teams: []
     schedule: []
+    currentRound: 0
+    currentMatchIndex: 0
+    currentEnemyTeamId: 0
+    currentMatchId: 
   saveManager: {fileID: 1004227241535086837}
 --- !u!1 &2676424267581484389
 GameObject:
@@ -1177,7 +1196,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &342188048049387792
 Transform:
   m_ObjectHideFlags: 0
@@ -1598,7 +1617,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _skillSOList:
-  - {fileID: 11400000, guid: 6a7b7d0c0a96d404e84d003085073811, type: 2}
+  - {fileID: 0}
 --- !u!1 &8629171346275086618
 GameObject:
   m_ObjectHideFlags: 0

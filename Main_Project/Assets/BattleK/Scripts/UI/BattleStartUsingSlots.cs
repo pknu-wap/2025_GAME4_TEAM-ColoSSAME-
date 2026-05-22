@@ -48,6 +48,9 @@ namespace BattleK.Scripts.UI
         [SerializeField] private Vector3 PlayerOffset = Vector3.zero;
         [SerializeField] private Vector3 EnemyOffset = Vector3.zero;
         [SerializeField] private float MoveDuration = 0.25f;
+        
+        [Header("Manager")]
+        [SerializeField] private LeagueManager _leagueManager;
 
 
         [Header("배틀 시작 시 비활성화할 UI 루트(버튼 부모 등)")]
@@ -56,7 +59,7 @@ namespace BattleK.Scripts.UI
         [Header("Addressable 모드: 매핑 SO 리스트")]
         [SerializeField] private List<CharacterAddressBook> _addressBooks = new();
         [SerializeField] private int _playerBookIndex;
-        [SerializeField] private int _enemyBookIndex = 1;
+        [SerializeField] private int _enemyBookIndex;
 
         [Header("Formation Animation (Player/Enemy)")]
         [SerializeField] private FormationAnimConfig PlayerAnimConfig;
@@ -78,11 +81,15 @@ namespace BattleK.Scripts.UI
             if (!_startBattleButton) return;
             _startBattleButton.onClick.RemoveAllListeners();
             _startBattleButton.onClick.AddListener(OnClickStartBattle);
+            _leagueManager = FindObjectOfType<LeagueManager>();
         }
 
         private void OnClickStartBattle()
         {
             if (_startBattleButton) _startBattleButton.interactable = false;
+            
+            _playerBookIndex = _leagueManager.league.settings.playerTeamId - 1;
+            _enemyBookIndex = _leagueManager.league.currentEnemyTeamId - 1;
             
             pendingSpawns = 1;
             lastPlayerPositions.Clear();

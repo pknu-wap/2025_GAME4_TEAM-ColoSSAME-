@@ -24,6 +24,7 @@ public class EnemySaveManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(this.gameObject);
         
+        this.saveDirectory = Application.persistentDataPath;
         this.savePath = Path.Combine(Application.persistentDataPath, FileName);
 
         if (!Directory.Exists(this.saveDirectory))
