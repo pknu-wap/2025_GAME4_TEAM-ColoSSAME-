@@ -67,7 +67,7 @@ namespace BattleK.Scripts.UI
 
         [Header("적 자동 배치: 가문 전략")]
         public bool EnemyUseFactionStrategy = true;
-        public EnemyFactionConfig EnemyFaction;
+        public List<EnemyFactionConfig> EnemyFaction = new();
         private FormationAsset _enemyFormationOverride;
 
         
@@ -101,7 +101,7 @@ namespace BattleK.Scripts.UI
             
             SpawnPlayerTeam();
             
-            if (EnemyUseFactionStrategy && EnemyFaction)
+            if (EnemyUseFactionStrategy && EnemyFaction[_enemyBookIndex])
             {
                 SpawnEnemyTeam();
             }
@@ -145,7 +145,7 @@ namespace BattleK.Scripts.UI
         
         private void SpawnEnemyTeam()
         {
-            var keys = EnemyFaction.PickRosterKeys();
+            var keys = EnemyFaction[_enemyBookIndex].PickRosterKeys();
             if (keys == null || keys.Count == 0) return;
 
             List<Vector3> positions;
@@ -169,7 +169,7 @@ namespace BattleK.Scripts.UI
                 }
             
                 positions = _formationManager.CalculateEnemyPositions(
-                    EnemyFaction, keys.Count, playerPosInEnemySpace, 
+                    EnemyFaction[_enemyBookIndex], keys.Count, playerPosInEnemySpace, 
                     EnemyUiScale, EnemyOffset, EnemyAnimConfig.endCenter
                 );
             }
@@ -288,7 +288,7 @@ namespace BattleK.Scripts.UI
             _hpManager.ApplyHpToHPBar();
         }
         private CharacterAddressBook GetBookOrNull(int idx) => (idx >= 0 && idx < _addressBooks.Count) ? _addressBooks[idx] : null;
-        private CharacterAddressBook ResolveEnemyBook() => (EnemyFaction?.addressBookOverride) ? EnemyFaction.addressBookOverride : GetBookOrNull(_enemyBookIndex);
+        private CharacterAddressBook ResolveEnemyBook() => (EnemyFaction[_enemyBookIndex]?.addressBookOverride) ? EnemyFaction[_enemyBookIndex].addressBookOverride : GetBookOrNull(_enemyBookIndex);
         private Vector3 GetCenter(List<Vector3> list) => list.Aggregate(Vector3.zero, (a, b) => a + b) / list.Count;
         
         private void SetLayerRecursively(GameObject obj, int newLayer)
