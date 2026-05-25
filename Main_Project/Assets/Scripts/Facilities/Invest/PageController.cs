@@ -46,7 +46,6 @@ public class BookPageController : MonoBehaviour
 
     IEnumerator ShowPanelAfterDelay(int index)
     {
-        
         yield return new WaitForSeconds(0.5f);
         contentPanels[index].SetActive(true);
         isFlipping = false;
