@@ -8,6 +8,11 @@ using System.Collections.Generic;
         public Settings settings;
         public List<Team> teams;
         public List<Round> schedule;
+        
+        public int currentRound;
+        public int currentMatchIndex;
+        public int currentEnemyTeamId;
+        public string currentMatchId;
     }
 
     [System.Serializable]
