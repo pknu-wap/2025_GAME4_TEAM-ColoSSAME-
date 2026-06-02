@@ -214,23 +214,7 @@ namespace Scripts.Team.FighterRandomBuy
             }
         }
 
-        /*private Sprite GetPortrait(string imageName)    //sprite 로드 저장
-        {
-            if (!spriteCache.TryGetValue(imageName, out Sprite sprite))
-            {
-                sprite = Resources.Load<Sprite>($"CharacterData/{imageName}");
-
-                if (sprite == null)
-                {
-                    Debug.LogError($"[GetPlayer] Portrait 없음: {imageName}");
-                    return null;
-                }
-
-                spriteCache.Add(imageName, sprite);
-            }
-
-            return sprite;
-        }*/
+        
 
         public void OnCardClick(int index)  //카드 클릭
         {
@@ -282,14 +266,7 @@ namespace Scripts.Team.FighterRandomBuy
 
             StartCoroutine(LoadSprite(SelectCharaterImage, characterdata.Unit_ID));
 
-            /*테스트List<string> skills = randomSkillGrant.GetRandomSkills(characterdata.Class, characterdata.Rarity);
-
-            unit = new Unit(
-                characterdata.Unit_ID,
-                characterdata.Rarity,
-                characterdata.Unit_Name,
-                characterdata.Class
-            );*/
+            
             Unit unit = rolledUnits[index];
 
             // 스킬 추가
