@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using BattleK.Scripts.AI.Skill.Base.Projectile;
 using UnityEngine;
 
 namespace BattleK.Scripts.AI.Skill.Base.Logic.LogicBase
@@ -11,9 +10,6 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.LogicBase
         protected LayerMask _targetMask;
         protected Transform _targetTransform;
         protected Vector2 _targetPosition;
-        
-        protected Vector2 _direction;
-        protected Vector2 _spawnPosition;
 
         public void Initialize(StaticAICore owner, List<ISkillLogic> logics, float lifeTime, LayerMask mask, Transform target, Vector2 targetPos)
         {
@@ -22,21 +18,6 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.LogicBase
             _targetMask = mask;
             _targetTransform = target;
             _targetPosition = targetPos;
-            _spawnPosition = targetPos;
-            
-            _direction = Vector2.zero;
-
-            if (_targetTransform != null)
-            {
-                _direction = ((Vector2)(_targetTransform.position) - _spawnPosition).normalized;
-            }
-
-            ProjectileMovement movement = GetComponent<ProjectileMovement>();
-            if (movement != null)
-            {
-                movement.Init(_direction);
-            }
-            
             Destroy(gameObject, lifeTime);
         }
         

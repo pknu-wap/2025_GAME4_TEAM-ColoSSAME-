@@ -2,9 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using BattleK.Scripts.Data;
 using BattleK.Scripts.Data.Type;
-using Newtonsoft.Json;
 using UnityEngine;
 
 namespace BattleK.Scripts.Manager
@@ -29,6 +27,11 @@ namespace BattleK.Scripts.Manager
         [SerializeField] private List<CharacterStatsRow> _playerStats = new();
         [SerializeField] private List<CharacterStatsRow> _enemyStats  = new();
         [SerializeField] private List<CharacterStatsRow> _allStats    = new();
+        
+        [Header("보정치\n0 : Atk\n1 : Def\n2 : HP\n3 : AGI")]
+        [SerializeField] private List<float> _basicCorrection;
+        [SerializeField] private List<float> _starCorrection;
+        [SerializeField] private List<float> _bornStarCorrection;
 
         public IReadOnlyList<CharacterStatsRow> AllStats => _allStats;
 
@@ -98,15 +101,6 @@ namespace BattleK.Scripts.Manager
 
             return searchEnemyToo ? _enemyStats.Find(r => string.Equals(r.Unit_ID, unitId, StringComparison.Ordinal)) : null;
         }
-        public string ToJsonPretty(bool includeEnemy = true)
-        {
-            var pack = new
-            {
-                player = _playerStats,
-                enemy  = includeEnemy ? _enemyStats : null
-            };
-            return JsonConvert.SerializeObject(pack, Formatting.Indented);
-        }
 
         private void ClearLocal()
         {
@@ -115,7 +109,7 @@ namespace BattleK.Scripts.Manager
             _allStats    = new List<CharacterStatsRow>();
         }
 
-        private static List<CharacterStatsRow> CloneList(IReadOnlyList<CharacterStatsRow> src)
+        private List<CharacterStatsRow> CloneList(IReadOnlyList<CharacterStatsRow> src)
         {
             var list = new List<CharacterStatsRow>(src?.Count ?? 0);
             if (src == null) return list;
@@ -126,10 +120,11 @@ namespace BattleK.Scripts.Manager
             let baseDef = stat.DEF
             let baseHp = stat.HP
             let baseAgi = stat.AGI
-            let calcAtk = 20 + (baseAtk * 2 * level)
-            let calcDef = 20 + Mathf.RoundToInt(baseDef * 1.5f * level)
-            let calcHp = 200 + (baseHp * 10 * level)
-            let calcAPS = (float)Math.Round(1 + 3 * (float)baseAgi / ((float)baseAgi + 6), 2)
+            let rarity = stat.Rarity
+            let calcAtk = (int)Math.Round(baseAtk + (_basicCorrection[0] + level + _starCorrection[0]) * _bornStarCorrection[0])
+            let calcDef = (int)Math.Round(baseDef + (_basicCorrection[1] + level + _starCorrection[1]) * _bornStarCorrection[1])
+            let calcHp = (int)Math.Round(baseHp + (_basicCorrection[2] + level + _starCorrection[2]) * _bornStarCorrection[2])
+            let calcAgi = (int)Math.Round(baseAgi + (_basicCorrection[3] + level + _starCorrection[3]) * _bornStarCorrection[3])
             select new CharacterStatsRow
             {
                 Unit_ID = stat.Unit_ID,
@@ -138,8 +133,8 @@ namespace BattleK.Scripts.Manager
                 ATK = calcAtk,
                 DEF = calcDef,
                 HP = calcHp,
-                AGI = stat.AGI,
-                Rarity = stat.Rarity
+                AGI = calcAgi,
+                Rarity = rarity
             });
             return list;
         }
