@@ -16,7 +16,6 @@ namespace BattleK.Scripts.Manager
             ? Path.Combine(Application.persistentDataPath, "UserSave.json")
             : _absolutePath;
         
-
         private void Awake()
         {
             if (!_loadOnAwake) return;

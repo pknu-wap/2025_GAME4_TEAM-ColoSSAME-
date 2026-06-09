@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
@@ -29,12 +30,36 @@ public class LeagueUIManager : MonoBehaviour
 
     public TMP_Text leagueTierText;
 
+    [Header("팀 선택")] 
+    
+    [SerializeField]
+    private Button[] teamButtons;
+    
+    [SerializeField]
+    private TeamInfoUI teamInfoUI;
+
+    [SerializeField] 
+    private BookPageController pageController;
+
+    [SerializeField] 
+    private int teamInfoPageIndex = 1;
+    
+    [SerializeField]
+    private Hide hideManager;
+
+    [SerializeField]
+    private GameObject teamInfoPanel;
+
     void Start()
     {
         if (leagueManager == null)
-            leagueManager = LeagueManager.Instance;
+        {
+            leagueManager =
+                LeagueManager.Instance;
+        }
 
         leagueManager.CalculateRanking();
+
         UpdateAllUI();
     }
 
@@ -72,7 +97,7 @@ public class LeagueUIManager : MonoBehaviour
 
         if (round == null)
         {
-            Debug.LogWarning("❌ 현재 라운드 정보를 찾을 수 없습니다.");
+            Debug.LogWarning("현재 라운드 정보를 찾을 수 없습니다.");
             return;
         }
 
@@ -121,7 +146,32 @@ public class LeagueUIManager : MonoBehaviour
 
             float winRate = team.played > 0 ? (float)team.win / team.played : 0;
             winRateTexts[i].text = $"{(winRate * 100f):0}%";
+                
+            // 팀 버튼 정보 저장
+            Team capturedTeam = team;
+
+            if (i < teamButtons.Length)
+            {
+                teamButtons[i]
+                    .onClick
+                    .RemoveAllListeners();
+
+                teamButtons[i]
+                    .onClick
+                    .AddListener(() =>
+                    {
+                        OpenTeamInfoPage(
+                            capturedTeam);
+                    });
+            }
         }
+    }
+    
+    private void OpenTeamInfoPage(Team team)
+    {
+        teamInfoUI.SetTeam(team);
+        hideManager.ShowPanel(teamInfoPanel);
+        pageController.OnButtonClicked(teamInfoPageIndex);
     }
 
     private int GetCurrentRoundNumber()
@@ -135,7 +185,7 @@ public class LeagueUIManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("❌ 내 팀 정보를 찾을 수 없습니다.");
+            Debug.LogWarning("내 팀 정보를 찾을 수 없습니다.");
             return 1;
         }
     }
@@ -147,12 +197,13 @@ public class LeagueUIManager : MonoBehaviour
 
         if (sprite == null)
         {
-            Debug.LogWarning($"❌ 팀 스프라이트를 찾을 수 없습니다: {path}");
+            Debug.LogWarning($"팀 스프라이트를 찾을 수 없습니다: {path}");
         }
 
         return sprite;
     }
     
+    [Header("내 팀 다음 경기 UI")]
     public Image MyTeamImage;
     public TMP_Text MyTeamText;
     public Image nextMatchMyTeamImage;
@@ -170,7 +221,7 @@ public class LeagueUIManager : MonoBehaviour
 
         if (round == null)
         {
-            Debug.LogWarning("❌ 현재 라운드 정보를 찾을 수 없습니다.");
+            Debug.LogWarning("현재 라운드 정보를 찾을 수 없습니다.");
             return;
         }
 
@@ -179,7 +230,7 @@ public class LeagueUIManager : MonoBehaviour
 
         if (myMatch == null)
         {
-            Debug.LogWarning("❌ 이번 라운드에 내 팀 경기가 없습니다.");
+            Debug.LogWarning("이번 라운드에 내 팀 경기가 없습니다.");
             return;
         }
 
