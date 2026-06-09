@@ -24,8 +24,6 @@ namespace Scripts.Team.CardAnimcontrol
         {
             getplayer.CharacterGather[myIndex].SetActive(true);
             getplayer.CharacterGetCheck[myIndex] = 2; 
-            //blockclick.IsClickCard();
-            getplayer.OnAnyCardAnimEnd();
         }
         public void CardResetAnim()
         {

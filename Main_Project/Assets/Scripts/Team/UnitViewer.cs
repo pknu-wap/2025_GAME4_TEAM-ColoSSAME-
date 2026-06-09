@@ -197,24 +197,6 @@ namespace Scripts.Team.FighterViewer
 
     
 
-    /*public class UserData
-    {
-        public string userName;
-        public int level;
-        public float exp;
-        public int money;
-        public Dictionary<string, int> inventory;
-        public List<UnitData> myUnits;
-    }
-
-    public class UnitData
-    {
-        public string unitId; 
-        public string unitName;
-        public int rarity;
-        public int level;
-        public float exp;
-    }*/
      
 }
 

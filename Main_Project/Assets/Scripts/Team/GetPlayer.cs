@@ -37,6 +37,7 @@ namespace Scripts.Team.FighterRandomBuy
         public GameObject[] StarCount;
 
         public UnitViewer unitviewer;
+        private int currentSelectedIndex = -1;
         public RandomSkillGrant randomSkillGrant;
         
         public GameObject cards;
@@ -72,14 +73,14 @@ namespace Scripts.Team.FighterRandomBuy
         };
 
         private Dictionary<string, Sprite> spriteCache = new(); //sprite저장
+        private List<Unit> rolledUnits = new();
 
         ///뽑기용
         private List<string> gachaFiveStarIds = new();
         private List<string> gachaFourStarIds = new();
         private List<string> gachaOneStarIds = new();
         
-        private bool isAnyCardAnimating = false; //카드 뒤집기 애니메이션 구분(겹치지않게)
-
+        
         void Start()
         {
             league = LoadLeague();
@@ -167,7 +168,14 @@ namespace Scripts.Team.FighterRandomBuy
         }
 
         public void RandomSetting()
+
         {
+            rolledUnits.Clear();
+
+            CharacterGetCheck = CharacterGetCheck.ConvertAll(x => 0);
+
+            currentSelectedIndex = -1;
+
             unitviewer.RebuildGachaPools();
             
             for (int i = 0; i < 10; i++)
@@ -181,37 +189,40 @@ namespace Scripts.Team.FighterRandomBuy
                 }
 
                 CharacterIDList[i] = id;
+                CharacterData data =
+                UnitDataManager.Instance.GetCharacterData(id);
+
+                Unit newUnit = new Unit(
+                    data.Unit_ID,
+                    data.Rarity,
+                    data.Unit_Name,
+                    data.Class
+                );
+
+                List<string> skills =
+                    randomSkillGrant.GetRandomSkills(
+                        data.Class,
+                        data.Rarity
+                    );
+
+                foreach (var skillId in skills)
+                {
+                    newUnit.skills.Add(new UnitSkill(skillId, 1));
+                }
+
+                rolledUnits.Add(newUnit);
             }
         }
 
-        /*private Sprite GetPortrait(string imageName)    //sprite 로드 저장
-        {
-            if (!spriteCache.TryGetValue(imageName, out Sprite sprite))
-            {
-                sprite = Resources.Load<Sprite>($"CharacterData/{imageName}");
-
-                if (sprite == null)
-                {
-                    Debug.LogError($"[GetPlayer] Portrait 없음: {imageName}");
-                    return null;
-                }
-
-                spriteCache.Add(imageName, sprite);
-            }
-
-            return sprite;
-        }*/
+        
 
         public void OnCardClick(int index)  //카드 클릭
         {
             if (CharacterGetCheck[index] == 0)
             {
-                StartCoroutine(LoadSprite(CharacterImage[index], CharacterIDList[index]));
+                RandomSelect(index);
+                return;
             }
-
-            if (isAnyCardAnimating)
-                return; 
-                
 
             if (CharacterGetCheck[index] == 2)
             {
@@ -232,42 +243,34 @@ namespace Scripts.Team.FighterRandomBuy
             }
         }
 
-        private void RandomSelect(int index)    //카드 열기
+        private void RandomSelect(int index)
         {
-            isAnyCardAnimating = true;
+            if (CharacterGetCheck[index] != 0)
+                return;
 
             CharacterGetCheck[index] = 1;
 
             CardAnim cardAnim = anim[index].GetComponent<CardAnim>();
             cardAnim.SetIndex(index);
+
             anim[index].SetTrigger("Iscardclick");
 
-            CharacterData randomCharacter = UnitDataManager.Instance.GetCharacterData(CharacterIDList[index]);
-
-            StartCoroutine(LoadSprite(CharacterImage[index], randomCharacter.Unit_ID));
+            StartCoroutine(LoadSprite(CharacterImage[index], CharacterIDList[index]));
         }
 
         private void ShowExplain(int index)
         {
-            
+            currentSelectedIndex = index;
+
             CharacterData characterdata = UnitDataManager.Instance.GetCharacterData(CharacterIDList[index]);
 
             StartCoroutine(LoadSprite(SelectCharaterImage, characterdata.Unit_ID));
 
-            List<string> skills = randomSkillGrant.GetRandomSkills(characterdata.Class, characterdata.Rarity);
-
-            unit = new Unit(
-                characterdata.Unit_ID,
-                characterdata.Rarity,
-                characterdata.Unit_Name,
-                characterdata.Class
-            );
+            
+            Unit unit = rolledUnits[index];
 
             // 스킬 추가
-            foreach (var skillId in skills)
-            {
-                unit.skills.Add(new UnitSkill(skillId, 1));
-            }
+            
 
             string skillInfo = "스킬:\n";
 
@@ -294,12 +297,9 @@ namespace Scripts.Team.FighterRandomBuy
 
         }
 
-        public void OnAnyCardAnimEnd()
-        {
-            isAnyCardAnimating = false;
-        }
+    
 
-        public void BuyRandomUnit(int count)
+        public void BuyRandomUnit()
         {
             for (int i = 0; i < 10; i++)
             {
@@ -309,10 +309,14 @@ namespace Scripts.Team.FighterRandomBuy
                 CharacterGather[i].SetActive(false);
             }
             CharacterGetCheck = CharacterGetCheck.ConvertAll(x => 0);
-            if (count == 0)
+            
+            if (currentSelectedIndex >= 0 && currentSelectedIndex < rolledUnits.Count)
             {
-                UserManager.Instance.AddUnit(unit);
+                UserManager.Instance.AddUnit(
+                    rolledUnits[currentSelectedIndex]
+                );
             }
+            
         }
 
         public void BackExplain()
@@ -346,18 +350,7 @@ namespace Scripts.Team.FighterRandomBuy
         public List<CharacterData> Characters;
     }
 
-    /*public class CharacterData
-    {
-        public string Unit_ID;
-        public string Unit_Name;
-        public int Rarity;
-        public int Level;
-        public string Class;
-        public string Description;
-        public string Story;
-        public StatDistribution Stat_Distribution;
-        public Visuals Visuals;
-    }*/
+   
 
     public class StatDistribution
     {

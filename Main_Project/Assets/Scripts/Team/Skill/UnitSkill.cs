@@ -8,11 +8,17 @@ using System;
 public class UnitSkill
 {
     public string skillId;
+
     public int level;
 
-    public UnitSkill(string id, int level = 1)
+    public UnitSkill(string skillId, int level = 1)
     {
-        skillId = id;
+        this.skillId = skillId;
         this.level = level;
+    }
+
+    public void LevelUp(int amount = 1)
+    {
+        level += amount;
     }
 }
