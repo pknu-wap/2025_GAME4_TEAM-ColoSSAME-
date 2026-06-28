@@ -110,21 +110,21 @@ namespace BattleK.Scripts.Manager
 
         public void IsWinner()
         {
-            if (playerUnits.Count < 1)
+            switch (playerUnits.Count)
             {
-                _leagueSceneManager.OnClickLose();
-                Debug.Log("패배");
-                IsAlreadyDone = true;
-                KillAll();
+                case >= 1 when enemyUnits.Count >= 1:
+                    return;
+                case < 1:
+                    _leagueSceneManager.OnClickLose();
+                    Debug.Log("패배");
+                    break;
+                case >= 1 when enemyUnits.Count < 1:
+                    _leagueSceneManager.OnClickWin();
+                    Debug.Log("승리");
+                    break;
             }
-
-            if (enemyUnits.Count < 1)
-            {
-                _leagueSceneManager.OnClickWin();
-                Debug.Log("승리");
-                IsAlreadyDone = true;
-                KillAll();
-            }
+            IsAlreadyDone = true;
+            KillAll();
         }
 
         private void KillAll()
