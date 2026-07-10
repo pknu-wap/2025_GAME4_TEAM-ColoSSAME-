@@ -20,6 +20,7 @@ namespace BattleK.Scripts.AI.Skill.SkillExample
         [SerializeField] private bool _findSceneUnitsWhenTeamsAreEmpty = true;
         [SerializeField] private bool _setInitialTargets = true;
         [SerializeField] private bool _disableWinLoseFlowForSkillTest = true;
+        [SerializeField] private bool _keepTeam2Stationary = true;
         [SerializeField] private float _startDelay = 0.1f;
 
         private Coroutine _startRoutine;
@@ -88,10 +89,18 @@ namespace BattleK.Scripts.AI.Skill.SkillExample
             RegisterTeam(_team1, 0);
             RegisterTeam(_team2, 1);
 
+            if (_keepTeam2Stationary)
+            {
+                StopTeamAi(_team2);
+            }
+
             if (_setInitialTargets)
             {
                 AssignInitialTargets(_team1, _team2);
-                AssignInitialTargets(_team2, _team1);
+                if (!_keepTeam2Stationary)
+                {
+                    AssignInitialTargets(_team2, _team1);
+                }
             }
 
             global::UnityEngine.Debug.Log($"[SkillExampleBattleStarter] Started skill example battle. Team1: {_team1.Count}, Team2: {_team2.Count}");
@@ -198,6 +207,33 @@ namespace BattleK.Scripts.AI.Skill.SkillExample
                 {
                     _team2.Add(units[i]);
                 }
+            }
+        }
+
+        private static void StopTeamAi(List<StaticAICore> team)
+        {
+            foreach (var unit in team)
+            {
+                if (!unit)
+                {
+                    continue;
+                }
+
+                if (unit.AiPath)
+                {
+                    unit.AiPath.isStopped = true;
+                    unit.AiPath.canMove = false;
+                    unit.AiPath.destination = unit.transform.position;
+                }
+
+                if (unit.Rigidbody)
+                {
+                    unit.Rigidbody.velocity = Vector2.zero;
+                    unit.Rigidbody.angularVelocity = 0f;
+                }
+
+                unit.Target = null;
+                unit.enabled = false;
             }
         }
 
