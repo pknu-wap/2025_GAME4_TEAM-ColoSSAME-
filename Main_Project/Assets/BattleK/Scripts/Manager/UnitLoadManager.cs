@@ -16,7 +16,6 @@ namespace BattleK.Scripts.Manager
             ? Path.Combine(Application.persistentDataPath, "UserSave.json")
             : _absolutePath;
         
-
         private void Awake()
         {
             if (!_loadOnAwake) return;
@@ -24,17 +23,16 @@ namespace BattleK.Scripts.Manager
             if(LoadedUser == null) Debug.LogWarning($"[UnitLoadManager] Load Failed → {_absolutePath} Reason: {message}");
         }
 
-        public bool TryLoad(out string message)
+        public void TryLoad(out string message)
         {
             if (JsonFileHandler.TryLoadJsonFile<User>(SavePath, out var user, out message))
             {
                 UserDefaults.Ensure(user);
                 LoadedUser = user;
-                return true;
+                return;
             }
             
             LoadedUser = null;
-            return false;
         }
     }
 }

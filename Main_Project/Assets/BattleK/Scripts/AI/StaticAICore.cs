@@ -76,7 +76,7 @@ namespace BattleK.Scripts.AI
             
             RegisterActionStates();
         }
-
+        
         private void Start()
         {
             Targeting = TargetingStrategy switch
@@ -165,6 +165,16 @@ namespace BattleK.Scripts.AI
             transform.localScale = scale;
         }
 
+        public void SetInitialStats()
+        {
+            CurrentAttackDamage = Stat.AttackDamage;
+            CurrentDefense = Stat.Defense;
+            CurrentEvasionRate = Stat.EvasionRate;
+            CurrentMoveSpeed = Stat.MoveSpeed;
+            CurrentSkillPoint = Stat.SkillPoint;
+            _modifiers.Clear();
+        }
+        
         public void SetStatMultiplier(StatusType type, object source, float multiplier)
         {
             if (!_modifiers.ContainsKey(type)) _modifiers[type] = new Dictionary<object, float>();
@@ -178,6 +188,37 @@ namespace BattleK.Scripts.AI
             if (!_modifiers.TryGetValue(type, out var sourceDict)) return;
             sourceDict.Remove(source);
             UpdateFinalStat(type);
+        }
+
+        public bool HasDebuff() //디버프 확인(임시)
+        {
+            foreach (var type in _modifiers)
+            {
+                foreach (var value in type.Value.Values)
+                {
+                    if (value < 1f)
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        public void RemoveAllDebuffs() //디버프 전체 제거()
+        {
+            var types = new List<StatusType>(_modifiers.Keys);
+
+            foreach (var type in types)
+            {
+                var sources = new List<object>(_modifiers[type].Keys);
+
+                foreach (var src in sources)
+                {
+                    if (_modifiers[type][src] < 1f)
+                    {
+                        RemoveStatMultiplier(type, src);
+                    }
+                }
+            }
         }
         
         private void UpdateFinalStat(StatusType type)
@@ -262,6 +303,12 @@ namespace BattleK.Scripts.AI
                 return;
             }
             if(OverrideMachine.CurrentState == null) OverrideMachine.ChangeState(new StaticHitState(this));
+        }
+
+        public void OnHeal(int amount)
+        {
+            Stat.CurrentHP = Mathf.Min(Stat.CurrentHP + amount, Stat.MaxHP);
+            HPBar.UpdateHPBar();
         }
 
         public void EnterCCState(PlayerState state)

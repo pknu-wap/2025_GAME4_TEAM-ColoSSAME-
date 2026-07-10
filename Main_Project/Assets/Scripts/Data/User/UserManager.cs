@@ -128,6 +128,27 @@ public class UserManager : MonoBehaviour
         return true;
     }
 
+    public bool AddUnitRarity(string unitId, int amount)
+    {
+        Unit unit = GetMyUnitById(unitId);
+
+        if (unit == null)
+        {
+            Debug.LogWarning($"❌ 유닛 없음 : {unitId}");
+            return false;
+        }
+
+        unit.rarity += amount;
+
+        if (unit.rarity > 5)
+            unit.rarity = 5;
+
+        SaveUser();
+
+
+        return true;
+    }
+
 
     /// <summary>
     /// 유저 데이터 로드

@@ -48,6 +48,9 @@ namespace BattleK.Scripts.UI
         [SerializeField] private Vector3 PlayerOffset = Vector3.zero;
         [SerializeField] private Vector3 EnemyOffset = Vector3.zero;
         [SerializeField] private float MoveDuration = 0.25f;
+        
+        [Header("Manager")]
+        [SerializeField] private LeagueManager _leagueManager;
 
 
         [Header("배틀 시작 시 비활성화할 UI 루트(버튼 부모 등)")]
@@ -56,7 +59,7 @@ namespace BattleK.Scripts.UI
         [Header("Addressable 모드: 매핑 SO 리스트")]
         [SerializeField] private List<CharacterAddressBook> _addressBooks = new();
         [SerializeField] private int _playerBookIndex;
-        [SerializeField] private int _enemyBookIndex = 1;
+        [SerializeField] private int _enemyBookIndex;
 
         [Header("Formation Animation (Player/Enemy)")]
         [SerializeField] private FormationAnimConfig PlayerAnimConfig;
@@ -64,7 +67,7 @@ namespace BattleK.Scripts.UI
 
         [Header("적 자동 배치: 가문 전략")]
         public bool EnemyUseFactionStrategy = true;
-        public EnemyFactionConfig EnemyFaction;
+        public List<EnemyFactionConfig> EnemyFaction = new();
         private FormationAsset _enemyFormationOverride;
 
         
@@ -78,11 +81,15 @@ namespace BattleK.Scripts.UI
             if (!_startBattleButton) return;
             _startBattleButton.onClick.RemoveAllListeners();
             _startBattleButton.onClick.AddListener(OnClickStartBattle);
+            _leagueManager = FindObjectOfType<LeagueManager>();
         }
 
         private void OnClickStartBattle()
         {
             if (_startBattleButton) _startBattleButton.interactable = false;
+            
+            _playerBookIndex = _leagueManager.league.settings.playerTeamId - 1;
+            _enemyBookIndex = _leagueManager.league.currentEnemyTeamId - 1;
             
             pendingSpawns = 1;
             lastPlayerPositions.Clear();
@@ -94,7 +101,7 @@ namespace BattleK.Scripts.UI
             
             SpawnPlayerTeam();
             
-            if (EnemyUseFactionStrategy && EnemyFaction)
+            if (EnemyUseFactionStrategy && EnemyFaction[_enemyBookIndex])
             {
                 SpawnEnemyTeam();
             }
@@ -138,7 +145,7 @@ namespace BattleK.Scripts.UI
         
         private void SpawnEnemyTeam()
         {
-            var keys = EnemyFaction.PickRosterKeys();
+            var keys = EnemyFaction[_enemyBookIndex].PickRosterKeys();
             if (keys == null || keys.Count == 0) return;
 
             List<Vector3> positions;
@@ -162,7 +169,7 @@ namespace BattleK.Scripts.UI
                 }
             
                 positions = _formationManager.CalculateEnemyPositions(
-                    EnemyFaction, keys.Count, playerPosInEnemySpace, 
+                    EnemyFaction[_enemyBookIndex], keys.Count, playerPosInEnemySpace, 
                     EnemyUiScale, EnemyOffset, EnemyAnimConfig.endCenter
                 );
             }
@@ -281,7 +288,7 @@ namespace BattleK.Scripts.UI
             _hpManager.ApplyHpToHPBar();
         }
         private CharacterAddressBook GetBookOrNull(int idx) => (idx >= 0 && idx < _addressBooks.Count) ? _addressBooks[idx] : null;
-        private CharacterAddressBook ResolveEnemyBook() => (EnemyFaction?.addressBookOverride) ? EnemyFaction.addressBookOverride : GetBookOrNull(_enemyBookIndex);
+        private CharacterAddressBook ResolveEnemyBook() => (EnemyFaction[_enemyBookIndex]?.addressBookOverride) ? EnemyFaction[_enemyBookIndex].addressBookOverride : GetBookOrNull(_enemyBookIndex);
         private Vector3 GetCenter(List<Vector3> list) => list.Aggregate(Vector3.zero, (a, b) => a + b) / list.Count;
         
         private void SetLayerRecursively(GameObject obj, int newLayer)
