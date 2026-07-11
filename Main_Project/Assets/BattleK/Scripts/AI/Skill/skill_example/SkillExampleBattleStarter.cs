@@ -21,9 +21,13 @@ namespace BattleK.Scripts.AI.Skill.SkillExample
         [SerializeField] private bool _setInitialTargets = true;
         [SerializeField] private bool _disableWinLoseFlowForSkillTest = true;
         [SerializeField] private bool _keepTeam2Stationary = true;
+        [SerializeField] private bool _resumeBothTeamsForBattleTest = true;
+        [SerializeField] private bool _logTargetChanges = true;
+        [SerializeField] private float _targetLogInterval = 0.1f;
         [SerializeField] private float _startDelay = 0.1f;
 
         private Coroutine _startRoutine;
+        private Coroutine _targetLogRoutine;
 
         private void Reset()
         {
@@ -93,6 +97,11 @@ namespace BattleK.Scripts.AI.Skill.SkillExample
             {
                 StopTeamAi(_team2);
             }
+            else if (_resumeBothTeamsForBattleTest)
+            {
+                ResumeTeamAi(_team1);
+                ResumeTeamAi(_team2);
+            }
 
             if (_setInitialTargets)
             {
@@ -101,6 +110,11 @@ namespace BattleK.Scripts.AI.Skill.SkillExample
                 {
                     AssignInitialTargets(_team2, _team1);
                 }
+            }
+
+            if (_logTargetChanges)
+            {
+                StartTargetLog();
             }
 
             global::UnityEngine.Debug.Log($"[SkillExampleBattleStarter] Started skill example battle. Team1: {_team1.Count}, Team2: {_team2.Count}");
@@ -234,6 +248,69 @@ namespace BattleK.Scripts.AI.Skill.SkillExample
 
                 unit.Target = null;
                 unit.enabled = false;
+            }
+        }
+
+        private static void ResumeTeamAi(List<StaticAICore> team)
+        {
+            foreach (var unit in team)
+            {
+                if (!unit)
+                {
+                    continue;
+                }
+
+                unit.enabled = true;
+
+                if (unit.AiPath)
+                {
+                    unit.AiPath.canMove = true;
+                    unit.AiPath.isStopped = false;
+                }
+            }
+        }
+
+        private void StartTargetLog()
+        {
+            if (_targetLogRoutine != null)
+            {
+                StopCoroutine(_targetLogRoutine);
+            }
+
+            _targetLogRoutine = StartCoroutine(TargetLogRoutine());
+        }
+
+        private IEnumerator TargetLogRoutine()
+        {
+            var lastTargets = new Dictionary<StaticAICore, Transform>();
+
+            while (isActiveAndEnabled)
+            {
+                LogTargetChanges(_team1, "Team1", lastTargets);
+                LogTargetChanges(_team2, "Team2", lastTargets);
+
+                yield return new WaitForSeconds(Mathf.Max(0.02f, _targetLogInterval));
+            }
+        }
+
+        private static void LogTargetChanges(List<StaticAICore> team, string teamName, Dictionary<StaticAICore, Transform> lastTargets)
+        {
+            foreach (var unit in team)
+            {
+                if (!unit)
+                {
+                    continue;
+                }
+
+                lastTargets.TryGetValue(unit, out var lastTarget);
+                if (lastTarget == unit.Target)
+                {
+                    continue;
+                }
+
+                lastTargets[unit] = unit.Target;
+                var targetName = unit.Target ? unit.Target.name : "None";
+                global::UnityEngine.Debug.Log($"[SkillExampleBattleStarter] {teamName} {unit.name} target -> {targetName}");
             }
         }
 

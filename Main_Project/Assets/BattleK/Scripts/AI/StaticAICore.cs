@@ -5,6 +5,7 @@ using BattleK.Scripts.AI.StaticScoreState.ActionStates;
 using BattleK.Scripts.AI.StaticScoreState.Attack;
 using BattleK.Scripts.AI.StaticScoreState.StaticVerStates;
 using BattleK.Scripts.AI.StaticScoreState.Targeting;
+using BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic;
 using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Data.Type.AIDataType.CC;
 using BattleK.Scripts.HP;
@@ -287,6 +288,11 @@ namespace BattleK.Scripts.AI
         public void OnTakeDamage(int damage, bool isPenetrating = false)
         {
             if (IsDead || Stat.CurrentHP == 0) return;
+            if (TryGetComponent(out InvincibleTargetController invincible) && invincible.IsInvincible)
+            {
+                Debug.Log($"{name} ignored damage by invincible.");
+                return;
+            }
             
             var randomVal = Random.Range(0f, 100f);
             if (randomVal < CurrentEvasionRate)

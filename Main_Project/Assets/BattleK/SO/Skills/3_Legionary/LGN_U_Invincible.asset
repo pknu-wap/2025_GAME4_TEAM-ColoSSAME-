@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 118a914a25676ed4eb83b53cf6f25c75, type: 3}
+  m_Name: LGN_U_Invincible
+  m_EditorClassIdentifier: 
+  TargetType: 2
+  ExecutionCondition: []
+  SkillName: Legionary_U_Invincible
+  InternalPriority: 500
+  SkillPrefab: {fileID: 4103200000000000001, guid: d1f90eb04b154fd29b78e6ba32141ad3, type: 3}
+  Cooldown: 10
+  SkillArea: {x: 1, y: 1}
+  SpawnAt: 0
+  WindupTime: 0
+  ActiveTime: 0.1
+  RecoveryTime: 0
+  SkillLogics:
+  - rid: 7310200000000000001
+  AnimationIndex: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 7310200000000000001
+      type: {class: InvincibleLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic, asm: Assembly-CSharp}
+      data:
+        Duration: 2
+        RefreshDuration: 1
