@@ -17,18 +17,11 @@ public class SkillTrainingManager : MonoBehaviour
 
     private IEnumerator RefreshRoutine()
     {
-
         ClearUI();
 
-        yield return null; // 한 프레임 강제 대기
+        yield return null;
 
         string unitId = UserManager.Instance.selectedUnitId;
-
-        // 같은 유닛이면 다시 안 그려도 됨
-        if (unitId == lastUnitId)
-            yield break;
-
-        lastUnitId = unitId;
 
         currentUnit = UserManager.Instance.GetMyUnitById(unitId);
 
