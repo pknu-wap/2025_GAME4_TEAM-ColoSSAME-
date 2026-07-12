@@ -1,14 +1,15 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class InventoryItemSlot : MonoBehaviour
+public class InventoryItemSlot : MonoBehaviour, ISlotView<InventorySlotData>
 {
     [Header("슬롯 UI")]
     public Image iconImage;
     public Text nameText;
     public Text countText;
+    
+    public void SetItem(InventorySlotData data) => Set(data.Item, data.Count);
 
-    /// 슬롯에 아이템 정보를 표시
     public void Set(ItemData data, int count)
     {
         if (data == null)
@@ -29,7 +30,6 @@ public class InventoryItemSlot : MonoBehaviour
         else if (nameText != null) nameText.text = $"{data.itemName} x {count}";
     }
     
-    /// 슬롯 비우기
     public void Clear()
     {
         if (iconImage != null)

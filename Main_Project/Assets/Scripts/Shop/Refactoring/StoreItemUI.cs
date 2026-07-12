@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class StoreItemUI : MonoBehaviour
+public class StoreItemUI : MonoBehaviour, ISlotView<ItemData>
 {
     [Header("DB")]
     public ItemDatabase itemDatabase;
@@ -75,6 +75,7 @@ public class StoreItemUI : MonoBehaviour
 
         RefreshUI();
     }
+    public void Clear() { SetItem(null); }
 
     /// UI 갱신
     public void RefreshUI()
