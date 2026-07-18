@@ -7,7 +7,6 @@ public class SkillTrainingManager : MonoBehaviour
     public TextMeshProUGUI[] skillTexts;
 
     private Unit currentUnit;
-    private string lastUnitId;
 
     public void RefreshUnit()
     {

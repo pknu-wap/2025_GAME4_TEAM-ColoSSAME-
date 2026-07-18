@@ -9,20 +9,29 @@ public class InvestorUImanager : MonoBehaviour
     
     public void ShowOnlyThis(GameObject panelToShow)
     {
-        foreach (GameObject panel in allPanels)
+        if (allPanels != null)
         {
-            panel.SetActive(false);
+            foreach (GameObject panel in allPanels)
+            {
+                if (panel != null)
+                    panel.SetActive(false);
+            }
         }
-        panelToShow.SetActive(true);
+
+        if (panelToShow != null)
+            panelToShow.SetActive(true);
     }
+
     public void ShowInitialPanel()
     {
-        // 초기 하위 패널 true
-        foreach (GameObject panel in initialSubPanels)
+        if (initialSubPanels != null)
         {
-            panel.SetActive(true);
+            foreach (GameObject panel in initialSubPanels)
+            {
+                if (panel != null)
+                    panel.SetActive(true);
+            }
         }
     }
-    
     
 }

@@ -113,6 +113,14 @@ public class UserManager : MonoBehaviour
             Debug.LogWarning($"⚠️ AddUnitExp 실패: 유닛을 찾지 못함 (unitId={unitId})");
             return false;
         }
+        int maxLevel = UnitCostCalculator.GetMaxLevelByRarity(unit.rarity);
+
+        if (unit.level >= maxLevel)
+        {
+            unit.level = maxLevel;
+            unit.exp = 0;
+            return false;
+        }
 
         unit.exp += amount;
         Debug.Log($"✨ 유닛 경험치 추가: {unit.unitName} +{amount}, 총합: {unit.exp}");

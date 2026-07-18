@@ -11,8 +11,6 @@ public class AddRarity : MonoBehaviour
     [SerializeField] private SkillSelectUI skillSelectUI;
     [SerializeField] private SkillTrainingManager skillTrainingManager;
 
-    private string lastUnitId;
-
     private void Start()
     {
         RefreshSelectedUnitUI();
@@ -40,11 +38,7 @@ public class AddRarity : MonoBehaviour
         if (string.IsNullOrEmpty(unitId))
             yield break;
 
-        // 같은 유닛이면 다시 안 그림
-        if (unitId == lastUnitId)
-            yield break;
-
-        lastUnitId = unitId;
+        
 
         Unit unit = UserManager.Instance.GetMyUnitById(unitId);
 
@@ -97,8 +91,6 @@ public class AddRarity : MonoBehaviour
 
         AddSkillByRarity(unit, unit.rarity);
         
-        lastUnitId = "";
-
         RefreshSelectedUnitUI();
     }
 

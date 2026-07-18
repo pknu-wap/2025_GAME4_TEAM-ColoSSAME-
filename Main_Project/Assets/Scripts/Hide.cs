@@ -17,5 +17,13 @@ public class Hide : MonoBehaviour
         panelToShow.SetActive(true);
     }
 
+    public void ShowPanel()
+    {
+        foreach (GameObject panel in allPanels)
+        {
+            panel.SetActive(false);
+        }
+    }
+
 
 }
