@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Newtonsoft.Json;
+using UnityEngine;
 
 namespace BattleK.Scripts.JSON
 {
@@ -24,18 +25,15 @@ namespace BattleK.Scripts.JSON
                 message = "File does not exist.";
                 return false;
             }
-        
             try
             {
                 var json = File.ReadAllText(filePath);
                 data = JsonConvert.DeserializeObject<T>(json, DefaultSettings);
-
                 if (data == null)
                 {
                     message = "data is null/empty.";
                     return false;
                 }
-
                 message = "OK";
                 return true;
             }
@@ -49,7 +47,6 @@ namespace BattleK.Scripts.JSON
         public static bool TrySaveJsonFile<T>(string filePath, T data, out string message)
         {
             message = string.Empty;
-
             try
             {
                 var directory = Path.GetDirectoryName(filePath);
@@ -61,6 +58,21 @@ namespace BattleK.Scripts.JSON
                 message = $"Exception: {ex.Message}";
                 return false;
             }
+        }
+        
+        public static string ResolveAbsolutePath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path)) return string.Empty;
+            if (Path.IsPathRooted(path)) return path;
+            
+            var normalizedPath = path.Replace('\\', '/');
+
+            if (!normalizedPath.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase))
+                return Path.Combine(Application.dataPath, normalizedPath);
+            var projectRoot = Directory.GetParent(Application.dataPath)?.FullName;
+
+            return Path.Combine(projectRoot ?? Application.dataPath, normalizedPath
+            );
         }
         
     }

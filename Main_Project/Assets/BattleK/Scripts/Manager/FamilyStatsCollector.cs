@@ -20,6 +20,9 @@ namespace BattleK.Scripts.Manager
 
         [Header("레벨 소스 (UnitLoadManager)")]
         [SerializeField] private UnitLoadManager _unitLoadManager;
+        // EnemySaveManager 수정되면 개편 예정
+        [SerializeField] private EnemySaveManager _enemySaveManager;
+        [SerializeField] private League _league;
 
         [Header("key setting")]
         [Tooltip("true면 unitId/characterKey 비교 시 대소문자 무시")]
@@ -36,11 +39,11 @@ namespace BattleK.Scripts.Manager
         
         public void CollectFromBothTeams()
         {
-            _playerStats = CollectFromRoot(_playerUnitsRoot);
-            _enemyStats  = CollectFromRoot(_enemyUnitsRoot);
+            _playerStats = CollectFromRoot(_playerUnitsRoot, true);
+            _enemyStats  = CollectFromRoot(_enemyUnitsRoot, false);
         }
 
-        private List<CharacterStatsRow> CollectFromRoot(Transform unitsRoot)
+        private List<CharacterStatsRow> CollectFromRoot(Transform unitsRoot, bool isPlayer)
         {
             var result = new List<CharacterStatsRow>();
             if (!unitsRoot) return result;
@@ -65,7 +68,7 @@ namespace BattleK.Scripts.Manager
                 
                 if(matchData == null) continue;
                 
-                var level = ResolveLevelFromUserSave(charKey, matchData.Level);
+                var level = ResolveLevel(charKey, matchData.Level, isPlayer);
                 
                 result.Add(new CharacterStatsRow
                 {
@@ -82,24 +85,38 @@ namespace BattleK.Scripts.Manager
 
             return result;
         }
-        private int ResolveLevelFromUserSave(string characterKey, int defaultLevel)
+        private int ResolveLevel(string characterKey, int defaultLevel, bool isUser)
         {
             var baseLevel = defaultLevel > 0 ? defaultLevel : 1;
-
-            if (!_unitLoadManager || _unitLoadManager.LoadedUser?.myUnits == null)
-                return baseLevel;
-            
             var comparison = _caseInsensitiveMatch ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-            var myUnit = _unitLoadManager.LoadedUser.myUnits.Find(u => string.Equals(u.unitId?.Trim(), characterKey, comparison));
-
-            return myUnit == null ? baseLevel : Mathf.Max(1, myUnit.level);
+            var unitData = isUser ? FindUserUnit(characterKey, comparison) : FindEnemyUnit(characterKey, comparison);
+            return unitData == null ? baseLevel : Mathf.Max(1, unitData.level);
         }
+
+        private Unit FindUserUnit(string characterKey, StringComparison comparison)
+        {
+            var myUnits = _unitLoadManager?.LoadedUser?.myUnits;
+            return myUnits?.Find(u => string.Equals(u.unitId?.Trim(), characterKey, comparison));
+        }
+
+        private Unit FindEnemyUnit(string characterKey, StringComparison comparison)
+        {
+            if (_league == null) return null;
+
+            _enemySaveManager ??= FindObjectOfType<EnemySaveManager>();
+            if (_enemySaveManager == null) return null;
+
+            var team = _enemySaveManager.GetTeam(_league.currentEnemyTeamId);
+            var units = team?.units;
+
+            return units?.Find(u => string.Equals(u.unitId?.Trim(), characterKey, comparison));
+        }
+        
         private FamilyJson LoadFamilyJson(string familyKey)
         {
             if (_familyCache.TryGetValue(familyKey, out var cached)) return cached;
 
-            var path = BuildFamilyJsonAbsolutePath(familyKey);
-            
+            var path = _familyJsonTemplate.Replace("{FAMILY}",familyKey);
             if (JsonFileHandler.TryLoadJsonFile<FamilyJson>(path, out var loadedData, out var msg))
             {
                 _familyCache[familyKey] = loadedData;
@@ -107,16 +124,6 @@ namespace BattleK.Scripts.Manager
             }
             _familyCache[familyKey] = null;
             return null;
-        }
-        private string BuildFamilyJsonAbsolutePath(string familyKey)
-        {
-            var relativePath = _familyJsonTemplate.Replace("{FAMILY}", familyKey);
-            if(Path.IsPathRooted(relativePath)) return relativePath;
-            
-            var basePath = Application.dataPath;
-            var projectRoot = Directory.GetParent(basePath)?.FullName;
-            
-            return relativePath.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase) ? Path.Combine(projectRoot ?? basePath, relativePath) : Path.Combine(basePath, relativePath);
         }
     }
 }

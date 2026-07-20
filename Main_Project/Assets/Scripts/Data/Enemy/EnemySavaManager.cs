@@ -124,7 +124,7 @@ public class EnemySaveManager : MonoBehaviour
             Load();
         }
 
-        int index = this.CurrentData.teams.FindIndex(team => team.id == updatedTeam.id);
+        var index = this.CurrentData.teams.FindIndex(team => team.id == updatedTeam.id);
 
         if (index < 0)
         {
