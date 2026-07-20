@@ -100,7 +100,8 @@ namespace BattleK.Scripts.UI
         {
             if (Time.unscaledTime - _lastClickTime < _doubleClickThreshold)
             {
-                if (_currentSlot) ToggleTargetWindow();
+                ToggleTargetWindow();
+                // 정보창 페이지로 수정될 예정
             }
             _lastClickTime = Time.unscaledTime;
         }
