@@ -40,7 +40,7 @@ public class Carousel : MonoBehaviour
         List<RectTransform> frontCards = new List<RectTransform>();
         List<RectTransform> backCards = new List<RectTransform>();
 
-        // ➡️ 1. 카드 그룹 분리
+        // 1. 카드 그룹 분리
         for (int i = 0; i < numCards; i++)
         {
             int posIndex = (i - currentIndex + numCards) % numCards;
@@ -52,7 +52,7 @@ public class Carousel : MonoBehaviour
                 backCards.Add(cards[i]);
         }
 
-        // ➡️ 2. sibling index 먼저 재설정
+        // 2. sibling index 먼저 재설정
         for (int i = 0; i < backCards.Count; i++)
         {
             backCards[i].SetSiblingIndex(i);
@@ -63,7 +63,7 @@ public class Carousel : MonoBehaviour
             card.SetAsLastSibling();
         }
 
-        // ➡️ 3. 그 후 DOTween 애니메이션 실행
+        // 3. 그 후 DOTween 애니메이션 실행
         for (int i = 0; i < numCards; i++)
         {
             int posIndex = (i - currentIndex + numCards) % numCards;
@@ -88,9 +88,9 @@ public class Carousel : MonoBehaviour
         string path = $"TeamImages/team_{teamId}";
         Sprite sprite = Resources.Load<Sprite>(path);
 
-        if (sprite == null)
+        if (sprite == null) 
         {
-            Debug.LogWarning($"❌ 팀 스프라이트를 찾을 수 없습니다: {path}");
+            Debug.LogWarning($"팀 스프라이트를 찾을 수 없습니다: {path}");
         }
 
         return sprite;
@@ -110,36 +110,27 @@ public class Carousel : MonoBehaviour
         leagueManager.league.settings.playerTeamId = myTeam.id;
         leagueManager.league.settings.playerTeamName = myTeam.name;
         leagueManager.saveManager.SaveLeague(leagueManager.league);
-        if (UserManager.Instance != null)
+        if (UserManager.Instance != null) 
         {
             UserManager.Instance.AddInitialUnitsByFamily(myTeam.fid);
         }
-        else
+        else 
         {
-            Debug.LogError("❌ UserManager 인스턴스를 찾을 수 없습니다.");
+            Debug.LogError("UserManager 인스턴스를 찾을 수 없습니다.");
         }
-        if (EnemySaveManager.Instance != null)
-
+        if (EnemySaveManager.Instance != null) 
         {
-
             EnemySaveManager.Instance.Clear();
-
-            EnemyTeamInitializer initializer = new EnemyTeamInitializer();
-
-            initializer.InitializeFromLeague(leagueManager.league);
-
+            EnemyTeamService.InitializeFromLeague(leagueManager.league);
         }
 
-        else
-
+        else 
         {
-
-            Debug.LogError("❌ EnemySaveManager 인스턴스를 찾을 수 없습니다.");
-
+            Debug.LogError("EnemySaveManager 인스턴스를 찾을 수 없습니다.");
         }
         leagueManager.RefreshCurrentMatchInfo();
 
-        Debug.Log($"✅ 팀 선택 완료: {myTeam.name}");
+        Debug.Log($"팀 선택 완료: {myTeam.name}");
     }
 
     public void OnViewStatusButtonClick()
@@ -147,7 +138,7 @@ public class Carousel : MonoBehaviour
         Team selectedTeam = leagueManager.league.teams.Find(t => t.id == currentIndex + 1);
         string familyId = selectedTeam.fid; // 가문 ID (예: "Caelus")
 
-        // ➡️ TeamDetailViewer 스크립트의 함수를 호출하여 가문 ID를 전달
+        // TeamDetailViewer 스크립트의 함수를 호출하여 가문 ID를 전달
         if (teamDetailViewer != null)
         {
             teamDetailViewer.ShowDetails(familyId);

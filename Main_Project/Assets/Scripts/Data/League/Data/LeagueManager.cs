@@ -28,14 +28,14 @@ public class LeagueManager : MonoBehaviour
 
             if (league != null)
             {
-                Debug.Log("✅ 기존 리그 데이터 로드 완료");
+                Debug.Log("기존 리그 데이터 로드 완료");
             }
             else
             {
-                Debug.Log("⚠️ 저장된 리그 데이터가 없습니다. 게임 시작 시 생성됩니다.");
+                Debug.Log("저장된 리그 데이터가 없습니다. 게임 시작 시 생성됩니다.");
             }
 
-            Debug.Log("✅ LeagueManager 초기화 완료");
+            Debug.Log("LeagueManager 초기화 완료");
         }
         else
         {
@@ -44,9 +44,7 @@ public class LeagueManager : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// 항상 새로운 리그 데이터를 생성 (버튼에서 호출)
-    /// </summary>
+    // 항상 새로운 리그 데이터를 생성 (버튼에서 호출)
     public void NewLeague()
     {
         
@@ -54,7 +52,7 @@ public class LeagueManager : MonoBehaviour
         if (File.Exists(saveManager.SavePath))
         {
             File.Delete(saveManager.SavePath);
-            Debug.Log("🗑️ 기존 리그 세이브 파일 삭제 완료");
+            Debug.Log("기존 리그 세이브 파일 삭제 완료");
         }
         
         league = settingManager.InitializeLeague();
@@ -62,15 +60,10 @@ public class LeagueManager : MonoBehaviour
 
         CalculateRanking();
 
-        Debug.Log("✅ 새로운 리그 데이터 생성 완료");
+        Debug.Log("새로운 리그 데이터 생성 완료");
     }
     
-
-
-
-    /// <summary>
-    /// 순위 계산 (공동 랭크 반영)
-    /// </summary>
+    // 순위 계산 (공동 랭크 반영)
     public void CalculateRanking()
     {
         var sorted = league.teams
@@ -112,25 +105,23 @@ public class LeagueManager : MonoBehaviour
             }
         }
 
-        Debug.Log("✅ 순위 계산 완료 (공동 랭크 반영)");
+        Debug.Log("순위 계산 완료 (공동 랭크 반영)");
     }
-
-    /// <summary>
-    /// 경기 결과 반영 (예시)
-    /// </summary>
+    
+    // 경기 결과 반영 (예시)
     public void UpdateMatchResult(int roundNumber, string matchId, Result result)
     {
         Round round = league.schedule.Find(r => r.roundNumber == roundNumber);
         if (round == null)
         {
-            Debug.LogError($"❌ 라운드 {roundNumber}를 찾을 수 없습니다.");
+            Debug.LogError($"라운드 {roundNumber}를 찾을 수 없습니다.");
             return;
         }
 
         LeagueMatch match = round.matches.Find(m => m.matchId == matchId);
         if (match == null)
         {
-            Debug.LogError($"❌ 매치 {matchId}를 찾을 수 없습니다.");
+            Debug.LogError($"매치 {matchId}를 찾을 수 없습니다.");
             return;
         }
 
@@ -145,12 +136,10 @@ public class LeagueManager : MonoBehaviour
         // 저장
         saveManager.SaveLeague(league);
 
-        Debug.Log($"✅ 경기 결과 업데이트 완료: {matchId}");
+        Debug.Log($"경기 결과 업데이트 완료: {matchId}");
     }
-
-    /// <summary>
-    /// 팀 전적 업데이트
-    /// </summary>
+    
+    // 팀 전적 업데이트
     private void ApplyMatchResultToTeams(int teamAId, int teamBId, Result result)
     {
         Team teamA = league.teams.Find(t => t.id == teamAId);
@@ -158,7 +147,7 @@ public class LeagueManager : MonoBehaviour
 
         if (teamA == null || teamB == null)
         {
-            Debug.LogError("❌ 팀 정보를 찾을 수 없습니다.");
+            Debug.LogError("팀 정보를 찾을 수 없습니다.");
             return;
         }
 
@@ -205,7 +194,7 @@ public class LeagueManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("❌ 내 팀 정보를 찾을 수 없습니다.");
+            Debug.LogWarning("내 팀 정보를 찾을 수 없습니다.");
             return 1;
         }
     }
@@ -217,7 +206,7 @@ public class LeagueManager : MonoBehaviour
 
         if (round == null)
         {
-            Debug.LogWarning("❌ 현재 라운드 정보를 찾을 수 없습니다.");
+            Debug.LogWarning("현재 라운드 정보를 찾을 수 없습니다.");
             return;
         }
 
@@ -230,7 +219,7 @@ public class LeagueManager : MonoBehaviour
 
             if (teamA == null || teamB == null)
             {
-                Debug.LogWarning("❌ 팀 정보를 찾을 수 없습니다.");
+                Debug.LogWarning("팀 정보를 찾을 수 없습니다.");
                 continue;
             }
 
@@ -287,7 +276,7 @@ public class LeagueManager : MonoBehaviour
         }
 
         // 적 유닛 레벨 랜덤 성장
-        GrowEnemyUnitsRandomly();
+        EnemyTeamService.GrowUnitsAfterRound(league);
 
         // 순위 계산 및 저장
         CalculateRanking();
@@ -322,7 +311,7 @@ public class LeagueManager : MonoBehaviour
         string savedPlayerTeamName = league.settings.playerTeamName;
 
         // 적 팀 성장 (새 리그 생성 전에 처리)
-        GrowEnemyTeamsForNextLeague(nextTier);
+        EnemyTeamService.GrowTeamsForNextLeague(league, nextTier);
 
         // 새 리그 생성
         league = settingManager.InitializeLeague();
@@ -336,109 +325,13 @@ public class LeagueManager : MonoBehaviour
 
         saveManager.SaveLeague(league);
 
-        Debug.Log($"✅ {nextTier}성 {league.settings.tierName} 시작!");
+        Debug.Log($"{nextTier}성 {league.settings.tierName} 시작!");
 
         // 필요하면 씬 이동
         // SceneManager.LoadScene("LeagueScene");
     }
     
-    // 다음 리그 진입 시 적 팀 전체 성장 처리
-    private void GrowEnemyTeamsForNextLeague(int nextTier)
-    {
-        if (EnemySaveManager.Instance == null || UnitDataManager.Instance == null) return;
-
-        int playerTeamId = league.settings.playerTeamId;
-        int resetLevel = (nextTier - 1) * 10; // 2리그→10, 3리그→20
-
-        foreach (Team leagueTeam in league.teams)
-        {
-            if (leagueTeam.id == playerTeamId) continue;
-
-            EnemyTeam team = EnemySaveManager.Instance.GetTeam(leagueTeam.id);
-            if (team == null) continue;
-
-            // 기존 유닛: rarity++, 레벨 초기화
-            foreach (Unit unit in team.units)
-            {
-                unit.rarity = Mathf.Min(unit.rarity + 1, 5);
-                unit.level = resetLevel;
-                unit.exp = 0f;
-            }
-
-            // 팀에 없는 유닛 중 낮은 레어리티 랜덤 1명 추가
-            AddNewLowestRarityUnit(team, leagueTeam.fid, resetLevel);
-
-            team.growthStage = nextTier;
-            EnemySaveManager.Instance.SaveTeam(team);
-        }
-
-        Debug.Log($"적 팀 성장 완료 (tier {nextTier}, resetLevel {resetLevel})");
-    }
     
-    private void AddNewLowestRarityUnit(EnemyTeam team, string fid, int startLevel)
-    {
-        var familyUnits = UnitDataManager.Instance.GetFamilyUnits(fid);
-        if (familyUnits == null || familyUnits.Count == 0) return;
-
-        var existingIds = new HashSet<string>(team.units.Select(u => u.unitId));
-
-        // 팀에 없는 유닛 중 1성 제외, 가장 낮은 레어리티 기준으로 후보 선정
-        // (4성을 먼저 채우고 5성은 마지막에 등장)
-        var remaining = familyUnits
-            .Where(c => c.Rarity > 1 && !existingIds.Contains(c.Unit_ID))
-            .ToList();
-
-        if (remaining.Count == 0)
-        {
-            Debug.Log($"[EnemyGrowth] {fid} 가문에 추가할 유닛 없음");
-            return;
-        }
-
-        int minRarity = int.MaxValue;
-        foreach (var c in remaining)
-            if (c.Rarity < minRarity) minRarity = c.Rarity;
-
-        var candidates = remaining.Where(c => c.Rarity == minRarity).ToList();
-
-        var picked = candidates[UnityEngine.Random.Range(0, candidates.Count)];
-        var newUnit = new Unit(picked.Unit_ID, picked.Rarity, picked.Unit_Name, picked.Class);
-        newUnit.level = startLevel;
-        newUnit.exp = 0f;
-        team.units.Add(newUnit);
-
-        Debug.Log($"[EnemyGrowth] {team.name}에 {picked.Unit_Name} 추가 (level {startLevel})");
-    }
-    
-    // 라운드 완료 시 적 유닛 레벨 랜덤 성장 (+0 또는 +1, 리그 한계 내)
-    private void GrowEnemyUnitsRandomly()
-    {
-        if (EnemySaveManager.Instance == null) return;
-
-        int playerTeamId = league.settings.playerTeamId;
-        int cap = league.settings.tier * 10; // 1리그→10, 2리그→20
-
-        foreach (Team leagueTeam in league.teams)
-        {
-            if (leagueTeam.id == playerTeamId) continue;
-
-            EnemyTeam team = EnemySaveManager.Instance.GetTeam(leagueTeam.id);
-            if (team == null) continue;
-
-            bool changed = false;
-            foreach (Unit unit in team.units)
-            {
-                if (unit.level < cap)
-                {
-                    unit.level = Mathf.Min(unit.level + UnityEngine.Random.Range(0, 2), cap);
-                    changed = true;
-                }
-            }
-
-            if (changed) EnemySaveManager.Instance.SaveTeam(team);
-        }
-    }
-    
-
     
     public bool IsLeagueFinished()
     {
