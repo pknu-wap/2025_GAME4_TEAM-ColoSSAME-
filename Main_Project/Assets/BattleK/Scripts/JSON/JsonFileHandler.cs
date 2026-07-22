@@ -66,12 +66,13 @@ namespace BattleK.Scripts.JSON
             if (Path.IsPathRooted(path)) return path;
             
             var normalizedPath = path.Replace('\\', '/');
+            var dataPath = Application.dataPath;
 
             if (!normalizedPath.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase))
-                return Path.Combine(Application.dataPath, normalizedPath);
-            var projectRoot = Directory.GetParent(Application.dataPath)?.FullName;
+                return Path.Combine(dataPath, normalizedPath);
+            var projectRoot = Directory.GetParent(dataPath)?.FullName;
 
-            return Path.Combine(projectRoot ?? Application.dataPath, normalizedPath
+            return Path.Combine(projectRoot ?? dataPath, normalizedPath
             );
         }
         
