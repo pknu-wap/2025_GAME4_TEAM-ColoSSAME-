@@ -1,98 +1,63 @@
 using System.Collections.Generic;
 using System.IO;
+using BattleK.Scripts.JSON;
+using Newtonsoft.Json;
 using UnityEngine;
 
-public class EnemySaveManager : MonoBehaviour
+// 적 팀 로스터/성장 상태를 저장하는 순수 C# 싱글턴.
+// MonoBehaviour가 아니라 씬 배치가 필요 없고, 처음 접근 시 자동 생성되며 절대 null이 아님.
+public class EnemySaveManager
 {
-    public static EnemySaveManager Instance { get; private set; }
+    private static EnemySaveManager _instance;
+    public static EnemySaveManager Instance => _instance ??= new EnemySaveManager();
 
     private const string FileName = "EnemySave.json";
 
-    private string saveDirectory;
-    private string savePath;
+    private readonly string _savePath;
+    private readonly Dictionary<int, EnemyTeam> _teamMap = new();
 
-    public EnemyTeamList CurrentData { get; private set; }
-
-    private void Awake()
+    private EnemySaveManager()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(this.gameObject);
-            return;
-        }
-
-        Instance = this;
-        DontDestroyOnLoad(this.gameObject);
-        
-        this.saveDirectory = Application.persistentDataPath;
-        this.savePath = Path.Combine(Application.persistentDataPath, FileName);
-
-        if (!Directory.Exists(this.saveDirectory))
-        {
-            Directory.CreateDirectory(this.saveDirectory);
-        }
-
+        _savePath = Path.Combine(Application.persistentDataPath, FileName);
         Load();
     }
 
-    public void Load()
+    private void Load()
     {
-        if (!File.Exists(this.savePath))
+        _teamMap.Clear();
+
+        if (JsonFileHandler.TryLoadJsonFile<EnemyTeamList>(_savePath, out var data, out var message))
         {
-            this.CurrentData = new EnemyTeamList();
-            Save();
-            return;
+            if (data?.teams == null) return;
+
+            foreach (var team in data.teams)
+            {
+                if (team != null) _teamMap[team.id] = team;
+            }
         }
-
-        string json = File.ReadAllText(this.savePath);
-        this.CurrentData = JsonUtility.FromJson<EnemyTeamList>(json);
-
-        if (this.CurrentData == null)
+        else if (message != "File does not exist.")
         {
-            this.CurrentData = new EnemyTeamList();
-        }
-
-        if (this.CurrentData.teams == null)
-        {
-            this.CurrentData.teams = new List<EnemyTeam>();
+            // 세이브 파일이 손상돼도 크래시 없이 빈 상태로 시작
+            Debug.LogWarning($"[EnemySaveManager] 로드 실패, 빈 상태로 시작: {message}");
         }
     }
 
     public void Save()
     {
-        if (this.CurrentData == null)
+        try
         {
-            this.CurrentData = new EnemyTeamList();
+            var data = new EnemyTeamList { teams = new List<EnemyTeam>(_teamMap.Values) };
+            File.WriteAllText(_savePath, JsonConvert.SerializeObject(data, Formatting.Indented));
         }
-
-        if (this.CurrentData.teams == null)
+        catch (System.Exception e)
         {
-            this.CurrentData.teams = new List<EnemyTeam>();
+            Debug.LogError($"[EnemySaveManager] 저장 실패: {e.Message}");
         }
-
-        string json = JsonUtility.ToJson(this.CurrentData, true);
-        File.WriteAllText(this.savePath, json);
     }
 
-    public EnemyTeam GetTeam(int id)
-    {
-        if (this.CurrentData == null)
-        {
-            Load();
-        }
+    public EnemyTeam GetTeam(int id) => _teamMap.TryGetValue(id, out var team) ? team : null;
 
-        return this.CurrentData.teams.Find(team => team.id == id);
-    }
-
-    public bool HasTeam(int id)
-    {
-        if (this.CurrentData == null)
-        {
-            Load();
-        }
-
-        return this.CurrentData.teams.Exists(team => team.id == id);
-    }
+    public bool HasTeam(int id) => _teamMap.ContainsKey(id);
 
     public void AddTeam(EnemyTeam team)
     {
@@ -102,45 +67,27 @@ public class EnemySaveManager : MonoBehaviour
             return;
         }
 
-        if (HasTeam(team.id))
+        if (_teamMap.ContainsKey(team.id))
         {
             Debug.Log($"[EnemySaveManager] 이미 존재하는 팀입니다: {team.id} / {team.name}");
             return;
         }
 
-        this.CurrentData.teams.Add(team);
+        _teamMap[team.id] = team;
         Save();
     }
 
     public void SaveTeam(EnemyTeam updatedTeam)
     {
-        if (updatedTeam == null)
-        {
-            return;
-        }
+        if (updatedTeam == null) return;
 
-        if (this.CurrentData == null)
-        {
-            Load();
-        }
-
-        int index = this.CurrentData.teams.FindIndex(team => team.id == updatedTeam.id);
-
-        if (index < 0)
-        {
-            this.CurrentData.teams.Add(updatedTeam);
-        }
-        else
-        {
-            this.CurrentData.teams[index] = updatedTeam;
-        }
-
+        _teamMap[updatedTeam.id] = updatedTeam;
         Save();
     }
 
     public void Clear()
     {
-        this.CurrentData = new EnemyTeamList();
+        _teamMap.Clear();
         Save();
     }
 }

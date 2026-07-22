@@ -426,6 +426,7 @@ public class LeagueManager : MonoBehaviour
         league.currentRound = currentRoundNumber;
         league.currentMatchId = currentMatch.matchId;
         league.currentEnemyTeamId = enemyTeamId;
+        league.currentEnemy = EnemySaveManager.Instance?.GetTeam(enemyTeamId);
 
         league.currentMatchIndex = currentRound.matches.IndexOf(currentMatch);
 

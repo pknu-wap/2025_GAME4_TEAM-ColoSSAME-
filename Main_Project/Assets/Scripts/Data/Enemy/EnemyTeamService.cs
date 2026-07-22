@@ -13,7 +13,6 @@ public static class EnemyTeamService
         if (league.teams == null) { Debug.LogError("[EnemyTeamService] league.teams가 null입니다."); return; }
         if (UnitDataManager.Instance == null) { Debug.LogError("[EnemyTeamService] UnitDataManager.Instance가 없습니다."); return; }
         if (!UnitDataManager.Instance.IsLoaded) { Debug.LogError("[EnemyTeamService] UnitDataManager 로드가 아직 완료되지 않았습니다."); return; }
-        if (EnemySaveManager.Instance == null) { Debug.LogError("[EnemyTeamService] EnemySaveManager.Instance가 없습니다."); return; }
 
         foreach (Team leagueTeam in league.teams)
         {
@@ -63,8 +62,6 @@ public static class EnemyTeamService
     // 라운드 종료 성장
     public static void GrowUnitsAfterRound(League league)
     {
-        if (EnemySaveManager.Instance == null) return;
-
         int playerTeamId = league.settings.playerTeamId;
         int cap = league.settings.tier * 10;
 
@@ -92,7 +89,7 @@ public static class EnemyTeamService
     // 리그 승급 성장
     public static void GrowTeamsForNextLeague(League league, int nextTier)
     {
-        if (EnemySaveManager.Instance == null || UnitDataManager.Instance == null) return;
+        if (UnitDataManager.Instance == null) return;
 
         int playerTeamId = league.settings.playerTeamId;
         int resetLevel = (nextTier - 1) * 10;
