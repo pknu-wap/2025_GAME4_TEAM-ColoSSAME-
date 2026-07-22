@@ -103,7 +103,7 @@ namespace BattleK.Scripts.Manager
         {
             if (_league == null) return null;
 
-            _enemySaveManager ??= FindObjectOfType<EnemySaveManager>();
+            _enemySaveManager ??= EnemySaveManager.Instance;
             if (_enemySaveManager == null) return null;
 
             var team = _enemySaveManager.GetTeam(_league.currentEnemyTeamId);
