@@ -1,12 +1,15 @@
 using System.Collections;
 using UnityEngine;
+using System.Collections.Generic;
+using BattleK.Scripts.AI.Skill.Base;
 
 public class AddRarity : MonoBehaviour
 {
     [Header("Rarity Objects")]
     [SerializeField] private GameObject[] rarityObjects;
-
-    private string lastUnitId;
+    [SerializeField] private RandomSkillGrantA randomSkillGrantA;
+    [SerializeField] private SkillSelectUI skillSelectUI;
+    [SerializeField] private SkillTrainingManager skillTrainingManager;
 
     private void Start()
     {
@@ -35,11 +38,7 @@ public class AddRarity : MonoBehaviour
         if (string.IsNullOrEmpty(unitId))
             yield break;
 
-        // 같은 유닛이면 다시 안 그림
-        if (unitId == lastUnitId)
-            yield break;
-
-        lastUnitId = unitId;
+        
 
         Unit unit = UserManager.Instance.GetMyUnitById(unitId);
 
@@ -79,13 +78,48 @@ public class AddRarity : MonoBehaviour
         if (string.IsNullOrEmpty(unitId))
             return;
 
-        bool success = UserManager.Instance.AddUnitRarity(unitId, 1);
+        
+        Unit unit = UserManager.Instance.GetMyUnitById(unitId);
 
+
+        if ((unit.rarity >= 5) || (unit.level < unit.rarity * 10))
+            return;
+        
+        bool success = UserManager.Instance.AddUnitRarity(unitId, 1);
         if (!success)
             return;
 
-        lastUnitId = "";
-
+        AddSkillByRarity(unit, unit.rarity);
+        
         RefreshSelectedUnitUI();
+    }
+
+    private void AddSkillByRarity(Unit unit, int newRarity)
+        {
+        // 3성, 4성만 선택
+        if(newRarity == 3 || newRarity == 4)
+        {
+            List<SkillSO> choices =
+                randomSkillGrantA.GetSkillChoices(unit.unitClass, newRarity);
+
+            skillSelectUI.Show(choices, unit);
+        }
+
+
+        // 5성은 선택 없음
+        else if(newRarity == 5)
+        {
+            SkillSO ultimate =
+                randomSkillGrantA.GetUltimateSkill(unit.unitClass);
+
+            if(ultimate != null)
+            {
+                unit.skills.Add(
+                    new UnitSkill(ultimate.name,1)
+                );
+
+                skillTrainingManager.RefreshUnit();
+            }
+        }
     }
 }
