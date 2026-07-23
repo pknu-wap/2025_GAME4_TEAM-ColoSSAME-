@@ -9,7 +9,7 @@ public class AddRarity : MonoBehaviour
     [SerializeField] private GameObject[] rarityObjects;
     [SerializeField] private RandomSkillGrantA randomSkillGrantA;
     [SerializeField] private SkillSelectUI skillSelectUI;
-    [SerializeField] private SkillTrainingManager skillTrainingManager;
+    [SerializeField] private SkillTrainManager skillTrainingManager;
 
     private void Start()
     {
@@ -102,7 +102,11 @@ public class AddRarity : MonoBehaviour
             List<SkillSO> choices =
                 randomSkillGrantA.GetSkillChoices(unit.unitClass, newRarity);
 
-            skillSelectUI.Show(choices, unit);
+            foreach (SkillSO skill in choices)
+            {
+                unit.skills.Add(new UnitSkill(skill.name, 1));
+            }
+            skillSelectUI.Show(choices, unit, newRarity - 3);
         }
 
 
@@ -118,6 +122,9 @@ public class AddRarity : MonoBehaviour
                     new UnitSkill(ultimate.name,1)
                 );
 
+                unit.selectedSkills.Add(ultimate.name);
+
+                UserManager.Instance.SaveUser();
                 skillTrainingManager.RefreshUnit();
             }
         }
