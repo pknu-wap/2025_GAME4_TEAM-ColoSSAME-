@@ -81,6 +81,13 @@ public class GetExpButton : MonoBehaviour
             return;
         }
 
+        int maxLevel = UnitCostCalculator.GetMaxLevelByRarity(unit.rarity);
+        if (unit.level >= maxLevel)
+        {
+            Debug.Log($"{unit.unitName}는 만렙입니다");
+            return;
+        }
+
         int baseCost = UnitCostCalculator.CalculateGoldCost(unit.level);
         int requiredGold = GetDiscountedTrainingCost(baseCost);
 
