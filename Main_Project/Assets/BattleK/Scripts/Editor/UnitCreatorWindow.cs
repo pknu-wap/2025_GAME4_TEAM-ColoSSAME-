@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using System.Linq;
 using BattleK.Scripts.AI.Skill.Base;
 using BattleK.Scripts.CharacterCreator;
+using BattleK.Scripts.Data;
 using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Data.Type;
 using UnityEditor;
@@ -21,7 +23,10 @@ namespace BattleK.Scripts.Editor
         private GameObject _rangedAttack;
         private GameObject _meleeAttack;
         private GameObject _hpBar;
-        private List<SkillSO> _skillPrefabs = new();
+        private ClassSkillDatabase _skillDatabase;
+        private List<SkillSO> _classSkills = new();
+        private List<SkillSO> _uniqueSkills = new();
+        private UnitClass _lastLoadedClass;
 
         private const float BaseHeight = 520f;
         private const float SkillSlotHeight = 23f;
@@ -33,7 +38,17 @@ namespace BattleK.Scripts.Editor
             var window = GetWindow<UnitCreatorWindow>("Unit Creator");
             window.UpdateWindowSize();
         }
-
+        
+        private void OnEnable()
+        {
+            var guids = AssetDatabase.FindAssets("t:ClassSkillDatabase");
+            if (guids.Length > 0)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                _skillDatabase = AssetDatabase.LoadAssetAtPath<ClassSkillDatabase>(path);
+            }
+        }
+        
         private void OnGUI()
         {
             GUILayout.Label("유닛 생성 설정", EditorStyles.boldLabel);
@@ -47,6 +62,11 @@ namespace BattleK.Scripts.Editor
             
             _isRanged = EditorGUILayout.Toggle("원거리 유닛", _isRanged);
             _unitClass = (UnitClass)EditorGUILayout.EnumPopup(new GUIContent("유닛 직업"), _unitClass);
+            if (_unitClass != _lastLoadedClass)
+            {
+                LoadSkillsForClass(_unitClass);
+                _lastLoadedClass = _unitClass;
+            }
         
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("이미지 설정", EditorStyles.boldLabel);
@@ -60,16 +80,33 @@ namespace BattleK.Scripts.Editor
             _hpBar = (GameObject)EditorGUILayout.ObjectField(new GUIContent("HP Bar"), _hpBar, typeof(GameObject), false);
             
             EditorGUILayout.Space(10);
-            EditorGUILayout.LabelField("스킬 설정", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("직업 공통 스킬 (자동)", EditorStyles.boldLabel);
             EditorGUILayout.BeginVertical("box");
             {
-                _skillPrefabs ??= new List<SkillSO>();
+                if (_classSkills.Count == 0)
+                    EditorGUILayout.HelpBox("이 직업에 등록된 공통 스킬이 없습니다.", MessageType.Info);
+
+                foreach (var skill in _classSkills)
+                {
+                    using (new EditorGUI.DisabledScope(true))
+                    {
+                        EditorGUILayout.ObjectField(skill, typeof(SkillSO), false);
+                    }
+                }
+            }
+            EditorGUILayout.EndVertical();
+
+            EditorGUILayout.Space(10);
+            EditorGUILayout.LabelField("전용기 (수동 추가)", EditorStyles.boldLabel);
+            EditorGUILayout.BeginVertical("box");
+            {
+                _uniqueSkills ??= new List<SkillSO>();
                 var indexToRemove = -1;
-                for (var i = 0; i < _skillPrefabs.Count; i++)
+                for (var i = 0; i < _uniqueSkills.Count; i++)
                 {
                     EditorGUILayout.BeginHorizontal();
-                    GUILayout.Label($"Skill {i + 1}", GUILayout.Width(60));
-                    _skillPrefabs[i] = EditorGUILayout.ObjectField(_skillPrefabs[i], typeof(SkillSO), false) as SkillSO;
+                    GUILayout.Label($"Unique {i + 1}", GUILayout.Width(60));
+                    _uniqueSkills[i] = EditorGUILayout.ObjectField(_uniqueSkills[i], typeof(SkillSO), false) as SkillSO;
 
                     if (GUILayout.Button("-", GUILayout.Width(25)))
                     {
@@ -80,35 +117,27 @@ namespace BattleK.Scripts.Editor
 
                 if (indexToRemove >= 0)
                 {
-                    _skillPrefabs.RemoveAt(indexToRemove);
+                    _uniqueSkills.RemoveAt(indexToRemove);
                     GUI.FocusControl(null);
                     UpdateWindowSize();
                 }
-                
+
                 GUILayout.Space(5);
-                if (GUILayout.Button("+", GUILayout.Height(30)))
+                if (GUILayout.Button("+ 전용기 추가", GUILayout.Height(30)))
                 {
-                    _skillPrefabs.Add(null);
+                    _uniqueSkills.Add(null);
                     UpdateWindowSize();
                 }
             }
             EditorGUILayout.EndVertical();
-            
-            GUILayout.Space(10);
-            
-            if (!GUILayout.Button("유닛 생성 (Create)", GUILayout.Height(30))) return;
-            if (ValidateInputs())
-            {
-                CreateUnitEditor();
-            }
         }
 
         private void UpdateWindowSize()
         {
-            var count =_skillPrefabs?.Count ?? 0;
+            var count = (_classSkills?.Count ?? 0) + (_uniqueSkills?.Count ?? 0);
             var targetHeight = BaseHeight + (count * SkillSlotHeight);
             var newSize = new Vector2(WindowWidth, targetHeight);
-            
+
             this.minSize = newSize;
             this.maxSize = newSize;
         }
@@ -138,8 +167,16 @@ namespace BattleK.Scripts.Editor
             }
         }
         
+        private void LoadSkillsForClass(UnitClass unitClass)
+        {
+            _classSkills = _skillDatabase != null ? new List<SkillSO>(_skillDatabase.GetSkillsForClass(unitClass)) : new List<SkillSO>();
+            UpdateWindowSize();
+        }
+        
         private void CreateUnitEditor()
         {
+            var allSkills = _classSkills.Concat(_uniqueSkills.Where(s => s != null)).Distinct().ToList();
+            
             var created = UnitCreator.CreateUnit(
                 familyName: _familyName,
                 characterName: _unitName,
@@ -152,7 +189,7 @@ namespace BattleK.Scripts.Editor
                 rangedPrefab: _rangedAttack,
                 meleePrefab: _meleeAttack,
                 hpBarPrefab: _hpBar,
-                skillPrefabs: _skillPrefabs
+                allPossibleSkills: allSkills
             );
 
             if (!created) return;

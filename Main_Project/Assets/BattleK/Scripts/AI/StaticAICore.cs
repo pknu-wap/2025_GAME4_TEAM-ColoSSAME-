@@ -333,9 +333,9 @@ namespace BattleK.Scripts.AI
 
         private void RegisterActionStates()
         {
-            if (Stat.Skills is { Count: > 0 })
+            if (Stat.EquippedSkills is { Count: > 0 })
             {
-                _actionCandidates.Add(new StaticSkillState(this, Stat.Skills));
+                _actionCandidates.Add(new StaticSkillState(this, Stat.EquippedSkills));
             }
             _actionCandidates.Add(new StaticRetreatState(this));
             _actionCandidates.Add(new StaticAttackState(this, _windupTime, _activeTime, _recoveryTime));
