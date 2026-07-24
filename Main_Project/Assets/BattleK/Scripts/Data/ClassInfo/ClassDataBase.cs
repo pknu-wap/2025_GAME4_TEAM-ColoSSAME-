@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BattleK.Scripts.AI.Skill.Base;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace BattleK.Scripts.Data.ClassInfo
 {
@@ -33,11 +34,21 @@ namespace BattleK.Scripts.Data.ClassInfo
         NearestTargetWithClass
     }
 
+    public enum InjuryStatus
+    {
+        Healthy,
+        Injury,
+        FatalInjury
+    }
+
     [System.Serializable]
     public class UnitStat
     {
         public string Name;
         public Sprite CharacterImage;
+
+        [Header("부상")]
+        public InjuryStatus InjuryLevel;
     
         [Header("클래스")]
         public UnitClass UnitClass;

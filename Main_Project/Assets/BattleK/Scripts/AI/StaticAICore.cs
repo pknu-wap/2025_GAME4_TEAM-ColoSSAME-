@@ -5,6 +5,7 @@ using BattleK.Scripts.AI.StaticScoreState.ActionStates;
 using BattleK.Scripts.AI.StaticScoreState.Attack;
 using BattleK.Scripts.AI.StaticScoreState.StaticVerStates;
 using BattleK.Scripts.AI.StaticScoreState.Targeting;
+using BattleK.Scripts.Data;
 using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Data.Type.AIDataType.CC;
 using BattleK.Scripts.HP;
@@ -27,7 +28,7 @@ namespace BattleK.Scripts.AI
         [SerializeField] private float _recoveryTime = 0.5f;
         public int AttackIndex;
         public int SkillIndex;
-        public bool IsInitialized { get; private set; }
+        private bool IsInitialized { get; set; }
         
         [Header("References")]
         public AIPath AiPath;
@@ -57,6 +58,12 @@ namespace BattleK.Scripts.AI
         
         private StaticAICore _targetCore;
         public bool IsDead => OverrideMachine.CurrentState is StaticDeathState;
+        
+        public enum DeathReason
+        {
+            UnitAttack,
+            System
+        }
 
         [HideInInspector] public float LastRetreatFinishTime;
         private float _attackTimer;
@@ -299,7 +306,7 @@ namespace BattleK.Scripts.AI
             HPBar.UpdateHPBar();
             if (Stat.CurrentHP <= 0)
             {
-                OnDead();
+                OnDead(DeathReason.UnitAttack);
                 return;
             }
             if(OverrideMachine.CurrentState == null) OverrideMachine.ChangeState(new StaticHitState(this));
@@ -323,12 +330,25 @@ namespace BattleK.Scripts.AI
                 OverrideMachine.StopAndClear();
         }
 
-        public void OnDead()
+        public void OnDead(DeathReason deathReason)
         {
+            switch (deathReason)
+            {
+                case DeathReason.UnitAttack:
+                    if (AiManager.IsAlreadyDone) return;
+                    AiManager.UnregisterUnit(this);
+                    if(Stat.InjuryLevel <= InjuryStatus.FatalInjury)
+                        ++Stat.InjuryLevel;
+                    PlayerCharacterSaveManager.Instance.SaveStats(Stat);
+                    AiManager.IsWinner();
+                    break;
+                case DeathReason.System:
+                    AiManager.UnregisterUnit(this);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(deathReason), deathReason, null);
+            }
             OverrideMachine.ChangeState(new StaticDeathState(this));
-            AiManager.UnregisterUnit(this);
-            if (AiManager.IsAlreadyDone) return;
-            AiManager.IsWinner();
         }
 
         private void RegisterActionStates()
