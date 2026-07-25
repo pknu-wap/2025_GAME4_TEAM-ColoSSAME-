@@ -28,7 +28,7 @@ namespace BattleK.Scripts.CharacterCreator
             GameObject rangedPrefab,
             GameObject meleePrefab,
             GameObject hpBarPrefab,
-            List<SkillSO> skillPrefabs)
+            List<SkillSO> allPossibleSkills)
         {
             var unitFullName = isRecruit ? $"{familyName}_Recruit_{characterName}": $"{familyName}_{characterName}";
             var parent = new GameObject(unitFullName)
@@ -49,7 +49,7 @@ namespace BattleK.Scripts.CharacterCreator
             
             var hpBar = InstantiatePrefab(hpBarPrefab, parent.transform, "HP Bar");
             
-            ConfigureCore(parent, isRanged, unitClassName, visual, hpBar, unitImage, skillPrefabs);
+            ConfigureCore(parent, isRanged, unitClassName, visual, hpBar, unitImage, allPossibleSkills);
             if (isUsingSPUMName)
             {
                 unitFullName = spumPrefab.gameObject.name;
@@ -87,7 +87,7 @@ namespace BattleK.Scripts.CharacterCreator
                 AttackRange = isRanged ? 5f : 0.9f,
                 MoveSpeed = 2f,
                 SightRange = 9f,
-                Skills = skills ?? new List<SkillSO>()
+                AllPossibleSkills = skills ?? new List<SkillSO>()
             };
 
             statusManager._aiCore = aiCore;
