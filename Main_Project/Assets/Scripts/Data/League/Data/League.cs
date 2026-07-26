@@ -13,6 +13,8 @@ using System.Collections.Generic;
         public int currentMatchIndex;
         public int currentEnemyTeamId;
         public string currentMatchId;
+
+        [Newtonsoft.Json.JsonIgnore] public EnemyTeam currentEnemy;
     }
 
     [System.Serializable]

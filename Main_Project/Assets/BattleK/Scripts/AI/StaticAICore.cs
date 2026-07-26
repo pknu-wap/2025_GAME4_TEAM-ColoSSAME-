@@ -40,11 +40,11 @@ namespace BattleK.Scripts.AI
 
         [Header("Stats")]
         public UnitStat Stat;
-        public float CurrentMoveSpeed { get; private set; }
+        private float CurrentMoveSpeed { get; set; }
         public int CurrentAttackDamage { get; private set; }
-        public int CurrentDefense { get; private set; }
+        private int CurrentDefense { get; set; }
         public int CurrentSkillPoint { get; private set; }
-        public float CurrentEvasionRate { get; private set; }
+        private float CurrentEvasionRate { get; set; }
         
         [Header("Runtime Info")]
         public Transform Target;
