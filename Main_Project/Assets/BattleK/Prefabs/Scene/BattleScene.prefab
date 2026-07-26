@@ -253,6 +253,13 @@ MonoBehaviour:
     currentMatchIndex: 0
     currentEnemyTeamId: 0
     currentMatchId: 
+    currentEnemy:
+      id: 0
+      fid: 
+      name: 
+      money: 0
+      growthStage: 0
+      units: []
   saveManager: {fileID: 1004227241535086837}
 --- !u!1 &2676424267581484389
 GameObject:
@@ -878,74 +885,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!1 &6025776546940825800
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5124343038108292880}
-  - component: {fileID: 8132636789504397105}
-  - component: {fileID: 6919965241461437695}
-  m_Layer: 0
-  m_Name: EventSystem
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &5124343038108292880
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6025776546940825800}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 342188048049387792}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8132636789504397105
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6025776546940825800}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_FirstSelected: {fileID: 0}
-  m_sendNavigationEvents: 1
-  m_DragThreshold: 10
---- !u!114 &6919965241461437695
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6025776546940825800}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SendPointerHoverToParent: 1
-  m_HorizontalAxis: Horizontal
-  m_VerticalAxis: Vertical
-  m_SubmitButton: Submit
-  m_CancelButton: Cancel
-  m_InputActionsPerSecond: 10
-  m_RepeatDelay: 0.5
-  m_ForceModuleActive: 0
 --- !u!1 &6287009524504915149
 GameObject:
   m_ObjectHideFlags: 0
@@ -1214,7 +1153,6 @@ Transform:
   - {fileID: 4727239092795668170}
   - {fileID: 4655912906610741371}
   - {fileID: 850249181008528796}
-  - {fileID: 5124343038108292880}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7478542695389686991
@@ -1531,7 +1469,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _statWindowManager: {fileID: 3232473603364408230}
   _hpManager: {fileID: 8808550664364146167}
-  _battleStart: {fileID: 0}
   _calculateManager: {fileID: 7754367905373421671}
 --- !u!1 &8066140303599634192
 GameObject:
@@ -1829,6 +1766,31 @@ MonoBehaviour:
   _enemyUnitsRoot: {fileID: 694902108949482927}
   _familyJsonTemplate: Assets/BattleK/Family/{FAMILY}/{FAMILY}.json
   _unitLoadManager: {fileID: 5756451760395963063}
+  _league:
+    settings:
+      name: 
+      totalRounds: 0
+      pointRule:
+        win: 0
+        draw: 0
+        lose: 0
+      playerTeamId: 0
+      playerTeamName: 
+      tier: 0
+      tierName: 
+    teams: []
+    schedule: []
+    currentRound: 0
+    currentMatchIndex: 0
+    currentEnemyTeamId: 0
+    currentMatchId: 
+    currentEnemy:
+      id: 0
+      fid: 
+      name: 
+      money: 0
+      growthStage: 0
+      units: []
   _caseInsensitiveMatch: 1
   _playerStats: []
   _enemyStats: []
