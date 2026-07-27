@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace BattleK.Scripts.Manager
 {
@@ -114,7 +115,7 @@ namespace BattleK.Scripts.Manager
             {
                 case >= 1 when enemyUnits.Count >= 1:
                     return;
-                case < 1:
+                case < 1 when enemyUnits.Count > 1:
                     _leagueSceneManager.OnClickLose();
                     Debug.Log("패배");
                     break;
@@ -122,17 +123,42 @@ namespace BattleK.Scripts.Manager
                     _leagueSceneManager.OnClickWin();
                     Debug.Log("승리");
                     break;
+                case < 1 when enemyUnits.Count < 1:
+                    Debug.Log("무승부");
+                    var randWinner = Random.Range(1, 2);
+                    switch (randWinner)
+                    {
+                        case 1:
+                            _leagueSceneManager.OnClickWin();
+                            Debug.Log("승리");
+                            break;
+                        case 2:
+                            _leagueSceneManager.OnClickLose();
+                            Debug.Log("패배");
+                            break;
+                    }
+                    break;
             }
             IsAlreadyDone = true;
             KillAll();
         }
 
-        private void KillAll()
+        public void KillAll()
+        {
+            KillPlayers();
+            KillEnemies();
+        }
+
+        public void KillPlayers()
         {
             for (var i = playerUnits.Count - 1; i >= 0; i--)
             {
                 playerUnits[i].OnDead(StaticAICore.DeathReason.System);
             }
+        }
+
+        public void KillEnemies()
+        {
             for (var i = enemyUnits.Count - 1; i >= 0; i--)
             {
                 enemyUnits[i].OnDead(StaticAICore.DeathReason.System);
