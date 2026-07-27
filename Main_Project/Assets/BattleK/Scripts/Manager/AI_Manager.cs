@@ -131,11 +131,11 @@ namespace BattleK.Scripts.Manager
         {
             for (var i = playerUnits.Count - 1; i >= 0; i--)
             {
-                playerUnits[i].OnDead();
+                playerUnits[i].OnDead(StaticAICore.DeathReason.System);
             }
             for (var i = enemyUnits.Count - 1; i >= 0; i--)
             {
-                enemyUnits[i].OnDead();
+                enemyUnits[i].OnDead(StaticAICore.DeathReason.System);
             }
         }
     }

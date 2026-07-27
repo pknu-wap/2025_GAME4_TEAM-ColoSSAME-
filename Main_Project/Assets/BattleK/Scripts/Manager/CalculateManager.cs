@@ -61,20 +61,14 @@ namespace BattleK.Scripts.Manager
             }
         }
 
-        private bool IsEmpty()
-            => (_playerStats == null || _playerStats.Count == 0) &&
-               (_enemyStats  == null || _enemyStats.Count  == 0);
+        private bool IsEmpty() => (_playerStats == null || _playerStats.Count == 0) && (_enemyStats  == null || _enemyStats.Count  == 0);
         private IEnumerator RefreshFromCollectorCoroutine()
         {
             if (_statsCollector == null)
             {
-                _statsCollector = FindObjectOfType<FamilyStatsCollector>();
-                if (_statsCollector == null)
-                {
-                    Debug.LogWarning("[CalculateManager] statsCollector가 비어 있습니다. 갱신 불가.");
-                    ClearLocal();
-                    yield break;
-                }
+                Debug.LogWarning("[CalculateManager] statsCollector가 비어 있습니다. 갱신 불가.");
+                ClearLocal();
+                yield break;
             }
             
             _statsCollector.CollectFromBothTeams();

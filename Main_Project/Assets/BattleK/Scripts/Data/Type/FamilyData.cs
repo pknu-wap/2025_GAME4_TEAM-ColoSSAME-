@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using BattleK.Scripts.Data.ClassInfo;
 
 namespace BattleK.Scripts.Data.Type
 {
@@ -10,6 +11,7 @@ namespace BattleK.Scripts.Data.Type
         public int ATK, DEF, HP, AGI;
         public int Rarity;
         public int Level;
+        public InjuryStatus CurrentInjury;
     }
     public class FamilyJson
     {

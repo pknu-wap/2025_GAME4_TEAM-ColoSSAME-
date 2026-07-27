@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.JSON;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -22,12 +23,6 @@ namespace BattleK.Scripts.Data
 
         [Tooltip("데이터 변경 후 저장까지 대기 시간 (초)")]
         public float saveDebounceTime = 0.5f;
-
-        [Serializable]
-        private class SaveWrapper
-        {
-            public List<CharacterRecord> characters = new();
-        }
 
         private void Awake()
         {
@@ -51,7 +46,7 @@ namespace BattleK.Scripts.Data
         private void Load()
         {
             _recordMap.Clear();
-            if (JsonFileHandler.TryLoadJsonFile<SaveWrapper>(_savePath, out var wrapper, out var message))
+            if (JsonFileHandler.TryLoadJsonFile<PlayerCharacters>(_savePath, out var wrapper, out var message))
             {
                 if (wrapper?.characters == null) return;
                 foreach (var record in wrapper.characters.Where(r => !string.IsNullOrEmpty(r.characterKey)))
@@ -73,7 +68,7 @@ namespace BattleK.Scripts.Data
 
             try
             {
-                var wrapper = new SaveWrapper { characters = _recordMap.Values.ToList() };
+                var wrapper = new PlayerCharacters { characters = _recordMap.Values.ToList() };
                 
                 var json = JsonConvert.SerializeObject(wrapper, Formatting.Indented);
             
@@ -113,13 +108,25 @@ namespace BattleK.Scripts.Data
             RequestSave();
             return record;
         }
+        
+        public void SaveStats(UnitStat unit)
+        {
+            ModifyRecord(unit.Name, record =>
+            {
+                record.hp = unit.CurrentHP;
+                record.def = unit.Defense;
+                record.moveSpeed = (int)unit.MoveSpeed;
+                record.attackDamage = unit.AttackDamage;
+                record.attackSpeed = unit.AttackSpeed;
+                record.attackRange = unit.AttackRange;
+                record.sightRange = unit.SightRange;
+                record.evasionRate = unit.EvasionRate;
+                record.unitClass = unit.UnitClass.ToString();
+                record.CurrentInjury = unit.InjuryLevel;
+            });
+        }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="characterKey">캐릭터 키를 입력하는 변수</param>
-        /// <param name="action"></param>
-        public void ModifyRecord(string characterKey, Action<CharacterRecord> action)
+        private void ModifyRecord(string characterKey, Action<CharacterRecord> action)
         {
             var record = GetRecord(characterKey);
             if (record == null) return;
