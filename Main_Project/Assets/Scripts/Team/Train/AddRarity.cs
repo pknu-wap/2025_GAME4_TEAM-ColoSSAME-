@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
 using BattleK.Scripts.AI.Skill.Base;
+using TMPro;
 
 public class AddRarity : MonoBehaviour
 {
@@ -10,6 +11,20 @@ public class AddRarity : MonoBehaviour
     [SerializeField] private RandomSkillGrantA randomSkillGrantA;
     [SerializeField] private SkillSelectUI skillSelectUI;
     [SerializeField] private SkillTrainManager skillTrainingManager;
+
+
+    [SerializeField] private TextMeshProUGUI successRateText;
+
+    [SerializeField] private float[] baseSuccessRate =
+    {
+        90f, 
+        80f,  
+        60f,  
+        50f   
+    };
+
+    private float bonusSuccessRate;
+
 
     private void Start()
     {
@@ -46,6 +61,7 @@ public class AddRarity : MonoBehaviour
             yield break;
 
         RefreshRarityObject(unit.rarity);
+        UpdateSuccessRateUI(unit);
     }
 
     private void HideAllRarityObjects()
@@ -68,6 +84,24 @@ public class AddRarity : MonoBehaviour
         }
     }
 
+    private float GetSuccessRate(Unit unit)
+    {
+        int index = unit.rarity - 1;
+
+        if (index < 0 || index >= baseSuccessRate.Length)
+            return 100f;
+
+        return Mathf.Clamp(baseSuccessRate[index] + bonusSuccessRate, 0f, 100f);
+    }
+
+    private void UpdateSuccessRateUI(Unit unit)
+        {
+            if (successRateText == null)
+                return;
+
+            successRateText.text = $"성공 확률 : {GetSuccessRate(unit):0}%\n실패(유지) 확률 : {100 - GetSuccessRate(unit):0}%";
+        }
+
     public void OnClickUpgradeRarity()
     {
         if (UserManager.Instance == null)
@@ -78,14 +112,21 @@ public class AddRarity : MonoBehaviour
         if (string.IsNullOrEmpty(unitId))
             return;
 
-        
         Unit unit = UserManager.Instance.GetMyUnitById(unitId);
-
 
         if ((unit.rarity >= 5) || (unit.level < unit.rarity * 10))
             return;
         
+        float rate = GetSuccessRate(unit);
+
+        if (Random.Range(0f, 100f) >= rate)
+        {
+            Debug.Log("강화 실패");
+            return;
+        }
+
         bool success = UserManager.Instance.AddUnitRarity(unitId, 1);
+
         if (!success)
             return;
 

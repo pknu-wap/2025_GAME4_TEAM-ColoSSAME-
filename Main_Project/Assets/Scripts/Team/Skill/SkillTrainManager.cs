@@ -75,7 +75,7 @@ public class SkillTrainManager : MonoBehaviour
         if (currentUnit == null)
             return null;
 
-        if (index < 0 || index >= currentUnit.selectedSkills.Count)
+        if (index >= currentUnit.selectedSkills.Count)
             return null;
 
         string skillName = currentUnit.selectedSkills[index];
@@ -89,26 +89,26 @@ public class SkillTrainManager : MonoBehaviour
         return null;
     }
 
-    public void ChangeThreeStarSkill()
+
+
+    private void ChangeSkill(int rarity, int slotIndex)
     {
-        if (currentUnit.rarity < 3)
+        if (currentUnit.rarity < rarity)
             return;
 
         List<SkillSO> choices =
-            randomSkillGrantA.GetSkillChoices(currentUnit.unitClass, 3);
+            randomSkillGrantA.GetSkillChoices(currentUnit.unitClass, rarity);
 
-        skillSelectUI.Show(choices, currentUnit, 0);
+        skillSelectUI.Show(choices, currentUnit, slotIndex);
     }
 
+    public void ChangeThreeStarSkill()
+    {
+        ChangeSkill(3, 0);
+    }
 
     public void ChangeFourStarSkill()
     {
-        if (currentUnit.rarity < 4)
-            return;
-
-        List<SkillSO> choices =
-            randomSkillGrantA.GetSkillChoices(currentUnit.unitClass, 4);
-
-        skillSelectUI.Show(choices, currentUnit, 1);
+        ChangeSkill(4, 1);
     }
 }
