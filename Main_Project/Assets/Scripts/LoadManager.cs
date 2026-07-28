@@ -24,9 +24,9 @@ public class LoadManager : MonoBehaviour
         {
             // 실제로 Load 함수를 호출한다면 여기서 호출
             Debug.Log("✅ 모든 세이브 파일 불러오기 성공");
-            
+
             // 다음 씬으로 이동
-            SceneManager.LoadScene("Book");
+            SceneTransition.Instance.Load("Book_JW");
         }
         else
         {

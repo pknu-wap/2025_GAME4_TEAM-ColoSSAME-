@@ -284,22 +284,10 @@ public class LeagueManager : MonoBehaviour
         saveManager.SaveLeague(league);
 
         Debug.Log(" 라운드 결과 처리 완료");
-        
-        if (IsLeagueFinished())
-        {
-            Debug.Log(" 리그 종료!");
 
-            if (IsPlayerChampion())
-            {
-                Debug.Log(" 우승! 다음 리그로 이동");
-                StartNextLeague();
-            }
-            else
-            {
-                Debug.Log(" 우승 실패 - 리그 종료");
-                // 여기서 엔딩 / 재도전 UI 띄우면 됨
-            }
-        }
+        var ui = FindObjectOfType<LeagueUIManager>();
+        if (ui != null) ui.UpdateAllUI();
+
     }
     
     public void StartNextLeague()
