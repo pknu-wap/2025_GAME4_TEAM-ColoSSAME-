@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using TMPro;
 
 public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
 {
@@ -17,7 +18,7 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
     public Image selectedPortraitImage;
 
     [Header("표시 대상 - EXP 획득 비용")]
-    public Text expCostText;
+    public TextMeshProUGUI expCostText;
 
     public SkillUpgradeManager upgradeManager;
     public int selectedSkillIndex = 0;

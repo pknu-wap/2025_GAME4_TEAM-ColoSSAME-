@@ -12,7 +12,6 @@ public class AddRarity : MonoBehaviour
     [SerializeField] private SkillSelectUI skillSelectUI;
     [SerializeField] private SkillTrainManager skillTrainingManager;
 
-
     [SerializeField] private TextMeshProUGUI successRateText;
 
     [SerializeField] private float[] baseSuccessRate =
@@ -23,8 +22,7 @@ public class AddRarity : MonoBehaviour
         50f   
     };
 
-    private float bonusSuccessRate;
-
+    [SerializeField] private int increaseAmount = 5;
 
     private void Start()
     {
@@ -91,16 +89,29 @@ public class AddRarity : MonoBehaviour
         if (index < 0 || index >= baseSuccessRate.Length)
             return 100f;
 
-        return Mathf.Clamp(baseSuccessRate[index] + bonusSuccessRate, 0f, 100f);
+        return Mathf.Clamp(baseSuccessRate[index] + unit.bonusSuccessRarity, 0f, 100f);
     }
 
     private void UpdateSuccessRateUI(Unit unit)
-        {
-            if (successRateText == null)
-                return;
+    {
+        if (successRateText == null)
+            return;
 
-            successRateText.text = $"성공 확률 : {GetSuccessRate(unit):0}%\n실패(유지) 확률 : {100 - GetSuccessRate(unit):0}%";
-        }
+        successRateText.text = $"성공 확률 : {GetSuccessRate(unit):0}%\n실패(유지) 확률 : {100 - GetSuccessRate(unit):0}%";
+    }
+
+    public void RaritySuccessUp()
+    {
+         Unit unit = UserManager.Instance.GetMyUnitById(UserManager.Instance.selectedUnitId);
+
+        if (GetSuccessRate(unit) >= 100f)
+            return;
+
+        unit.bonusSuccessRarity += increaseAmount;
+
+        UserManager.Instance.SaveUser();
+        UpdateSuccessRateUI(unit);
+    }
 
     public void OnClickUpgradeRarity()
     {
@@ -122,6 +133,7 @@ public class AddRarity : MonoBehaviour
         if (Random.Range(0f, 100f) >= rate)
         {
             Debug.Log("강화 실패");
+            unit.bonusSuccessRarity = 0;
             return;
         }
 
@@ -129,6 +141,8 @@ public class AddRarity : MonoBehaviour
 
         if (!success)
             return;
+
+        unit.bonusSuccessRarity = 0;
 
         AddSkillByRarity(unit, unit.rarity);
         

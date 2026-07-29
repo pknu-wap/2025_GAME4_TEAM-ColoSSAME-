@@ -10,6 +10,8 @@ public class Unit
     public string unitId; 
 
     public int rarity;
+    public int bonusSuccessRarity;
+
     public string unitName;
     public string unitClass;
     
