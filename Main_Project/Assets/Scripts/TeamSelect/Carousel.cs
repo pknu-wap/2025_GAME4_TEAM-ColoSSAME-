@@ -121,6 +121,9 @@ public class Carousel : MonoBehaviour
         EnemySaveManager.Instance.Clear();
         EnemyTeamService.InitializeFromLeague(leagueManager.league);
 
+        // 백업
+        leagueManager.BackupLeagueStart();
+
         leagueManager.RefreshCurrentMatchInfo();
 
         Debug.Log($"팀 선택 완료: {myTeam.name}");

@@ -30,6 +30,8 @@ public class LeagueResultPanel : MonoBehaviour
 
     public void OnClickRetry()
     {
+        LeagueManager.Instance.RollbackToLeagueStart();
+        SceneTransition.Instance.Load(SceneManager.GetActiveScene().name);
         ReloadScene();
     }
 
