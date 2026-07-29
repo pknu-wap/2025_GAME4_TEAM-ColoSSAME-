@@ -13,6 +13,9 @@ public class RecruitUI : MonoBehaviour
     [SerializeField] private Button backButton;
     [SerializeField] private TMP_Text resultText;
 
+    [SerializeField] private int recruitCost;
+
+    private UserManager user = UserManager.Instance;
     private void Awake()
     {
         if (recruitButton != null)
@@ -46,9 +49,15 @@ public class RecruitUI : MonoBehaviour
             Debug.LogWarning("[RecruitUI] RecruitManager가 연결되어 있지 않습니다.");
             return;
         }
-
-        RecruitResult result = recruitManager.Recruit();
-        DisplayResult(result);
+        if (UserManager.Instance.SpendGold(recruitCost))
+        {
+            RecruitResult result = recruitManager.Recruit();
+            DisplayResult(result);
+        }
+        else
+        {
+            // 돈 부족 Text
+        }
     }
 
     private void DisplayResult(RecruitResult result)
