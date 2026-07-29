@@ -23,11 +23,15 @@ namespace BattleK.Scripts.AI.Skill.SkillExample
         [SerializeField] private bool _keepTeam2Stationary = true;
         [SerializeField] private bool _resumeBothTeamsForBattleTest = true;
         [SerializeField] private bool _logTargetChanges = true;
+        [SerializeField] private bool _logHpChanges = true;
+        [SerializeField] private bool _logInitialHp = true;
         [SerializeField] private float _targetLogInterval = 0.1f;
+        [SerializeField] private float _hpLogInterval = 0.1f;
         [SerializeField] private float _startDelay = 0.1f;
 
         private Coroutine _startRoutine;
         private Coroutine _targetLogRoutine;
+        private Coroutine _hpLogRoutine;
 
         private void Reset()
         {
@@ -115,6 +119,13 @@ namespace BattleK.Scripts.AI.Skill.SkillExample
             if (_logTargetChanges)
             {
                 StartTargetLog();
+            }
+
+            if (_logHpChanges)
+            {
+                RefreshHpBars(_team1);
+                RefreshHpBars(_team2);
+                StartHpLog();
             }
 
             global::UnityEngine.Debug.Log($"[SkillExampleBattleStarter] Started skill example battle. Team1: {_team1.Count}, Team2: {_team2.Count}");
@@ -280,6 +291,16 @@ namespace BattleK.Scripts.AI.Skill.SkillExample
             _targetLogRoutine = StartCoroutine(TargetLogRoutine());
         }
 
+        private void StartHpLog()
+        {
+            if (_hpLogRoutine != null)
+            {
+                StopCoroutine(_hpLogRoutine);
+            }
+
+            _hpLogRoutine = StartCoroutine(HpLogRoutine());
+        }
+
         private IEnumerator TargetLogRoutine()
         {
             var lastTargets = new Dictionary<StaticAICore, Transform>();
@@ -290,6 +311,19 @@ namespace BattleK.Scripts.AI.Skill.SkillExample
                 LogTargetChanges(_team2, "Team2", lastTargets);
 
                 yield return new WaitForSeconds(Mathf.Max(0.02f, _targetLogInterval));
+            }
+        }
+
+        private IEnumerator HpLogRoutine()
+        {
+            var lastHp = new Dictionary<StaticAICore, int>();
+
+            while (isActiveAndEnabled)
+            {
+                LogHpChanges(_team1, "Team1", lastHp, _logInitialHp);
+                LogHpChanges(_team2, "Team2", lastHp, _logInitialHp);
+
+                yield return new WaitForSeconds(Mathf.Max(0.02f, _hpLogInterval));
             }
         }
 
@@ -314,6 +348,55 @@ namespace BattleK.Scripts.AI.Skill.SkillExample
             }
         }
 
+        private static void LogHpChanges(List<StaticAICore> team, string teamName, Dictionary<StaticAICore, int> lastHp, bool logInitialHp)
+        {
+            foreach (var unit in team)
+            {
+                if (!unit || unit.Stat == null)
+                {
+                    continue;
+                }
+
+                var currentHp = unit.Stat.CurrentHP;
+                var maxHp = unit.Stat.MaxHP;
+
+                if (!lastHp.TryGetValue(unit, out var previousHp))
+                {
+                    lastHp[unit] = currentHp;
+                    if (logInitialHp)
+                    {
+                        global::UnityEngine.Debug.Log($"[SkillExampleBattleStarter] {teamName} {unit.name} HP {currentHp}/{maxHp}");
+                    }
+
+                    continue;
+                }
+
+                if (previousHp == currentHp)
+                {
+                    continue;
+                }
+
+                lastHp[unit] = currentHp;
+                var delta = currentHp - previousHp;
+                var signedDelta = delta > 0 ? $"+{delta}" : delta.ToString();
+
+                global::UnityEngine.Debug.Log($"[SkillExampleBattleStarter] {teamName} {unit.name} HP {previousHp}/{maxHp} -> {currentHp}/{maxHp} ({signedDelta})");
+            }
+        }
+
+        private static void RefreshHpBars(List<StaticAICore> team)
+        {
+            foreach (var unit in team)
+            {
+                if (!unit || !unit.HPBar)
+                {
+                    continue;
+                }
+
+                unit.HPBar.UpdateHPBar();
+            }
+        }
+
         private static void WarnIfUnitIsNotReady(StaticAICore unit)
         {
             if (unit.Stat == null)
@@ -327,9 +410,9 @@ namespace BattleK.Scripts.AI.Skill.SkillExample
                 global::UnityEngine.Debug.LogWarning($"[SkillExampleBattleStarter] {unit.name} has no skills in Stat > Skills.");
             }
 
-            if (!unit.AiPath || !unit.Rigidbody || !unit.player)
+            if (!unit.AiPath || !unit.Rigidbody || !unit.player || !unit.HPBar)
             {
-                global::UnityEngine.Debug.LogWarning($"[SkillExampleBattleStarter] {unit.name} is missing AIPath, Rigidbody2D, or PlayerObjC references.");
+                global::UnityEngine.Debug.LogWarning($"[SkillExampleBattleStarter] {unit.name} is missing AIPath, Rigidbody2D, PlayerObjC, or HPBar references.");
             }
         }
     }
