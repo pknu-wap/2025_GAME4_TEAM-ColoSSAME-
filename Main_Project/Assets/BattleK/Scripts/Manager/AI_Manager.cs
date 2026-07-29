@@ -115,7 +115,7 @@ namespace BattleK.Scripts.Manager
             {
                 case >= 1 when enemyUnits.Count >= 1:
                     return;
-                case < 1 when enemyUnits.Count > 1:
+                case < 1 when enemyUnits.Count >= 1:
                     _leagueSceneManager.OnClickLose();
                     Debug.Log("패배");
                     break;
@@ -125,7 +125,7 @@ namespace BattleK.Scripts.Manager
                     break;
                 case < 1 when enemyUnits.Count < 1:
                     Debug.Log("무승부");
-                    var randWinner = Random.Range(1, 2);
+                    var randWinner = Random.Range(1, 3);
                     switch (randWinner)
                     {
                         case 1:
