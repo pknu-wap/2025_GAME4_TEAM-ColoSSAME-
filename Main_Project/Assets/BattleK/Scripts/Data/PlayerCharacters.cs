@@ -28,6 +28,7 @@ namespace BattleK.Scripts.Data
         public float skillRange;
         public float skillDelay;
         public string unitClass;
+        public ItemData EquippedItem;
 
         public InjuryStatus CurrentInjury;
     }
