@@ -24,15 +24,16 @@ public class LeagueResultPanel : MonoBehaviour
 
     public void OnClickNextLeague()
     {
+        if (SceneTransition.Instance.IsBusy) return;
         LeagueManager.Instance.StartNextLeague();
         ReloadScene();
     }
 
     public void OnClickRetry()
     {
+        if (SceneTransition.Instance.IsBusy) return;
         LeagueManager.Instance.RollbackToLeagueStart();
         SceneTransition.Instance.Load(SceneManager.GetActiveScene().name);
-        ReloadScene();
     }
 
 

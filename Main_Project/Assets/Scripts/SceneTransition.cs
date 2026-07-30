@@ -8,6 +8,9 @@ public class SceneTransition : MonoBehaviour
 
     [SerializeField] private CanvasGroup fade;   // 검은 전체화면 Image + CanvasGroup
     [SerializeField] private float duration = 0.4f;
+    
+    private bool _isBusy = false;
+    public bool IsBusy => _isBusy;
 
     void Awake()
     {
@@ -19,7 +22,12 @@ public class SceneTransition : MonoBehaviour
         fade.blocksRaycasts = false;
     }
 
-    public void Load(string sceneName) => StartCoroutine(Co(sceneName));
+    public void Load(string sceneName)
+    {
+        if (_isBusy) return;     
+        _isBusy = true;
+        StartCoroutine(Co(sceneName));
+    }
 
     IEnumerator Co(string sceneName)
     {
@@ -31,6 +39,7 @@ public class SceneTransition : MonoBehaviour
 
         yield return Fade(1f, 0f);                        // 밝게
         fade.blocksRaycasts = false;
+        _isBusy = false;
     }
 
     IEnumerator Fade(float a, float b)
