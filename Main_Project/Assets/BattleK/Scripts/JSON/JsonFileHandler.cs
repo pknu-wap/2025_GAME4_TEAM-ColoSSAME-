@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using UnityEngine;
 
 namespace BattleK.Scripts.JSON
@@ -12,14 +13,15 @@ namespace BattleK.Scripts.JSON
             Formatting = Formatting.Indented,
             MissingMemberHandling  = MissingMemberHandling.Ignore,
             NullValueHandling      = NullValueHandling.Include,
-            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            Converters = { new StringEnumConverter() }
         };
 
         public static bool TryLoadJsonFile<T>(string filePath, out T data, out string message)
         {
             data = default;
             message = string.Empty;
-            
+
             if (!File.Exists(filePath))
             {
                 message = "File does not exist.";
@@ -50,7 +52,12 @@ namespace BattleK.Scripts.JSON
             try
             {
                 var directory = Path.GetDirectoryName(filePath);
-                if(!string.IsNullOrEmpty(directory) && !Directory.Exists(directory)) Directory.CreateDirectory(directory);
+                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                    Directory.CreateDirectory(directory);
+
+                var json = JsonConvert.SerializeObject(data, DefaultSettings);
+                File.WriteAllText(filePath, json); // 실제 저장 로직 추가
+                message = "OK";
                 return true;
             }
             catch (Exception ex)
@@ -59,12 +66,12 @@ namespace BattleK.Scripts.JSON
                 return false;
             }
         }
-        
+
         public static string ResolveAbsolutePath(string path)
         {
             if (string.IsNullOrWhiteSpace(path)) return string.Empty;
             if (Path.IsPathRooted(path)) return path;
-            
+
             var normalizedPath = path.Replace('\\', '/');
             var dataPath = Application.dataPath;
 
@@ -72,9 +79,7 @@ namespace BattleK.Scripts.JSON
                 return Path.Combine(dataPath, normalizedPath);
             var projectRoot = Directory.GetParent(dataPath)?.FullName;
 
-            return Path.Combine(projectRoot ?? dataPath, normalizedPath
-            );
+            return Path.Combine(projectRoot ?? dataPath, normalizedPath);
         }
-        
     }
 }
