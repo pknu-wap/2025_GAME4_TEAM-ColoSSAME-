@@ -23,7 +23,7 @@ namespace Battle.Scripts
         private IEnumerator CleanAndLoad()
         {
 			yield return new WaitForSeconds(loadingtime);
-            SceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single);
+            SceneTransition.Instance.Load(sceneToLoad);
             yield break;
         }
     }

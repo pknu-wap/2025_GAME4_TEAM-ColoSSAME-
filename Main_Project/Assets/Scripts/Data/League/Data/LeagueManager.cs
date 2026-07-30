@@ -62,7 +62,37 @@ public class LeagueManager : MonoBehaviour
 
         Debug.Log("새로운 리그 데이터 생성 완료");
     }
-    
+
+    // 리그 시작 상태를 백업
+    public void BackupLeagueStart()
+    {
+        saveManager.SaveLeague(league);
+        EnemySaveManager.Instance.Save();
+        UserManager.Instance.SaveUser();
+
+        LeagueBackup.Backup();
+    }
+
+    // 리그 시작점으로 롤백 (재도전)
+    public void RollbackToLeagueStart()
+    {
+        if (!LeagueBackup.HasBackup())
+        {
+            Debug.LogWarning("백업이 없어 롤백 불가");
+            return;
+        }
+
+        LeagueBackup.Restore();             
+
+        // 메모리도 파일 기준으로 다시 로드
+        league = saveManager.LoadLeague();
+        EnemySaveManager.Instance.ReloadEnemy();
+        UserManager.Instance.ReloadUser();
+
+        CalculateRanking();
+        RefreshCurrentMatchInfo();
+    }
+
     // 순위 계산 (공동 랭크 반영)
     public void CalculateRanking()
     {
@@ -284,22 +314,10 @@ public class LeagueManager : MonoBehaviour
         saveManager.SaveLeague(league);
 
         Debug.Log(" 라운드 결과 처리 완료");
-        
-        if (IsLeagueFinished())
-        {
-            Debug.Log(" 리그 종료!");
 
-            if (IsPlayerChampion())
-            {
-                Debug.Log(" 우승! 다음 리그로 이동");
-                StartNextLeague();
-            }
-            else
-            {
-                Debug.Log(" 우승 실패 - 리그 종료");
-                // 여기서 엔딩 / 재도전 UI 띄우면 됨
-            }
-        }
+        var ui = FindObjectOfType<LeagueUIManager>();
+        if (ui != null) ui.UpdateAllUI();
+
     }
     
     public void StartNextLeague()
@@ -326,6 +344,9 @@ public class LeagueManager : MonoBehaviour
         saveManager.SaveLeague(league);
 
         Debug.Log($"{nextTier}성 {league.settings.tierName} 시작!");
+
+        // 백업
+        BackupLeagueStart();
 
         // 필요하면 씬 이동
         // SceneManager.LoadScene("LeagueScene");
