@@ -60,6 +60,9 @@ namespace BattleK.Scripts.Data.ClassInfo
         [Header("스킬")]
         public List<SkillSO> EquippedSkills;
         public List<SkillSO> AllPossibleSkills;
+        
+        [Header("아이템")]
+        public ItemData Item;
     
         [Header("능력치")]
         public int MaxHP;
