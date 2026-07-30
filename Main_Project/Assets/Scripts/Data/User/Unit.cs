@@ -31,6 +31,5 @@ public class Unit
         this.rarity = rarity;
         this.unitName = unitName;
         this.unitClass = unitClass;
-
     }
 }

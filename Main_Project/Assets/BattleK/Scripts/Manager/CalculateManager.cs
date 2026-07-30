@@ -12,6 +12,7 @@ namespace BattleK.Scripts.Manager
         [Header("스탯 소스 (FamilyStatsCollector)")]
         [Tooltip("씬에 존재하는 FamilyStatsCollector를 Drag&Drop. 비워두면 자동 탐색합니다.")]
         [SerializeField] private FamilyStatsCollector _statsCollector;
+        [SerializeField] private PlayerStatsCollector _playerStatsCollector;
 
         [Header("자동 재시도(유닛이 늦게 스폰될 때 대비)")]
         [Tooltip("처음 갱신에 실패(리스트 0)하면 일정 간격으로 재시도")]
@@ -59,6 +60,21 @@ namespace BattleK.Scripts.Manager
                 yield return new WaitForSeconds(_retryIntervalSeconds);
                 yield return StartCoroutine(RefreshFromCollectorCoroutine());
             }
+        }
+
+        public void RefreshPlayerOnly()
+        {
+            if (_playerStatsCollector == null)
+            {
+                Debug.LogWarning("[CalculateManager] PlayerStatsCollector 없음");
+                return;
+            }
+
+            _playerStatsCollector.CollectPlayerUnits();
+
+            _playerStats = CloneList(_playerStatsCollector.PlayerStats);
+
+            _allStats = new List<CharacterStatsRow>(_playerStats);
         }
 
         private bool IsEmpty() => (_playerStats == null || _playerStats.Count == 0) && (_enemyStats  == null || _enemyStats.Count  == 0);
