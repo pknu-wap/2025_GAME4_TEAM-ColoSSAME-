@@ -123,6 +123,7 @@ namespace BattleK.Scripts.Data
                 record.evasionRate = unit.EvasionRate;
                 record.unitClass = unit.UnitClass.ToString();
                 record.CurrentInjury = unit.InjuryLevel;
+                record.EquippedItem = unit.Item;
             });
         }
 
