@@ -90,4 +90,6 @@ public class EnemySaveManager
         _teamMap.Clear();
         Save();
     }
+
+    public void ReloadEnemy() => Load();
 }
