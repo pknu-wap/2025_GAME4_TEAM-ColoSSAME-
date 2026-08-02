@@ -10,6 +10,8 @@ public class Unit
     public string unitId; 
 
     public int rarity;
+    public int bonusSuccessRarity;
+
     public string unitName;
     public string unitClass;
     
@@ -21,13 +23,13 @@ public class Unit
 
     //스킬 리스트
     public List<UnitSkill> skills = new List<UnitSkill>();
+    public List<string> selectedSkills = new();
 
     public Unit(string id, int rarity, string unitName, string unitClass)
-{
-    this.unitId = id;
-    this.rarity = rarity;
-    this.unitName = unitName;
-    this.unitClass = unitClass;
-
-}
+    {
+        this.unitId = id;
+        this.rarity = rarity;
+        this.unitName = unitName;
+        this.unitClass = unitClass;
+    }
 }

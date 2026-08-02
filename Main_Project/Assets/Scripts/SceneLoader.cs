@@ -11,6 +11,6 @@ public class SceneLoader : MonoBehaviour
     {
         // 씬 이름을 사용하여 씬을 로드합니다.
         Debug.Log(nextSceneName);
-        SceneManager.LoadScene(nextSceneName);
+        SceneTransition.Instance.Load(nextSceneName);
     }
 }

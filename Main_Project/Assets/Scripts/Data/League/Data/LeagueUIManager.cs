@@ -50,6 +50,10 @@ public class LeagueUIManager : MonoBehaviour
     [SerializeField]
     private GameObject teamInfoPanel;
 
+    [SerializeField] 
+    private LeagueResultPanel resultPanel;
+
+
     void Start()
     {
         if (leagueManager == null)
@@ -63,6 +67,14 @@ public class LeagueUIManager : MonoBehaviour
         UpdateAllUI();
     }
 
+    void OnEnable()
+    {
+        if (leagueManager == null) return;
+
+        UpdateAllUI();
+    }
+
+
     public void UpdateAllUI()
     {
         UpdateNextMatchUI();
@@ -70,6 +82,7 @@ public class LeagueUIManager : MonoBehaviour
         ShowMyTeamNextMatch();
         UpdateRoundInfoUI(); 
         UpdateLeagueTierUI();
+        CheckLeagueEnd();
     }
 
     private void UpdateRoundInfoUI()
@@ -255,6 +268,16 @@ public class LeagueUIManager : MonoBehaviour
         string tierName = leagueManager.league.settings.tierName;
         
         leagueTierText.text = $"★{tier} {tierName}";
+    }
+
+    void CheckLeagueEnd()
+    {
+        if (!leagueManager.IsLeagueFinished()) return;
+
+        if (leagueManager.IsPlayerChampion())
+            resultPanel.ShowVictory();
+        else
+            resultPanel.ShowDefeat();
     }
 
 }
