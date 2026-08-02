@@ -4,52 +4,69 @@ using BattleK.Scripts.AI.Skill.Base;
 
 public class SkillSelectUI : MonoBehaviour
 {
-    public static SkillSelectUI Instance;
-
     [SerializeField] private GameObject[] panels;
     [SerializeField] private GameObject unitUI;
-    [SerializeField] private SkillSelectButton[] buttons;
-    [SerializeField] private SkillTrainingManager skillTrainingManager;
-
+    [SerializeField] private SkillSelectButton[] threeStarButtons;
+    [SerializeField] private SkillSelectButton[] fourStarButtons;
+    [SerializeField] private SkillTrainManager skillTrainingManager;
+    [SerializeField] private GameObject threeStarUI;
+    [SerializeField] private GameObject fourStarUI;
 
     private Unit targetUnit;
+    private int selectedSlot;
 
-
-    private void Awake()
-    {
-        Instance = this;
-    }
-
-
-    public void Show(List<SkillSO> skills, Unit unit)
+    public void Show(List<SkillSO> skills, Unit unit, int slot)
     {
         targetUnit = unit;
+        selectedSlot = slot;
 
         foreach(GameObject panel in panels)
         {
             panel.SetActive(false);
         }
         unitUI.SetActive(true); 
+        threeStarUI.SetActive(false);
+        fourStarUI.SetActive(false);
 
-
-        for(int i = 0; i < buttons.Length; i++)
+        if(slot == 0)
         {
-            buttons[i].SetSkill(skills[i], this);
-        }
-    }
+            threeStarUI.SetActive(true);
 
+            for(int i = 0; i < threeStarButtons.Length; i++)
+            {
+                threeStarButtons[i].SetSkill(skills[i], this);
+            }
+        }
+        else
+        {
+            fourStarUI.SetActive(true);
+
+            for(int i = 0; i < fourStarButtons.Length; i++)
+            {
+                fourStarButtons[i].SetSkill(skills[i], this);
+            }
+        }
+
+    }
 
     public void SelectSkill(SkillSO skill)
     {
-        targetUnit.skills.Add(
-            new UnitSkill(skill.name, 1)
-        );
+        while (targetUnit.selectedSkills.Count <= selectedSlot)
+        {
+            targetUnit.selectedSkills.Add("");
+        }
+
+        targetUnit.selectedSkills[selectedSlot] = skill.name;
+
+        UserManager.Instance.SaveUser();
 
         foreach(GameObject panel in panels)
         {
             panel.SetActive(true);
         }
         unitUI.SetActive(false); 
+        threeStarUI.SetActive(false);
+        fourStarUI.SetActive(false);
 
         skillTrainingManager.RefreshUnit();
 

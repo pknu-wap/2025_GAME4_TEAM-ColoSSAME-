@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceLocations;
+using TMPro;
 
 public class FighterNameBinder : MonoBehaviour
 {
@@ -17,7 +18,7 @@ public class FighterNameBinder : MonoBehaviour
     public Slider expSlider;
     public Text selectedNameText;
     public Image selectedPortraitImage;  
-    public Text expCostText;
+    public TextMeshProUGUI expCostText;
     
     [Header("playerTrain 안의 버튼")]
     public GetExpButton getExpButton;
@@ -71,7 +72,7 @@ public class FighterNameBinder : MonoBehaviour
             getExpButton.curLevelText = curLevelText;
             getExpButton.curExpText   = curExpText;
             getExpButton.expSlider    = expSlider;
-            getExpButton.expCostText  = expCostText;
+            //getExpButton.expCostText  = expCostText;
             getExpButton.buildingUpgradeManager = buildingUpgradeManager;
             getExpButton.RefreshSelectedUnitUI();
         }
@@ -289,6 +290,11 @@ public class FighterNameBinder : MonoBehaviour
         }
 
         Addressables.Release(locHandle);
+    }
+
+    public void RefreshTrainingUI()
+    {
+        getExpButton.RefreshSelectedUnitUI();
     }
 
     private void OnDestroy()
