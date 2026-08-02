@@ -125,18 +125,7 @@ namespace BattleK.Scripts.Manager
                     break;
                 case < 1 when enemyUnits.Count < 1:
                     Debug.Log("무승부");
-                    var randWinner = Random.Range(1, 3);
-                    switch (randWinner)
-                    {
-                        case 1:
-                            _leagueSceneManager.OnClickWin();
-                            Debug.Log("승리");
-                            break;
-                        case 2:
-                            _leagueSceneManager.OnClickLose();
-                            Debug.Log("패배");
-                            break;
-                    }
+                    //ToDo:: 무승부되면 승, 패 없이 1점씩만 획득해야 함.
                     break;
             }
             IsAlreadyDone = true;
