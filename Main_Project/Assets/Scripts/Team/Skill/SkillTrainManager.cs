@@ -11,6 +11,7 @@ public class SkillTrainManager : MonoBehaviour
     [SerializeField] private SkillSelectUI skillSelectUI;
 
     private Unit currentUnit;
+    private Dictionary<string, UnitSkill> skillMap;
 
     public void RefreshUnit()
     {
@@ -28,6 +29,8 @@ public class SkillTrainManager : MonoBehaviour
 
         currentUnit = UserManager.Instance.GetMyUnitById(unitId);
 
+        BuildSkillMap();
+
         ShowSkillInfo();
     }
 
@@ -42,6 +45,9 @@ public class SkillTrainManager : MonoBehaviour
 
     public void UpgradeSkill(int skillIndex)
     {
+        if (currentUnit == null)
+            return;
+
         UnitSkill skill = GetSelectedSkill(skillIndex);
 
         if (skill == null)
@@ -72,24 +78,28 @@ public class SkillTrainManager : MonoBehaviour
 
     private UnitSkill GetSelectedSkill(int index)
     {
-        if (currentUnit == null)
-            return null;
-
         if (index >= currentUnit.selectedSkills.Count)
             return null;
 
-        string skillName = currentUnit.selectedSkills[index];
+        string skillId = currentUnit.selectedSkills[index];
 
-        for (int i = 0; i < currentUnit.skills.Count; i++)
+        if (skillMap.TryGetValue(skillId, out UnitSkill skill))
         {
-            if (currentUnit.skills[i].skillId == skillName)
-                return currentUnit.skills[i];
+            return skill;
         }
 
         return null;
     }
 
+    private void BuildSkillMap()
+    {
+        skillMap = new Dictionary<string, UnitSkill>();
 
+        foreach (UnitSkill skill in currentUnit.skills)
+        {
+            skillMap[skill.skillId] = skill;
+        }
+    }
 
     private void ChangeSkill(int rarity, int slotIndex)
     {
