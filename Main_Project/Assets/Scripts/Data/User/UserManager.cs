@@ -33,10 +33,10 @@ public class UserManager : MonoBehaviour
             savePath = Path.Combine(Application.persistentDataPath, "UserSave.json");
             LoadUser();
 
-            // ✅ 씬 로드될 때마다 도감 매니저 자동 초기화
+            // 씬 로드될 때마다 도감 매니저 자동 초기화
             SceneManager.sceneLoaded += OnSceneLoaded;
 
-            // ✅ 시작 씬에도 도감이 있을 수 있으니 한 번 시도
+            // 시작 씬에도 도감이 있을 수 있으니 한 번 시도
             InitAchievementInScene();
 
             Debug.Log("✅ UserManager 초기화 완료");
@@ -63,18 +63,18 @@ public class UserManager : MonoBehaviour
         AchievementManager am = FindFirstObjectByType<AchievementManager>();
         if (am == null)
         {
-            Debug.Log("ℹ️ 현재 씬에 AchievementManager가 없음 (도감 UI 없는 씬일 수 있음)");
+            Debug.Log("현재 씬에 AchievementManager가 없음 (도감 UI 없는 씬일 수 있음)");
             return;
         }
 
         if (user == null)
         {
-            Debug.LogWarning("⚠️ user가 null이라 AchievementManager.Init을 할 수 없음");
+            Debug.LogWarning("user가 null이라 AchievementManager.Init을 할 수 없음");
             return;
         }
 
         am.Init(user);
-        Debug.Log("✅ 씬의 AchievementManager.Init(user) 완료");
+        Debug.Log("씬의 AchievementManager.Init(user) 완료");
     }
     // 현재 UI에서 선택된 유닛 ID (fighter 클릭 시 저장)
     public string selectedUnitId { get; private set; }
@@ -83,11 +83,9 @@ public class UserManager : MonoBehaviour
     public void SetSelectedUnit(string unitId)
     {
         selectedUnitId = unitId;
-        Debug.Log($"🟩 선택 유닛 저장됨: {selectedUnitId}");
+        Debug.Log($"선택 유닛 저장됨: {selectedUnitId}");
     }
-    /// <summary>
-    /// unitId로 유저의 myUnits에서 유닛을 찾아 반환
-    /// </summary>
+    // unitId로 유저의 myUnits에서 유닛을 찾아 반환
     public Unit GetMyUnitById(string unitId)
     {
         if (user == null || user.myUnits == null) return null;
@@ -102,15 +100,13 @@ public class UserManager : MonoBehaviour
         return null;
     }
 
-    /// <summary>
-    /// 선택(또는 지정) 유닛의 경험치 추가 + 레벨업 처리 + 저장
-    /// </summary>
+    // 선택(또는 지정) 유닛의 경험치 추가 + 레벨업 처리 + 저장
     public bool AddUnitExp(string unitId, float amount)
     {
         Unit unit = GetMyUnitById(unitId);
         if (unit == null)
         {
-            Debug.LogWarning($"⚠️ AddUnitExp 실패: 유닛을 찾지 못함 (unitId={unitId})");
+            Debug.LogWarning($"AddUnitExp 실패: 유닛을 찾지 못함 (unitId={unitId})");
             return false;
         }
         int maxLevel = UnitCostCalculator.GetMaxLevelByRarity(unit.rarity);
@@ -123,13 +119,13 @@ public class UserManager : MonoBehaviour
         }
 
         unit.exp += amount;
-        Debug.Log($"✨ 유닛 경험치 추가: {unit.unitName} +{amount}, 총합: {unit.exp}");
+        Debug.Log($" 유닛 경험치 추가: {unit.unitName} +{amount}, 총합: {unit.exp}");
         
         while (unit.exp >= 100)
         {
             unit.exp -= 100;
             unit.level++;
-            Debug.Log($"🎉 유닛 레벨업! {unit.unitName} -> Lv {unit.level}");
+            Debug.Log($" 유닛 레벨업! {unit.unitName} -> Lv {unit.level}");
         }
 
         SaveUser();
@@ -142,7 +138,7 @@ public class UserManager : MonoBehaviour
 
         if (unit == null)
         {
-            Debug.LogWarning($"❌ 유닛 없음 : {unitId}");
+            Debug.LogWarning($" 유닛 없음 : {unitId}");
             return false;
         }
 
@@ -158,9 +154,7 @@ public class UserManager : MonoBehaviour
     }
 
 
-    /// <summary>
-    /// 유저 데이터 로드
-    /// </summary>
+    // 유저 데이터 로드
     private void LoadUser()
     {
         if (File.Exists(savePath))
@@ -170,18 +164,16 @@ public class UserManager : MonoBehaviour
             
             user.EnsureDictionaries();
             
-            Debug.Log("✅ 유저 데이터 로드 완료");
+            Debug.Log(" 유저 데이터 로드 완료");
         }
         else
         {
-            Debug.Log("🆕 저장된 유저 데이터 없음, 새로 생성 필요");
+            Debug.Log(" 저장된 유저 데이터 없음, 새로 생성 필요");
             user = null;
         }
     }
 
-    /// <summary>
-    /// 유저 데이터 저장
-    /// </summary>
+    // 유저 데이터 저장
     public void SaveUser()
     {
         string json = JsonConvert.SerializeObject(user, Formatting.Indented);
@@ -189,15 +181,14 @@ public class UserManager : MonoBehaviour
         Debug.Log("💾 유저 데이터 저장 완료");
     }
 
-    /// <summary>
-    /// 새로운 유저 생성 (버튼 등에서 호출)
-    /// </summary>
+
+    // 새로운 유저 생성 (버튼 등에서 호출)
     public void NewUser(string userName)
     {
         if (File.Exists(savePath))
         {
             File.Delete(savePath);
-            Debug.Log("🗑️ 기존 유저 데이터 삭제 완료");
+            Debug.Log(" 기존 유저 데이터 삭제 완료");
         }
 
         user = new User
@@ -211,7 +202,7 @@ public class UserManager : MonoBehaviour
         user.EnsureDictionaries(); // 도감 딕셔너리 포함 null 방지
 
         SaveUser();
-        Debug.Log($"✅ 새로운 유저 생성: {userName}");
+        Debug.Log($" 새로운 유저 생성: {userName}");
         // 새 유저 기준으로 도감 매니저 재초기화
         if (achievementManager != null)
         {
@@ -220,20 +211,18 @@ public class UserManager : MonoBehaviour
 
     }
 
-    /// <summary>
-    /// 경험치 추가 + 레벨업 확인
-    /// </summary>
+    //경험치 추가 + 레벨업 확인
     public void AddExp(float amount)
     {
         user.exp += amount;
-        Debug.Log($"✨ 경험치 추가: {amount}, 총합: {user.exp}");
+        Debug.Log($"경험치 추가: {amount}, 총합: {user.exp}");
 
         float required = RequiredExpForLevel(user.level);
         while (user.exp >= required)
         {
             user.exp -= required;
             user.level++;
-            Debug.Log($"🎉 레벨업! 현재 레벨: {user.level}");
+            Debug.Log($"레벨업! 현재 레벨: {user.level}");
             required = RequiredExpForLevel(user.level);
         }
 
@@ -245,22 +234,18 @@ public class UserManager : MonoBehaviour
         return 100 + (level - 1) * 50;  // 레벨마다 증가
     }
 
-    /// <summary>
-    /// 아이템 추가
-    /// </summary>
+    // 아이템 추가
     public void AddItem(string itemName, int count = 1)
     {
         if (!user.inventory.ContainsKey(itemName))
             user.inventory[itemName] = 0;
 
         user.inventory[itemName] += count;
-        Debug.Log($"🎒 아이템 추가: {itemName} x{count}");
+        Debug.Log($"아이템 추가: {itemName} x{count}");
         SaveUser();
     }
 
-    /// <summary>
-    /// 아이템 제거
-    /// </summary>
+    // 아이템 제거
     public void RemoveItem(string itemName, int count = 1)
     {
         if (user.inventory.ContainsKey(itemName))
@@ -269,19 +254,19 @@ public class UserManager : MonoBehaviour
             if (user.inventory[itemName] <= 0)
                 user.inventory.Remove(itemName);
 
-            Debug.Log($"🗑️ 아이템 제거: {itemName} x{count}");
+            Debug.Log($"아이템 제거: {itemName} x{count}");
             SaveUser();
         }
         else
         {
-            Debug.LogWarning($"❌ 제거할 아이템이 없습니다: {itemName}");
+            Debug.LogWarning($"제거할 아이템이 없습니다: {itemName}");
         }
     }
     
     public void AddUnit(Unit newUnit)
     {
         user.myUnits.Add(newUnit);
-        Debug.Log($"🗡️ 새로운 유닛 영입: {newUnit.unitId}");
+        Debug.Log($"새로운 유닛 영입: {newUnit.unitId}");
         SaveUser();
     }
     
@@ -361,4 +346,6 @@ public class UserManager : MonoBehaviour
     {
         return savePath;
     }
+
+    public void ReloadUser() => LoadUser();
 }
