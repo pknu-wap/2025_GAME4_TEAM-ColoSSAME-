@@ -53314,6 +53314,7 @@ MonoBehaviour:
   teamInfoPageIndex: 1
   hideManager: {fileID: 411091701}
   teamInfoPanel: {fileID: 411091699}
+  resultPanel: {fileID: 0}
   MyTeamImage: {fileID: 608184208}
   MyTeamText: {fileID: 1006418489}
   nextMatchMyTeamImage: {fileID: 1886079283}
@@ -76931,6 +76932,30 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1986145849}
+        m_TargetAssemblyTypeName: PlayerStatsCollector, Assembly-CSharp
+        m_MethodName: CollectPlayerUnits
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1986145850}
+        m_TargetAssemblyTypeName: PlayerStatsUI, Assembly-CSharp
+        m_MethodName: Refresh
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
       - m_Target: {fileID: 828436357}
         m_TargetAssemblyTypeName: SkillTrainingManager, Assembly-CSharp
         m_MethodName: RefreshUnit
@@ -84414,7 +84439,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -84428,7 +84453,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 2139973045}
   m_OnClick:
     m_PersistentCalls:

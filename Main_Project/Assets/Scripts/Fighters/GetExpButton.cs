@@ -1,12 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class GetExpButton : MonoBehaviour
 {
     [HideInInspector] public Text curLevelText;
     [HideInInspector] public Text curExpText;
     [HideInInspector] public Slider expSlider;
-    [HideInInspector] public Text expCostText;
+    public TextMeshProUGUI expCostText;
 
     [HideInInspector] public BuildingUpgradeManager buildingUpgradeManager;
 
