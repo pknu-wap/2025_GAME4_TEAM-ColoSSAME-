@@ -20,7 +20,13 @@ namespace BattleK.Scripts.AI.StaticScoreState.StaticVerStates
             _ai.PlayAnimation(_animationState);
         }
 
-        public IEnumerator Execute() { throw new System.NotImplementedException(); }
+        public IEnumerator Execute()
+        {
+            while (true)
+            {
+                yield return null;
+            }
+        }
 
         public void Exit()
         {
