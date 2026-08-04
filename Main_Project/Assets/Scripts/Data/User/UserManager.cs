@@ -269,35 +269,7 @@ public class UserManager : MonoBehaviour
         Debug.Log($"새로운 유닛 영입: {newUnit.unitId}");
         SaveUser();
     }
-    /*public void AddInitialUnitsByFamily(string familyName)
-    {
-        if (UnitDataManager.Instance == null)
-        {
-            Debug.LogError("❌ DataManager가 초기화되지 않았습니다.");
-            return;
-        }
-
-        // DataManager에서 해당 가문의 유닛 리스트를 직접 가져온다.
-        List<CharacterData> familyUnits = UnitDataManager.Instance.GetFamilyUnits(familyName);
-
-        if (familyUnits == null || familyUnits.Count < 10)
-        {
-            Debug.LogError($"❌ 가문 '{familyName}'의 유닛 데이터가 부족합니다.");
-            return;
-        }
-
-        int start = 5; // 6번째 캐릭터 (인덱스 5)
-        int end = start + 5; // 5개를 추가 (5, 6, 7, 8, 9, 10)
-
-        for (int i = start; i < end; i++)
-        {
-            Unit newUnit = new Unit(familyUnits[i].Unit_ID, familyUnits[i].Rarity, familyUnits[i].Unit_Name);
-            user.myUnits.Add(newUnit);
-            Debug.Log($"✅ 초기 유닛 추가: {familyUnits[i].Unit_Name}");
-        }
-        SaveUser();
-    }*/
-    //수정
+    
     public void AddInitialUnitsByFamily(string familyId)
     {
 
