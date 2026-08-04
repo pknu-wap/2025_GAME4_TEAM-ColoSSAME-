@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BattleK.Scripts.AI;
 using BattleK.Scripts.Data;
 using BattleK.Scripts.Data.Type;
 using BattleK.Scripts.JSON;
@@ -54,6 +55,7 @@ namespace BattleK.Scripts.Manager
             {
                 if(!unit.TryGetComponent(out CharacterID characterIdComp)) continue;
                 if(!unit.TryGetComponent(out FamilyID familyIdComp)) continue;
+                if (!unit.TryGetComponent(out StaticAICore aiCore)) continue;
 
                 var charKey = characterIdComp.characterKey?.Trim();
                 var familyKey = familyIdComp.FamilyKey?.Trim();
@@ -79,7 +81,9 @@ namespace BattleK.Scripts.Manager
                     HP = matchData.Stat_Distribution?.HP ?? 0,
                     AGI = matchData.Stat_Distribution?.AGI ?? 0,
                     Rarity = matchData.Rarity,
-                    Level = level
+                    Level = level,
+                    CurrentInjury = aiCore.Stat.InjuryLevel,
+                    SourceUnit = aiCore
                 });
             }
 

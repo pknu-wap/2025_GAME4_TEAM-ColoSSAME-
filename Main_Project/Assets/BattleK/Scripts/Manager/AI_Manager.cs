@@ -28,12 +28,16 @@ namespace BattleK.Scripts.Manager
         public string enemyLayerName  = "Enemy";
         public bool forceLayerBySide = true;
         
-        [Header("리그매니저")]
+        [Header("매니저")]
         [SerializeField] private LeagueSceneManager _leagueSceneManager;
+        [SerializeField] private UnitLoadManager _unitLoadManager;
+        [SerializeField] private UserSaveManager _userSaveManager;
+        [SerializeField] private EnemySaveManager _enemySaveManager;
+        [SerializeField] private League _league;
 
-        private int _playerLayer = -1;
-        private int _enemyLayer  = -1;
-        
+        public int PlayerLayer { get; private set; } = -1;
+        public int EnemyLayer { get; private set; } = -1;
+
         private void Awake()
         {
             if (Instance && Instance != this)
@@ -62,13 +66,20 @@ namespace BattleK.Scripts.Manager
             var go = unit.gameObject;
             if (forceLayerBySide)
             {
-                var targetLayer = (sideIndex == 0) ? _playerLayer : _enemyLayer;
+                var targetLayer = (sideIndex == 0) ? PlayerLayer : EnemyLayer;
                 AssignLayer(go, targetLayer);
             }
 
-            var enemyLayerMaskIndex = (sideIndex == 0) ? _enemyLayer : _playerLayer;
+            var enemyLayerMaskIndex = (sideIndex == 0) ? EnemyLayer : PlayerLayer;
             unit.TargetLayer = 1 << enemyLayerMaskIndex;
 
+            unit.InjectSaveDependencies(
+                isPlayerUnit: sideIndex == 0,
+                unitLoadManager: _unitLoadManager,
+                userSaveManager: _userSaveManager,
+                enemySaveManager: _enemySaveManager,
+                league: _league);
+            
             if (sideIndex == 0)
             {
                 if (!playerUnits.Contains(unit)) playerUnits.Add(unit);
@@ -77,8 +88,6 @@ namespace BattleK.Scripts.Manager
             {
                 if (!enemyUnits.Contains(unit)) enemyUnits.Add(unit);
             }
-            
-            unit.Initialize();
         }
         
         public void UnregisterUnit(StaticAICore unit)
@@ -89,11 +98,11 @@ namespace BattleK.Scripts.Manager
 
         private void ResolveLayers()
         {
-            _playerLayer = LayerMask.NameToLayer(playerLayerName);
-            _enemyLayer  = LayerMask.NameToLayer(enemyLayerName);
+            PlayerLayer = LayerMask.NameToLayer(playerLayerName);
+            EnemyLayer  = LayerMask.NameToLayer(enemyLayerName);
             
-            if (_playerLayer == -1) Debug.LogError($"Layer '{playerLayerName}' 가 없습니다! Project Settings 확인 필요.");
-            if (_enemyLayer == -1) Debug.LogError($"Layer '{enemyLayerName}' 가 없습니다! Project Settings 확인 필요.");
+            if (PlayerLayer == -1) Debug.LogError($"Layer '{playerLayerName}' 가 없습니다! Project Settings 확인 필요.");
+            if (EnemyLayer == -1) Debug.LogError($"Layer '{enemyLayerName}' 가 없습니다! Project Settings 확인 필요.");
         }
 
         private void AssignLayer(GameObject go, int layerIndex)
