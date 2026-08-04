@@ -58,6 +58,7 @@ namespace BattleK.Scripts.Data.ClassInfo
         public float SightRange;
     
         [Header("스킬")]
+        [FormerlySerializedAs("Skills")]
         public List<SkillSO> EquippedSkills;
         public List<SkillSO> AllPossibleSkills;
         

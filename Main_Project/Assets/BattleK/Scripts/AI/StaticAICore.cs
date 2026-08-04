@@ -5,7 +5,6 @@ using BattleK.Scripts.AI.StaticScoreState.ActionStates;
 using BattleK.Scripts.AI.StaticScoreState.Attack;
 using BattleK.Scripts.AI.StaticScoreState.StaticVerStates;
 using BattleK.Scripts.AI.StaticScoreState.Targeting;
-using BattleK.Scripts.Data;
 using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Data.Type.AIDataType.CC;
 using BattleK.Scripts.HP;
@@ -18,6 +17,12 @@ namespace BattleK.Scripts.AI
 {
     public class StaticAICore : MonoBehaviour
     {
+        public enum DeathReason
+        {
+            Combat,
+            System
+        }
+
         public StaticStateMachine OverrideMachine { get; private set; } 
         public StaticStateMachine MainMachine { get; private set; }
         
@@ -28,7 +33,7 @@ namespace BattleK.Scripts.AI
         [SerializeField] private float _recoveryTime = 0.5f;
         public int AttackIndex;
         public int SkillIndex;
-        private bool IsInitialized { get; set; }
+        public bool IsInitialized { get; private set; }
         
         [Header("References")]
         public AIPath AiPath;
@@ -45,11 +50,13 @@ namespace BattleK.Scripts.AI
 
         [Header("Stats")]
         public UnitStat Stat;
-        private float CurrentMoveSpeed { get; set; }
+        public float CurrentMoveSpeed { get; private set; }
         public int CurrentAttackDamage { get; private set; }
-        private int CurrentDefense { get; set; }
+        public int CurrentDefense { get; private set; }
         public int CurrentSkillPoint { get; private set; }
-        private float CurrentEvasionRate { get; set; }
+        public float CurrentEvasionRate { get; private set; }
+        public float CurrentAttackSpeed { get; private set; }
+        public float CurrentAttackDelay { get; private set; }
         
         [Header("Runtime Info")]
         public Transform Target;
@@ -62,12 +69,7 @@ namespace BattleK.Scripts.AI
         
         private StaticAICore _targetCore;
         public bool IsDead => OverrideMachine.CurrentState is StaticDeathState;
-        
-        public enum DeathReason
-        {
-            UnitAttack,
-            System
-        }
+        public bool IsInvincible => HasStatus(StatusType.Invincible);
 
         [HideInInspector] public float LastRetreatFinishTime;
         private float _attackTimer;
@@ -160,7 +162,7 @@ namespace BattleK.Scripts.AI
         
         public void SetAttackCooldown()
         {
-            _attackTimer = Stat.AttackDelay;
+            _attackTimer = CurrentAttackDelay > 0f ? CurrentAttackDelay : Stat.AttackDelay;
         }
 
         public void StopMovement()
@@ -196,6 +198,8 @@ namespace BattleK.Scripts.AI
             CurrentEvasionRate = Stat.EvasionRate;
             CurrentMoveSpeed = Stat.MoveSpeed;
             CurrentSkillPoint = Stat.SkillPoint;
+            CurrentAttackSpeed = Stat.AttackSpeed;
+            CurrentAttackDelay = Stat.AttackDelay;
             _modifiers.Clear();
         }
         
@@ -225,6 +229,11 @@ namespace BattleK.Scripts.AI
                 }
             }
             return false;
+        }
+
+        public bool HasStatus(StatusType type)
+        {
+            return _modifiers.TryGetValue(type, out var sourceDict) && sourceDict.Count > 0;
         }
 
         public void RemoveAllDebuffs() //디버프 전체 제거()
@@ -274,6 +283,23 @@ namespace BattleK.Scripts.AI
                 case StatusType.EvasionRateMultiplier:
                     CurrentEvasionRate = (int)(Stat.EvasionRate * finalMul);
                     break;
+                case StatusType.AttackSpeedMultiplier:
+                    ApplyAttackSpeedMultiplier(finalMul);
+                    break;
+                case StatusType.Invincible:
+                    break;
+            }
+        }
+
+        private void ApplyAttackSpeedMultiplier(float finalMul)
+        {
+            finalMul = Mathf.Max(0.01f, finalMul);
+            CurrentAttackSpeed = Stat.AttackSpeed * finalMul;
+            CurrentAttackDelay = Stat.AttackDelay / finalMul;
+
+            if (_attackTimer > CurrentAttackDelay)
+            {
+                _attackTimer = CurrentAttackDelay;
             }
         }
         
@@ -311,6 +337,10 @@ namespace BattleK.Scripts.AI
         public void OnTakeDamage(int damage, bool isPenetrating = false)
         {
             if (IsDead || Stat.CurrentHP == 0) return;
+            if (IsInvincible)
+            {
+                return;
+            }
             
             var randomVal = Random.Range(0f, 100f);
             if (randomVal < CurrentEvasionRate)
@@ -323,7 +353,7 @@ namespace BattleK.Scripts.AI
             HPBar.UpdateHPBar();
             if (Stat.CurrentHP <= 0)
             {
-                OnDead(DeathReason.UnitAttack);
+                OnDead();
                 return;
             }
             if(OverrideMachine.CurrentState == null) OverrideMachine.ChangeState(new StaticHitState(this));
@@ -347,7 +377,7 @@ namespace BattleK.Scripts.AI
                 OverrideMachine.StopAndClear();
         }
 
-        public void OnDead(DeathReason deathReason)
+        public void OnDead(DeathReason reason = DeathReason.Combat)
         {
             switch (deathReason)
             {
@@ -366,11 +396,30 @@ namespace BattleK.Scripts.AI
                     throw new ArgumentOutOfRangeException(nameof(deathReason), deathReason, null);
             }
             OverrideMachine.ChangeState(new StaticDeathState(this));
+
+            if (reason == DeathReason.System)
+            {
+                return;
+            }
+
+            if (!AiManager)
+            {
+                AiManager = AI_Manager.Instance;
+            }
+
+            if (!AiManager)
+            {
+                return;
+            }
+
+            AiManager.UnregisterUnit(this);
+            if (AiManager.IsAlreadyDone) return;
+            AiManager.IsWinner();
         }
 
         private void RegisterActionStates()
         {
-            if (Stat.EquippedSkills is { Count: > 0 })
+            if (Stat?.EquippedSkills is { Count: > 0 })
             {
                 _actionCandidates.Add(new StaticSkillState(this, Stat.EquippedSkills));
             }

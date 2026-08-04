@@ -10,14 +10,16 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.LogicBase
         protected LayerMask _targetMask;
         protected Transform _targetTransform;
         protected Vector2 _targetPosition;
+        protected int _maxHitTargets;
 
-        public void Initialize(StaticAICore owner, List<ISkillLogic> logics, float lifeTime, LayerMask mask, Transform target, Vector2 targetPos)
+        public void Initialize(StaticAICore owner, List<ISkillLogic> logics, float lifeTime, LayerMask mask, Transform target, Vector2 targetPos, int maxHitTargets = 0)
         {
             _owner = owner;
             _logics = logics;
             _targetMask = mask;
             _targetTransform = target;
             _targetPosition = targetPos;
+            _maxHitTargets = Mathf.Max(0, maxHitTargets);
             Destroy(gameObject, lifeTime);
         }
         
