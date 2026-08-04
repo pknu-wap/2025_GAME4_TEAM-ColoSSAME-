@@ -1,4 +1,3 @@
-using BattleK.Scripts.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,7 +8,7 @@ namespace BattleK.Scripts.Manager.Strategy.Runtime.PlayerStrategy
         [Header("UI 연결")]
         [SerializeField] private Button button;
         [SerializeField] private FormationManager formationManager;
-        [SerializeField] private BattleStartUsingSlots battleStart;
+        [SerializeField] private UnitSpawnBootstrap spawnBootstrap;
 
         [Header("데이터")]
         [SerializeField] private FormationAsset formation;
@@ -27,15 +26,13 @@ namespace BattleK.Scripts.Manager.Strategy.Runtime.PlayerStrategy
         {
             formationManager.ApplyFormationAsset(formation);
 
-            switch (alsoApplyToEnemy)
+            if (!alsoApplyToEnemy) return;
+
+            if (!spawnBootstrap)
             {
-                case true when !battleStart:
-                    battleStart.SetEnemyFormationOverride(formation);
-                    Debug.Log($"[FormationButton] 적군 포메이션 오버라이드 설정: {formation.name}");
-                    break;
-                case false:
-                    return;
+                return;
             }
+            spawnBootstrap.SetEnemyFormationOverride(formation);
         }
     }
 }

@@ -28,11 +28,6 @@ namespace BattleK.Scripts.UI
                 slot.Clear();
                 count++;
             }
-            
-            if (count > 0)
-            {
-                Debug.Log($"[SlotManager] 유닛 {count}개를 모두 해제했습니다.");
-            }
         }
     }
 }

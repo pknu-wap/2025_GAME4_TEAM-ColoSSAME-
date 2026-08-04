@@ -23,14 +23,14 @@ public class LoadManager : MonoBehaviour
         if (userLoaded && leagueLoaded )
         {
             // 실제로 Load 함수를 호출한다면 여기서 호출
-            Debug.Log("✅ 모든 세이브 파일 불러오기 성공");
-            
+            Debug.Log("모든 세이브 파일 불러오기 성공");
+
             // 다음 씬으로 이동
-            SceneManager.LoadScene("Book");
+            SceneTransition.Instance.Load("Book");
         }
         else
         {
-            Debug.LogWarning("❌ 세이브 파일 중 하나라도 없습니다. 불러오기 취소");
+            Debug.LogWarning("세이브 파일 중 하나라도 없습니다. 불러오기 취소");
             // 필요하면 UI에 경고 메시지 표시
         }
     }

@@ -1,13 +1,17 @@
 using System.Collections;
 using UnityEngine;
 using TMPro;
+using System.Collections.Generic;
+using BattleK.Scripts.AI.Skill.Base;
 
-public class SkillTrainingManager : MonoBehaviour
+public class SkillTrainManager : MonoBehaviour
 {
     public TextMeshProUGUI[] skillTexts;
+    [SerializeField] private RandomSkillGrantA randomSkillGrantA;
+    [SerializeField] private SkillSelectUI skillSelectUI;
 
     private Unit currentUnit;
-    private string lastUnitId;
+    private Dictionary<string, UnitSkill> skillMap;
 
     public void RefreshUnit()
     {
@@ -17,22 +21,17 @@ public class SkillTrainingManager : MonoBehaviour
 
     private IEnumerator RefreshRoutine()
     {
-
         ClearUI();
-
-        yield return null; // 한 프레임 강제 대기
 
         string unitId = UserManager.Instance.selectedUnitId;
 
-        // 같은 유닛이면 다시 안 그려도 됨
-        if (unitId == lastUnitId)
-            yield break;
-
-        lastUnitId = unitId;
-
         currentUnit = UserManager.Instance.GetMyUnitById(unitId);
 
+        BuildSkillMap();
+
         ShowSkillInfo();
+
+        yield break;
     }
 
     private void ClearUI()
@@ -46,12 +45,15 @@ public class SkillTrainingManager : MonoBehaviour
 
     public void UpgradeSkill(int skillIndex)
     {
-        if (currentUnit == null) return;
-
-        if (skillIndex < 0 || skillIndex >= currentUnit.skills.Count)
+        if (currentUnit == null)
             return;
 
-        currentUnit.skills[skillIndex].level++;
+        UnitSkill skill = GetSelectedSkill(skillIndex);
+
+        if (skill == null)
+            return;
+
+        skill.level++;
 
         UserManager.Instance.SaveUser();
 
@@ -60,23 +62,63 @@ public class SkillTrainingManager : MonoBehaviour
 
     public void ShowSkillInfo()
     {
-        for (int i = 0; i < skillTexts.Length; i++)
+         for (int i = 0; i < skillTexts.Length; i++)
         {
-            if (currentUnit == null)
-            {
-                skillTexts[i].text = "";
-                continue;
-            }
+            skillTexts[i].text = "";
 
-            if (i < currentUnit.skills.Count)
+            UnitSkill skill = GetSelectedSkill(i);
+
+            if (skill != null)
             {
-                var skill = currentUnit.skills[i];
                 skillTexts[i].text = $"{skill.skillId} Lv.{skill.level}";
             }
-            else
-            {
-                skillTexts[i].text = "";
-            }
         }
+
+    }
+
+    private UnitSkill GetSelectedSkill(int index)
+    {
+        if (index >= currentUnit.selectedSkills.Count)
+            return null;
+
+        string skillId = currentUnit.selectedSkills[index];
+
+        if (skillMap.TryGetValue(skillId, out UnitSkill skill))
+        {
+            return skill;
+        }
+
+        return null;
+    }
+
+    private void BuildSkillMap()
+    {
+        skillMap = new Dictionary<string, UnitSkill>();
+
+        foreach (UnitSkill skill in currentUnit.skills)
+        {
+            skillMap[skill.skillId] = skill;
+        }
+    }
+
+    private void ChangeSkill(int rarity, int slotIndex)
+    {
+        if (currentUnit.rarity < rarity)
+            return;
+
+        List<SkillSO> choices =
+            randomSkillGrantA.GetSkillChoices(currentUnit.unitClass, rarity);
+
+        skillSelectUI.Show(choices, currentUnit, slotIndex);
+    }
+
+    public void ChangeThreeStarSkill()
+    {
+        ChangeSkill(3, 0);
+    }
+
+    public void ChangeFourStarSkill()
+    {
+        ChangeSkill(4, 1);
     }
 }

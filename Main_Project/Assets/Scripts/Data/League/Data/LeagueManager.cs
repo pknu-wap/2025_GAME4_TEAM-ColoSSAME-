@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Linq;
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 
 public class LeagueManager : MonoBehaviour
@@ -27,14 +28,14 @@ public class LeagueManager : MonoBehaviour
 
             if (league != null)
             {
-                Debug.Log("✅ 기존 리그 데이터 로드 완료");
+                Debug.Log("기존 리그 데이터 로드 완료");
             }
             else
             {
-                Debug.Log("⚠️ 저장된 리그 데이터가 없습니다. 게임 시작 시 생성됩니다.");
+                Debug.Log("저장된 리그 데이터가 없습니다. 게임 시작 시 생성됩니다.");
             }
 
-            Debug.Log("✅ LeagueManager 초기화 완료");
+            Debug.Log("LeagueManager 초기화 완료");
         }
         else
         {
@@ -43,9 +44,7 @@ public class LeagueManager : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// 항상 새로운 리그 데이터를 생성 (버튼에서 호출)
-    /// </summary>
+    // 항상 새로운 리그 데이터를 생성 (버튼에서 호출)
     public void NewLeague()
     {
         
@@ -53,7 +52,7 @@ public class LeagueManager : MonoBehaviour
         if (File.Exists(saveManager.SavePath))
         {
             File.Delete(saveManager.SavePath);
-            Debug.Log("🗑️ 기존 리그 세이브 파일 삭제 완료");
+            Debug.Log("기존 리그 세이브 파일 삭제 완료");
         }
         
         league = settingManager.InitializeLeague();
@@ -61,15 +60,40 @@ public class LeagueManager : MonoBehaviour
 
         CalculateRanking();
 
-        Debug.Log("✅ 새로운 리그 데이터 생성 완료");
+        Debug.Log("새로운 리그 데이터 생성 완료");
     }
-    
 
+    // 리그 시작 상태를 백업
+    public void BackupLeagueStart()
+    {
+        saveManager.SaveLeague(league);
+        EnemySaveManager.Instance.Save();
+        UserManager.Instance.SaveUser();
 
+        LeagueBackup.Backup();
+    }
 
-    /// <summary>
-    /// 순위 계산 (공동 랭크 반영)
-    /// </summary>
+    // 리그 시작점으로 롤백 (재도전)
+    public void RollbackToLeagueStart()
+    {
+        if (!LeagueBackup.HasBackup())
+        {
+            Debug.LogWarning("백업이 없어 롤백 불가");
+            return;
+        }
+
+        LeagueBackup.Restore();             
+
+        // 메모리도 파일 기준으로 다시 로드
+        league = saveManager.LoadLeague();
+        EnemySaveManager.Instance.ReloadEnemy();
+        UserManager.Instance.ReloadUser();
+
+        CalculateRanking();
+        RefreshCurrentMatchInfo();
+    }
+
+    // 순위 계산 (공동 랭크 반영)
     public void CalculateRanking()
     {
         var sorted = league.teams
@@ -111,25 +135,23 @@ public class LeagueManager : MonoBehaviour
             }
         }
 
-        Debug.Log("✅ 순위 계산 완료 (공동 랭크 반영)");
+        Debug.Log("순위 계산 완료 (공동 랭크 반영)");
     }
-
-    /// <summary>
-    /// 경기 결과 반영 (예시)
-    /// </summary>
+    
+    // 경기 결과 반영 (예시)
     public void UpdateMatchResult(int roundNumber, string matchId, Result result)
     {
         Round round = league.schedule.Find(r => r.roundNumber == roundNumber);
         if (round == null)
         {
-            Debug.LogError($"❌ 라운드 {roundNumber}를 찾을 수 없습니다.");
+            Debug.LogError($"라운드 {roundNumber}를 찾을 수 없습니다.");
             return;
         }
 
         LeagueMatch match = round.matches.Find(m => m.matchId == matchId);
         if (match == null)
         {
-            Debug.LogError($"❌ 매치 {matchId}를 찾을 수 없습니다.");
+            Debug.LogError($"매치 {matchId}를 찾을 수 없습니다.");
             return;
         }
 
@@ -144,12 +166,10 @@ public class LeagueManager : MonoBehaviour
         // 저장
         saveManager.SaveLeague(league);
 
-        Debug.Log($"✅ 경기 결과 업데이트 완료: {matchId}");
+        Debug.Log($"경기 결과 업데이트 완료: {matchId}");
     }
-
-    /// <summary>
-    /// 팀 전적 업데이트
-    /// </summary>
+    
+    // 팀 전적 업데이트
     private void ApplyMatchResultToTeams(int teamAId, int teamBId, Result result)
     {
         Team teamA = league.teams.Find(t => t.id == teamAId);
@@ -157,7 +177,7 @@ public class LeagueManager : MonoBehaviour
 
         if (teamA == null || teamB == null)
         {
-            Debug.LogError("❌ 팀 정보를 찾을 수 없습니다.");
+            Debug.LogError("팀 정보를 찾을 수 없습니다.");
             return;
         }
 
@@ -204,7 +224,7 @@ public class LeagueManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("❌ 내 팀 정보를 찾을 수 없습니다.");
+            Debug.LogWarning("내 팀 정보를 찾을 수 없습니다.");
             return 1;
         }
     }
@@ -216,7 +236,7 @@ public class LeagueManager : MonoBehaviour
 
         if (round == null)
         {
-            Debug.LogWarning("❌ 현재 라운드 정보를 찾을 수 없습니다.");
+            Debug.LogWarning("현재 라운드 정보를 찾을 수 없습니다.");
             return;
         }
 
@@ -229,7 +249,7 @@ public class LeagueManager : MonoBehaviour
 
             if (teamA == null || teamB == null)
             {
-                Debug.LogWarning("❌ 팀 정보를 찾을 수 없습니다.");
+                Debug.LogWarning("팀 정보를 찾을 수 없습니다.");
                 continue;
             }
 
@@ -285,36 +305,38 @@ public class LeagueManager : MonoBehaviour
             ApplyMatchResultToTeams(teamA.id, teamB.id, result);
         }
 
+        // 적 유닛 레벨 랜덤 성장
+        EnemyTeamService.GrowUnitsAfterRound(league);
+
         // 순위 계산 및 저장
         CalculateRanking();
         RefreshCurrentMatchInfo();
         saveManager.SaveLeague(league);
 
         Debug.Log(" 라운드 결과 처리 완료");
-        
-        if (IsLeagueFinished())
-        {
-            Debug.Log(" 리그 종료!");
 
-            if (IsPlayerChampion())
-            {
-                Debug.Log(" 우승! 다음 리그로 이동");
-                StartNextLeague();
-            }
-            else
-            {
-                Debug.Log(" 우승 실패 - 리그 종료");
-                // 여기서 엔딩 / 재도전 UI 띄우면 됨
-            }
-        }
+        var ui = FindObjectOfType<LeagueUIManager>();
+        if (ui != null) ui.UpdateAllUI();
+
     }
     
     public void StartNextLeague()
     {
         int nextTier = Mathf.Min(league.settings.tier + 1, 6);
 
+        // 플레이어 팀 정보 보존 (InitializeLeague가 덮어쓰기 때문)
+        int savedPlayerTeamId = league.settings.playerTeamId;
+        string savedPlayerTeamName = league.settings.playerTeamName;
+
+        // 적 팀 성장 (새 리그 생성 전에 처리)
+        EnemyTeamService.GrowTeamsForNextLeague(league, nextTier);
+
         // 새 리그 생성
         league = settingManager.InitializeLeague();
+
+        // 플레이어 팀 정보 복원
+        league.settings.playerTeamId = savedPlayerTeamId;
+        league.settings.playerTeamName = savedPlayerTeamName;
 
         league.settings.tier = nextTier;
         league.settings.tierName = GetTierName(nextTier);
@@ -323,11 +345,14 @@ public class LeagueManager : MonoBehaviour
 
         Debug.Log($"{nextTier}성 {league.settings.tierName} 시작!");
 
+        // 백업
+        BackupLeagueStart();
+
         // 필요하면 씬 이동
         // SceneManager.LoadScene("LeagueScene");
     }
     
-
+    
     
     public bool IsLeagueFinished()
     {
@@ -422,6 +447,7 @@ public class LeagueManager : MonoBehaviour
         league.currentRound = currentRoundNumber;
         league.currentMatchId = currentMatch.matchId;
         league.currentEnemyTeamId = enemyTeamId;
+        league.currentEnemy = EnemySaveManager.Instance?.GetTeam(enemyTeamId);
 
         league.currentMatchIndex = currentRound.matches.IndexOf(currentMatch);
 

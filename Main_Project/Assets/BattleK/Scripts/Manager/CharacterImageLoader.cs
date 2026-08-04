@@ -1,11 +1,9 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
+using BattleK.Scripts.Data;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
+
 namespace BattleK.Scripts.Manager
 {
     public class CharacterImageLoader : MonoBehaviour
@@ -17,8 +15,7 @@ namespace BattleK.Scripts.Manager
         [SerializeField] private GameObject[] _characterParents;
         [SerializeField] private bool _deactivateIfMissing = true;
 
-        private readonly Dictionary<string, Sprite> _spriteCache = new(StringComparer.Ordinal);
-        private readonly List<AsyncOperationHandle> _handles = new();
+        private readonly AddressableAssetLoader<Sprite> _spriteLoader = new();
 
         private void Start()
         {
@@ -27,9 +24,7 @@ namespace BattleK.Scripts.Manager
 
         private void OnDestroy()
         {
-            _handles.ForEach(h => { if(h.IsValid()) Addressables.Release(h); });
-            _handles.Clear();
-            _spriteCache.Clear();
+            _spriteLoader.ReleaseAll();
         }
 
         private IEnumerator LoadImagesToCharactersCoroutine()
@@ -42,24 +37,26 @@ namespace BattleK.Scripts.Manager
 
             if (_unitLoadManager.LoadedUser == null)
             {
-                _unitLoadManager.TryLoad(out var _);
+                _unitLoadManager.TryLoad(out var message);
+                if (_unitLoadManager.LoadedUser == null)
+                    Debug.LogWarning($"[CharacterImageLoader] 유저 로드 실패: {message}");
             }
-            
+
             var user = _unitLoadManager.LoadedUser;
             if (user?.myUnits == null)
             {
                 DisableAllSlots();
                 yield break;
             }
-            
-            var unitIds = user.myUnits?
+
+            var unitIds = user.myUnits
                 .Select(u => u.unitId)
                 .Where(id => !string.IsNullOrWhiteSpace(id))
                 .Select(id => id.Trim())
-                .ToList() ?? new List<string>();
+                .ToList();
 
             var slotCount = _characterParents?.Length ?? 0;
-            
+
             for (var i = 0; i < slotCount; i++)
             {
                 var parent = _characterParents?[i];
@@ -71,15 +68,12 @@ namespace BattleK.Scripts.Manager
                     continue;
                 }
 
-                var unitId = unitIds[i];
-                yield return LoadAndApplySpriteToSlot(parent, unitId);
+                yield return ApplyUnitToSlot(parent, unitIds[i]);
             }
         }
 
-        private IEnumerator LoadAndApplySpriteToSlot(GameObject parent, string unitId)
+        private IEnumerator ApplyUnitToSlot(GameObject parent, string unitId)
         {
-            if (!parent) yield break;
-
             var child = parent.transform.Find($"{parent.name}img");
             if (!child || !child.TryGetComponent(out Image img))
             {
@@ -87,35 +81,17 @@ namespace BattleK.Scripts.Manager
                 yield break;
             }
 
-            var Addressable = "Portrait/" + unitId;
-
-            if (_spriteCache.TryGetValue(Addressable, out var cached) && cached)
-            {
-                ApplySprite(img, parent, cached, unitId);
-                yield break;
-            }
-            
-            var handle = Addressables.LoadAssetAsync<Sprite>(Addressable);
-            _handles.Add(handle);
-            yield return handle;
-
-            if (handle.Status == AsyncOperationStatus.Succeeded || handle.Result)
-            {
-                var sprite = handle.Result;
-                _spriteCache[Addressable] = sprite;
-                ApplySprite(img, parent, sprite, unitId);
-            }
-            else
-            {
-                Debug.LogWarning($"[CharacterImageLoader] 로드 실패.\nUnitID: {Addressable}");
-                Deactivate(parent);
-            }
+            yield return _spriteLoader.LoadAsync(
+                AddressableAssetType.Character,
+                unitId,
+                sprite => ApplySprite(img, parent, sprite, unitId),
+                () => Deactivate(parent));
         }
 
         private static void ApplySprite(Image img, GameObject parent, Sprite sprite, string unitIdKey)
         {
             img.sprite = sprite;
-            if(parent.TryGetComponent(out CharacterID cid)) cid.characterKey = unitIdKey;
+            if (parent.TryGetComponent(out CharacterID cid)) cid.characterKey = unitIdKey;
             parent.SetActive(true);
         }
 

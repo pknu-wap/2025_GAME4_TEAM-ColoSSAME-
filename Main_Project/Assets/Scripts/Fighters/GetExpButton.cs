@@ -1,12 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class GetExpButton : MonoBehaviour
 {
     [HideInInspector] public Text curLevelText;
     [HideInInspector] public Text curExpText;
     [HideInInspector] public Slider expSlider;
-    [HideInInspector] public Text expCostText;
+    public TextMeshProUGUI expCostText;
 
     [HideInInspector] public BuildingUpgradeManager buildingUpgradeManager;
 
@@ -78,6 +79,13 @@ public class GetExpButton : MonoBehaviour
         if (unit == null)
         {
             Debug.LogError("❌ 선택된 유닛 정보를 찾을 수 없습니다.");
+            return;
+        }
+
+        int maxLevel = UnitCostCalculator.GetMaxLevelByRarity(unit.rarity);
+        if (unit.level >= maxLevel)
+        {
+            Debug.Log($"{unit.unitName}는 만렙입니다");
             return;
         }
 

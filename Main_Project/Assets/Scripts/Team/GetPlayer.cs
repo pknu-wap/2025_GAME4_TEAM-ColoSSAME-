@@ -60,7 +60,7 @@ namespace Scripts.Team.FighterRandomBuy
 
         private static readonly Dictionary<int, string> FamilyMap = new()   //가문
         {
-            {1, "카이루스"},
+            {1, "Caelus"},
             {2, "플로라"},
             {3, "이그니스"},
             {4, "루멘"},

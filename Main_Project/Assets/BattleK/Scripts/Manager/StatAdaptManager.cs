@@ -16,8 +16,7 @@ namespace BattleK.Scripts.Manager
         [Header("Manager")]
         [SerializeField] private StatWindowManager _statWindowManager;
         [SerializeField] private HPManager _hpManager;
-        [SerializeField] private BattleStartUsingSlots _battleStart;
-    
+
         [Header("필수 참조")]
         [SerializeField] private CalculateManager _calculateManager;
 
@@ -35,11 +34,11 @@ namespace BattleK.Scripts.Manager
             {
                 yield return null;
             }
-            
+
             RebuildIndexIfNeeded(true);
             ApplyToAllUnits();
         }
-        
+
         private void RebuildIndexIfNeeded(bool force = false)
         {
             if (!force && _byUnitId != null && _byUnitName != null) return;
@@ -92,7 +91,7 @@ namespace BattleK.Scripts.Manager
                 return acc;
             }
         }
-        
+
         private void ApplyToAllUnits()
         {
             if (_calculateManager.AllStats.Count == 0)
@@ -115,7 +114,6 @@ namespace BattleK.Scripts.Manager
                 if (row == null) continue;
 
                 ApplyRow(ai, row);
-                _battleStart.CheckSpawnComplete();
                 var ready = ai.GetComponent<StatsReady>();
                 if (!ready) ready = ai.gameObject.AddComponent<StatsReady>();
                 ready.MarkReady();

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace BattleK.Scripts.Manager
 {
@@ -110,32 +111,57 @@ namespace BattleK.Scripts.Manager
 
         public void IsWinner()
         {
-            if (playerUnits.Count < 1)
+            switch (playerUnits.Count)
             {
-                _leagueSceneManager.OnClickLose();
-                Debug.Log("패배");
-                IsAlreadyDone = true;
-                KillAll();
+                case >= 1 when enemyUnits.Count >= 1:
+                    return;
+                case < 1 when enemyUnits.Count >= 1:
+                    _leagueSceneManager.OnClickLose();
+                    Debug.Log("패배");
+                    break;
+                case >= 1 when enemyUnits.Count < 1:
+                    _leagueSceneManager.OnClickWin();
+                    Debug.Log("승리");
+                    break;
+                case < 1 when enemyUnits.Count < 1:
+                    Debug.Log("무승부");
+                    var randWinner = Random.Range(1, 3);
+                    switch (randWinner)
+                    {
+                        case 1:
+                            _leagueSceneManager.OnClickWin();
+                            Debug.Log("승리");
+                            break;
+                        case 2:
+                            _leagueSceneManager.OnClickLose();
+                            Debug.Log("패배");
+                            break;
+                    }
+                    break;
             }
-
-            if (enemyUnits.Count < 1)
-            {
-                _leagueSceneManager.OnClickWin();
-                Debug.Log("승리");
-                IsAlreadyDone = true;
-                KillAll();
-            }
+            IsAlreadyDone = true;
+            KillAll();
         }
 
-        private void KillAll()
+        public void KillAll()
+        {
+            KillPlayers();
+            KillEnemies();
+        }
+
+        public void KillPlayers()
         {
             for (var i = playerUnits.Count - 1; i >= 0; i--)
             {
-                playerUnits[i].OnDead();
+                playerUnits[i].OnDead(StaticAICore.DeathReason.System);
             }
+        }
+
+        public void KillEnemies()
+        {
             for (var i = enemyUnits.Count - 1; i >= 0; i--)
             {
-                enemyUnits[i].OnDead();
+                enemyUnits[i].OnDead(StaticAICore.DeathReason.System);
             }
         }
     }
