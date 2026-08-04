@@ -79,7 +79,6 @@ namespace BattleK.Scripts.AI
         public bool IsAttackReady => _attackTimer <= 0f;
         
         public void InjectSaveDependencies(
-            bool isPlayerUnit,
             UnitLoadManager unitLoadManager,
             UserSaveManager userSaveManager,
             EnemySaveManager enemySaveManager,
@@ -399,7 +398,7 @@ namespace BattleK.Scripts.AI
 
             if (unitData == null) return;
 
-            unitData.currentInjury = Stat.InjuryLevel;
+            Stat.SaveTo(unitData);
             //unitData.equippedItemId = Stat.Item != null ? Stat.Item.ItemId : null;
 
             _userSaveManager.SaveUser(user);
@@ -415,7 +414,7 @@ namespace BattleK.Scripts.AI
 
             if (unitData == null) return;
 
-            unitData.currentInjury = Stat.InjuryLevel;
+            Stat.SaveTo(unitData);
             //unitData.equippedItemId = Stat.Item != null ? Stat.Item.ItemId : null;
 
             // TODO: EnemySaveManager 개편 시 실제 저장 메서드 연결

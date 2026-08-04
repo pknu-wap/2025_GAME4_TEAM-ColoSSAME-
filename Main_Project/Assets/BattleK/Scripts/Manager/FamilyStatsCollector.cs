@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using BattleK.Scripts.AI;
 using BattleK.Scripts.Data;
+using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Data.Type;
 using BattleK.Scripts.JSON;
 using UnityEngine;
@@ -24,6 +25,7 @@ namespace BattleK.Scripts.Manager
         // EnemySaveManager 수정되면 개편 예정
         [SerializeField] private EnemySaveManager _enemySaveManager;
         [SerializeField] private League _league;
+        [SerializeField] private ItemDatabase _itemDatabase;
 
         [Header("key setting")]
         [Tooltip("true면 unitId/characterKey 비교 시 대소문자 무시")]
@@ -71,6 +73,10 @@ namespace BattleK.Scripts.Manager
                 if(matchData == null) continue;
                 
                 var level = ResolveLevel(charKey, matchData.Level, isPlayer);
+                var savedUnit = isPlayer ? FindUserUnit(charKey, comparison) : FindEnemyUnit(charKey, comparison);
+
+                aiCore.Stat.LoadFrom(savedUnit, _itemDatabase);
+                var injury = savedUnit?.currentInjury ?? InjuryStatus.Healthy;
                 
                 result.Add(new CharacterStatsRow
                 {
@@ -82,7 +88,7 @@ namespace BattleK.Scripts.Manager
                     AGI = matchData.Stat_Distribution?.AGI ?? 0,
                     Rarity = matchData.Rarity,
                     Level = level,
-                    CurrentInjury = aiCore.Stat.InjuryLevel,
+                    CurrentInjury = injury,
                     SourceUnit = aiCore
                 });
             }

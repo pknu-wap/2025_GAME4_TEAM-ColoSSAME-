@@ -78,8 +78,16 @@ namespace BattleK.Scripts.Data.ClassInfo
         
         public void LoadEquipped(UnitStat unit, List<string> savedIds)
         {
+            if (unit.AllPossibleSkills == null || unit.AllPossibleSkills.Count == 0)
+            {
+                unit.EquippedSkills = new List<SkillSO>();
+                return;
+            }
+
+            var ids = savedIds ?? new List<string>();
+
             unit.EquippedSkills = unit.AllPossibleSkills
-                .Where(s => savedIds.Contains(s.SkillName))
+                .Where(s => ids.Contains(s.SkillName))
                 .ToList();
         }
 
@@ -92,6 +100,7 @@ namespace BattleK.Scripts.Data.ClassInfo
 
         public void LoadFrom(Unit unit, ItemDatabase itemDb)
         {
+            if (unit == null) return;
             InjuryLevel = unit.currentInjury;
             // Item = string.IsNullOrEmpty(unit.equippedItemId) ? null : itemDb.GetById(unit.equippedItemId);
             LoadEquipped(this, unit.selectedSkills);

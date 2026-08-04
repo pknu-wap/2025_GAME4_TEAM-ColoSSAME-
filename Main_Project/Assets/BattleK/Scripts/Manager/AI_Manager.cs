@@ -74,7 +74,6 @@ namespace BattleK.Scripts.Manager
             unit.TargetLayer = 1 << enemyLayerMaskIndex;
 
             unit.InjectSaveDependencies(
-                isPlayerUnit: sideIndex == 0,
                 unitLoadManager: _unitLoadManager,
                 userSaveManager: _userSaveManager,
                 enemySaveManager: _enemySaveManager,
