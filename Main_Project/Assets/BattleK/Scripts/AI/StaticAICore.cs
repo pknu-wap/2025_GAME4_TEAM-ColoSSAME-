@@ -17,6 +17,12 @@ namespace BattleK.Scripts.AI
 {
     public class StaticAICore : MonoBehaviour
     {
+        public enum DeathReason
+        {
+            Combat,
+            System
+        }
+
         public StaticStateMachine OverrideMachine { get; private set; } 
         public StaticStateMachine MainMachine { get; private set; }
         
@@ -354,9 +360,25 @@ namespace BattleK.Scripts.AI
                 OverrideMachine.StopAndClear();
         }
 
-        public void OnDead()
+        public void OnDead(DeathReason reason = DeathReason.Combat)
         {
             OverrideMachine.ChangeState(new StaticDeathState(this));
+
+            if (reason == DeathReason.System)
+            {
+                return;
+            }
+
+            if (!AiManager)
+            {
+                AiManager = AI_Manager.Instance;
+            }
+
+            if (!AiManager)
+            {
+                return;
+            }
+
             AiManager.UnregisterUnit(this);
             if (AiManager.IsAlreadyDone) return;
             AiManager.IsWinner();
@@ -364,9 +386,9 @@ namespace BattleK.Scripts.AI
 
         private void RegisterActionStates()
         {
-            if (Stat.Skills is { Count: > 0 })
+            if (Stat?.EquippedSkills is { Count: > 0 })
             {
-                _actionCandidates.Add(new StaticSkillState(this, Stat.Skills));
+                _actionCandidates.Add(new StaticSkillState(this, Stat.EquippedSkills));
             }
             _actionCandidates.Add(new StaticRetreatState(this));
             _actionCandidates.Add(new StaticAttackState(this, _windupTime, _activeTime, _recoveryTime));

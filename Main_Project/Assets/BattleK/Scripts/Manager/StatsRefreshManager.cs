@@ -26,8 +26,18 @@ namespace BattleK.Scripts.Manager
             StartCoroutine(DoRefreshFlow());
         }
 
+        private void Awake()
+        {
+            ResolveReferences();
+        }
+
         private IEnumerator DoRefreshFlow()
         {
+            if (!HasRequiredReferences())
+            {
+                yield break;
+            }
+
             _unitLoadManager.TryLoad(out _);
 
             if (_waitOneFrameBeforeCollect) yield return null;
@@ -44,6 +54,40 @@ namespace BattleK.Scripts.Manager
             {
                 _calculateManager.RefreshFromCollectorOnce();
             }
+        }
+
+        private void ResolveReferences()
+        {
+            if (!_unitLoadManager) _unitLoadManager = FindObjectOfType<UnitLoadManager>();
+            if (!_familyStatsCollector) _familyStatsCollector = FindObjectOfType<FamilyStatsCollector>();
+            if (!_calculateManager) _calculateManager = FindObjectOfType<CalculateManager>();
+        }
+
+        private bool HasRequiredReferences()
+        {
+            ResolveReferences();
+
+            var hasAllReferences = true;
+
+            if (!_unitLoadManager)
+            {
+                Debug.LogError("[StatsRefreshManager] UnitLoadManager reference is missing.", this);
+                hasAllReferences = false;
+            }
+
+            if (!_familyStatsCollector)
+            {
+                Debug.LogError("[StatsRefreshManager] FamilyStatsCollector reference is missing.", this);
+                hasAllReferences = false;
+            }
+
+            if (!_calculateManager)
+            {
+                Debug.LogError("[StatsRefreshManager] CalculateManager reference is missing.", this);
+                hasAllReferences = false;
+            }
+
+            return hasAllReferences;
         }
     }
 }

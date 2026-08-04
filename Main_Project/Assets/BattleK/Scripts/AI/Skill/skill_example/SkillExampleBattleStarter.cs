@@ -405,9 +405,9 @@ namespace BattleK.Scripts.AI.Skill.SkillExample
                 return;
             }
 
-            if (unit.Stat.Skills == null || unit.Stat.Skills.Count == 0)
+            if (unit.Stat.EquippedSkills == null || unit.Stat.EquippedSkills.Count == 0)
             {
-                global::UnityEngine.Debug.LogWarning($"[SkillExampleBattleStarter] {unit.name} has no skills in Stat > Skills.");
+                global::UnityEngine.Debug.LogWarning($"[SkillExampleBattleStarter] {unit.name} has no skills in Stat > EquippedSkills.");
             }
 
             if (!unit.AiPath || !unit.Rigidbody || !unit.player || !unit.HPBar)
