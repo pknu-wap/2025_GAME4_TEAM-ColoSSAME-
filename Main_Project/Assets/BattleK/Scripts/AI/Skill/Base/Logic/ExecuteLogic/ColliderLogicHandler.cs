@@ -9,8 +9,11 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic
     {
         [SerializeField] private bool _isContinuous = true;
         [SerializeField] private bool _hitSameTargetOnlyOnce = true;
+        [SerializeField] private bool _destroyWhenMaxHitTargetsReached;
 
-        private readonly Collider2D[] _results = new Collider2D[32];
+        private const int MaxDetectedColliders = 8;
+
+        private readonly Collider2D[] _results = new Collider2D[MaxDetectedColliders];
         private readonly HashSet<StaticAICore> _hitTargets = new();
         private Collider2D _collider;
         private ContactFilter2D _filter;
@@ -44,10 +47,17 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic
         private void DetectAndApply()
         {
             if (!_collider || !_owner) return;
+            if (HasReachedMaxHitTargets()) return;
 
             var count = _collider.OverlapCollider(_filter, _results);
             for (var i = 0; i < count; i++)
             {
+                if (HasReachedMaxHitTargets())
+                {
+                    DestroyByHitLimitIfNeeded();
+                    return;
+                }
+
                 var col = _results[i];
                 if (!col) continue;
 
@@ -61,6 +71,20 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic
 
                 _hitTargets.Add(target);
                 ApplyLogicsToTarget(target);
+                DestroyByHitLimitIfNeeded();
+            }
+        }
+
+        private bool HasReachedMaxHitTargets()
+        {
+            return _maxHitTargets > 0 && _hitTargets.Count >= _maxHitTargets;
+        }
+
+        private void DestroyByHitLimitIfNeeded()
+        {
+            if (_destroyWhenMaxHitTargetsReached && HasReachedMaxHitTargets())
+            {
+                Destroy(gameObject);
             }
         }
 

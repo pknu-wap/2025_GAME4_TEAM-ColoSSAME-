@@ -18,8 +18,19 @@ MonoBehaviour:
   SkillName: SwordSkill22
   InternalPriority: 400
   SkillPrefab: {fileID: 7496547674212387651, guid: afed8cd131bc34a08a4710cf2bad61ae, type: 3}
+  SkillPrefabScale: 1
+  FlipSkillPrefabByOwnerFacing: 1
+  WindupPrefab: {fileID: 0}
+  WindupSpawnAt: 0
+  WindupPrefabScale: 1
+  FlipWindupPrefabByOwnerFacing: 0
+  FadeWindupPrefab: 1
+  WindupFadeInTime: 0.15
+  WindupFadeOutTime: 0.15
   Cooldown: 1
-  SkillArea: {x: 2, y: 2}
+  SkillArea: {x: 20, y: 20}
+  MaxHitTargets: 1
+  OwnerFrontDistance: 1
   SpawnAt: 0
   WindupTime: 0
   ActiveTime: 1
@@ -31,10 +42,11 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 2659283927866277888
-      type: {class: HealthPerDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
+      type: {class: DfMultipleDamage, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
       data:
-        BaseDamageRatio: 0.1
-        SkillPointBonusRatio: 0.1
+        SkillPointRatio: 0.14
+        BaseMultiplier: 1.75
+        DefenseRatio: 0.35
     - rid: 2659283927866277889
       type: {class: NearestTargetLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic, asm: Assembly-CSharp}
       data: 

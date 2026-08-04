@@ -5,7 +5,6 @@ using BattleK.Scripts.AI.StaticScoreState.ActionStates;
 using BattleK.Scripts.AI.StaticScoreState.Attack;
 using BattleK.Scripts.AI.StaticScoreState.StaticVerStates;
 using BattleK.Scripts.AI.StaticScoreState.Targeting;
-using BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic;
 using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Data.Type.AIDataType.CC;
 using BattleK.Scripts.HP;
@@ -46,6 +45,8 @@ namespace BattleK.Scripts.AI
         public int CurrentDefense { get; private set; }
         public int CurrentSkillPoint { get; private set; }
         public float CurrentEvasionRate { get; private set; }
+        public float CurrentAttackSpeed { get; private set; }
+        public float CurrentAttackDelay { get; private set; }
         
         [Header("Runtime Info")]
         public Transform Target;
@@ -58,6 +59,7 @@ namespace BattleK.Scripts.AI
         
         private StaticAICore _targetCore;
         public bool IsDead => OverrideMachine.CurrentState is StaticDeathState;
+        public bool IsInvincible => HasStatus(StatusType.Invincible);
 
         [HideInInspector] public float LastRetreatFinishTime;
         private float _attackTimer;
@@ -137,7 +139,7 @@ namespace BattleK.Scripts.AI
         
         public void SetAttackCooldown()
         {
-            _attackTimer = Stat.AttackDelay;
+            _attackTimer = CurrentAttackDelay > 0f ? CurrentAttackDelay : Stat.AttackDelay;
         }
 
         public void StopMovement()
@@ -173,6 +175,8 @@ namespace BattleK.Scripts.AI
             CurrentEvasionRate = Stat.EvasionRate;
             CurrentMoveSpeed = Stat.MoveSpeed;
             CurrentSkillPoint = Stat.SkillPoint;
+            CurrentAttackSpeed = Stat.AttackSpeed;
+            CurrentAttackDelay = Stat.AttackDelay;
             _modifiers.Clear();
         }
         
@@ -202,6 +206,11 @@ namespace BattleK.Scripts.AI
                 }
             }
             return false;
+        }
+
+        public bool HasStatus(StatusType type)
+        {
+            return _modifiers.TryGetValue(type, out var sourceDict) && sourceDict.Count > 0;
         }
 
         public void RemoveAllDebuffs() //디버프 전체 제거()
@@ -251,6 +260,23 @@ namespace BattleK.Scripts.AI
                 case StatusType.EvasionRateMultiplier:
                     CurrentEvasionRate = (int)(Stat.EvasionRate * finalMul);
                     break;
+                case StatusType.AttackSpeedMultiplier:
+                    ApplyAttackSpeedMultiplier(finalMul);
+                    break;
+                case StatusType.Invincible:
+                    break;
+            }
+        }
+
+        private void ApplyAttackSpeedMultiplier(float finalMul)
+        {
+            finalMul = Mathf.Max(0.01f, finalMul);
+            CurrentAttackSpeed = Stat.AttackSpeed * finalMul;
+            CurrentAttackDelay = Stat.AttackDelay / finalMul;
+
+            if (_attackTimer > CurrentAttackDelay)
+            {
+                _attackTimer = CurrentAttackDelay;
             }
         }
         
@@ -288,9 +314,8 @@ namespace BattleK.Scripts.AI
         public void OnTakeDamage(int damage, bool isPenetrating = false)
         {
             if (IsDead || Stat.CurrentHP == 0) return;
-            if (TryGetComponent(out InvincibleTargetController invincible) && invincible.IsInvincible)
+            if (IsInvincible)
             {
-                Debug.Log($"{name} ignored damage by invincible.");
                 return;
             }
             

@@ -10,16 +10,29 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 118a914a25676ed4eb83b53cf6f25c75, type: 3}
-  m_Name: Skimisher_Tier1_Skill2
+  m_Name: Skimisher_Tier2_2
   m_EditorClassIdentifier: 
-  TargetType: 1
-  ExecutionCondition:
-  - rid: 8875517687370350596
+  TargetType: 2
+  ExecutionCondition: []
   SkillName: WindBoost
   InternalPriority: 200
-  SkillPrefab: {fileID: 1234832066196784394, guid: 6b3d81dfa0c63ea41b1b47fc5fc22308, type: 3}
+  SkillPrefab: {fileID: 3297036654887846894, guid: 7fd1a167ada6424dbaf4d85385b5c9ee, type: 3}
+  SkillPrefabScale: 1
+  FlipSkillPrefabByOwnerFacing: 0
+  FollowSkillPrefab: 1
+  SkillPrefabSpawnCount: 1
+  SkillPrefabSpawnInterval: 0
+  WindupPrefab: {fileID: 0}
+  WindupSpawnAt: 0
+  WindupPrefabScale: 1
+  FlipWindupPrefabByOwnerFacing: 0
+  FadeWindupPrefab: 1
+  WindupFadeInTime: 0.15
+  WindupFadeOutTime: 0.15
   Cooldown: 2
-  SkillArea: {x: 0, y: 0}
+  SkillArea: {x: 0, y: 2}
+  MaxHitTargets: 0
+  OwnerFrontDistance: 1
   SpawnAt: 0
   WindupTime: 0.1
   ActiveTime: 0.3
@@ -34,11 +47,8 @@ MonoBehaviour:
       type: {class: ApplyCC, ns: BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic, asm: Assembly-CSharp}
       data:
         StatusType: 3
-        BasicStatMultiplier: 0.1
+        BasicStatMultiplier: 1.1
         SkillPointStatMultiplier: 0.01
         Duration: 5
         IsHardCC: 0
         AnimState: 4
-    - rid: 8875517687370350596
-      type: {class: NearestTargetLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic, asm: Assembly-CSharp}
-      data: 

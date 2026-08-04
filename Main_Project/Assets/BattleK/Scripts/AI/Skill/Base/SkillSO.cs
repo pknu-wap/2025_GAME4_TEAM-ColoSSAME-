@@ -12,6 +12,18 @@ namespace BattleK.Scripts.AI.Skill.Base
     {
         public enum SpawnPosition { Owner, Target, OwnerMiddle, OwnerFront }
         public enum TargetingType { Enemy, Ally, None }
+
+        private readonly struct SpriteFadeTarget
+        {
+            public readonly SpriteRenderer Renderer;
+            public readonly Color BaseColor;
+
+            public SpriteFadeTarget(SpriteRenderer renderer, Color baseColor)
+            {
+                Renderer = renderer;
+                BaseColor = baseColor;
+            }
+        }
         
         [Header("Targeting Settings")]
         public TargetingType TargetType;
@@ -26,6 +38,9 @@ namespace BattleK.Scripts.AI.Skill.Base
         public GameObject SkillPrefab;
         [Min(0f)] public float SkillPrefabScale = 1f;
         public bool FlipSkillPrefabByOwnerFacing;
+        public bool FollowSkillPrefab;
+        [Min(1)] public int SkillPrefabSpawnCount = 1;
+        [Min(0f)] public float SkillPrefabSpawnInterval;
 
         [Header("Windup Prefab Settings")]
         public GameObject WindupPrefab;
@@ -57,7 +72,16 @@ namespace BattleK.Scripts.AI.Skill.Base
 
         public void ExecuteSkill(StaticAICore owner, Transform target)
         {
-            if (!SkillPrefab) return;
+            var spawnCount = GetSkillPrefabSpawnCount();
+            for (var i = 0; i < spawnCount; i++)
+            {
+                SpawnSkillPrefab(owner, target);
+            }
+        }
+
+        private GameObject SpawnSkillPrefab(StaticAICore owner, Transform target)
+        {
+            if (!SkillPrefab) return null;
             var spawnRot = owner.transform.rotation;
             var spawnPos = GetSpawnPosition(owner, target, SpawnAt);
 
@@ -72,7 +96,7 @@ namespace BattleK.Scripts.AI.Skill.Base
                 direction = ((Vector2)(target.position - spawnPos)).normalized;
             }
 
-            // 이동 초기화
+            // Initialize projectile movement.
             var movement = instance.GetComponent<ProjectileMovement>();
             if (movement != null)
             {
@@ -93,6 +117,8 @@ namespace BattleK.Scripts.AI.Skill.Base
                 p.Initialize(owner, SkillLogics, ActiveTime, targetMask, target, spawnPos, MaxHitTargets);
                 p.StartProcess();
             }
+
+            return instance;
         }
         
         public IEnumerator ExecuteSkillRoutine(StaticAICore owner, Transform target)
@@ -146,9 +172,85 @@ namespace BattleK.Scripts.AI.Skill.Base
                 Destroy(windupInstance);
             }
 
-            ExecuteSkill(owner, target);
-            yield return new WaitForSeconds(ActiveTime);
+            yield return SpawnSkillPrefabsRoutine(owner, target);
             yield return new WaitForSeconds(RecoveryTime);
+        }
+
+        private IEnumerator SpawnSkillPrefabsRoutine(StaticAICore owner, Transform target)
+        {
+            var skillInstances = new List<GameObject>();
+            var spawnCount = GetSkillPrefabSpawnCount();
+            var spawnInterval = Mathf.Max(0f, SkillPrefabSpawnInterval);
+
+            for (var i = 0; i < spawnCount; i++)
+            {
+                var skillInstance = SpawnSkillPrefab(owner, target);
+                if (skillInstance)
+                {
+                    skillInstances.Add(skillInstance);
+                }
+
+                if (i < spawnCount - 1 && spawnInterval > 0f)
+                {
+                    yield return WaitForSkillPrefabSpawnInterval(spawnInterval, skillInstances, owner, target);
+                }
+            }
+
+            if (FollowSkillPrefab && skillInstances.Count > 0)
+            {
+                yield return FollowSkillPrefabsForActiveTime(skillInstances, owner, target);
+                yield break;
+            }
+
+            yield return new WaitForSeconds(ActiveTime);
+        }
+
+        private IEnumerator WaitForSkillPrefabSpawnInterval(float duration, List<GameObject> skillInstances, StaticAICore owner, Transform target)
+        {
+            if (!FollowSkillPrefab)
+            {
+                yield return new WaitForSeconds(duration);
+                yield break;
+            }
+
+            var elapsed = 0f;
+            while (elapsed < duration)
+            {
+                UpdateSkillPrefabFollows(skillInstances, owner, target);
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+        }
+
+        private IEnumerator FollowSkillPrefabsForActiveTime(List<GameObject> skillInstances, StaticAICore owner, Transform target)
+        {
+            var elapsed = 0f;
+            while (elapsed < ActiveTime)
+            {
+                UpdateSkillPrefabFollows(skillInstances, owner, target);
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+        }
+
+        private void UpdateSkillPrefabFollows(List<GameObject> skillInstances, StaticAICore owner, Transform target)
+        {
+            for (var i = skillInstances.Count - 1; i >= 0; i--)
+            {
+                var skillInstance = skillInstances[i];
+                if (!skillInstance)
+                {
+                    skillInstances.RemoveAt(i);
+                    continue;
+                }
+
+                UpdateSkillPrefabFollow(skillInstance, owner, target);
+            }
+        }
+
+        private int GetSkillPrefabSpawnCount()
+        {
+            return Mathf.Max(1, SkillPrefabSpawnCount);
         }
         
         public bool CanExecute(StaticAICore owner, out Transform foundTarget)
@@ -225,8 +327,9 @@ namespace BattleK.Scripts.AI.Skill.Base
             if (!instance || !owner || !shouldFlip) return;
 
             var scale = instance.transform.localScale;
+            var facingDirection = GetOwnerFacingDirection(owner);
 
-            scale.x = Mathf.Abs(scale.x) * GetOwnerFacingScaleSign(owner);
+            scale.x = Mathf.Abs(scale.x) * (facingDirection.x > 0f ? -1f : 1f);
             instance.transform.localScale = scale;
         }
 
@@ -252,11 +355,12 @@ namespace BattleK.Scripts.AI.Skill.Base
             instance.transform.rotation = owner.transform.rotation;
         }
 
-        private static float GetOwnerFacingScaleSign(StaticAICore owner)
+        private void UpdateSkillPrefabFollow(GameObject instance, StaticAICore owner, Transform target)
         {
-            if (!owner) return 1f;
+            if (!instance || !owner || !FollowSkillPrefab) return;
 
-            return owner.transform.localScale.x < 0f ? -1f : 1f;
+            instance.transform.position = GetSpawnPosition(owner, target, SpawnAt);
+            instance.transform.rotation = owner.transform.rotation;
         }
 
         private static List<SpriteFadeTarget> CaptureSpriteFadeTargets(GameObject instance)
@@ -305,18 +409,6 @@ namespace BattleK.Scripts.AI.Skill.Base
             }
 
             return Mathf.Clamp01(alpha);
-        }
-
-        private readonly struct SpriteFadeTarget
-        {
-            public readonly SpriteRenderer Renderer;
-            public readonly Color BaseColor;
-
-            public SpriteFadeTarget(SpriteRenderer renderer, Color baseColor)
-            {
-                Renderer = renderer;
-                BaseColor = baseColor;
-            }
         }
     }
 }

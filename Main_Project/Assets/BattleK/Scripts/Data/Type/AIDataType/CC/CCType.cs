@@ -35,6 +35,7 @@ namespace BattleK.Scripts.Data.Type.AIDataType.CC
         AttackSpeedMultiplier,
         DefenseMultiplier,
         MoveSpeedMultiplier,
-        EvasionRateMultiplier
+        EvasionRateMultiplier,
+        Invincible
     }
 }

@@ -15,7 +15,7 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.ColliderLogics
 
         private readonly Collider2D[] _results = new Collider2D[20];
         private readonly HashSet<StaticAICore> _hitTargets = new();
-        private readonly List<StaticAICore> _limitedTargets = new();
+        private readonly List<StaticAICore> _detectedTargets = new();
 
         public override void StartProcess()
         {
@@ -47,11 +47,19 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.ColliderLogics
                 this._owner.TargetLayer
             );
 
+            this.CollectTargets(count);
+
             if (this._maxHitTargets > 0)
             {
-                this.DetectLimitedTargetsAndApply(count, center);
-                return;
+                this.SortTargetsByDistance(center);
             }
+
+            this.ApplyTargets();
+        }
+
+        private void CollectTargets(int count)
+        {
+            this._detectedTargets.Clear();
 
             for (int i = 0; i < count; i++)
             {
@@ -60,36 +68,25 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.ColliderLogics
                 if (target == null) continue;
                 if (target == this._owner) continue;
                 if (this._hitTargets.Contains(target)) continue;
+                if (this._detectedTargets.Contains(target)) continue;
 
-                this._hitTargets.Add(target);
-                this.ApplyLogicsToTarget(target);
+                this._detectedTargets.Add(target);
             }
         }
 
-        private void DetectLimitedTargetsAndApply(int count, Vector2 center)
+        private void SortTargetsByDistance(Vector2 center)
         {
-            this._limitedTargets.Clear();
-
-            for (int i = 0; i < count; i++)
-            {
-                StaticAICore target = this.GetTargetFromCollider(this._results[i]);
-
-                if (target == null) continue;
-                if (target == this._owner) continue;
-                if (this._hitTargets.Contains(target)) continue;
-                if (this._limitedTargets.Contains(target)) continue;
-
-                this._limitedTargets.Add(target);
-            }
-
-            this._limitedTargets.Sort((a, b) =>
+            this._detectedTargets.Sort((a, b) =>
             {
                 float aDistance = ((Vector2)a.transform.position - center).sqrMagnitude;
                 float bDistance = ((Vector2)b.transform.position - center).sqrMagnitude;
                 return aDistance.CompareTo(bDistance);
             });
+        }
 
-            foreach (StaticAICore target in this._limitedTargets)
+        private void ApplyTargets()
+        {
+            foreach (StaticAICore target in this._detectedTargets)
             {
                 if (this._maxHitTargets > 0 && this._hitTargets.Count >= this._maxHitTargets)
                 {

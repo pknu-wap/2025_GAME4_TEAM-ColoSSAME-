@@ -16,12 +16,24 @@ MonoBehaviour:
   ExecutionCondition: []
   SkillName: Legionary_U_Invincible
   InternalPriority: 500
-  SkillPrefab: {fileID: 4103200000000000001, guid: d1f90eb04b154fd29b78e6ba32141ad3, type: 3}
+  SkillPrefab: {fileID: 1063918882999393564, guid: 9b0326e5080f4cbe9f0e244c3154402d, type: 3}
+  SkillPrefabScale: 1
+  FlipSkillPrefabByOwnerFacing: 0
+  FollowSkillPrefab: 1
+  WindupPrefab: {fileID: 0}
+  WindupSpawnAt: 0
+  WindupPrefabScale: 1
+  FlipWindupPrefabByOwnerFacing: 0
+  FadeWindupPrefab: 1
+  WindupFadeInTime: 0.15
+  WindupFadeOutTime: 0.15
   Cooldown: 10
   SkillArea: {x: 1, y: 1}
+  MaxHitTargets: 0
+  OwnerFrontDistance: 1
   SpawnAt: 0
   WindupTime: 0
-  ActiveTime: 0.1
+  ActiveTime: 2
   RecoveryTime: 0
   SkillLogics:
   - rid: 7310200000000000001
@@ -30,7 +42,11 @@ MonoBehaviour:
     version: 2
     RefIds:
     - rid: 7310200000000000001
-      type: {class: InvincibleLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic, asm: Assembly-CSharp}
+      type: {class: ApplyCC, ns: BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic, asm: Assembly-CSharp}
       data:
+        StatusType: 7
+        BasicStatMultiplier: 1
+        SkillPointStatMultiplier: 0
         Duration: 2
-        RefreshDuration: 1
+        IsHardCC: 0
+        AnimState: 4
