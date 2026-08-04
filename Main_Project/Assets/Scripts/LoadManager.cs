@@ -26,7 +26,7 @@ public class LoadManager : MonoBehaviour
             Debug.Log("모든 세이브 파일 불러오기 성공");
 
             // 다음 씬으로 이동
-            SceneTransition.Instance.Load("Book_JW");
+            SceneTransition.Instance.Load("Book");
         }
         else
         {

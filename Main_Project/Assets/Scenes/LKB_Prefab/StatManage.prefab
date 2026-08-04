@@ -1,0 +1,441 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &268845712298435995
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6729391580521987144}
+  - component: {fileID: 5614839030743010754}
+  m_Layer: 0
+  m_Name: CalculateManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6729391580521987144
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 268845712298435995}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 2.6171398, y: -2.581939, z: -74.14862}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3610337611794060122}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5614839030743010754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 268845712298435995}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb7d0980584fb704c8a6e9ec54b563cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _statsCollector: {fileID: 4782778124760786219}
+  _playerStatsCollector: {fileID: 0}
+  _autoRetryIfEmpty: 1
+  _retryIntervalSeconds: 0.25
+  _maxRetries: 40
+  _playerStats:
+  - Unit_ID: Caelus_Recruit_Sorcerer
+    Unit_Name: "\uCE74\uC774\uB8E8\uC2A4 \uC2E0\uBCD1 \uC8FC\uC220\uC0AC"
+    ATK: 25
+    DEF: 32
+    HP: 204
+    AGI: 3
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  - Unit_ID: Caelus_Recruit_Skirmisher
+    Unit_Name: "\uCE74\uC774\uB8E8\uC2A4 \uC2E0\uBCD1 \uCC99\uD6C4\uBCD1"
+    ATK: 24
+    DEF: 32
+    HP: 203
+    AGI: 5
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  - Unit_ID: Caelus_Recruit_Legionary
+    Unit_Name: "\uCE74\uC774\uB8E8\uC2A4 \uC2E0\uBCD1 \uAD70\uB2E8\uBCD1"
+    ATK: 23
+    DEF: 35
+    HP: 204
+    AGI: 2
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  - Unit_ID: Caelus_Recruit_Gladiator
+    Unit_Name: "\uCE74\uC774\uB8E8\uC2A4 \uC2E0\uBCD1 \uAC80\uD22C\uC0AC"
+    ATK: 25
+    DEF: 33
+    HP: 204
+    AGI: 2
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  _enemyStats:
+  - Unit_ID: Astra_Recruit_Priest
+    Unit_Name: "\uC544\uC2A4\uD2B8\uB77C \uC2E0\uBCD1 \uC0AC\uC81C"
+    ATK: 22
+    DEF: 33
+    HP: 205
+    AGI: 4
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  - Unit_ID: Astra_Recruit_Skirmisher
+    Unit_Name: "\uC544\uC2A4\uD2B8\uB77C \uC2E0\uBCD1 \uCC99\uD6C4\uBCD1"
+    ATK: 24
+    DEF: 32
+    HP: 203
+    AGI: 5
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  - Unit_ID: Astra_Recruit_Legionary
+    Unit_Name: "\uC544\uC2A4\uD2B8\uB77C \uC2E0\uBCD1 \uAD70\uB2E8\uBCD1"
+    ATK: 23
+    DEF: 35
+    HP: 204
+    AGI: 2
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  - Unit_ID: Astra_Recruit_Assassin
+    Unit_Name: "\uC544\uC2A4\uD2B8\uB77C \uC2E0\uBCD1 \uC554\uC0B4\uC790"
+    ATK: 25
+    DEF: 32
+    HP: 202
+    AGI: 5
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  _allStats:
+  - Unit_ID: Caelus_Recruit_Sorcerer
+    Unit_Name: "\uCE74\uC774\uB8E8\uC2A4 \uC2E0\uBCD1 \uC8FC\uC220\uC0AC"
+    ATK: 25
+    DEF: 32
+    HP: 204
+    AGI: 3
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  - Unit_ID: Caelus_Recruit_Skirmisher
+    Unit_Name: "\uCE74\uC774\uB8E8\uC2A4 \uC2E0\uBCD1 \uCC99\uD6C4\uBCD1"
+    ATK: 24
+    DEF: 32
+    HP: 203
+    AGI: 5
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  - Unit_ID: Caelus_Recruit_Legionary
+    Unit_Name: "\uCE74\uC774\uB8E8\uC2A4 \uC2E0\uBCD1 \uAD70\uB2E8\uBCD1"
+    ATK: 23
+    DEF: 35
+    HP: 204
+    AGI: 2
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  - Unit_ID: Caelus_Recruit_Gladiator
+    Unit_Name: "\uCE74\uC774\uB8E8\uC2A4 \uC2E0\uBCD1 \uAC80\uD22C\uC0AC"
+    ATK: 25
+    DEF: 33
+    HP: 204
+    AGI: 2
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  - Unit_ID: Astra_Recruit_Priest
+    Unit_Name: "\uC544\uC2A4\uD2B8\uB77C \uC2E0\uBCD1 \uC0AC\uC81C"
+    ATK: 22
+    DEF: 33
+    HP: 205
+    AGI: 4
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  - Unit_ID: Astra_Recruit_Skirmisher
+    Unit_Name: "\uC544\uC2A4\uD2B8\uB77C \uC2E0\uBCD1 \uCC99\uD6C4\uBCD1"
+    ATK: 24
+    DEF: 32
+    HP: 203
+    AGI: 5
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  - Unit_ID: Astra_Recruit_Legionary
+    Unit_Name: "\uC544\uC2A4\uD2B8\uB77C \uC2E0\uBCD1 \uAD70\uB2E8\uBCD1"
+    ATK: 23
+    DEF: 35
+    HP: 204
+    AGI: 2
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  - Unit_ID: Astra_Recruit_Assassin
+    Unit_Name: "\uC544\uC2A4\uD2B8\uB77C \uC2E0\uBCD1 \uC554\uC0B4\uC790"
+    ATK: 25
+    DEF: 32
+    HP: 202
+    AGI: 5
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  _basicCorrection:
+  - 20
+  - 30
+  - 200
+  - 0
+  _starCorrection:
+  - 0
+  - 0
+  - 0
+  - 0
+  _bornStarCorrection:
+  - 1
+  - 1
+  - 1
+  - 1
+--- !u!1 &909264949603392117
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5443460989829686218}
+  - component: {fileID: 667550761229746126}
+  m_Layer: 0
+  m_Name: UnitLoadManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5443460989829686218
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 909264949603392117}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 2.6171398, y: -2.581939, z: -74.14862}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3610337611794060122}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &667550761229746126
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 909264949603392117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78d7de4367199904d8658b71646a8c32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _absolutePath: 
+  _loadOnAwake: 1
+--- !u!1 &5440982785249509895
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7925075881973520230}
+  - component: {fileID: 4782778124760786219}
+  m_Layer: 0
+  m_Name: FamilyStatCollector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7925075881973520230
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5440982785249509895}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 2.6171398, y: -2.581939, z: -74.14862}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3610337611794060122}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4782778124760786219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5440982785249509895}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76aaadf361aaaef4f827768bfa8a4a1f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _playerUnitsRoot: {fileID: 0}
+  _enemyUnitsRoot: {fileID: 0}
+  _familyJsonTemplate: Assets/BattleK/Family/{FAMILY}/{FAMILY}.json
+  _unitLoadManager: {fileID: 667550761229746126}
+  _league:
+    settings:
+      name: 
+      totalRounds: 0
+      pointRule:
+        win: 0
+        draw: 0
+        lose: 0
+      playerTeamId: 0
+      playerTeamName: 
+      tier: 0
+      tierName: 
+    teams: []
+    schedule: []
+    currentRound: 0
+    currentMatchIndex: 0
+    currentEnemyTeamId: 0
+    currentMatchId: 
+    currentEnemy:
+      id: 0
+      fid: 
+      name: 
+      money: 0
+      growthStage: 0
+      units: []
+  _caseInsensitiveMatch: 1
+  _playerStats:
+  - Unit_ID: Caelus_Recruit_Sorcerer
+    Unit_Name: "\uCE74\uC774\uB8E8\uC2A4 \uC2E0\uBCD1 \uC8FC\uC220\uC0AC"
+    ATK: 4
+    DEF: 1
+    HP: 3
+    AGI: 2
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  - Unit_ID: Caelus_Recruit_Skirmisher
+    Unit_Name: "\uCE74\uC774\uB8E8\uC2A4 \uC2E0\uBCD1 \uCC99\uD6C4\uBCD1"
+    ATK: 3
+    DEF: 1
+    HP: 2
+    AGI: 4
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  - Unit_ID: Caelus_Recruit_Legionary
+    Unit_Name: "\uCE74\uC774\uB8E8\uC2A4 \uC2E0\uBCD1 \uAD70\uB2E8\uBCD1"
+    ATK: 2
+    DEF: 4
+    HP: 3
+    AGI: 1
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  - Unit_ID: Caelus_Recruit_Gladiator
+    Unit_Name: "\uCE74\uC774\uB8E8\uC2A4 \uC2E0\uBCD1 \uAC80\uD22C\uC0AC"
+    ATK: 4
+    DEF: 2
+    HP: 3
+    AGI: 1
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  _enemyStats:
+  - Unit_ID: Astra_Recruit_Priest
+    Unit_Name: "\uC544\uC2A4\uD2B8\uB77C \uC2E0\uBCD1 \uC0AC\uC81C"
+    ATK: 1
+    DEF: 2
+    HP: 4
+    AGI: 3
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  - Unit_ID: Astra_Recruit_Skirmisher
+    Unit_Name: "\uC544\uC2A4\uD2B8\uB77C \uC2E0\uBCD1 \uCC99\uD6C4\uBCD1"
+    ATK: 3
+    DEF: 1
+    HP: 2
+    AGI: 4
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  - Unit_ID: Astra_Recruit_Legionary
+    Unit_Name: "\uC544\uC2A4\uD2B8\uB77C \uC2E0\uBCD1 \uAD70\uB2E8\uBCD1"
+    ATK: 2
+    DEF: 4
+    HP: 3
+    AGI: 1
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+  - Unit_ID: Astra_Recruit_Assassin
+    Unit_Name: "\uC544\uC2A4\uD2B8\uB77C \uC2E0\uBCD1 \uC554\uC0B4\uC790"
+    ATK: 4
+    DEF: 1
+    HP: 1
+    AGI: 4
+    Rarity: 1
+    Level: 1
+    CurrentInjury: 0
+--- !u!1 &6455238855440414467
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3610337611794060122}
+  m_Layer: 0
+  m_Name: StatManage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3610337611794060122
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6455238855440414467}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.6171398, y: 2.581939, z: 74.14862}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 6729391580521987144}
+  - {fileID: 7925075881973520230}
+  - {fileID: 5443460989829686218}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
