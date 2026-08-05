@@ -7,7 +7,6 @@ using System.Linq;
 using UnityEngine.UI;
 using TMPro;
 using Scripts.Team.IsAnimStopClick;
-using Scripts.Team.CardAnimcontrol;
 using Scripts.Team.FighterViewer;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -38,8 +37,7 @@ namespace Scripts.Team.FighterRandomBuy
 
         public UnitViewer unitviewer;
         private int currentSelectedIndex = -1;
-        public RandomSkillGrant randomSkillGrant;
-        
+
         public GameObject cards;
         public GameObject cardsstate;
 
@@ -199,17 +197,6 @@ namespace Scripts.Team.FighterRandomBuy
                     data.Class
                 );
 
-                List<string> skills =
-                    randomSkillGrant.GetRandomSkills(
-                        data.Class,
-                        data.Rarity
-                    );
-
-                foreach (var skillId in skills)
-                {
-                    newUnit.skills.Add(new UnitSkill(skillId, 1));
-                }
-
                 rolledUnits.Add(newUnit);
             }
         }
@@ -249,11 +236,6 @@ namespace Scripts.Team.FighterRandomBuy
                 return;
 
             CharacterGetCheck[index] = 1;
-
-            CardAnim cardAnim = anim[index].GetComponent<CardAnim>();
-            cardAnim.SetIndex(index);
-
-            anim[index].SetTrigger("Iscardclick");
 
             StartCoroutine(LoadSprite(CharacterImage[index], CharacterIDList[index]));
         }
