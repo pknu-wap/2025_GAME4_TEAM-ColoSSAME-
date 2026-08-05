@@ -167,6 +167,8 @@ public class FighterNameBinder : MonoBehaviour
             Debug.LogWarning("⚠️ 자동 선택할 캐릭터 슬롯이 없습니다.");
         }
 
+        UpdateSlotActive(myUnits);
+
         Debug.Log("✅ FighterNameBinder 세팅 완료");
     }
     private void OnEnable()
@@ -292,8 +294,17 @@ public class FighterNameBinder : MonoBehaviour
         Addressables.Release(locHandle);
     }
 
+    private void UpdateSlotActive(List<Unit> myUnits)
+    {
+        for (int i = 0; i < fighterListParent.childCount; i++)
+        {
+            fighterListParent.GetChild(i).gameObject.SetActive(i < myUnits.Count);
+        }
+    }
+    
     public void RefreshTrainingUI()
     {
+        UpdateSlotActive(UserManager.Instance.user.myUnits);
         getExpButton.RefreshSelectedUnitUI();
     }
 
