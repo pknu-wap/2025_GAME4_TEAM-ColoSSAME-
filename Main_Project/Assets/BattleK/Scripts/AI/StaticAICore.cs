@@ -379,9 +379,9 @@ namespace BattleK.Scripts.AI
 
         public void OnDead(DeathReason reason = DeathReason.Combat)
         {
-            switch (deathReason)
+            switch (reason)
             {
-                case DeathReason.UnitAttack:
+                case DeathReason.Combat:
                     if (AiManager.IsAlreadyDone) return;
                     AiManager.UnregisterUnit(this);
                     if(Stat.InjuryLevel <= InjuryStatus.FatalInjury)
@@ -393,7 +393,7 @@ namespace BattleK.Scripts.AI
                     AiManager.UnregisterUnit(this);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(deathReason), deathReason, null);
+                    throw new ArgumentOutOfRangeException(nameof(reason), reason, null);
             }
             OverrideMachine.ChangeState(new StaticDeathState(this));
 
