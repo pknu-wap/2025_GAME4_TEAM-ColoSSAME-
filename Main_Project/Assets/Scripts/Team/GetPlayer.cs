@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using UnityEngine.UI;
 using TMPro;
-using Scripts.Team.IsAnimStopClick;
 using Scripts.Team.FighterViewer;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -49,8 +48,6 @@ namespace Scripts.Team.FighterRandomBuy
 
         public Animator[] anim;
         public Sprite cardback; 
-
-        public CardClickStop blockclick;
 
         private League league; //가문
 
@@ -256,12 +253,12 @@ namespace Scripts.Team.FighterRandomBuy
 
             string skillInfo = "스킬:\n";
 
-            foreach (var s in unit.skills)
+            /*foreach (var s in unit.skills)
             {
-                skillInfo += $"{s.skillId} (Lv.{s.level})\n";
+                skillInfo += $"{s.skillName} (Lv.{s.level})\n";
             }
 
-            SkillText.text = skillInfo;
+            SkillText.text = skillInfo;*/
 
             NameText.text = $"이름:{characterdata.Unit_Name}";
             ClassText.text = $"직업:{characterdata.Class}";

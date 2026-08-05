@@ -31,7 +31,6 @@ public class AddRarity : MonoBehaviour
 
     public void RefreshSelectedUnitUI()
     {
-        StopAllCoroutines();
         StartCoroutine(RefreshRoutine());
     }
 
@@ -39,9 +38,6 @@ public class AddRarity : MonoBehaviour
     {
         // 먼저 전부 끄기
         HideAllRarityObjects();
-
-        // 한 프레임 대기
-        yield return null;
 
         if (UserManager.Instance == null || UserManager.Instance.user == null)
             yield break;
@@ -161,6 +157,9 @@ public class AddRarity : MonoBehaviour
             {
                 unit.skills.Add(new UnitSkill(skill.name, 1));
             }
+            
+            UserManager.Instance.SaveUser();
+
             skillSelectUI.Show(choices, unit, newRarity - 3);
         }
 
