@@ -4,6 +4,7 @@ using BattleK.Scripts.AI;
 using BattleK.Scripts.AI.Skill.Base;
 using BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics;
 using BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic;
+using BattleK.Scripts.Data.Type.AIDataType.CC;
 using UnityEngine;
 
 namespace BattleK.Scripts.Manager.Battle
@@ -22,11 +23,17 @@ namespace BattleK.Scripts.Manager.Battle
         private IEnumerator CCRoutine(ApplyCC logic, StaticAICore target, float multiplier)
         {
             if (logic.IsHardCC) target.EnterCCState(logic.AnimState);
-            target.SetStatMultiplier(logic.StatusType, logic, multiplier);
+            if (logic.StatusType != StatusType.None)
+            {
+                target.SetStatMultiplier(logic.StatusType, logic, multiplier);
+            }
 
             yield return new WaitForSeconds(logic.Duration);
             if (logic.IsHardCC) target.ExitCCState();
-            target.RemoveStatMultiplier(logic.StatusType, logic);
+            if (logic.StatusType != StatusType.None)
+            {
+                target.RemoveStatMultiplier(logic.StatusType, logic);
+            }
         }
         
         public void ApplyDotDamage(DotDamageLogic logic, float damagePerTick, bool isPenetrating)

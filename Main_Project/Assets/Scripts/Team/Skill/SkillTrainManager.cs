@@ -23,8 +23,6 @@ public class SkillTrainManager : MonoBehaviour
     {
         ClearUI();
 
-        yield return null;
-
         string unitId = UserManager.Instance.selectedUnitId;
 
         currentUnit = UserManager.Instance.GetMyUnitById(unitId);
@@ -32,6 +30,8 @@ public class SkillTrainManager : MonoBehaviour
         BuildSkillMap();
 
         ShowSkillInfo();
+
+        yield break;
     }
 
     private void ClearUI()
