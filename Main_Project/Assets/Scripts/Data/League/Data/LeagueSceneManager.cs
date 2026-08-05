@@ -68,7 +68,15 @@ public class LeagueSceneManager : MonoBehaviour
         resultEnemyTeamImage.color = Color.white;
         ShowResultUI(opponentTeam.id);
     }
-    
+
+    public void OnClickDraw()
+    {
+        leagueManager.ProcessRoundResult(true, isDraw: true); 
+        resultMyTeamImage.color = Color.white;
+        resultEnemyTeamImage.color = Color.white;
+        ShowResultUI(0);   // 0 = 무승부
+    }
+
 
     void ShowResultUI(int winnerId)
     {
@@ -77,11 +85,11 @@ public class LeagueSceneManager : MonoBehaviour
         resultPanel.SetActive(true);
         resultMyTeamImage.sprite = leagueManager.GetTeamSprite(myTeam.id);
         resultMyTeamText.text = myTeam.name;
-        resultMyTeamResult.text = winnerId == myTeam.id ? "승" : "패";
+        resultMyTeamResult.text = winnerId == 0 ? "무" : (winnerId == myTeam.id ? "승" : "패");
         resultEnemyTeamImage.sprite = leagueManager.GetTeamSprite(opponentTeam.id);
         resultEnemyTeamText.text = opponentTeam.name;
-        resultEnemyTeamResult.text = winnerId == opponentTeam.id ? "승" : "패";
-        
+        resultEnemyTeamResult.text = winnerId == 0 ? "무" : (winnerId == opponentTeam.id ? "승" : "패");
+
     }
 }
 
