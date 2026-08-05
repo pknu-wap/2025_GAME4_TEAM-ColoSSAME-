@@ -250,15 +250,7 @@ namespace Scripts.Team.FighterRandomBuy
 
             // 스킬 추가
             
-
             string skillInfo = "스킬:\n";
-
-            /*foreach (var s in unit.skills)
-            {
-                skillInfo += $"{s.skillName} (Lv.{s.level})\n";
-            }
-
-            SkillText.text = skillInfo;*/
 
             NameText.text = $"이름:{characterdata.Unit_Name}";
             ClassText.text = $"직업:{characterdata.Class}";
@@ -275,8 +267,6 @@ namespace Scripts.Team.FighterRandomBuy
             cards.SetActive(false);
 
         }
-
-    
 
         public void BuyRandomUnit()
         {
@@ -295,7 +285,6 @@ namespace Scripts.Team.FighterRandomBuy
                     rolledUnits[currentSelectedIndex]
                 );
             }
-            
         }
 
         public void BackExplain()
@@ -328,9 +317,7 @@ namespace Scripts.Team.FighterRandomBuy
         public int id;
         public List<CharacterData> Characters;
     }
-
    
-
     public class StatDistribution
     {
         public int ATK;
