@@ -43,6 +43,10 @@ namespace BattleK.Scripts.AI
         public HPBar HPBar;
         public PlayerObjC player;
         public AI_Manager AiManager;
+        private UnitLoadManager _unitLoadManager;
+        private UserSaveManager _userSaveManager;
+        private EnemySaveManager _enemySaveManager;
+        private League _league;
 
         [Header("Stats")]
         public UnitStat Stat;
@@ -75,6 +79,19 @@ namespace BattleK.Scripts.AI
         private readonly Dictionary<StatusType, Dictionary<object, float>> _modifiers = new();
 
         public bool IsAttackReady => _attackTimer <= 0f;
+        
+        public void InjectSaveDependencies(
+            UnitLoadManager unitLoadManager,
+            UserSaveManager userSaveManager,
+            EnemySaveManager enemySaveManager,
+            League league)
+        {
+            _unitLoadManager = unitLoadManager;
+            _userSaveManager = userSaveManager;
+            _enemySaveManager = enemySaveManager;
+            _league = league;
+        }
+        
         private void Awake()
         {
             OverrideMachine = new StaticStateMachine(this);
@@ -362,6 +379,22 @@ namespace BattleK.Scripts.AI
 
         public void OnDead(DeathReason reason = DeathReason.Combat)
         {
+            switch (reason)
+            {
+                case DeathReason.Combat:
+                    if (AiManager.IsAlreadyDone) return;
+                    AiManager.UnregisterUnit(this);
+                    if(Stat.InjuryLevel <= InjuryStatus.FatalInjury)
+                        ++Stat.InjuryLevel;
+                    PersistUnitState();
+                    AiManager.IsWinner();
+                    break;
+                case DeathReason.System:
+                    AiManager.UnregisterUnit(this);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(reason), reason, null);
+            }
             OverrideMachine.ChangeState(new StaticDeathState(this));
 
             if (reason == DeathReason.System)
@@ -395,6 +428,45 @@ namespace BattleK.Scripts.AI
             _actionCandidates.Add(new StaticChaseState(this));
             _actionCandidates.Add(new StaticIdleState(this));
             _actionCandidates.Add(new StaticSearchState(this));
+        }
+
+        private void PersistUnitState()
+        { 
+            var IsPlayerUnit = AiManager != null && gameObject.layer == AiManager.PlayerLayer;
+            if (IsPlayerUnit) PersistPlayerUnit();
+            else PersistEnemyUnit();
+        }
+        
+        private void PersistPlayerUnit()
+        {
+            if (_unitLoadManager == null || _userSaveManager == null) return;
+
+            var user = _unitLoadManager.LoadedUser;
+            var unitData = user?.myUnits?.Find(u =>
+                string.Equals(u.unitId?.Trim(), Stat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
+
+            if (unitData == null) return;
+
+            Stat.SaveTo(unitData);
+            //unitData.equippedItemId = Stat.Item != null ? Stat.Item.ItemId : null;
+
+            _userSaveManager.SaveUser(user);
+        }
+
+        private void PersistEnemyUnit()
+        {
+            if (_enemySaveManager == null || _league == null) return;
+
+            var team = _enemySaveManager.GetTeam(_league.currentEnemyTeamId);
+            var unitData = team?.units?.Find(u =>
+                string.Equals(u.unitId?.Trim(), Stat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
+
+            if (unitData == null) return;
+
+            Stat.SaveTo(unitData);
+            //unitData.equippedItemId = Stat.Item != null ? Stat.Item.ItemId : null;
+
+            // TODO: EnemySaveManager 개편 시 실제 저장 메서드 연결
         }
         
 #if UNITY_EDITOR

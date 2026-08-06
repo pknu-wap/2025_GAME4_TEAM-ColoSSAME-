@@ -97,8 +97,8 @@ namespace BattleK.Scripts.UI
         
         private void LoadSavedTargets()
         {
-            var record = PlayerCharacterSaveManager.Instance.GetRecord(_currentKey);
-            if (record == null) return;
+            //var record = PlayerCharacterSaveManager.Instance.GetRecord(_currentKey);
+            //if (record == null) return;
         }
 
         private void SelectSlot(int index)
