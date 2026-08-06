@@ -144,7 +144,8 @@ namespace BattleK.Scripts.Manager
                 DEF = calcDef,
                 HP = calcHp,
                 AGI = calcAgi,
-                Rarity = rarity
+                Rarity = rarity,
+                SourceUnit = stat.SourceUnit
             });
             return list;
         }

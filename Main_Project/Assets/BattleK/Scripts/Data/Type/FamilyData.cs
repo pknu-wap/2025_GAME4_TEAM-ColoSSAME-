@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using BattleK.Scripts.AI;
 using BattleK.Scripts.Data.ClassInfo;
 
 namespace BattleK.Scripts.Data.Type
@@ -12,6 +13,7 @@ namespace BattleK.Scripts.Data.Type
         public int Rarity;
         public int Level;
         public InjuryStatus CurrentInjury;
+        public StaticAICore SourceUnit;
     }
     public class FamilyJson
     {
