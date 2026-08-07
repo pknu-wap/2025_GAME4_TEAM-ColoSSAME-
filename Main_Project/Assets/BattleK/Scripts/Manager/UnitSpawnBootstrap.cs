@@ -23,7 +23,7 @@ namespace BattleK.Scripts.Manager
         [SerializeField] private HPManager hpManager;
         [SerializeField] private StatWindowManager statWindowManager;
         [SerializeField] private FormationManager formationManager;
-        [SerializeField] private LeagueManager leagueManager;
+        [SerializeField] private StatAdaptManager _statAdaptManager;
 
         [Header("배틀 유닛 루트")]
         [SerializeField] private Transform _playerUnitsRoot;
@@ -66,22 +66,22 @@ namespace BattleK.Scripts.Manager
             _mover = new UnitMover();
             _presentation = new UnitPresentationSetup(playerLayerName, enemyLayerName);
             _spawner = new UnitSpawner(_loader, _presentation, _mover, aiManager);
-            _coordinator = new SpawnCompletionCoordinator(_spawner, aiManager, statsCollector, calculateManager, hpManager, statWindowManager);
+            _coordinator = new SpawnCompletionCoordinator(_spawner, aiManager, statsCollector, calculateManager, hpManager, statWindowManager, _statAdaptManager);
 
             _requestBuilder = new BattleFormationRequestBuilder(
                 formationManager, _addressBooks,
                 PlayerUiScale, EnemyUiScale, PlayerOffset, EnemyOffset,
                 PlayerAnimConfig, EnemyAnimConfig);
 
-            if (!leagueManager) leagueManager = FindObjectOfType<LeagueManager>();
 
             if (_startBattleButton)
             {
                 _startBattleButton.onClick.RemoveAllListeners();
                 _startBattleButton.onClick.AddListener(OnClickStartBattle);
             }
-            _playerBookIndex = leagueManager.league.settings.playerTeamId - 1;
-            _enemyBookIndex = leagueManager.league.currentEnemyTeamId - 1;
+
+            _playerBookIndex = LeagueManager.Instance.league.settings.playerTeamId - 1;
+            _enemyBookIndex = LeagueManager.Instance.league.currentEnemyTeamId - 1;
         }
 
         private void OnDestroy()
