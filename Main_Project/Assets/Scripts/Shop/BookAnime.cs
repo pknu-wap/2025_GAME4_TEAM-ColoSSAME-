@@ -25,7 +25,7 @@ public class BookEnterExitController : MonoBehaviour
     public EnterMapping[] enterMappings;
 
     [Header("뒤로가기 버튼")]
-    public Button backButton;
+    public Button[] backButton;
 
     [Header("딜레이(초)")]
     public float enterDelay = 0.5f;
@@ -53,7 +53,11 @@ public class BookEnterExitController : MonoBehaviour
         // back 버튼 연결
         if (backButton != null)
         {
-            backButton.onClick.AddListener(OnClickBack);
+            foreach (Button btn in backButton)
+            {
+                if (btn == null) continue;
+                btn.onClick.AddListener(OnClickBack);
+            }
         }
     }
 
@@ -121,8 +125,11 @@ public class BookEnterExitController : MonoBehaviour
         bookAnimator.SetTrigger(backwardTrigger);
 
         // ✅ 2) backButton은 즉시 숨김
-        if (backButton != null)
-            backButton.gameObject.SetActive(false);
+        foreach (Button btn in backButton)
+        {
+            if (btn != null)
+                btn.gameObject.SetActive(false);
+        }
 
         // ✅ 3) 0.5초 후 enterButton 6개 다시 표시
         StartCoroutine(ShowAllEnterButtonsAfterDelay(enterDelay));
@@ -134,6 +141,8 @@ public class BookEnterExitController : MonoBehaviour
         yield return new WaitForSeconds(delay);
 
         SetAllEnterButtonsVisible(true);
+
+        backButton[1].gameObject.SetActive(true);
         isFlipping = false;
     }
     
