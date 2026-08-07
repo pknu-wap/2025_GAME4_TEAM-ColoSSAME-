@@ -229,7 +229,7 @@ public class LeagueManager : MonoBehaviour
         }
     }
 
-    public void ProcessRoundResult(bool isPlayerWin)
+    public void ProcessRoundResult(bool isPlayerWin, bool isDraw = false)
     {
         int currentRound = GetCurrentRoundNumber();
         Round round = league.schedule.Find(r => r.roundNumber == currentRound);
@@ -258,7 +258,14 @@ public class LeagueManager : MonoBehaviour
             if (match.teamAId == playerTeamId || match.teamBId == playerTeamId)
             {
                 // 플레이어 경기 처리
-                if (isPlayerWin)
+                if (isDraw)
+                {
+                    result.scoreA = 1;
+                    result.scoreB = 1;
+                    result.winner = 0;                 
+                    UserManager.Instance.AddGold(70);  
+                }
+                else if (isPlayerWin)
                 {
                     result.scoreA = match.teamAId == playerTeamId ? 1 : 0;
                     result.scoreB = match.teamBId == playerTeamId ? 1 : 0;

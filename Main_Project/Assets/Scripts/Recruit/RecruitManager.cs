@@ -13,7 +13,7 @@ public class RecruitManager : MonoBehaviour
 
     [Header("중복 보상")]
     [SerializeField] private ItemData duplicateRewardItem;
-    [SerializeField] private int duplicateRewardStone = 20;
+    [SerializeField] private int duplicateRewardStone = 2;
 
     private float ThreeStarRateValue => 100f - fiveStarRate - fourStarRate;
     
