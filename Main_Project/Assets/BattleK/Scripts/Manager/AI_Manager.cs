@@ -132,8 +132,8 @@ namespace BattleK.Scripts.Manager
                     Debug.Log("승리");
                     break;
                 case < 1 when enemyUnits.Count < 1:
+                    _leagueSceneManager.OnClickDraw();
                     Debug.Log("무승부");
-                    //ToDo:: 무승부되면 승, 패 없이 1점씩만 획득해야 함.
                     break;
             }
             IsAlreadyDone = true;
