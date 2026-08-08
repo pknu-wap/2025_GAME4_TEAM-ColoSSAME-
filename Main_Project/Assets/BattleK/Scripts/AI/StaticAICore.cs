@@ -386,7 +386,6 @@ namespace BattleK.Scripts.AI
                     AiManager.UnregisterUnit(this);
                     if(Stat.InjuryLevel <= InjuryStatus.FatalInjury)
                         ++Stat.InjuryLevel;
-                    PersistUnitState();
                     AiManager.IsWinner();
                     break;
                 case DeathReason.System:
@@ -395,26 +394,8 @@ namespace BattleK.Scripts.AI
                 default:
                     throw new ArgumentOutOfRangeException(nameof(reason), reason, null);
             }
+            PersistUnitState();
             OverrideMachine.ChangeState(new StaticDeathState(this));
-
-            if (reason == DeathReason.System)
-            {
-                return;
-            }
-
-            if (!AiManager)
-            {
-                AiManager = AI_Manager.Instance;
-            }
-
-            if (!AiManager)
-            {
-                return;
-            }
-
-            AiManager.UnregisterUnit(this);
-            if (AiManager.IsAlreadyDone) return;
-            AiManager.IsWinner();
         }
 
         private void RegisterActionStates()
@@ -465,8 +446,7 @@ namespace BattleK.Scripts.AI
 
             Stat.SaveTo(unitData);
             //unitData.equippedItemId = Stat.Item != null ? Stat.Item.ItemId : null;
-
-            // TODO: EnemySaveManager 개편 시 실제 저장 메서드 연결
+            // TODO: EnemySaveManager 개편 시 실제 유닛 저장 메서드 연결
         }
         
 #if UNITY_EDITOR
