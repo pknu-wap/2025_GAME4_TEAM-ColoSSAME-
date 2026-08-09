@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 [CreateAssetMenu(menuName = "Game/Item", fileName = "NewItem")]
 
@@ -24,14 +25,24 @@ public class ItemData : ScriptableObject
     public ItemCategory category;
 
     [Header("Use Rules")]
-    public ItemLifetimeType lifetimeType = ItemLifetimeType.OneBattle;
-    public ItemSlotKind slotKind = ItemSlotKind.Consumable;
+    [FormerlySerializedAs("lifetimeType")]
+    [SerializeField] private ItemUseType useType = ItemUseType.OneBattleConsumable;
 
     [Header("Effects")]
-    public List<ItemEffectDefinition> effects = new List<ItemEffectDefinition>();
+    [SerializeField] private List<ItemEffectDefinition> effects = new List<ItemEffectDefinition>();
 
-    public bool IsOneBattleItem => lifetimeType == ItemLifetimeType.OneBattle;
-    public bool IsPermanentItem => lifetimeType == ItemLifetimeType.Permanent;
+    public ItemUseType UseType => useType;
+    public IReadOnlyList<ItemEffectDefinition> Effects => effects;
+
+    public bool ShouldConsumeAfterBattle()
+    {
+        return useType == ItemUseType.OneBattleConsumable;
+    }
+
+    public bool CanEquipTo(ItemUseType targetUseType)
+    {
+        return useType == targetUseType;
+    }
 
     public bool HasEffectDomain(ItemEffectDomain domain)
     {
@@ -44,5 +55,29 @@ public class ItemData : ScriptableObject
         }
 
         return false;
+    }
+
+    public IEnumerable<ItemEffectDefinition> GetEffects(ItemEffectDomain domain)
+    {
+        if (effects == null) yield break;
+
+        for (int i = 0; i < effects.Count; i++)
+        {
+            ItemEffectDefinition effect = effects[i];
+            if (effect != null && effect.domain == domain)
+                yield return effect;
+        }
+    }
+
+    public IEnumerable<ItemEffectDefinition> GetEffects(ItemEffectDomain domain, ItemEffectTrigger trigger)
+    {
+        if (effects == null) yield break;
+
+        for (int i = 0; i < effects.Count; i++)
+        {
+            ItemEffectDefinition effect = effects[i];
+            if (effect != null && effect.domain == domain && effect.trigger == trigger)
+                yield return effect;
+        }
     }
 }

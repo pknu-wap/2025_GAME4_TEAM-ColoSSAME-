@@ -36,7 +36,7 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics
             finalDamage = Mathf.Max(1, finalDamage);
 
             // 데미지 적용
-            target.OnTakeDamage(finalDamage, true);
+            target.OnTakeDamage(finalDamage, owner, true);
 
             UnityEngine.Debug.Log(
                 $"[SPMultipleDamage] " +

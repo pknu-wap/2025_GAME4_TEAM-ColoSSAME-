@@ -37,7 +37,7 @@ namespace BattleK.Scripts.AI.Skill.Base.Projectile
                 return;
             }
             // 데미지
-            target.OnTakeDamage(this._damage, false);
+            target.OnTakeDamage(this._damage, this._owner, false);
 
             // 넉백
             if (target.TryGetComponent(out Rigidbody2D rb))

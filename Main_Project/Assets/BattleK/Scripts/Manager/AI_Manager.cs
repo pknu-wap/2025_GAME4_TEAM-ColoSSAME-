@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
+using BattleK.Scripts.Manager.Battle;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -140,6 +141,7 @@ namespace BattleK.Scripts.Manager
                     break;
             }
             IsAlreadyDone = true;
+            BattleItemEffectRunner.Instance?.ApplyBattleEndEffects();
             KillAll();
         }
 

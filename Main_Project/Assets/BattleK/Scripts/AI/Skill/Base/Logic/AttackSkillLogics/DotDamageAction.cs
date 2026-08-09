@@ -45,7 +45,7 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics
             var statusManager = target.GetComponent<StatusEffectManager>();
             if (statusManager)
             {
-                statusManager.ApplyDotDamage(this, rawDamage, IsPenetrating);
+                statusManager.ApplyDotDamage(this, owner, rawDamage, IsPenetrating);
             }
         }
     }

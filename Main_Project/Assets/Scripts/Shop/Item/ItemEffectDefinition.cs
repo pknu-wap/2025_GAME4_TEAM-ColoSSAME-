@@ -1,17 +1,10 @@
 using System;
 using UnityEngine;
 
-public enum ItemLifetimeType
+public enum ItemUseType
 {
-    OneBattle,
-    Permanent
-}
-
-public enum ItemSlotKind
-{
-    Consumable,
-    Accessory,
-    Book
+    OneBattleConsumable,
+    PermanentAccessory
 }
 
 public enum ItemEffectDomain
@@ -24,13 +17,10 @@ public enum ItemEffectTrigger
 {
     BattleStart,
     BattleEnd,
-    BeforeDeath,
     Death,
     Kill,
-    AllyDeath,
-    Tick,
     LowHp,
-    MatchResult
+    Tick
 }
 
 public enum ItemEffectKind
@@ -41,7 +31,7 @@ public enum ItemEffectKind
     ReviveOnce,
     PeriodicHealMaxHpPercent,
     LowHpStatPercentBonus,
-    AllyDeathStackingStatPercentBonus,
+    TeamDeathStackingStatPercentBonus,
     KillStackingStatPercentBonus,
     DeathExplosionMaxHpPercent,
     MatchWinGoldPercentBonus,
@@ -60,9 +50,9 @@ public enum ItemStatType
 public enum ItemEffectTarget
 {
     Owner,
-    Allies,
+    Team,
     Enemies,
-    Team
+    Meta
 }
 
 [Serializable]

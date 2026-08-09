@@ -42,7 +42,7 @@ namespace BattleK.Scripts.AI.StaticScoreState.Attack
             var target = other.GetComponent<StaticAICore>();
             if (!target || target.IsDead) return;
 
-            target.OnTakeDamage(_damage);
+            target.OnTakeDamage(_damage, _owner);
             _hitTargets.Add(other.gameObject);
         }
     }

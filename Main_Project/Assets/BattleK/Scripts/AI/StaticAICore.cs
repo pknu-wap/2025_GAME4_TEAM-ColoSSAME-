@@ -9,6 +9,7 @@ using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Data.Type.AIDataType.CC;
 using BattleK.Scripts.HP;
 using BattleK.Scripts.Manager;
+using BattleK.Scripts.Manager.Battle;
 using Pathfinding;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -319,6 +320,11 @@ namespace BattleK.Scripts.AI
 
         public void OnTakeDamage(int damage, bool isPenetrating = false)
         {
+            OnTakeDamage(damage, null, isPenetrating);
+        }
+
+        public void OnTakeDamage(int damage, StaticAICore attacker, bool isPenetrating = false)
+        {
             if (IsDead || Stat.CurrentHP == 0) return;
             if (IsInvincible)
             {
@@ -336,6 +342,17 @@ namespace BattleK.Scripts.AI
             HPBar.UpdateHPBar();
             if (Stat.CurrentHP <= 0)
             {
+                if (BattleItemEffectRunner.Instance &&
+                    BattleItemEffectRunner.Instance.TryReviveOnDeath(this))
+                {
+                    return;
+                }
+
+                if (BattleItemEffectRunner.Instance)
+                {
+                    BattleItemEffectRunner.Instance.NotifyUnitDeath(this, attacker);
+                }
+
                 OnDead();
                 return;
             }
