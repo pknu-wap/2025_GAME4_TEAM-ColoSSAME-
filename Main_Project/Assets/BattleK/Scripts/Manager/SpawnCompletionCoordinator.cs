@@ -1,8 +1,5 @@
 using System.Collections;
-using System.Collections.Generic;
-using BattleK.Scripts.AI;
 using BattleK.Scripts.HP;
-using BattleK.Scripts.Manager.Battle;
 using BattleK.Scripts.UI;
 using UnityEngine;
 
@@ -50,35 +47,6 @@ namespace BattleK.Scripts.Manager
             _statWindowManager.SetStrategyList();
             _statWindowManager.ApplyStatWindow();
             _hpManager.ApplyHpToHPBar();
-
-            yield return WaitForStatsReadyOrTimeout(3f);
-            BattleItemEffectRunner.EnsureInstance().StartBattle(_aiManager);
-        }
-
-        private IEnumerator WaitForStatsReadyOrTimeout(float timeoutSeconds)
-        {
-            float endTime = Time.time + timeoutSeconds;
-            yield return new WaitUntil(() => AreAllBattleUnitsStatsReady() || Time.time >= endTime);
-        }
-
-        private bool AreAllBattleUnitsStatsReady()
-        {
-            return AreUnitsStatsReady(_aiManager.playerUnits) &&
-                   AreUnitsStatsReady(_aiManager.enemyUnits);
-        }
-
-        private static bool AreUnitsStatsReady(IReadOnlyList<StaticAICore> units)
-        {
-            if (units == null || units.Count == 0) return false;
-
-            for (int i = 0; i < units.Count; i++)
-            {
-                StaticAICore unit = units[i];
-                if (!unit || !unit.GetComponent<StatsReady>())
-                    return false;
-            }
-
-            return true;
         }
         
         public void Dispose()

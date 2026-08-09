@@ -5,6 +5,7 @@ using BattleK.Scripts.AI;
 using BattleK.Scripts.Data;
 using BattleK.Scripts.Data.Type;
 using BattleK.Scripts.HP;
+using BattleK.Scripts.Manager.Battle;
 using BattleK.Scripts.UI;
 using UnityEngine;
 
@@ -119,6 +120,7 @@ namespace BattleK.Scripts.Manager
                 ready.MarkReady();
             }
 
+            BattleItemEffectRunner.EnsureInstance().StartBattle(AI_Manager.Instance);
             ComputeStampSafe(_calculateManager);
         }
 
