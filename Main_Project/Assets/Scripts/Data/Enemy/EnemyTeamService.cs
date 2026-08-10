@@ -175,11 +175,11 @@ public static class EnemyTeamService
 
     private static void AddSkill(Unit unit, SkillSO skill)
     {
-        if (unit.skills.Exists(s => s.skillId == skill.name)) return; 
+        /*if (unit.skills.Exists(s => s.skillId == skill.name)) return; 
         unit.skills.Add(new UnitSkill(skill.name, 1));
 
         if (!unit.selectedSkills.Contains(skill.name))  
-            unit.selectedSkills.Add(skill.name);
+            unit.selectedSkills.Add(skill.name);*/
     }
 
     // 획득 유닛 스킬 소급 부여
