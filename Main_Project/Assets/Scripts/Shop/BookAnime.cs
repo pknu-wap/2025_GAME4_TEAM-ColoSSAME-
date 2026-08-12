@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BookEnterExitController : MonoBehaviour
+public class BookAnime : MonoBehaviour
 {
     [System.Serializable]
     public class EnterMapping
