@@ -85,7 +85,4 @@ public class ItemEffectDefinition
 
     [Min(0f)]
     public float radius;
-
-    [Tooltip("0 means unlimited unless the runner gives the effect a natural limit.")]
-    public int maxTriggerCount;
 }

@@ -11,11 +11,7 @@ internal static class BattleItemEffectRules
 
     public static bool CanTrigger(BattleItemEffectRuntime runtime, int naturalLimit = 0)
     {
-        int limit = runtime.Effect.maxTriggerCount > 0
-            ? runtime.Effect.maxTriggerCount
-            : naturalLimit;
-
-        return limit <= 0 || runtime.TriggerCount < limit;
+        return naturalLimit <= 0 || runtime.TriggerCount < naturalLimit;
     }
 
     public static float ResolvePercent(ItemEffectDefinition effect)
