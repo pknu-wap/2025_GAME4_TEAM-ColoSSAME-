@@ -9,7 +9,6 @@ using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Data.Type.AIDataType.CC;
 using BattleK.Scripts.HP;
 using BattleK.Scripts.Manager;
-using BattleK.Scripts.Manager.Battle;
 using Pathfinding;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -342,18 +341,7 @@ namespace BattleK.Scripts.AI
             HPBar.UpdateHPBar();
             if (Stat.CurrentHP <= 0)
             {
-                if (BattleItemEffectRunner.Instance &&
-                    BattleItemEffectRunner.Instance.TryReviveOnDeath(this))
-                {
-                    return;
-                }
-
-                if (BattleItemEffectRunner.Instance)
-                {
-                    BattleItemEffectRunner.Instance.NotifyUnitDeath(this, attacker);
-                }
-
-                OnDead();
+                OnDead(DeathReason.Combat, attacker);
                 return;
             }
             if(OverrideMachine.CurrentState == null) OverrideMachine.ChangeState(new StaticHitState(this));
@@ -377,13 +365,28 @@ namespace BattleK.Scripts.AI
                 OverrideMachine.StopAndClear();
         }
 
-        public void OnDead(DeathReason reason = DeathReason.Combat)
+        public void OnDead(DeathReason reason = DeathReason.Combat, StaticAICore killer = null)
         {
+            if (IsDead) return;
+
+            if (reason == DeathReason.Combat &&
+                Stat.CurrentHP <= 0 &&
+                BattleItemEffectRunner.Instance &&
+                BattleItemEffectRunner.Instance.TryReviveOnDeath(this))
+            {
+                return;
+            }
+
             OverrideMachine.ChangeState(new StaticDeathState(this));
 
             if (reason == DeathReason.System)
             {
                 return;
+            }
+
+            if (BattleItemEffectRunner.Instance)
+            {
+                BattleItemEffectRunner.Instance.NotifyUnitDeath(this, killer);
             }
 
             if (!AiManager)

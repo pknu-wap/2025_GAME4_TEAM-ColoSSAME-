@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
-using BattleK.Scripts.Manager.Battle;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -112,6 +111,8 @@ namespace BattleK.Scripts.Manager
 
         public void IsWinner()
         {
+            if (IsAlreadyDone) return;
+
             switch (playerUnits.Count)
             {
                 case >= 1 when enemyUnits.Count >= 1:
@@ -140,6 +141,12 @@ namespace BattleK.Scripts.Manager
                     }
                     break;
             }
+
+            FinishBattle();
+        }
+
+        private void FinishBattle()
+        {
             IsAlreadyDone = true;
             BattleItemEffectRunner.Instance?.ApplyBattleEndEffects();
             KillAll();
