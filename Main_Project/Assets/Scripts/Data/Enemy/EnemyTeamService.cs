@@ -61,7 +61,7 @@ public static class EnemyTeamService
     }
 
     // 라운드 종료 성장
-    public static void GrowUnitsAfterRound(League league)
+    public static void GrowUnitsAfterRound(League league, Round playedRound)
     {
         int playerTeamId = league.settings.playerTeamId;
         int cap = league.settings.tier * 10;
@@ -73,17 +73,38 @@ public static class EnemyTeamService
             EnemyTeam team = EnemySaveManager.Instance.GetTeam(leagueTeam.id);
             if (team == null) continue;
 
+            int result = GetTeamResult(playedRound, leagueTeam.id);
+
             bool changed = false;
             foreach (Unit unit in team.units)
             {
-                if (unit.level < cap)
+                if (unit.level >= cap) continue;
+                int grow = GrowAmount(result);           
+                if (grow > 0)
                 {
-                    unit.level = Mathf.Min(unit.level + UnityEngine.Random.Range(0, 2), cap);
+                    unit.level = Mathf.Min(unit.level + grow, cap);
                     changed = true;
                 }
             }
-
             if (changed) EnemySaveManager.Instance.SaveTeam(team);
+        }
+    }
+
+    private static int GetTeamResult(Round round, int teamId)
+    {
+        var match = round.matches.Find(m => m.teamAId == teamId || m.teamBId == teamId);
+        if (match?.result == null) return -1;              
+        if (match.result.winner == 0) return 0;             
+        return match.result.winner == teamId ? 1 : -1;       
+    }
+
+    private static int GrowAmount(int result)
+    {
+        switch (result)
+        {
+            case 1: return UnityEngine.Random.Range(0, 3);              // 승: 0,1,2
+            case 0: return UnityEngine.Random.Range(0, 2);              // 무: 0,1
+            default: return UnityEngine.Random.value < 0.25f ? 1 : 0;    // 패: 25% +1
         }
     }
 
@@ -102,10 +123,12 @@ public static class EnemyTeamService
             EnemyTeam team = EnemySaveManager.Instance.GetTeam(leagueTeam.id);
             if (team == null) continue;
 
+            int rankBonus = Mathf.Max(0, 3 - leagueTeam.rank);
+
             foreach (Unit unit in team.units)
             {
                 unit.rarity = Mathf.Min(unit.rarity + 1, 5);
-                unit.level = resetLevel;
+                unit.level = resetLevel + rankBonus;
                 unit.exp = 0f;
                 GrantSkillByRarity(unit);
             }
@@ -149,56 +172,72 @@ public static class EnemyTeamService
         Debug.Log($"[EnemyGrowth] {team.name}에 {picked.Unit_Name} 추가 (level {startLevel})");
     }
 
-    private static SkillPoolSO _skillPool;
-    private static SkillPoolSO SkillPool =>
-        _skillPool != null ? _skillPool : (_skillPool = Resources.Load<SkillPoolSO>("SkillPool"));
+    private static SkillPoolRegistrySO _registry;
+    private static SkillPoolRegistrySO Registry =>
+        _registry != null ? _registry : (_registry = Resources.Load<SkillPoolRegistrySO>("SkillPool/SkillPoolRegistry"));
 
     // 등급에 맞는 스킬 자동 부여
     private static void GrantSkillByRarity(Unit unit)
     {
-        if (SkillPool == null) return;
+        var pool = Registry?.GetPool(unit.unitClass);
+        if (pool == null) return;
         int r = unit.rarity;
 
         if (r == 3 || r == 4)
         {
-            var choices = SkillPool.GetSkillChoices(unit.unitClass, r);
+            var choices = pool.GetSkillChoices(r);
             if (choices.Count == 0) return;
-            var pick = choices[Random.Range(0, choices.Count)];
-            AddSkill(unit, pick);
+            AddSkill(unit, choices[Random.Range(0, choices.Count)]);
         }
         else if (r == 5)
         {
-            var ult = SkillPool.GetUltimateSkill(unit.unitClass);
+            var ult = pool.GetUltimate();
             if (ult != null) AddSkill(unit, ult);
         }
     }
 
     private static void AddSkill(Unit unit, SkillSO skill)
     {
-        /*if (unit.skills.Exists(s => s.skillId == skill.name)) return; 
-        unit.skills.Add(new UnitSkill(skill.name, 1));
+        if (unit.skills.Exists(s => s.skillName == skill.SkillName)) return;
+        unit.skills.Add(new UnitSkill(skill.SkillName, 1));
 
-        if (!unit.selectedSkills.Contains(skill.name))  
-            unit.selectedSkills.Add(skill.name);*/
+        if (!unit.selectedSkills.Contains(skill.SkillName))
+            unit.selectedSkills.Add(skill.SkillName);
     }
 
     // 획득 유닛 스킬 소급 부여
     private static void GrantSkillsUpToRarity(Unit unit)
     {
-        if (SkillPool == null) return;
+        var pool = Registry?.GetPool(unit.unitClass);
+        if (pool == null) return;
 
         for (int r = 3; r <= Mathf.Min(unit.rarity, 4); r++)
         {
-            var choices = SkillPool.GetSkillChoices(unit.unitClass, r);
+            var choices = pool.GetSkillChoices(r);
             if (choices.Count == 0) continue;
             AddSkill(unit, choices[Random.Range(0, choices.Count)]);
         }
-
         if (unit.rarity >= 5)
         {
-            var ult = SkillPool.GetUltimateSkill(unit.unitClass);
+            var ult = pool.GetUltimate();
             if (ult != null) AddSkill(unit, ult);
         }
+    }
+
+    // 팀 전력 점수
+    public static float GetTeamPower(int teamId)
+    {
+        EnemyTeam team = EnemySaveManager.Instance.GetTeam(teamId);
+        if (team == null || team.units == null) return 0f;
+
+        float power = 0f;
+        foreach (var u in team.units)
+        {
+            power += u.level * 4f;                          // 레벨 
+            //power += u.rarity * 3f;                         // 등급 
+            //power += (u.selectedSkills?.Count ?? 0) * 3f;   // 장착 스킬
+        }
+        return power;
     }
 }
 

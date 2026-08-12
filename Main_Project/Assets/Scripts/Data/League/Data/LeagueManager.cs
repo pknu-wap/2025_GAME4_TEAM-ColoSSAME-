@@ -284,26 +284,32 @@ public class LeagueManager : MonoBehaviour
             }
             else
             {
-                // 랜덤 결과 처리
-                int rand = UnityEngine.Random.Range(0, 3); // 0=draw, 1=teamA win, 2=teamB win
+                // 전력 기반
+                float powA = EnemyTeamService.GetTeamPower(teamA.id);
+                float powB = EnemyTeamService.GetTeamPower(teamB.id);
+                float total = powA + powB;
+                float pA = total > 0f ? powA / total : 0.5f;   // A 기본 승률
 
-                if (rand == 0)
+                float diff = Mathf.Abs(pA - 0.5f) * 2f;              // 0(동급)~1(격차)
+                float drawChance = Mathf.Lerp(0.15f, 0.03f, diff);  
+
+                if (UnityEngine.Random.value < drawChance)
                 {
-                    result.scoreA = 1;
+                    result.scoreA = 1; 
                     result.scoreB = 1;
-                    result.winner = 0; // 무승부
+                    result.winner = 0;                    // 무승부
                 }
-                else if (rand == 1)
+                else if (UnityEngine.Random.value < pA)
                 {
-                    result.scoreA = 2;
+                    result.scoreA = 2; 
                     result.scoreB = 0;
-                    result.winner = teamA.id;
+                    result.winner = teamA.id;             // A 승
                 }
                 else
                 {
-                    result.scoreA = 0;
+                    result.scoreA = 0; 
                     result.scoreB = 2;
-                    result.winner = teamB.id;
+                    result.winner = teamB.id;             // B 승
                 }
             }
 
@@ -313,7 +319,7 @@ public class LeagueManager : MonoBehaviour
         }
 
         // 적 유닛 레벨 랜덤 성장
-        EnemyTeamService.GrowUnitsAfterRound(league);
+        EnemyTeamService.GrowUnitsAfterRound(league, round);
 
         // 순위 계산 및 저장
         CalculateRanking();
