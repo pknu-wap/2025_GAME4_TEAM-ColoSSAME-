@@ -20,8 +20,7 @@ public class SettingsManager : MonoBehaviour
     [SerializeField] private float bgmVolume = 1f;
     [SerializeField] private float sfxVolume = 1f;
 
-    private string SettingsPath =>
-        Path.Combine(Application.persistentDataPath, SettingsFileName);
+    private string SettingsPath => Path.Combine(Application.persistentDataPath, SettingsFileName);
 
     [Serializable]
     private class SettingsSaveData
@@ -48,7 +47,7 @@ public class SettingsManager : MonoBehaviour
 
     public void SetMasterVolume(float value)
     {
-        masterVolume = Mathf.Clamp01(value);
+        masterVolume = Mathf.Clamp(value, 0f, 2f);
 
         ApplyMasterVolume();
         SaveSettings();
@@ -56,7 +55,7 @@ public class SettingsManager : MonoBehaviour
 
     public void SetBGMVolume(float value)
     {
-        bgmVolume = Mathf.Clamp01(value);
+        bgmVolume = Mathf.Clamp(value, 0f, 2f);
 
         ApplyBGMVolume();
         SaveSettings();
@@ -64,11 +63,7 @@ public class SettingsManager : MonoBehaviour
 
     public void SetSFXVolume(float value)
     {
-        Debug.Log($"Slider에서 받은 값: {value}");
-
-        sfxVolume = Mathf.Clamp01(value);
-
-        Debug.Log($"저장할 SFX 값: {sfxVolume}");
+        sfxVolume = Mathf.Clamp(value, 0f, 2f);
 
         ApplySFXVolume();
         SaveSettings();
@@ -144,9 +139,9 @@ public class SettingsManager : MonoBehaviour
                 return;
             }
 
-            masterVolume = Mathf.Clamp01(data.masterVolume);
-            bgmVolume = Mathf.Clamp01(data.bgmVolume);
-            sfxVolume = Mathf.Clamp01(data.sfxVolume);
+            masterVolume = Mathf.Clamp(data.masterVolume, 0f, 2f);
+            bgmVolume = Mathf.Clamp(data.bgmVolume, 0f, 2f);
+            sfxVolume = Mathf.Clamp(data.sfxVolume, 0f, 2f);
         }
         catch (Exception e)
         {
