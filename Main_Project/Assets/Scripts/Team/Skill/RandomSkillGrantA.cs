@@ -27,6 +27,16 @@ public class RandomSkillGrantA : MonoBehaviour
         };
     }
 
+    public List<SkillSO> GetAllSkills(string unitClass)
+    {
+        if (skillPools.TryGetValue(unitClass, out List<SkillSO> pool))
+        {
+            return pool;
+        }
+
+        return new List<SkillSO>();
+    }
+
     // 3성 / 4성 선택지
     public List<SkillSO> GetSkillChoices(string unitClass, int rarity)
     {
