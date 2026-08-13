@@ -87,7 +87,6 @@ Transform:
   - {fileID: 4698925740232931220}
   - {fileID: 8071199469592613518}
   - {fileID: 3928920525286399044}
-  - {fileID: 4949271857051557734}
   - {fileID: 1777332896645651858}
   - {fileID: 4136114058106849613}
   - {fileID: 5007341523943630800}
@@ -138,6 +137,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _statsCollector: {fileID: 8116832239421772936}
+  _playerStatsCollector: {fileID: 0}
   _autoRetryIfEmpty: 1
   _retryIntervalSeconds: 0.25
   _maxRetries: 40
@@ -192,76 +192,6 @@ Transform:
   - {fileID: 7166107487774898563}
   m_Father: {fileID: 342188048049387792}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1475169652459940300
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4949271857051557734}
-  - component: {fileID: 5339282972342886613}
-  m_Layer: 0
-  m_Name: LeagueManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &4949271857051557734
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1475169652459940300}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 7128980981049067930}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5339282972342886613
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1475169652459940300}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: acf420b858419436dae883c6a327d632, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  league:
-    settings:
-      name: 
-      totalRounds: 0
-      pointRule:
-        win: 0
-        draw: 0
-        lose: 0
-      playerTeamId: 0
-      playerTeamName: 
-      tier: 0
-      tierName: 
-    teams: []
-    schedule: []
-    currentRound: 0
-    currentMatchIndex: 0
-    currentEnemyTeamId: 0
-    currentMatchId: 
-    currentEnemy:
-      id: 0
-      fid: 
-      name: 
-      money: 0
-      growthStage: 0
-      units: []
-  saveManager: {fileID: 1004227241535086837}
 --- !u!1 &2676424267581484389
 GameObject:
   m_ObjectHideFlags: 0
@@ -621,7 +551,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5cd4d227734b4a3ba5395832e505c45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  leagueManager: {fileID: 5339282972342886613}
+  leagueManager: {fileID: 0}
   roundText: {fileID: 8443493936955502420}
   resultRoundText: {fileID: 7034760372083541846}
   myTeamImage: {fileID: 34854324685583007}
@@ -1367,7 +1297,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uACB0\uACFC \uB514\uBC84\uAE45"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 77c29c8d2919e8540aad94e4b7d48af4, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -1449,7 +1379,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &342188048049387792
 Transform:
   m_ObjectHideFlags: 0
@@ -2106,6 +2036,7 @@ MonoBehaviour:
       money: 0
       growthStage: 0
       units: []
+  _itemDatabase: {fileID: 0}
   _caseInsensitiveMatch: 1
   _playerStats: []
   _enemyStats: []
@@ -2325,6 +2256,10 @@ PrefabInstance:
     - target: {fileID: 3450635065670938344, guid: 839ae1f351faf4240b60357069a37471, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7693849272490034441, guid: 839ae1f351faf4240b60357069a37471, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

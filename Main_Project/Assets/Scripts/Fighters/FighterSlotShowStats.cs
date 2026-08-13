@@ -20,9 +20,6 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
     [Header("표시 대상 - EXP 획득 비용")]
     public TextMeshProUGUI expCostText;
 
-    public SkillUpgradeManager upgradeManager;
-    public int selectedSkillIndex = 0;
-
     [HideInInspector] public BuildingUpgradeManager buildingUpgradeManager;
     private int GetDiscountedTrainingCost(int baseCost)
     {
@@ -111,19 +108,5 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
         }
 
         Debug.Log($"✅ UI 갱신: {found.unitName} / Lv {found.level} / Exp {found.exp} / 비용: {cost}G");
-    }
-
-    public void OnUpgradeButtonClicked()
-    {
-        if (slotData == null || string.IsNullOrEmpty(slotData.unitId))
-            return;
-
-        if (upgradeManager == null)
-        {
-            Debug.LogError("❌ SkillUpgradeManager 연결 안됨");
-            return;
-        }
-
-        upgradeManager.UpgradeSkill(slotData.unitId, selectedSkillIndex);
     }
 }

@@ -12,6 +12,7 @@ namespace BattleK.Scripts.Manager
         private readonly CalculateManager _calculateManager;
         private readonly HPManager _hpManager;
         private readonly StatWindowManager _statWindowManager;
+        private readonly StatAdaptManager _statAdaptManager;
         private readonly UnitSpawner _spawner;
 
         public SpawnCompletionCoordinator(
@@ -20,7 +21,8 @@ namespace BattleK.Scripts.Manager
             FamilyStatsCollector statsCollector,
             CalculateManager calculateManager,
             HPManager hpManager,
-            StatWindowManager statWindowManager)
+            StatWindowManager statWindowManager,
+            StatAdaptManager statAdaptManager)
         {
             _spawner = spawner;
             _aiManager = aiManager;
@@ -28,6 +30,7 @@ namespace BattleK.Scripts.Manager
             _calculateManager = calculateManager;
             _hpManager = hpManager;
             _statWindowManager = statWindowManager;
+            _statAdaptManager = statAdaptManager;
 
             spawner.OnAllSpawnsComplete += HandleAllSpawnsComplete;
         }
@@ -41,6 +44,7 @@ namespace BattleK.Scripts.Manager
         {
             yield return new WaitUntil(() => _aiManager.playerUnits.Count > 0 && _aiManager.enemyUnits.Count > 0);
 
+            _statAdaptManager.ApplyToAllUnitsAndInitialize();
             _statsCollector.CollectFromBothTeams();
             _calculateManager.RefreshFromCollectorOnce();
             _hpManager.setUnits();

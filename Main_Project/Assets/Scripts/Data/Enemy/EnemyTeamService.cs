@@ -1,3 +1,4 @@
+using BattleK.Scripts.AI.Skill.Base;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -106,6 +107,7 @@ public static class EnemyTeamService
                 unit.rarity = Mathf.Min(unit.rarity + 1, 5);
                 unit.level = resetLevel;
                 unit.exp = 0f;
+                GrantSkillByRarity(unit);
             }
 
             AddNewLowestRarityUnit(team, leagueTeam.fid, resetLevel);
@@ -141,8 +143,62 @@ public static class EnemyTeamService
         var newUnit = new Unit(picked.Unit_ID, picked.Rarity, picked.Unit_Name, picked.Class);
         newUnit.level = startLevel;
         newUnit.exp = 0f;
+        GrantSkillsUpToRarity(newUnit);
         team.units.Add(newUnit);
 
         Debug.Log($"[EnemyGrowth] {team.name}에 {picked.Unit_Name} 추가 (level {startLevel})");
     }
+
+    private static SkillPoolSO _skillPool;
+    private static SkillPoolSO SkillPool =>
+        _skillPool != null ? _skillPool : (_skillPool = Resources.Load<SkillPoolSO>("SkillPool"));
+
+    // 등급에 맞는 스킬 자동 부여
+    private static void GrantSkillByRarity(Unit unit)
+    {
+        if (SkillPool == null) return;
+        int r = unit.rarity;
+
+        if (r == 3 || r == 4)
+        {
+            var choices = SkillPool.GetSkillChoices(unit.unitClass, r);
+            if (choices.Count == 0) return;
+            var pick = choices[Random.Range(0, choices.Count)];
+            AddSkill(unit, pick);
+        }
+        else if (r == 5)
+        {
+            var ult = SkillPool.GetUltimateSkill(unit.unitClass);
+            if (ult != null) AddSkill(unit, ult);
+        }
+    }
+
+    private static void AddSkill(Unit unit, SkillSO skill)
+    {
+        /*if (unit.skills.Exists(s => s.skillId == skill.name)) return; 
+        unit.skills.Add(new UnitSkill(skill.name, 1));
+
+        if (!unit.selectedSkills.Contains(skill.name))  
+            unit.selectedSkills.Add(skill.name);*/
+    }
+
+    // 획득 유닛 스킬 소급 부여
+    private static void GrantSkillsUpToRarity(Unit unit)
+    {
+        if (SkillPool == null) return;
+
+        for (int r = 3; r <= Mathf.Min(unit.rarity, 4); r++)
+        {
+            var choices = SkillPool.GetSkillChoices(unit.unitClass, r);
+            if (choices.Count == 0) continue;
+            AddSkill(unit, choices[Random.Range(0, choices.Count)]);
+        }
+
+        if (unit.rarity >= 5)
+        {
+            var ult = SkillPool.GetUltimateSkill(unit.unitClass);
+            if (ult != null) AddSkill(unit, ult);
+        }
+    }
 }
+

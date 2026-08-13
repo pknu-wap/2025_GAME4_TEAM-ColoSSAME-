@@ -7,13 +7,13 @@ using System;
 [System.Serializable]
 public class UnitSkill
 {
-    public string skillId;
+    public string skillName;
 
     public int level;
 
-    public UnitSkill(string skillId, int level = 1)
+    public UnitSkill(string skillName, int level = 1)
     {
-        this.skillId = skillId;
+        this.skillName = skillName;
         this.level = level;
     }
 

@@ -1,38 +1,63 @@
+using System;
+using System.Collections;
 using UnityEngine;
 using System.IO;
 using Newtonsoft.Json;
 
 public class UserSaveManager : MonoBehaviour
 {
-    private string fileName = "UserSave.json";
-    private string savePath;
+    [SerializeField] private float _saveDebounceTime = 0.5f;
+    
+    private string _fileName = "UserSave.json";
+    private string _savePath;
+    private User _pendingData;
+    private bool _isDirty;
+    private Coroutine _saveCoroutine;
 
     void Awake()
     {
-        savePath = Path.Combine(Application.persistentDataPath, fileName);
-        Debug.Log($"저장 경로: {savePath}");
+        _savePath = Path.Combine(Application.persistentDataPath, _fileName);
     }
 
+    public void SaveUserImmediate(User data)
+    {
+        _pendingData = data;
+        FlushSave();
+    }
+    
     public void SaveUser(User data)
     {
-        string json = JsonConvert.SerializeObject(data, Formatting.Indented);
-        File.WriteAllText(savePath, json);
-        Debug.Log("✅ 유저 데이터 저장 완료");
+        _pendingData = data;
+        _isDirty = true;
+        if(_saveCoroutine != null) StopCoroutine(_saveCoroutine);
+        _saveCoroutine = StartCoroutine(CoDebounceSave());
+    }
+
+    private IEnumerator CoDebounceSave()
+    {
+        yield return new WaitForSecondsRealtime(_saveDebounceTime);
+        FlushSave();
+        _saveCoroutine = null;
+    }
+
+    private void FlushSave()
+    {
+        if (!_isDirty || _pendingData == null) return;
+        var json = JsonConvert.SerializeObject(_pendingData, Formatting.Indented);
+        File.WriteAllText(_savePath, json);
+        _isDirty = false;
     }
 
     public User LoadUser()
     {
-        if (File.Exists(savePath))
+        if (!File.Exists(_savePath))
         {
-            string json = File.ReadAllText(savePath);
-            User data = JsonConvert.DeserializeObject<User>(json);
-            Debug.Log("✅ 유저 데이터 로드 완료");
-            return data;
-        }
-        else
-        {
-            Debug.LogWarning("❌ 저장된 유저 데이터가 없습니다.");
             return null;
         }
+        var json = File.ReadAllText(_savePath);
+        return JsonConvert.DeserializeObject<User>(json);
     }
+
+    private void OnDisable() => FlushSave();
+    private void OnApplicationPause(bool pause) { if(pause) FlushSave(); }
 }
