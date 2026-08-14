@@ -9,7 +9,9 @@ public class RecruitUI : MonoBehaviour
 {
     private const int FiveStarRarity = 5;
     private const int FourStarRarity = 4;
-
+    [Header("ContentObject")]
+    [SerializeField] private GameObject content;
+    
     [Header("참조")]
     [SerializeField] private RecruitManager recruitManager;
     [SerializeField] private Button recruitButton;
@@ -83,7 +85,7 @@ public class RecruitUI : MonoBehaviour
     
     private void OnBackButtonClicked()
     {
-        gameObject.SetActive(false);
+        content.SetActive(false);
     }
 
     private void ShowIdleState()
@@ -147,26 +149,26 @@ public class RecruitUI : MonoBehaviour
             }
         }
 
-        DisplayCharacterPortrait(result.Character.Unit_ID);
+        DisplayCharacterPortrait(result.Character);
     }
     
-    private void DisplayCharacterPortrait(string unitId)
+    private void DisplayCharacterPortrait(CharacterData characterData)
     {
-        if (characterPortraitImage == null || string.IsNullOrEmpty(unitId))
+        if (characterPortraitImage == null || characterData == null)
         {
             return;
         }
 
-        StartCoroutine(LoadPortraitRoutine(unitId));
+        StartCoroutine(LoadPortraitRoutine(characterData));
     }
 
-    private IEnumerator LoadPortraitRoutine(string unitId)
+    private IEnumerator LoadPortraitRoutine(CharacterData characterData)
     {
-        yield return portraitLoader.LoadAsync(
-            AddressableAssetType.Character,
-            unitId,
+        yield return CharacterInfoProvider.LoadPortraitAsync(
+            portraitLoader,
+            characterData,
             sprite => characterPortraitImage.sprite = sprite,
-            () => Debug.LogWarning($"[RecruitUI] 캐릭터 초상화 로드 실패: {unitId}"));
+            () => Debug.LogWarning($"[RecruitUI] 캐릭터 초상화 로드 실패: {characterData.Unit_ID}"));
     }
     
     private string GetRarityLabel(int rarity)
