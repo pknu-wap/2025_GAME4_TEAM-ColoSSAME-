@@ -1,7 +1,8 @@
-using System.Collections.Generic;
-using System.IO;
 using BattleK.Scripts.JSON;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 // 적 팀 로스터/성장 상태를 저장하는 순수 C# 싱글턴.
@@ -92,4 +93,16 @@ public class EnemySaveManager
     }
 
     public void ReloadEnemy() => Load();
+
+    // 메모리에서만 유닛 수정, 저장 x
+    public void ModifyUnitInMemory(string unitId, Action<Unit> modify)
+    {
+        if (string.IsNullOrEmpty(unitId) || modify == null) return;
+
+        foreach (var team in _teamMap.Values)
+        {
+            var unit = team.units.Find(u => u.unitId == unitId);
+            if (unit != null) { modify(unit); return; }  
+        }
+    }
 }
