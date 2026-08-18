@@ -32,7 +32,7 @@ namespace BattleK.Scripts.Manager
         [SerializeField] private LeagueSceneManager _leagueSceneManager;
         [SerializeField] private UnitLoadManager _unitLoadManager;
         [SerializeField] private UserSaveManager _userSaveManager;
-        [SerializeField] private EnemySaveManager _enemySaveManager;
+        //[SerializeField] private EnemySaveManager _enemySaveManager;
         [SerializeField] private League _league;
 
         public int PlayerLayer { get; private set; } = -1;
@@ -76,7 +76,7 @@ namespace BattleK.Scripts.Manager
             unit.InjectSaveDependencies(
                 unitLoadManager: _unitLoadManager,
                 userSaveManager: _userSaveManager,
-                enemySaveManager: _enemySaveManager,
+                enemySaveManager: EnemySaveManager.Instance,
                 league: _league);
             
             if (sideIndex == 0)

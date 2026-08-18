@@ -16,6 +16,7 @@ public class EnemySaveManager
 
     private readonly string _savePath;
     private readonly Dictionary<int, EnemyTeam> _teamMap = new();
+    private readonly HashSet<string> _seenEnemyIds = new();
 
     private EnemySaveManager()
     {
@@ -26,6 +27,7 @@ public class EnemySaveManager
     private void Load()
     {
         _teamMap.Clear();
+        _seenEnemyIds.Clear();
 
         if (JsonFileHandler.TryLoadJsonFile<EnemyTeamList>(_savePath, out var data, out var message))
         {
@@ -35,7 +37,16 @@ public class EnemySaveManager
             {
                 if (team != null) _teamMap[team.id] = team;
             }
+            if (data.seenEnemyIds != null)
+            {
+                foreach (var unitId in data.seenEnemyIds)
+                {
+                    if (!string.IsNullOrEmpty(unitId))
+                        _seenEnemyIds.Add(unitId);
+                }
+            }
         }
+        
         else if (message != "File does not exist.")
         {
             // 세이브 파일이 손상돼도 크래시 없이 빈 상태로 시작
@@ -47,7 +58,7 @@ public class EnemySaveManager
     {
         try
         {
-            var data = new EnemyTeamList { teams = new List<EnemyTeam>(_teamMap.Values) };
+            var data = new EnemyTeamList { teams = new List<EnemyTeam>(_teamMap.Values), seenEnemyIds = new List<string>(_seenEnemyIds)};
             File.WriteAllText(_savePath, JsonConvert.SerializeObject(data, Formatting.Indented));
         }
         catch (System.Exception e)
@@ -57,6 +68,29 @@ public class EnemySaveManager
     }
 
     public EnemyTeam GetTeam(int id) => _teamMap.TryGetValue(id, out var team) ? team : null;
+    
+    /*public List<SeenEnemyData> GetSeenEnemiesByTeam(string teamFid)
+    {
+        if (string.IsNullOrWhiteSpace(teamFid))
+            return new List<SeenEnemyData>();
+
+        return _seenEnemies.FindAll(x =>
+            string.Equals(
+                x.teamFid,
+                teamFid,
+                StringComparison.OrdinalIgnoreCase));
+    }
+
+    public SeenEnemyData GetSeenEnemy(string teamFid, string unitId)
+    {
+        if (string.IsNullOrWhiteSpace(teamFid) ||
+            string.IsNullOrWhiteSpace(unitId))
+            return null;
+
+        return _seenEnemies.Find(x =>
+            string.Equals(x.teamFid, teamFid, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(x.unitId, unitId, StringComparison.OrdinalIgnoreCase));
+    }*/
 
     public bool HasTeam(int id) => _teamMap.ContainsKey(id);
 
@@ -86,9 +120,31 @@ public class EnemySaveManager
         Save();
     }
 
+    public void RecordSeenEnemy(string unitId)
+    {
+        if (string.IsNullOrWhiteSpace(unitId))
+        return;
+
+        unitId = unitId.Trim();
+
+        if (!_seenEnemyIds.Add(unitId))
+            return;
+
+        Save();
+    }
+
+    public bool HasSeenEnemy(string unitId)
+    {
+        if (string.IsNullOrWhiteSpace(unitId))
+        return false;
+
+        return _seenEnemyIds.Contains(unitId.Trim());    
+    }
+
     public void Clear()
     {
         _teamMap.Clear();
+        _seenEnemyIds.Clear();
         Save();
     }
 

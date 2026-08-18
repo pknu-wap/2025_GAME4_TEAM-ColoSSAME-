@@ -38,8 +38,8 @@ public class LeagueUIManager : MonoBehaviour
     [SerializeField]
     private TeamInfoUI teamInfoUI;
 
-    [SerializeField] 
-    private BookPageController pageController;
+    /*[SerializeField] 
+    private BookPageController pageController;*/
 
     [SerializeField] 
     private int teamInfoPageIndex = 1;
@@ -184,7 +184,7 @@ public class LeagueUIManager : MonoBehaviour
     {
         teamInfoUI.SetTeam(team);
         hideManager.ShowPanel(teamInfoPanel);
-        pageController.OnButtonClicked(teamInfoPageIndex);
+        //pageController.OnButtonClicked(teamInfoPageIndex);
     }
 
     private int GetCurrentRoundNumber()

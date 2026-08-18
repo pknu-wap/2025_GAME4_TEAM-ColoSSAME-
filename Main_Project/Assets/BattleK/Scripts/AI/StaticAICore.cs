@@ -438,6 +438,8 @@ namespace BattleK.Scripts.AI
         {
             if (_enemySaveManager == null || _league == null) return;
 
+            _enemySaveManager.RecordSeenEnemy(Stat.Name);
+
             var team = _enemySaveManager.GetTeam(_league.currentEnemyTeamId);
             var unitData = team?.units?.Find(u =>
                 string.Equals(u.unitId?.Trim(), Stat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
