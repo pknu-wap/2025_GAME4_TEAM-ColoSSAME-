@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using BattleK.UI.Book;
 using TMPro;
 
 public class LeagueUIManager : MonoBehaviour
@@ -184,7 +185,7 @@ public class LeagueUIManager : MonoBehaviour
     {
         teamInfoUI.SetTeam(team);
         hideManager.ShowPanel(teamInfoPanel);
-        pageController.OnButtonClicked(teamInfoPageIndex);
+        // pageController.OnButtonClicked(teamInfoPageIndex);
     }
 
     private int GetCurrentRoundNumber()
