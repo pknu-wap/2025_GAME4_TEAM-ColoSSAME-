@@ -119,8 +119,6 @@ namespace BattleK.Scripts.Manager
 
         public void IsWinner()
         {
-            if (IsAlreadyDone) return;
-
             switch (playerUnits.Count)
             {
                 case >= 1 when enemyUnits.Count >= 1:
@@ -134,18 +132,22 @@ namespace BattleK.Scripts.Manager
                     Debug.Log("승리");
                     break;
                 case < 1 when enemyUnits.Count < 1:
-                    _leagueSceneManager.OnClickDraw();
                     Debug.Log("무승부");
+                    var randWinner = Random.Range(1, 3);
+                    switch (randWinner)
+                    {
+                        case 1:
+                            _leagueSceneManager.OnClickWin();
+                            Debug.Log("승리");
+                            break;
+                        case 2:
+                            _leagueSceneManager.OnClickLose();
+                            Debug.Log("패배");
+                            break;
+                    }
                     break;
             }
-
-            FinishBattle();
-        }
-
-        private void FinishBattle()
-        {
             IsAlreadyDone = true;
-            BattleItemEffectRunner.Instance?.ApplyBattleEndEffects();
             KillAll();
         }
 
