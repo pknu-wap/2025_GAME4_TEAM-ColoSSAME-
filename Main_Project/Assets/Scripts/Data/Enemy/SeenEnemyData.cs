@@ -6,6 +6,7 @@ using System;
 [Serializable]
 public class SeenEnemyData
 {
+    public string unitName;
     public string unitId;
 
     public string teamFid;

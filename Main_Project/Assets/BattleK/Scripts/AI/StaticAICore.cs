@@ -440,19 +440,26 @@ namespace BattleK.Scripts.AI
 
             var team = _enemySaveManager.GetTeam(_league.currentEnemyTeamId);            
             
+            Debug.Log($"[EnemySave] Stat.Name={Stat.Name}");
+
+            foreach (var unit in team.units)
+            {
+                Debug.Log($"[EnemySave] unitName={unit.unitName}");
+            }
+            var unitData = team?.units?.Find(u =>
+                string.Equals(u.unitName?.Trim(), Stat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
+            Debug.Log($"[EnemySave] unitData={(unitData == null ? "NULL" : unitData.unitName)}");      
+            if (unitData == null) return;
+
             var seenEnemy = new SeenEnemyData
             {
-                unitId = Stat.Name,
+                unitId = unitData.unitId,
+                unitName = unitData.unitName,
                 teamFid = team.fid,
                 teamName = team.name
             };
 
             _enemySaveManager.RecordSeenEnemy(seenEnemy);
-            
-            var unitData = team?.units?.Find(u =>
-                string.Equals(u.unitId?.Trim(), Stat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
-                                    
-            if (unitData == null) return;
 
             Stat.SaveTo(unitData);
             //unitData.equippedItemId = Stat.Item != null ? Stat.Item.ItemId : null;
