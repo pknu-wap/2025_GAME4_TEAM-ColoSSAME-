@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using BattleK.Scripts.AI;
 using UnityEngine;
 
 namespace BattleK.Scripts.AI.StaticScoreState.Attack

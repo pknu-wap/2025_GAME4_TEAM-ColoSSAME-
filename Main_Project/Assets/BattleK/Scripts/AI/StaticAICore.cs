@@ -336,11 +336,6 @@ namespace BattleK.Scripts.AI
 
         public void OnTakeDamage(int damage, bool isPenetrating = false)
         {
-            OnTakeDamage(damage, null, isPenetrating);
-        }
-
-        public void OnTakeDamage(int damage, StaticAICore attacker, bool isPenetrating = false)
-        {
             if (IsDead || Stat.CurrentHP == 0) return;
             if (IsInvincible)
             {
@@ -358,7 +353,7 @@ namespace BattleK.Scripts.AI
             HPBar.UpdateHPBar();
             if (Stat.CurrentHP <= 0)
             {
-                OnDead(DeathReason.Combat, attacker);
+                OnDead();
                 return;
             }
             if(OverrideMachine.CurrentState == null) OverrideMachine.ChangeState(new StaticHitState(this));
@@ -382,16 +377,8 @@ namespace BattleK.Scripts.AI
                 OverrideMachine.StopAndClear();
         }
 
-        public void OnDead(DeathReason reason = DeathReason.Combat, StaticAICore killer = null)
+        public void OnDead(DeathReason reason = DeathReason.Combat)
         {
-            if (reason == DeathReason.Combat &&
-                Stat.CurrentHP <= 0 &&
-                BattleItemEffectRunner.Instance &&
-                BattleItemEffectRunner.Instance.TryReviveOnDeath(this))
-            {
-                return;
-            }
-
             switch (reason)
             {
                 case DeathReason.Combat:
@@ -399,10 +386,6 @@ namespace BattleK.Scripts.AI
                     AiManager.UnregisterUnit(this);
                     if(Stat.InjuryLevel <= InjuryStatus.FatalInjury)
                         ++Stat.InjuryLevel;
-                    if (BattleItemEffectRunner.Instance)
-                    {
-                        BattleItemEffectRunner.Instance.NotifyUnitDeath(this, killer);
-                    }
                     AiManager.IsWinner();
                     break;
                 case DeathReason.System:

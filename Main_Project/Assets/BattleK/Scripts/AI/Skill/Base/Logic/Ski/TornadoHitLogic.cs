@@ -1,3 +1,4 @@
+using BattleK.Scripts.AI;
 using UnityEngine;
 
 namespace BattleK.Scripts.AI.Skill.Base.Projectile

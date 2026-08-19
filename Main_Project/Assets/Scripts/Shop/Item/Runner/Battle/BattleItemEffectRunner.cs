@@ -15,6 +15,9 @@ public class BattleItemEffectRunner : MonoBehaviour
     private BattleItemEffectRegistry registry;
     private BattleItemEffectDispatcher dispatcher;
     private bool battleStartApplied;
+    private readonly List<StaticAICore> observedUnits = new();
+    private readonly Dictionary<StaticAICore, StaticAICore> lastDamageSources = new();
+    private readonly HashSet<StaticAICore> notifiedDeadUnits = new();
 
     public static BattleItemEffectRunner EnsureInstance()
     {
@@ -50,13 +53,15 @@ public class BattleItemEffectRunner : MonoBehaviour
 
         if (!battleStartApplied) return;
 
+        RegisterEquippedItemsDuringBattle();
+        NotifyObservedUnitDeaths();
+
         if (aiManager && aiManager.IsAlreadyDone)
         {
             ApplyBattleEndEffects();
             return;
         }
 
-        RegisterEquippedItemsDuringBattle();
         dispatcher.UpdateTickEffects(Time.deltaTime);
         dispatcher.UpdateLowHpEffects();
     }
@@ -91,6 +96,7 @@ public class BattleItemEffectRunner : MonoBehaviour
     public void RegisterUnit(StaticAICore unit)
     {
         EnsurePipeline();
+        TrackObservedUnit(unit);
         registry.RegisterUnit(unit);
     }
 
@@ -119,6 +125,7 @@ public class BattleItemEffectRunner : MonoBehaviour
     public void NotifyUnitDeath(StaticAICore deadUnit, StaticAICore killer = null)
     {
         if (!battleStartApplied) return;
+        if (!deadUnit || !notifiedDeadUnits.Add(deadUnit)) return;
 
         dispatcher.NotifyUnitDeath(deadUnit, killer);
     }
@@ -128,6 +135,13 @@ public class BattleItemEffectRunner : MonoBehaviour
         if (!battleStartApplied) return;
 
         dispatcher.NotifyUnitKill(killer, victim);
+    }
+
+    public void RecordDamageSource(StaticAICore target, StaticAICore attacker)
+    {
+        if (!target || !attacker || target == attacker) return;
+
+        lastDamageSources[target] = attacker;
     }
 
     private void EnsurePipeline()
@@ -150,6 +164,13 @@ public class BattleItemEffectRunner : MonoBehaviour
         {
             RegisterUnit(units[i]);
         }
+    }
+
+    private void TrackObservedUnit(StaticAICore unit)
+    {
+        if (!unit || observedUnits.Contains(unit)) return;
+
+        observedUnits.Add(unit);
     }
 
     private void TryAutoStartBattle()
@@ -194,10 +215,26 @@ public class BattleItemEffectRunner : MonoBehaviour
         RegisterUnits(aiManager.enemyUnits);
     }
 
+    private void NotifyObservedUnitDeaths()
+    {
+        for (int i = 0; i < observedUnits.Count; i++)
+        {
+            StaticAICore deadUnit = observedUnits[i];
+            if (!deadUnit || !deadUnit.IsDead) continue;
+            if (!notifiedDeadUnits.Add(deadUnit)) continue;
+
+            lastDamageSources.TryGetValue(deadUnit, out StaticAICore killer);
+            dispatcher.NotifyUnitDeath(deadUnit, killer);
+        }
+    }
+
     private void ClearRuntimeState()
     {
         registry.Clear();
         context.StatApplier.ClearSnapshots();
+        observedUnits.Clear();
+        lastDamageSources.Clear();
+        notifiedDeadUnits.Clear();
         battleStartApplied = false;
     }
 }
