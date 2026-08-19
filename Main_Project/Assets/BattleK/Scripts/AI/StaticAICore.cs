@@ -438,12 +438,20 @@ namespace BattleK.Scripts.AI
         {
             if (_enemySaveManager == null || _league == null) return;
 
-            _enemySaveManager.RecordSeenEnemy(Stat.Name);
+            var team = _enemySaveManager.GetTeam(_league.currentEnemyTeamId);            
+            
+            var seenEnemy = new SeenEnemyData
+            {
+                unitId = Stat.Name,
+                teamFid = team.fid,
+                teamName = team.name
+            };
 
-            var team = _enemySaveManager.GetTeam(_league.currentEnemyTeamId);
+            _enemySaveManager.RecordSeenEnemy(seenEnemy);
+            
             var unitData = team?.units?.Find(u =>
                 string.Equals(u.unitId?.Trim(), Stat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
-
+                                    
             if (unitData == null) return;
 
             Stat.SaveTo(unitData);

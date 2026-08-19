@@ -10,8 +10,7 @@ public class SeenEnemyData
 
     public string teamFid;
     public string teamName;
-
-    public string unitName;
+    
     public int rarity;
     public int level;
 

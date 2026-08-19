@@ -38,6 +38,9 @@ public class LeagueUIManager : MonoBehaviour
     [SerializeField]
     private TeamInfoUI teamInfoUI;
 
+    [SerializeField]    
+    private SeenEnemyListUI seenEnemyListUI;
+
     /*[SerializeField] 
     private BookPageController pageController;*/
 
@@ -183,6 +186,7 @@ public class LeagueUIManager : MonoBehaviour
     private void OpenTeamInfoPage(Team team)
     {
         teamInfoUI.SetTeam(team);
+        seenEnemyListUI.ShowTeam(team);
         hideManager.ShowPanel(teamInfoPanel);
         //pageController.OnButtonClicked(teamInfoPageIndex);
     }

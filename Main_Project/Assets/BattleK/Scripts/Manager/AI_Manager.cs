@@ -77,7 +77,7 @@ namespace BattleK.Scripts.Manager
                 unitLoadManager: _unitLoadManager,
                 userSaveManager: _userSaveManager,
                 enemySaveManager: EnemySaveManager.Instance,
-                league: _league);
+                league: LeagueManager.Instance.league);
             
             if (sideIndex == 0)
             {

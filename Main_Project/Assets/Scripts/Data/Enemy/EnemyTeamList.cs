@@ -4,5 +4,5 @@ using System.Collections.Generic;
 public class EnemyTeamList
 {
     public List<EnemyTeam> teams = new List<EnemyTeam>();
-    public List<string> seenEnemyIds = new List<string>();
+    public List<SeenEnemyTeamData> seenEnemyTeams = new List<SeenEnemyTeamData>();
 }
