@@ -45,6 +45,7 @@ namespace BattleK.Scripts.Manager
             yield return new WaitUntil(() => _aiManager.playerUnits.Count > 0 && _aiManager.enemyUnits.Count > 0);
 
             _statAdaptManager.ApplyToAllUnitsAndInitialize();
+            BattleItemEffectRunner.EnsureInstance().StartBattle(_aiManager);
             _statsCollector.CollectFromBothTeams();
             _calculateManager.RefreshFromCollectorOnce();
             _hpManager.setUnits();

@@ -48,6 +48,7 @@ public class BattleItemEffectRunner : MonoBehaviour
     {
         if (!battleStartApplied) return;
 
+        RegisterEquippedItemsDuringBattle();
         dispatcher.UpdateTickEffects(Time.deltaTime);
         dispatcher.UpdateLowHpEffects();
     }
@@ -141,6 +142,20 @@ public class BattleItemEffectRunner : MonoBehaviour
         {
             RegisterUnit(units[i]);
         }
+    }
+
+    private void RegisterEquippedItemsDuringBattle()
+    {
+        if (!aiManager)
+        {
+            aiManager = AI_Manager.Instance;
+            context.SetAiManager(aiManager);
+        }
+
+        if (!aiManager) return;
+
+        RegisterUnits(aiManager.playerUnits);
+        RegisterUnits(aiManager.enemyUnits);
     }
 
     private void ClearRuntimeState()
