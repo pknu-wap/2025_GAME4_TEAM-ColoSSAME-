@@ -27,12 +27,12 @@ public class SettingsUI : MonoBehaviour
     private void RefreshSliders()
     {
         masterSlider.SetValueWithoutNotify(
-            SettingsManager.Instance.GetMasterVolume());
+            SettingsManager.Instance.MasterVolume);
 
         bgmSlider.SetValueWithoutNotify(
-            SettingsManager.Instance.GetBGMVolume());
+            SettingsManager.Instance.BGMVolume);
 
         sfxSlider.SetValueWithoutNotify(
-            SettingsManager.Instance.GetSFXVolume());
+            SettingsManager.Instance.SFXVolume);
     }
 }

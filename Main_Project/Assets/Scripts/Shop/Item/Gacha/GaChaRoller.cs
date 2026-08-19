@@ -7,7 +7,7 @@ public static class GachaRoller
         // 테이블 자체가 없으면: 폴백
         if (table == null)
         {
-            Debug.LogWarning("⚠️ GachaRoller: table이 null입니다. 폴백 골드 지급");
+            Debug.LogWarning(" GachaRoller: table이 null입니다. 폴백 골드 지급");
             return GachaResult.Money(10);
         }
 

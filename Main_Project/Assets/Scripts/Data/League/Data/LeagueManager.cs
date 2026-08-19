@@ -395,7 +395,7 @@ public class LeagueManager : MonoBehaviour
 
         if (sprite == null)
         {
-            Debug.LogWarning($"❌ 팀 스프라이트를 찾을 수 없습니다: {path}");
+            Debug.LogWarning($" 팀 스프라이트를 찾을 수 없습니다: {path}");
         }
 
         return sprite;

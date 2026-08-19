@@ -45,6 +45,10 @@ public class SettingsManager : MonoBehaviour
         ApplyAllVolumes();
     }
 
+    public float MasterVolume => masterVolume;
+    public float BGMVolume => bgmVolume;
+    public float SFXVolume => sfxVolume;
+
     public void SetMasterVolume(float value)
     {
         masterVolume = Mathf.Clamp(value, 0f, 2f);
@@ -69,20 +73,6 @@ public class SettingsManager : MonoBehaviour
         SaveSettings();
     }
 
-    public float GetMasterVolume()
-    {
-        return masterVolume;
-    }
-
-    public float GetBGMVolume()
-    {
-        return bgmVolume;
-    }
-
-    public float GetSFXVolume()
-    {
-        return sfxVolume;
-    }
 
     private void ApplyAllVolumes()
     {
@@ -108,12 +98,6 @@ public class SettingsManager : MonoBehaviour
 
     private void SetMixerVolume(string parameterName, float value)
     {
-        if (audioMixer == null)
-        {
-            Debug.Log("SettingsManager에 AudioMixer가 연결되지 않았습니다.");
-            return;
-        }
-
         float decibel = value <= 0.0001f
             ? -80f
             : Mathf.Log10(value) * 20f;

@@ -50,7 +50,7 @@ public class PrefabManager : MonoBehaviour
     {
         if (prefabInstances[index] != null)
         {
-            prefabInstances[index].SetActive(false);  // Destroy ❌, 꺼두기만
+            prefabInstances[index].SetActive(false);  // Destroy , 꺼두기만
         }
 
         buttonsParent.SetActive(true);

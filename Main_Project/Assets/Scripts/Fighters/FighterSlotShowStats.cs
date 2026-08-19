@@ -30,20 +30,20 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
     {
         if (UserManager.Instance == null || UserManager.Instance.user == null)
         {
-            Debug.LogError("❌ UserManager 또는 user가 준비되지 않았습니다.");
+            Debug.LogError(" UserManager 또는 user가 준비되지 않았습니다.");
             return;
         }
 
         var units = UserManager.Instance.user.myUnits;
         if (units == null)
         {
-            Debug.LogError("❌ myUnits가 null입니다.");
+            Debug.LogError(" myUnits가 null입니다.");
             return;
         }
 
         if (slotData == null || string.IsNullOrEmpty(slotData.unitId))
         {
-            Debug.LogWarning("⚠️ 슬롯에 unitId가 없습니다.");
+            Debug.LogWarning(" 슬롯에 unitId가 없습니다.");
             return;
         }
 
@@ -59,7 +59,7 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
 
         if (found == null)
         {
-            Debug.LogWarning($"⚠️ myUnits에서 unitId='{slotData.unitId}' 유닛을 찾지 못했습니다.");
+            Debug.LogWarning($" myUnits에서 unitId='{slotData.unitId}' 유닛을 찾지 못했습니다.");
             return;
         }
 
@@ -96,7 +96,7 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
             }
             else
             {
-                Debug.LogWarning("⚠️ 슬롯에서 'playerImage'를 찾지 못했습니다.");
+                Debug.LogWarning(" 슬롯에서 'playerImage'를 찾지 못했습니다.");
             }
         }
         int baseCost = UnitCostCalculator.CalculateGoldCost(found.level);
@@ -107,6 +107,6 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
             expCostText.text = $"레벨업 비용 {cost}골드";
         }
 
-        Debug.Log($"✅ UI 갱신: {found.unitName} / Lv {found.level} / Exp {found.exp} / 비용: {cost}G");
+        Debug.Log($" UI 갱신: {found.unitName} / Lv {found.level} / Exp {found.exp} / 비용: {cost}G");
     }
 }

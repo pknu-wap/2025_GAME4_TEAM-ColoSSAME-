@@ -58,7 +58,7 @@ public class BuildingUpgradeManager : MonoBehaviour
         {
             if (table.levels[i].level == curLevel)
             {
-                // ✅ 테이블 값이 실수로 1.2, -0.1 같은 값이어도 안전하게 보정
+                //  테이블 값이 실수로 1.2, -0.1 같은 값이어도 안전하게 보정
                 return Mathf.Clamp01(table.levels[i].discountRate);
             }
         }
@@ -117,7 +117,7 @@ public class BuildingUpgradeManager : MonoBehaviour
             if (table.levels[i].level == nextLevel)
             {
                 costMoney = table.levels[i].upgradeCostMoney;
-                nextDiscountRate = Mathf.Clamp01(table.levels[i].discountRate); // ✅ 보정
+                nextDiscountRate = Mathf.Clamp01(table.levels[i].discountRate); //  보정
                 return true;
             }
         }
@@ -134,14 +134,14 @@ public class BuildingUpgradeManager : MonoBehaviour
     {
         if (UserManager.Instance == null || CurrentUser == null)
         {
-            Debug.LogWarning("❌ Upgrade 실패: UserManager 또는 User가 없습니다.");
+            Debug.LogWarning(" Upgrade 실패: UserManager 또는 User가 없습니다.");
             return false;
         }
 
         var list = GetOrCreateBuildingLevels();
         if (list == null)
         {
-            Debug.LogWarning("❌ Upgrade 실패: buildingLevels 리스트를 사용할 수 없습니다.");
+            Debug.LogWarning(" Upgrade 실패: buildingLevels 리스트를 사용할 수 없습니다.");
             return false;
         }
 
@@ -183,7 +183,7 @@ public class BuildingUpgradeManager : MonoBehaviour
         // 이벤트 발행(상점/훈련소 갱신 연결)
         OnBuildingUpgraded?.Invoke(type, nextLevel);
 
-        Debug.Log($"✅ {type} 업그레이드 완료: Lv {nextLevel} / 할인율 {(nextDiscount * 100f):0}%");
+        Debug.Log($" {type} 업그레이드 완료: Lv {nextLevel} / 할인율 {(nextDiscount * 100f):0}%");
         return true;
     }
 

@@ -47,7 +47,7 @@ public class UnitDataManager : MonoBehaviour
         );
         this.loadHandle.Completed += this.OnAllDataLoaded;
         
-        Debug.Log($"✅ 총 {familyUnitDataDict.Count}개의 유닛 데이터 로드 완료.");
+        Debug.Log($" 총 {familyUnitDataDict.Count}개의 유닛 데이터 로드 완료.");
     }
 
     private void OnAllDataLoaded(
@@ -135,7 +135,7 @@ public class UnitDataManager : MonoBehaviour
             return this.unitDataDict[unitId];
         }
 
-        Debug.LogWarning($"❌ 유닛 데이터 ID를 찾을 수 없습니다: {unitId}");
+        Debug.LogWarning($" 유닛 데이터 ID를 찾을 수 없습니다: {unitId}");
         return null;
     }
 }

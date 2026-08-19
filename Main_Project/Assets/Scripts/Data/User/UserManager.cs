@@ -30,7 +30,7 @@ public class UserManager : MonoBehaviour
             savePath = Path.Combine(Application.persistentDataPath, "UserSave.json");
             LoadUser();
 
-            Debug.Log("✅ UserManager 초기화 완료");
+            Debug.Log(" UserManager 초기화 완료");
         }
         else
         {
@@ -236,7 +236,7 @@ public class UserManager : MonoBehaviour
 
         if (handle.Status != AsyncOperationStatus.Succeeded)
         {
-            Debug.LogError($"❌ 가문 '{familyId}' 로드 실패");
+            Debug.LogError($" 가문 '{familyId}' 로드 실패");
             yield break;
         }
 
@@ -250,7 +250,7 @@ public class UserManager : MonoBehaviour
 
         if (familyUnits == null || familyUnits.Count < 6)
         {
-            Debug.LogError($"❌ 가문 '{familyId}'의 유닛 데이터가 부족합니다.");
+            Debug.LogError($" 가문 '{familyId}'의 유닛 데이터가 부족합니다.");
             yield break;
         }
 
@@ -267,7 +267,7 @@ public class UserManager : MonoBehaviour
             );
 
             user.myUnits.Add(newUnit);
-            Debug.Log($"✅ 초기 유닛 추가: {familyUnits[i].Unit_Name}");
+            Debug.Log($" 초기 유닛 추가: {familyUnits[i].Unit_Name}");
         }
 
         SaveUser();
