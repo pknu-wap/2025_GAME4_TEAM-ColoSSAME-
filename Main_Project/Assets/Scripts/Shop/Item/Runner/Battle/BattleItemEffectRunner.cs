@@ -46,7 +46,15 @@ public class BattleItemEffectRunner : MonoBehaviour
 
     private void Update()
     {
+        TryAutoStartBattle();
+
         if (!battleStartApplied) return;
+
+        if (aiManager && aiManager.IsAlreadyDone)
+        {
+            ApplyBattleEndEffects();
+            return;
+        }
 
         RegisterEquippedItemsDuringBattle();
         dispatcher.UpdateTickEffects(Time.deltaTime);
@@ -144,15 +152,43 @@ public class BattleItemEffectRunner : MonoBehaviour
         }
     }
 
-    private void RegisterEquippedItemsDuringBattle()
+    private void TryAutoStartBattle()
     {
-        if (!aiManager)
+        if (battleStartApplied) return;
+        if (!TryResolveAiManager()) return;
+        if (aiManager.IsAlreadyDone) return;
+        if (!HasInitializedUnits(aiManager.playerUnits)) return;
+        if (!HasInitializedUnits(aiManager.enemyUnits)) return;
+
+        StartBattle(aiManager);
+    }
+
+    private bool TryResolveAiManager()
+    {
+        if (aiManager) return true;
+
+        aiManager = AI_Manager.Instance;
+        context.SetAiManager(aiManager);
+        return aiManager != null;
+    }
+
+    private static bool HasInitializedUnits(List<StaticAICore> units)
+    {
+        if (units == null || units.Count <= 0) return false;
+
+        for (int i = 0; i < units.Count; i++)
         {
-            aiManager = AI_Manager.Instance;
-            context.SetAiManager(aiManager);
+            StaticAICore unit = units[i];
+            if (!unit || unit.Stat == null || !unit.IsInitialized)
+                return false;
         }
 
-        if (!aiManager) return;
+        return true;
+    }
+
+    private void RegisterEquippedItemsDuringBattle()
+    {
+        if (!TryResolveAiManager()) return;
 
         RegisterUnits(aiManager.playerUnits);
         RegisterUnits(aiManager.enemyUnits);

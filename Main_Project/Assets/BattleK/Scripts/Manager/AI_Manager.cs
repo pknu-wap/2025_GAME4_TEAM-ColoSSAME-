@@ -147,7 +147,6 @@ namespace BattleK.Scripts.Manager
                     }
                     break;
             }
-            BattleItemEffectRunner.Instance?.ApplyBattleEndEffects();
             IsAlreadyDone = true;
             KillAll();
         }
