@@ -329,6 +329,7 @@ public class LeagueManager : MonoBehaviour
         Debug.Log(" 라운드 결과 처리 완료");
 
         var ui = FindObjectOfType<LeagueUIManager>();
+        FindObjectOfType<ArenaNewsUI>()?.RefreshNews();
         if (ui != null) ui.UpdateAllUI();
 
     }
