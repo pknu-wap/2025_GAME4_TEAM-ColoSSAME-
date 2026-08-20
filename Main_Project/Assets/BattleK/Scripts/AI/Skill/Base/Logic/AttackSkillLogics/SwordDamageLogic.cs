@@ -24,7 +24,7 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics
             if ((owner.TargetLayer.value & (1 << target.gameObject.layer)) == 0) return;
 
             int finalDamage = Mathf.RoundToInt(owner.Stat.AttackDamage * _damageMultiplier) + _flatBonusDamage;
-            target.OnTakeDamage(finalDamage);
+            target.OnTakeDamage(finalDamage, owner);
 
             if (_hitCCData != null && target.TryGetComponent(out StatusEffectManager statusEffectManager))
             {
