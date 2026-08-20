@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using BattleK.Scripts.AI;
 using UnityEngine;
 
 namespace BattleK.Scripts.AI.StaticScoreState.Attack
@@ -42,7 +43,7 @@ namespace BattleK.Scripts.AI.StaticScoreState.Attack
             var target = other.GetComponent<StaticAICore>();
             if (!target || target.IsDead) return;
 
-            target.OnTakeDamage(_damage);
+            target.OnTakeDamage(_damage, _owner);
             _hitTargets.Add(other.gameObject);
         }
     }

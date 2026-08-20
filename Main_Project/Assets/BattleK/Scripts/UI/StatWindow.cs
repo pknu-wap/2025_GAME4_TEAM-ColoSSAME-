@@ -19,13 +19,30 @@ namespace BattleK.Scripts.UI
         public Image CharacterImage;
         [Header("AICore")]
         public StaticAICore OwnerAI;
+
+        private void Update()
+        {
+            ApplyBattleStats();
+        }
         
         public void Apply()
         {
+            if (!OwnerAI || OwnerAI.Stat == null) return;
+
             if (CharacterImage) CharacterImage.sprite = OwnerAI.Stat.CharacterImage;
             if (NameText)   NameText.text   = $"{OwnerAI.Stat.Name}";
-            if (AtkText)    AtkText.text    = $"ATK: {OwnerAI.Stat.AttackDamage}";
-            if (DefText)    DefText.text    = $"DEF: {OwnerAI.Stat.Defense}";
+            ApplyBattleStats();
+        }
+
+        private void ApplyBattleStats()
+        {
+            if (!OwnerAI || OwnerAI.Stat == null) return;
+
+            int attack = OwnerAI.IsInitialized ? OwnerAI.CurrentAttackDamage : OwnerAI.Stat.AttackDamage;
+            int defense = OwnerAI.IsInitialized ? OwnerAI.CurrentDefense : OwnerAI.Stat.Defense;
+
+            if (AtkText) AtkText.text = $"ATK: {attack}";
+            if (DefText) DefText.text = $"DEF: {defense}";
         }
     }
 }
