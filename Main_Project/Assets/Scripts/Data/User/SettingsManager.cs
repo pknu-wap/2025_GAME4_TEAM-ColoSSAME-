@@ -15,10 +15,12 @@ public class SettingsManager : MonoBehaviour
     private const string MasterVolumeParameter = "MasterVolume";
     private const string BGMVolumeParameter = "BGMVolume";
     private const string SFXVolumeParameter = "SFXVolume";
+    private const string IngameVolumeParameter = "IngameVolume";
 
     [SerializeField] private float masterVolume = 1f;
     [SerializeField] private float bgmVolume = 1f;
     [SerializeField] private float sfxVolume = 1f;
+    [SerializeField] private float ingameVolume = 1f;
 
     private string SettingsPath => Path.Combine(Application.persistentDataPath, SettingsFileName);
 
@@ -28,6 +30,7 @@ public class SettingsManager : MonoBehaviour
         public float masterVolume;
         public float bgmVolume;
         public float sfxVolume;
+        public float ingameVolume;
     }
 
     private void Awake()
@@ -48,6 +51,7 @@ public class SettingsManager : MonoBehaviour
     public float MasterVolume => masterVolume;
     public float BGMVolume => bgmVolume;
     public float SFXVolume => sfxVolume;
+    public float IngameVolume => ingameVolume;
 
     public void SetMasterVolume(float value)
     {
@@ -73,12 +77,21 @@ public class SettingsManager : MonoBehaviour
         SaveSettings();
     }
 
+    public void SetIngameVolume(float value)
+    {
+        ingameVolume = Mathf.Clamp(value, 0f, 2f);
+
+        ApplyIngameVolume();
+        SaveSettings();
+    }
+
 
     private void ApplyAllVolumes()
     {
         ApplyMasterVolume();
         ApplyBGMVolume();
         ApplySFXVolume();
+        ApplyIngameVolume();
     }
 
     private void ApplyMasterVolume()
@@ -94,6 +107,11 @@ public class SettingsManager : MonoBehaviour
     private void ApplySFXVolume()
     {
         SetMixerVolume(SFXVolumeParameter, sfxVolume);
+    }
+
+    private void ApplyIngameVolume()
+    {
+        SetMixerVolume(IngameVolumeParameter, ingameVolume);
     }
 
     private void SetMixerVolume(string parameterName, float value)
@@ -126,6 +144,7 @@ public class SettingsManager : MonoBehaviour
             masterVolume = Mathf.Clamp(data.masterVolume, 0f, 2f);
             bgmVolume = Mathf.Clamp(data.bgmVolume, 0f, 2f);
             sfxVolume = Mathf.Clamp(data.sfxVolume, 0f, 2f);
+            ingameVolume = Mathf.Clamp(data.ingameVolume, 0f, 2f);
         }
         catch (Exception e)
         {
@@ -139,7 +158,8 @@ public class SettingsManager : MonoBehaviour
         {
             masterVolume = masterVolume,
             bgmVolume = bgmVolume,
-            sfxVolume = sfxVolume
+            sfxVolume = sfxVolume,
+            ingameVolume = ingameVolume
         };
 
         string json = JsonUtility.ToJson(data, true);
