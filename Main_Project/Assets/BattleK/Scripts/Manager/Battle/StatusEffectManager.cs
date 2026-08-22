@@ -38,10 +38,15 @@ namespace BattleK.Scripts.Manager.Battle
         
         public void ApplyDotDamage(DotDamageLogic logic, float damagePerTick, bool isPenetrating)
         {
-            _runningRoutines.Add(StartCoroutine(DotDamageRoutine(logic, damagePerTick, isPenetrating)));
+            ApplyDotDamage(logic, null, damagePerTick, isPenetrating);
+        }
+
+        public void ApplyDotDamage(DotDamageLogic logic, StaticAICore attacker, float damagePerTick, bool isPenetrating)
+        {
+            _runningRoutines.Add(StartCoroutine(DotDamageRoutine(logic, attacker, damagePerTick, isPenetrating)));
         }
         
-        private IEnumerator DotDamageRoutine(DotDamageLogic logic, float tickDamage, bool isPenetrating)
+        private IEnumerator DotDamageRoutine(DotDamageLogic logic, StaticAICore attacker, float tickDamage, bool isPenetrating)
         {
             var timer = 0f;
             var tickTimer = 0f;
@@ -53,7 +58,7 @@ namespace BattleK.Scripts.Manager.Battle
 
                 if (tickTimer >= logic.TickInterval)
                 {
-                    _aiCore.OnTakeDamage((int)tickDamage, isPenetrating);
+                    _aiCore.OnTakeDamage((int)tickDamage, attacker, isPenetrating);
                     Debug.Log($"[HealthPerDamage] {_aiCore.name}에게 {tickDamage} 데미지 적용!");
                     tickTimer = 0f;
                 }
