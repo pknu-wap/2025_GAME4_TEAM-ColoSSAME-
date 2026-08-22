@@ -21,6 +21,8 @@ MonoBehaviour:
   SkillPrefabScale: 0.7
   FlipSkillPrefabByOwnerFacing: 0
   FollowSkillPrefab: 0
+  SkillPrefabSpawnCount: 1
+  SkillPrefabSpawnInterval: 0
   WindupPrefab: {fileID: 0}
   WindupSpawnAt: 0
   WindupPrefabScale: 1
@@ -34,7 +36,7 @@ MonoBehaviour:
   OwnerFrontDistance: 1
   SpawnAt: 1
   WindupTime: 0
-  ActiveTime: 1
+  ActiveTime: 5
   RecoveryTime: 0
   SkillLogics:
   - rid: 7300200000000000001
@@ -48,7 +50,7 @@ MonoBehaviour:
         _damageMultiplier: 1
         _flatBonusDamage: 0
         _hitCCData:
-          StatusName:
+          StatusName: 
           StatusType: 0
           duration: 0
           vfxPrefab: {fileID: 0}
@@ -58,4 +60,4 @@ MonoBehaviour:
           speedMultiplier: 1
     - rid: 7300200000000000002
       type: {class: NearestTargetLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic, asm: Assembly-CSharp}
-      data:
+      data: 

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic;
 using BattleK.Scripts.AI.Skill.Base.Logic.LogicBase;
 using BattleK.Scripts.AI.Skill.Base.Projectile;
 using BattleK.Scripts.Utils;
@@ -72,14 +73,15 @@ namespace BattleK.Scripts.AI.Skill.Base
 
         public void ExecuteSkill(StaticAICore owner, Transform target)
         {
+            var activeTime = GetSkillActiveTime();
             var spawnCount = GetSkillPrefabSpawnCount();
             for (var i = 0; i < spawnCount; i++)
             {
-                SpawnSkillPrefab(owner, target);
+                SpawnSkillPrefab(owner, target, activeTime);
             }
         }
 
-        private GameObject SpawnSkillPrefab(StaticAICore owner, Transform target)
+        private GameObject SpawnSkillPrefab(StaticAICore owner, Transform target, float activeTime)
         {
             if (!SkillPrefab) return null;
             var spawnRot = owner.transform.rotation;
@@ -114,8 +116,13 @@ namespace BattleK.Scripts.AI.Skill.Base
             
             foreach (var p in processors)
             {
-                p.Initialize(owner, SkillLogics, ActiveTime, targetMask, target, spawnPos, MaxHitTargets);
+                p.Initialize(owner, SkillLogics, activeTime, targetMask, target, spawnPos, MaxHitTargets);
                 p.StartProcess();
+            }
+
+            if (processors.Length == 0)
+            {
+                Destroy(instance, activeTime);
             }
 
             return instance;
@@ -179,12 +186,13 @@ namespace BattleK.Scripts.AI.Skill.Base
         private IEnumerator SpawnSkillPrefabsRoutine(StaticAICore owner, Transform target)
         {
             var skillInstances = new List<GameObject>();
+            var activeTime = GetSkillActiveTime();
             var spawnCount = GetSkillPrefabSpawnCount();
             var spawnInterval = Mathf.Max(0f, SkillPrefabSpawnInterval);
 
             for (var i = 0; i < spawnCount; i++)
             {
-                var skillInstance = SpawnSkillPrefab(owner, target);
+                var skillInstance = SpawnSkillPrefab(owner, target, activeTime);
                 if (skillInstance)
                 {
                     skillInstances.Add(skillInstance);
@@ -198,11 +206,11 @@ namespace BattleK.Scripts.AI.Skill.Base
 
             if (FollowSkillPrefab && skillInstances.Count > 0)
             {
-                yield return FollowSkillPrefabsForActiveTime(skillInstances, owner, target);
+                yield return FollowSkillPrefabsForActiveTime(skillInstances, owner, target, activeTime);
                 yield break;
             }
 
-            yield return new WaitForSeconds(ActiveTime);
+            yield return new WaitForSeconds(activeTime);
         }
 
         private IEnumerator WaitForSkillPrefabSpawnInterval(float duration, List<GameObject> skillInstances, StaticAICore owner, Transform target)
@@ -222,10 +230,14 @@ namespace BattleK.Scripts.AI.Skill.Base
             }
         }
 
-        private IEnumerator FollowSkillPrefabsForActiveTime(List<GameObject> skillInstances, StaticAICore owner, Transform target)
+        private IEnumerator FollowSkillPrefabsForActiveTime(
+            List<GameObject> skillInstances,
+            StaticAICore owner,
+            Transform target,
+            float activeTime)
         {
             var elapsed = 0f;
-            while (elapsed < ActiveTime)
+            while (elapsed < activeTime)
             {
                 UpdateSkillPrefabFollows(skillInstances, owner, target);
                 elapsed += Time.deltaTime;
@@ -251,6 +263,22 @@ namespace BattleK.Scripts.AI.Skill.Base
         private int GetSkillPrefabSpawnCount()
         {
             return Mathf.Max(1, SkillPrefabSpawnCount);
+        }
+
+        private float GetSkillActiveTime()
+        {
+            var activeTime = Mathf.Max(0f, ActiveTime);
+            if (SkillLogics == null) return activeTime;
+
+            foreach (var logic in SkillLogics)
+            {
+                if (logic is TauntLogic tauntLogic)
+                {
+                    activeTime = Mathf.Max(activeTime, tauntLogic.GetDuration());
+                }
+            }
+
+            return activeTime;
         }
         
         public bool CanExecute(StaticAICore owner, out Transform foundTarget)
