@@ -76,24 +76,24 @@ public class BookAnime : MonoBehaviour
 
         if (mapping.targetFields == null || mapping.targetFields.Length == 0)
         {
-            Debug.LogWarning($"⚠️ EnterMapping[{index}]에 targetFields가 없습니다.");
+            Debug.LogWarning($" EnterMapping[{index}]에 targetFields가 없습니다.");
             return;
         }
 
         if (bookAnimator == null)
         {
-            Debug.LogError("❌ BookEnterExitController: bookAnimator가 연결되지 않았습니다.");
+            Debug.LogError(" BookEnterExitController: bookAnimator가 연결되지 않았습니다.");
             return;
         }
 
-        // ✅ 1) 모든 진입 버튼 숨김
+        //  1) 모든 진입 버튼 숨김
         SetAllEnterButtonsVisible(false);
 
-        // ✅ 2) 책 정방향 애니메이션
+        //  2) 책 정방향 애니메이션
         isFlipping = true;
         bookAnimator.SetTrigger(forwardTrigger);
 
-        // ✅ 3) 0.5초 후 대상 오브젝트들 활성화
+        //  3) 0.5초 후 대상 오브젝트들 활성화
         StartCoroutine(SetTargetsActiveAfterDelay(mapping.targetFields, enterDelay));
     }
 
@@ -115,23 +115,23 @@ public class BookAnime : MonoBehaviour
 
         if (bookAnimator == null)
         {
-            Debug.LogError("❌ BookEnterExitController: bookAnimator가 연결되지 않았습니다.");
+            Debug.LogError(" BookEnterExitController: bookAnimator가 연결되지 않았습니다.");
             return;
         }
 
         isFlipping = true;
 
-        // ✅ 1) 책 애니메이션 역방향 실행
+        //  1) 책 애니메이션 역방향 실행
         bookAnimator.SetTrigger(backwardTrigger);
 
-        // ✅ 2) backButton은 즉시 숨김
+        //  2) backButton은 즉시 숨김
         foreach (Button btn in backButton)
         {
             if (btn != null)
                 btn.gameObject.SetActive(false);
         }
 
-        // ✅ 3) 0.5초 후 enterButton 6개 다시 표시
+        //  3) 0.5초 후 enterButton 6개 다시 표시
         StartCoroutine(ShowAllEnterButtonsAfterDelay(enterDelay));
     }
 

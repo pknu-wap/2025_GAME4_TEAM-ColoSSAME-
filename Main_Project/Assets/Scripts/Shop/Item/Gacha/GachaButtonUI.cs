@@ -18,7 +18,7 @@ public class GachaButtonUI : MonoBehaviour
     {
         if (ShopController.Instance == null)
         {
-            Debug.LogError("❌ ShopController.Instance가 없습니다.");
+            Debug.LogError(" ShopController.Instance가 없습니다.");
             return;
         }
 

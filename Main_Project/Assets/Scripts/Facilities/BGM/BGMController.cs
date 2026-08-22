@@ -20,7 +20,7 @@ public class BGMController : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
 
-            // ✅ 씬 전환 이벤트 등록
+            //  씬 전환 이벤트 등록
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else

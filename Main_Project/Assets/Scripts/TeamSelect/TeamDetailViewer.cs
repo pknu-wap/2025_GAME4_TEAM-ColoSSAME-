@@ -41,7 +41,7 @@ public class TeamDetailViewer : MonoBehaviour
 
         if (characters == null || characters.Count == 0)
         {
-            Debug.LogWarning($"❌ 가문 데이터 없음: {familyName}");
+            Debug.LogWarning($" 가문 데이터 없음: {familyName}");
             return;
         }
 
@@ -96,7 +96,7 @@ public class TeamDetailViewer : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogError($"❌ Portrait 로드 실패: {key}");
+                    Debug.LogError($" Portrait 로드 실패: {key}");
                 }
             };
 

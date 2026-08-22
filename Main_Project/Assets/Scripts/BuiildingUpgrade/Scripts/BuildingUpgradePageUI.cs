@@ -90,7 +90,7 @@ public class BuildingUpgradePageUI : MonoBehaviour
             Text level = null;
             Button selectBtn = null;
 
-            // ✅ Panel 제거 → slotRoot 바로 아래에서 찾는다
+            //  Panel 제거 → slotRoot 바로 아래에서 찾는다
             Transform nameTf = slotRoot.Find("Name");
             Transform levelTf = slotRoot.Find("Level");
             Transform btnTf   = slotRoot.Find("SelectButton");

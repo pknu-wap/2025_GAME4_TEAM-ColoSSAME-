@@ -38,7 +38,7 @@ public class User
     {
         money += amount;
         if (money < 0) money = 0;
-        Debug.Log($"✅ 골드 +{amount}, 총 골드: {money}");
+        Debug.Log($" 골드 +{amount}, 총 골드: {money}");
     }
 
     // 골드 차감
@@ -47,12 +47,12 @@ public class User
         if (money >= amount)
         {
             money -= amount;
-            Debug.Log($"✅ 골드 -{amount}, 남은 골드: {money}");
+            Debug.Log($" 골드 -{amount}, 남은 골드: {money}");
             return true;
         }
         else
         {
-            Debug.LogWarning($"❌ 골드 부족: {money} / {amount}");
+            Debug.LogWarning($" 골드 부족: {money} / {amount}");
             return false;
         }
     }

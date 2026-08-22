@@ -45,7 +45,7 @@ public class InvestorUnit : MonoBehaviour
 
     private IEnumerator ShowNegotiationWithDelay()
     {
-        Debug.Log("✅ ShowNegotiationWithDelay 시작됨");
+        Debug.Log(" ShowNegotiationWithDelay 시작됨");
 
         // 👉 투자자 시각 요소 비활성화
         if (myImage != null)
@@ -86,7 +86,7 @@ public class InvestorUnit : MonoBehaviour
             }
             else
             {
-                Debug.LogError("❌ BGMController.Instance가 null입니다!");
+                Debug.LogError(" BGMController.Instance가 null입니다!");
             }
             Debug.Log("🔵 loadingPanel 활성화됨");
         }
@@ -101,24 +101,24 @@ public class InvestorUnit : MonoBehaviour
 
         if (negotiationPanelPrefab == null)
         {
-            Debug.LogError("❌ negotiationPanelPrefab이 null입니다!");
+            Debug.LogError(" negotiationPanelPrefab이 null입니다!");
             yield break;
         }
 
         if (storyUIAnchor == null)
         {
-            Debug.LogError("❌ storyUIAnchor가 null입니다!");
+            Debug.LogError(" storyUIAnchor가 null입니다!");
             yield break;
         }
 
         activeNegotiationPanel = Instantiate(negotiationPanelPrefab, storyUIAnchor);
         activeNegotiationPanel.transform.localPosition = Vector3.zero;
-        Debug.Log("✅ 협상 패널 생성 완료");
+        Debug.Log(" 협상 패널 생성 완료");
 
         var nego = activeNegotiationPanel.GetComponent<NegoController>();
         if (nego == null)
         {
-            Debug.LogError("❌ NegoController가 협상 패널에 없음!");
+            Debug.LogError(" NegoController가 협상 패널에 없음!");
             yield break;
         }
         nego.OnPuzzleComplete += () =>
@@ -131,6 +131,6 @@ public class InvestorUnit : MonoBehaviour
             Destroy(activeNegotiationPanel);
         };
         nego.Init(puzzleManager, this.gameObject, panelsToHide, nameIndex, moneyManager);
-        Debug.Log("✅ Nego Init 완료");
+        Debug.Log(" Nego Init 완료");
     }
 }
