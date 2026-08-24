@@ -1,13 +1,16 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class SettingsUI : MonoBehaviour
 {
     [SerializeField] private Slider masterSlider;
     [SerializeField] private Slider bgmSlider;
     [SerializeField] private Slider sfxSlider;
+    [SerializeField] private Slider ingameSlider;
+    [SerializeField] private GameObject mainButton;
 
-     private void Start()
+    private void Start()
     {
         masterSlider.onValueChanged.AddListener(
             SettingsManager.Instance.SetMasterVolume);
@@ -17,6 +20,12 @@ public class SettingsUI : MonoBehaviour
 
         sfxSlider.onValueChanged.AddListener(
             SettingsManager.Instance.SetSFXVolume);
+
+        ingameSlider.onValueChanged.AddListener(
+            SettingsManager.Instance.SetIngameVolume);
+
+        mainButton.SetActive(
+        SceneManager.GetActiveScene().name != "MainMenu");
     }
 
     private void OnEnable()
@@ -34,5 +43,8 @@ public class SettingsUI : MonoBehaviour
 
         sfxSlider.SetValueWithoutNotify(
             SettingsManager.Instance.SFXVolume);
+
+        ingameSlider.SetValueWithoutNotify(
+            SettingsManager.Instance.IngameVolume);
     }
 }
