@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using BattleK.Scripts.AI;
+using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Manager;
 using UnityEngine;
-using UnityEngine.Serialization;
-using UnityEngine.UI;
 
 namespace BattleK.Scripts.UI
 {
@@ -23,10 +21,17 @@ namespace BattleK.Scripts.UI
         [SerializeField] private float _firstOffset = 147.5f;
         [SerializeField] private float _rowSpacing  = 270f;
 
-        [SerializeField] private string _playerLayerName;
-        [SerializeField] private string _enemyLayerName;
-
         [SerializeField] private AI_Manager _aiManager;
+
+        private void OnEnable()
+        {
+            UnitStatRepository.OnUnitChanged += HandleUnitChanged;
+        }
+
+        private void OnDisable()
+        {
+            UnitStatRepository.OnUnitChanged -= HandleUnitChanged;
+        }
 
         public void SetStrategyList()
         {
@@ -35,6 +40,7 @@ namespace BattleK.Scripts.UI
 
             ClearChildren(_playerRow);
             ClearChildren(_enemyRow);
+            StatWindows.Clear();
 
             LinkAICore();
         }
@@ -60,7 +66,7 @@ namespace BattleK.Scripts.UI
             {
                 var go = Instantiate(prefab, rowRT, false);
                 if (!go) continue;
-                
+
                 var y = -(_firstOffset + i * _rowSpacing);
                 var t = go.transform;
                 var lp = t.localPosition;
@@ -68,19 +74,35 @@ namespace BattleK.Scripts.UI
                 t.localRotation = Quaternion.identity;
                 t.localScale    = Vector3.one;
 
-                var stat = go.GetComponent<StatWindow>();
-                stat.OwnerAI = list[i];
-                StatWindows.Add(stat);
+                var statWindow = go.GetComponent<StatWindow>();
+                var core = list[i];
+
+                var unitId = core.TryGetComponent(out CharacterID characterId) ? characterId.characterKey : null;
+
+                if (!string.IsNullOrEmpty(unitId) && UnitStatRepository.TryGet(unitId, out var info))
+                {
+                    statWindow.SetFromRepository(info);
+                }
+                else
+                {
+                    statWindow.SetPending(unitId);
+                }
+
+                StatWindows.Add(statWindow);
             }
         }
 
-        public void ApplyStatWindow()
+        private void HandleUnitChanged(string unitId, UnitDisplayInfo info)
         {
-            foreach (var stat in StatWindows)
+            foreach (var window in StatWindows)
             {
-                stat.Apply();
+                if (window.UnitId == unitId)
+                {
+                    window.SetFromRepository(info);
+                }
             }
         }
+
         private static void ClearChildren(GameObject rowGO)
         {
             if (!rowGO) return;

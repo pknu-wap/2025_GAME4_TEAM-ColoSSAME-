@@ -144,21 +144,8 @@ MonoBehaviour:
   _playerStats: []
   _enemyStats: []
   _allStats: []
-  _basicCorrection:
-  - 20
-  - 30
-  - 200
-  - 0
-  _starCorrection:
-  - 0
-  - 0
-  - 0
-  - 0
-  _bornStarCorrection:
-  - 1
-  - 1
-  - 1
-  - 1
+  _playerPreviewStats: []
+  _correctionTable: {fileID: 11400000, guid: a23bec5b2e167ea43a5f790b6fdaeabb, type: 2}
 --- !u!1 &1119953708594777593
 GameObject:
   m_ObjectHideFlags: 0
@@ -1715,6 +1702,7 @@ MonoBehaviour:
   _statWindowManager: {fileID: 3232473603364408230}
   _hpManager: {fileID: 8808550664364146167}
   _calculateManager: {fileID: 7754367905373421671}
+  _correctionTable: {fileID: 11400000, guid: a23bec5b2e167ea43a5f790b6fdaeabb, type: 2}
 --- !u!1 &8066140303599634192
 GameObject:
   m_ObjectHideFlags: 0
@@ -2038,8 +2026,6 @@ MonoBehaviour:
       units: []
   _itemDatabase: {fileID: 0}
   _caseInsensitiveMatch: 1
-  _playerStats: []
-  _enemyStats: []
 --- !u!1001 &302924437852733065
 PrefabInstance:
   m_ObjectHideFlags: 0

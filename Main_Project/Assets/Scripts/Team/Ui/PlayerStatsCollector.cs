@@ -21,7 +21,6 @@ public class PlayerStatsCollector : MonoBehaviour
             return;
         }
 
-
         foreach (Unit unit in myUnits)
         {
             CharacterData data =
@@ -29,7 +28,6 @@ public class PlayerStatsCollector : MonoBehaviour
 
             if (data == null)
                 continue;
-
 
             _playerStats.Add(new CharacterStatsRow
             {
@@ -44,7 +42,6 @@ public class PlayerStatsCollector : MonoBehaviour
                 AGI = data.Stat_Distribution.AGI
             });
         }
-
 
         Debug.Log($"플레이어 스탯 수집 완료 : {_playerStats.Count}");
     }
