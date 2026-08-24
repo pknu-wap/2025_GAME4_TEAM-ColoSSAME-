@@ -123,7 +123,7 @@ public static class EnemyTeamService
             EnemyTeam team = EnemySaveManager.Instance.GetTeam(leagueTeam.id);
             if (team == null) continue;
 
-            int rankBonus = Mathf.Max(0, 3 - leagueTeam.rank);
+            int rankBonus = Mathf.Max(0, 4 - leagueTeam.rank);
 
             foreach (Unit unit in team.units)
             {
