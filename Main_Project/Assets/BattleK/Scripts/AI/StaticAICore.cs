@@ -66,6 +66,13 @@ namespace BattleK.Scripts.AI
         public TargetStrategy TargetingStrategy;
         public IStaticTargetingStrategy Targeting {get; private set;}
         public LayerMask TargetLayer;
+
+        [Header("Revive")]
+        [Tooltip("부활 시 채워지는 HP 비율 (MaxHP 기준)")]
+        [SerializeField] private float _reviveHpRatio = 0.3f;
+        [Tooltip("부활 시 표시할 시각 상태 (없으면 Normal)")]
+        [SerializeField] private StatusVisualType _reviveVisualType = StatusVisualType.Normal;
+        public bool HasReviveCharge { get; private set; }
         
         private StaticAICore _targetCore;
         public bool IsDead => OverrideMachine.CurrentState is StaticDeathState;
@@ -88,7 +95,8 @@ namespace BattleK.Scripts.AI
             if (active) _activeVisualStatuses.Add(type);
             else _activeVisualStatuses.Remove(type);
 
-            var isAlly = AiManager != null && gameObject.layer == AiManager.PlayerLayer;
+            if (AiManager == null || AiManager.HPManager == null) return;
+            var isAlly = gameObject.layer == AiManager.PlayerLayer;
             AiManager.HPManager.NotifyStatusChanged(this, isAlly);
         }
         
@@ -224,6 +232,26 @@ namespace BattleK.Scripts.AI
             var isAlly = AiManager != null && gameObject.layer == AiManager.PlayerLayer;
             if (AiManager != null && AiManager.HPManager != null)
                 AiManager.HPManager.NotifyStatusChanged(this, isAlly);
+        }
+
+        public void GrantRevive()
+        {
+            HasReviveCharge = true;
+        }
+
+        private bool TryRevive()
+        {
+            if (!HasReviveCharge) return false;
+
+            HasReviveCharge = false;
+            Stat.CurrentHP = Mathf.Max(1, (int)(Stat.MaxHP * _reviveHpRatio));
+            HPBar.UpdateHPBar();
+
+            if (_reviveVisualType != StatusVisualType.Normal)
+                SetVisualStatus(_reviveVisualType, true);
+
+            Debug.Log($"{name} 부활! HP {Stat.CurrentHP}/{Stat.MaxHP}");
+            return true;
         }
         
         public void SetStatMultiplier(StatusType type, object source, float multiplier)
@@ -376,6 +404,7 @@ namespace BattleK.Scripts.AI
             HPBar.UpdateHPBar();
             if (Stat.CurrentHP <= 0)
             {
+                if (TryRevive()) return;
                 OnDead();
                 return;
             }
