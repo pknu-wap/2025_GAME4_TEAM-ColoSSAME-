@@ -213,6 +213,17 @@ namespace BattleK.Scripts.AI
             CurrentAttackSpeed = Stat.AttackSpeed;
             CurrentAttackDelay = Stat.AttackDelay;
             _modifiers.Clear();
+            ClearAllVisualStatuses();
+        }
+        
+        public void ClearAllVisualStatuses()
+        {
+            if (_activeVisualStatuses.Count == 0) return;
+            _activeVisualStatuses.Clear();
+
+            var isAlly = AiManager != null && gameObject.layer == AiManager.PlayerLayer;
+            if (AiManager != null && AiManager.HPManager != null)
+                AiManager.HPManager.NotifyStatusChanged(this, isAlly);
         }
         
         public void SetStatMultiplier(StatusType type, object source, float multiplier)
