@@ -77,8 +77,20 @@ namespace BattleK.Scripts.AI
 
         private readonly List<IStaticActionState> _actionCandidates = new();
         private readonly Dictionary<StatusType, Dictionary<object, float>> _modifiers = new();
+        private readonly HashSet<StatusVisualType> _activeVisualStatuses = new();
 
         public bool IsAttackReady => _attackTimer <= 0f;
+
+        public bool HasVisualStatus(StatusVisualType type) => _activeVisualStatuses.Contains(type);
+        
+        public void SetVisualStatus(StatusVisualType type, bool active)
+        {
+            if (active) _activeVisualStatuses.Add(type);
+            else _activeVisualStatuses.Remove(type);
+
+            var isAlly = AiManager != null && gameObject.layer == AiManager.PlayerLayer;
+            AiManager.HPManager.NotifyStatusChanged(this, isAlly);
+        }
         
         public void InjectSaveDependencies(
             UnitLoadManager unitLoadManager,
