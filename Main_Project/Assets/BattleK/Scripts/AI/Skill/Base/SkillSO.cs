@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic;
 using BattleK.Scripts.AI.Skill.Base.Logic.LogicBase;
 using BattleK.Scripts.AI.Skill.Base.Projectile;
 using BattleK.Scripts.Utils;
@@ -267,18 +266,7 @@ namespace BattleK.Scripts.AI.Skill.Base
 
         private float GetSkillActiveTime()
         {
-            var activeTime = Mathf.Max(0f, ActiveTime);
-            if (SkillLogics == null) return activeTime;
-
-            foreach (var logic in SkillLogics)
-            {
-                if (logic is TauntLogic tauntLogic)
-                {
-                    activeTime = Mathf.Max(activeTime, tauntLogic.GetDuration());
-                }
-            }
-
-            return activeTime;
+            return Mathf.Max(0f, ActiveTime);
         }
         
         public bool CanExecute(StaticAICore owner, out Transform foundTarget)
