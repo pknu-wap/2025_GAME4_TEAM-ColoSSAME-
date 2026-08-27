@@ -30,13 +30,13 @@ MonoBehaviour:
   FadeWindupPrefab: 1
   WindupFadeInTime: 0.15
   WindupFadeOutTime: 0.15
-  Cooldown: 7
+  Cooldown: 12
   SkillArea: {x: 4, y: 4}
   MaxHitTargets: 1
   OwnerFrontDistance: 1
   SpawnAt: 0
   WindupTime: 0
-  ActiveTime: 2
+  ActiveTime: 5
   RecoveryTime: 0
   SkillLogics:
   - rid: 7310100000000000002
@@ -50,6 +50,6 @@ MonoBehaviour:
     - rid: 7310100000000000002
       type: {class: TauntLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic, asm: Assembly-CSharp}
       data:
-        Duration: 2
+        Duration: 5
         RestorePreviousTarget: 1
         RefreshDuration: 1
