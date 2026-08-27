@@ -1,4 +1,4 @@
-﻿using BattleK.Scripts.AI;
+﻿using BattleK.Scripts.Manager;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,36 +13,28 @@ namespace BattleK.Scripts.UI
         [Header("스탯 텍스트")]
         public TextMeshProUGUI AtkText;
         public TextMeshProUGUI DefText;
-        public TextMeshProUGUI InjuredText; // 여기에는 HP를 표시하도록 사용
+        public TextMeshProUGUI InjuredText;
 
         [Header("캐릭터 이미지")]
         public Image CharacterImage;
-        [Header("AICore")]
-        public StaticAICore OwnerAI;
 
-        private void Update()
-        {
-            ApplyBattleStats();
-        }
-        
-        public void Apply()
-        {
-            if (!OwnerAI || OwnerAI.Stat == null) return;
+        public string UnitId { get; private set; }
 
-            if (CharacterImage) CharacterImage.sprite = OwnerAI.Stat.CharacterImage;
-            if (NameText)   NameText.text   = $"{OwnerAI.Stat.Name}";
-            ApplyBattleStats();
+        public void SetPending(string unitId)
+        {
+            UnitId = unitId;
         }
 
-        private void ApplyBattleStats()
+        public void SetFromRepository(UnitDisplayInfo info)
         {
-            if (!OwnerAI || OwnerAI.Stat == null) return;
+            UnitId = info.UnitId;
 
-            int attack = OwnerAI.IsInitialized ? OwnerAI.CurrentAttackDamage : OwnerAI.Stat.AttackDamage;
-            int defense = OwnerAI.IsInitialized ? OwnerAI.CurrentDefense : OwnerAI.Stat.Defense;
+            if (CharacterImage) CharacterImage.sprite = info.CharacterImage;
+            if (NameText) NameText.text = info.UnitName;
 
-            if (AtkText) AtkText.text = $"ATK: {attack}";
-            if (DefText) DefText.text = $"DEF: {defense}";
+            if (AtkText) AtkText.text = $"ATK: {info.Stat.AttackDamage}";
+            if (DefText) DefText.text = $"DEF: {info.Stat.Defense}";
+            if (InjuredText) InjuredText.text = $"HP: {info.Stat.CurrentHp} / {info.Stat.MaxHp}";
         }
     }
 }
