@@ -66,6 +66,13 @@ namespace BattleK.Scripts.AI
         public TargetStrategy TargetingStrategy;
         public IStaticTargetingStrategy Targeting {get; private set;}
         public LayerMask TargetLayer;
+
+        [Header("Revive")]
+        [Tooltip("부활 시 채워지는 HP 비율 (MaxHP 기준)")]
+        [SerializeField] private float _reviveHpRatio = 0.3f;
+        [Tooltip("부활 시 표시할 시각 상태 (없으면 Normal)")]
+        [SerializeField] private StatusVisualType _reviveVisualType = StatusVisualType.Normal;
+        public bool HasReviveCharge { get; private set; }
         
         private StaticAICore _targetCore;
         public bool IsDead => OverrideMachine.CurrentState is StaticDeathState;
@@ -77,8 +84,21 @@ namespace BattleK.Scripts.AI
 
         private readonly List<IStaticActionState> _actionCandidates = new();
         private readonly Dictionary<StatusType, Dictionary<object, float>> _modifiers = new();
+        private readonly HashSet<StatusVisualType> _activeVisualStatuses = new();
 
         public bool IsAttackReady => _attackTimer <= 0f;
+
+        public bool HasVisualStatus(StatusVisualType type) => _activeVisualStatuses.Contains(type);
+        
+        public void SetVisualStatus(StatusVisualType type, bool active)
+        {
+            if (active) _activeVisualStatuses.Add(type);
+            else _activeVisualStatuses.Remove(type);
+
+            if (AiManager == null || AiManager.HPManager == null) return;
+            var isAlly = gameObject.layer == AiManager.PlayerLayer;
+            AiManager.HPManager.NotifyStatusChanged(this, isAlly);
+        }
         
         public void InjectSaveDependencies(
             UnitLoadManager unitLoadManager,
@@ -201,6 +221,37 @@ namespace BattleK.Scripts.AI
             CurrentAttackSpeed = Stat.AttackSpeed;
             CurrentAttackDelay = Stat.AttackDelay;
             _modifiers.Clear();
+            ClearAllVisualStatuses();
+        }
+        
+        public void ClearAllVisualStatuses()
+        {
+            if (_activeVisualStatuses.Count == 0) return;
+            _activeVisualStatuses.Clear();
+
+            var isAlly = AiManager != null && gameObject.layer == AiManager.PlayerLayer;
+            if (AiManager != null && AiManager.HPManager != null)
+                AiManager.HPManager.NotifyStatusChanged(this, isAlly);
+        }
+
+        public void GrantRevive()
+        {
+            HasReviveCharge = true;
+        }
+
+        private bool TryRevive()
+        {
+            if (!HasReviveCharge) return false;
+
+            HasReviveCharge = false;
+            Stat.CurrentHP = Mathf.Max(1, (int)(Stat.MaxHP * _reviveHpRatio));
+            HPBar.UpdateHPBar();
+
+            if (_reviveVisualType != StatusVisualType.Normal)
+                SetVisualStatus(_reviveVisualType, true);
+
+            Debug.Log($"{name} 부활! HP {Stat.CurrentHP}/{Stat.MaxHP}");
+            return true;
         }
         
         public void SetStatMultiplier(StatusType type, object source, float multiplier)
@@ -353,6 +404,7 @@ namespace BattleK.Scripts.AI
             HPBar.UpdateHPBar();
             if (Stat.CurrentHP <= 0)
             {
+                if (TryRevive()) return;
                 OnDead();
                 return;
             }
@@ -438,11 +490,28 @@ namespace BattleK.Scripts.AI
         {
             if (_enemySaveManager == null || _league == null) return;
 
-            var team = _enemySaveManager.GetTeam(_league.currentEnemyTeamId);
-            var unitData = team?.units?.Find(u =>
-                string.Equals(u.unitId?.Trim(), Stat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
+            var team = _enemySaveManager.GetTeam(_league.currentEnemyTeamId);            
+            
+            Debug.Log($"[EnemySave] Stat.Name={Stat.Name}");
 
+            foreach (var unit in team.units)
+            {
+                Debug.Log($"[EnemySave] unitName={unit.unitName}");
+            }
+            var unitData = team?.units?.Find(u =>
+                string.Equals(u.unitName?.Trim(), Stat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
+            Debug.Log($"[EnemySave] unitData={(unitData == null ? "NULL" : unitData.unitName)}");      
             if (unitData == null) return;
+
+            var seenEnemy = new SeenEnemyData
+            {
+                unitId = unitData.unitId,
+                unitName = unitData.unitName,
+                teamFid = team.fid,
+                teamName = team.name
+            };
+
+            _enemySaveManager.RecordSeenEnemy(seenEnemy);
 
             Stat.SaveTo(unitData);
             //unitData.equippedItemId = Stat.Item != null ? Stat.Item.ItemId : null;

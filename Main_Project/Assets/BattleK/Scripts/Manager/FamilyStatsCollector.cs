@@ -32,13 +32,13 @@ namespace BattleK.Scripts.Manager
         [SerializeField] private bool _caseInsensitiveMatch = true;
 
         [Header("수집 결과 (읽기 전용)")]
-        [SerializeField] private List<CharacterStatsRow> _playerStats = new();
-        [SerializeField] private List<CharacterStatsRow> _enemyStats  = new();
+        [SerializeField] private List<(CharacterStatsRow Row, StaticAICore Core)> _playerStats = new();
+        [SerializeField] private List<(CharacterStatsRow Row, StaticAICore Core)> _enemyStats  = new();
 
         private readonly Dictionary<string, FamilyJson> _familyCache = new();
 
-        public IReadOnlyList<CharacterStatsRow> PlayerStats => _playerStats;
-        public IReadOnlyList<CharacterStatsRow> EnemyStats  => _enemyStats;
+        public IReadOnlyList<(CharacterStatsRow Row, StaticAICore Core)> PlayerStats => _playerStats;
+        public IReadOnlyList<(CharacterStatsRow Row, StaticAICore Core)> EnemyStats  => _enemyStats;
         
         public void CollectFromBothTeams()
         {
@@ -46,39 +46,39 @@ namespace BattleK.Scripts.Manager
             _enemyStats  = CollectFromRoot(_enemyUnitsRoot, false);
         }
 
-        private List<CharacterStatsRow> CollectFromRoot(Transform unitsRoot, bool isPlayer)
+        private List<(CharacterStatsRow Row, StaticAICore Core)> CollectFromRoot(Transform unitsRoot, bool isPlayer)
         {
-            var result = new List<CharacterStatsRow>();
+            var result = new List<(CharacterStatsRow Row, StaticAICore Core)>();
             if (!unitsRoot) return result;
 
             var unitTransforms = unitsRoot.GetComponentsInChildren<Transform>(includeInactive: false);
 
             foreach (var unit in unitTransforms)
             {
-                if(!unit.TryGetComponent(out CharacterID characterIdComp)) continue;
-                if(!unit.TryGetComponent(out FamilyID familyIdComp)) continue;
+                if (!unit.TryGetComponent(out CharacterID characterIdComp)) continue;
+                if (!unit.TryGetComponent(out FamilyID familyIdComp)) continue;
                 if (!unit.TryGetComponent(out StaticAICore aiCore)) continue;
 
                 var charKey = characterIdComp.characterKey?.Trim();
                 var familyKey = familyIdComp.FamilyKey?.Trim();
-                
-                if(string.IsNullOrEmpty(charKey) || string.IsNullOrEmpty(familyKey)) continue;
-                
+
+                if (string.IsNullOrEmpty(charKey) || string.IsNullOrEmpty(familyKey)) continue;
+
                 var familyJson = LoadFamilyJson(familyKey);
-                if(familyJson?.Characters == null) continue;
-                
+                if (familyJson?.Characters == null) continue;
+
                 var comparison = _caseInsensitiveMatch ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
                 var matchData = familyJson.Characters.FirstOrDefault(c => string.Equals(c.Unit_ID?.Trim(), charKey, comparison));
-                
-                if(matchData == null) continue;
-                
+
+                if (matchData == null) continue;
+
                 var level = ResolveLevel(charKey, matchData.Level, isPlayer);
                 var savedUnit = isPlayer ? FindUserUnit(charKey, comparison) : FindEnemyUnit(charKey, comparison);
 
                 aiCore.Stat.LoadFrom(savedUnit, _itemDatabase);
                 var injury = savedUnit?.currentInjury ?? InjuryStatus.Healthy;
-                
-                result.Add(new CharacterStatsRow
+
+                var row = new CharacterStatsRow
                 {
                     Unit_ID = matchData.Unit_ID,
                     Unit_Name = matchData.Unit_Name,
@@ -88,9 +88,10 @@ namespace BattleK.Scripts.Manager
                     AGI = matchData.Stat_Distribution?.AGI ?? 0,
                     Rarity = matchData.Rarity,
                     Level = level,
-                    CurrentInjury = injury,
-                    SourceUnit = aiCore
-                });
+                    CurrentInjury = injury
+                };
+
+                result.Add((row, aiCore));
             }
 
             return result;

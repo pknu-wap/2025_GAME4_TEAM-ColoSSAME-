@@ -70,7 +70,7 @@ public class SkillTrainManager : MonoBehaviour
 
             if (skill != null)
             {
-                skillTexts[i].text = $"{skill.skillId} Lv.{skill.level}";
+                skillTexts[i].text = $"{skill.skillName} Lv.{skill.level}";
             }
         }
 
@@ -81,9 +81,9 @@ public class SkillTrainManager : MonoBehaviour
         if (index >= currentUnit.selectedSkills.Count)
             return null;
 
-        string skillId = currentUnit.selectedSkills[index];
+        string skillName = currentUnit.selectedSkills[index];
 
-        if (skillMap.TryGetValue(skillId, out UnitSkill skill))
+        if (skillMap.TryGetValue(skillName, out UnitSkill skill))
         {
             return skill;
         }
@@ -97,7 +97,7 @@ public class SkillTrainManager : MonoBehaviour
 
         foreach (UnitSkill skill in currentUnit.skills)
         {
-            skillMap[skill.skillId] = skill;
+            skillMap[skill.skillName] = skill;
         }
     }
 

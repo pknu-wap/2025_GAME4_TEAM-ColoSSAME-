@@ -297,7 +297,7 @@ public class PlayerManagerC : MonoBehaviour
             string fileName = $"{unit.name}_{DateTime.Now:yyyy-MM-dd_HH-mm-ss-fff}.png";
             string filePath = Path.Combine(directory, fileName);
             File.WriteAllBytes(filePath, imageSave.EncodeToPNG());
-            Debug.Log($"✅ Screenshot saved: {filePath}");
+            Debug.Log($" Screenshot saved: {filePath}");
 
             RenderTexture.active = null;
             _camera.targetTexture = null;

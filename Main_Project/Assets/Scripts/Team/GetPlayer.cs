@@ -6,8 +6,6 @@ using System.IO;
 using System.Linq;
 using UnityEngine.UI;
 using TMPro;
-using Scripts.Team.IsAnimStopClick;
-using Scripts.Team.CardAnimcontrol;
 using Scripts.Team.FighterViewer;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -38,8 +36,7 @@ namespace Scripts.Team.FighterRandomBuy
 
         public UnitViewer unitviewer;
         private int currentSelectedIndex = -1;
-        public RandomSkillGrant randomSkillGrant;
-        
+
         public GameObject cards;
         public GameObject cardsstate;
 
@@ -51,8 +48,6 @@ namespace Scripts.Team.FighterRandomBuy
 
         public Animator[] anim;
         public Sprite cardback; 
-
-        public CardClickStop blockclick;
 
         private League league; //가문
 
@@ -199,17 +194,6 @@ namespace Scripts.Team.FighterRandomBuy
                     data.Class
                 );
 
-                List<string> skills =
-                    randomSkillGrant.GetRandomSkills(
-                        data.Class,
-                        data.Rarity
-                    );
-
-                foreach (var skillId in skills)
-                {
-                    newUnit.skills.Add(new UnitSkill(skillId, 1));
-                }
-
                 rolledUnits.Add(newUnit);
             }
         }
@@ -250,11 +234,6 @@ namespace Scripts.Team.FighterRandomBuy
 
             CharacterGetCheck[index] = 1;
 
-            CardAnim cardAnim = anim[index].GetComponent<CardAnim>();
-            cardAnim.SetIndex(index);
-
-            anim[index].SetTrigger("Iscardclick");
-
             StartCoroutine(LoadSprite(CharacterImage[index], CharacterIDList[index]));
         }
 
@@ -271,15 +250,7 @@ namespace Scripts.Team.FighterRandomBuy
 
             // 스킬 추가
             
-
             string skillInfo = "스킬:\n";
-
-            foreach (var s in unit.skills)
-            {
-                skillInfo += $"{s.skillId} (Lv.{s.level})\n";
-            }
-
-            SkillText.text = skillInfo;
 
             NameText.text = $"이름:{characterdata.Unit_Name}";
             ClassText.text = $"직업:{characterdata.Class}";
@@ -296,8 +267,6 @@ namespace Scripts.Team.FighterRandomBuy
             cards.SetActive(false);
 
         }
-
-    
 
         public void BuyRandomUnit()
         {
@@ -316,7 +285,6 @@ namespace Scripts.Team.FighterRandomBuy
                     rolledUnits[currentSelectedIndex]
                 );
             }
-            
         }
 
         public void BackExplain()
@@ -349,9 +317,7 @@ namespace Scripts.Team.FighterRandomBuy
         public int id;
         public List<CharacterData> Characters;
     }
-
    
-
     public class StatDistribution
     {
         public int ATK;

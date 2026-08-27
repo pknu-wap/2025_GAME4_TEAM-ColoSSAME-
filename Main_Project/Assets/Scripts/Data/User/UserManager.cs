@@ -19,10 +19,7 @@ public class UserManager : MonoBehaviour
 
     private string savePath;
     
-
-    [Header("Achievement")]
-    [SerializeField] private AchievementManager achievementManager;
-
+    
     void Awake()
     {
         if (Instance == null)
@@ -33,49 +30,14 @@ public class UserManager : MonoBehaviour
             savePath = Path.Combine(Application.persistentDataPath, "UserSave.json");
             LoadUser();
 
-            // 씬 로드될 때마다 도감 매니저 자동 초기화
-            SceneManager.sceneLoaded += OnSceneLoaded;
-
-            // 시작 씬에도 도감이 있을 수 있으니 한 번 시도
-            InitAchievementInScene();
-
-            Debug.Log("✅ UserManager 초기화 완료");
+            Debug.Log(" UserManager 초기화 완료");
         }
         else
         {
             Destroy(gameObject);
         }
     }
-
-    private void OnDestroy()
-    {
-        if (Instance == this)
-            SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        InitAchievementInScene();
-    }
-
-    private void InitAchievementInScene()
-    {
-        AchievementManager am = FindFirstObjectByType<AchievementManager>();
-        if (am == null)
-        {
-            Debug.Log("현재 씬에 AchievementManager가 없음 (도감 UI 없는 씬일 수 있음)");
-            return;
-        }
-
-        if (user == null)
-        {
-            Debug.LogWarning("user가 null이라 AchievementManager.Init을 할 수 없음");
-            return;
-        }
-
-        am.Init(user);
-        Debug.Log("씬의 AchievementManager.Init(user) 완료");
-    }
+    
     // 현재 UI에서 선택된 유닛 ID (fighter 클릭 시 저장)
     public string selectedUnitId { get; private set; }
 
@@ -162,8 +124,6 @@ public class UserManager : MonoBehaviour
             string json = File.ReadAllText(savePath);
             user = JsonConvert.DeserializeObject<User>(json);
             
-            user.EnsureDictionaries();
-            
             Debug.Log(" 유저 데이터 로드 완료");
         }
         else
@@ -191,7 +151,7 @@ public class UserManager : MonoBehaviour
             Debug.Log(" 기존 유저 데이터 삭제 완료");
         }
 
-        user = new User
+        user = new User()
         {
             userName = userName,
             level = 1,
@@ -199,16 +159,8 @@ public class UserManager : MonoBehaviour
             inventory = new Dictionary<string, int>(),
             myUnits = new List<Unit>()
         };
-        user.EnsureDictionaries(); // 도감 딕셔너리 포함 null 방지
-
         SaveUser();
         Debug.Log($" 새로운 유저 생성: {userName}");
-        // 새 유저 기준으로 도감 매니저 재초기화
-        if (achievementManager != null)
-        {
-            achievementManager.Init(user);
-        }
-
     }
 
     //경험치 추가 + 레벨업 확인
@@ -284,7 +236,7 @@ public class UserManager : MonoBehaviour
 
         if (handle.Status != AsyncOperationStatus.Succeeded)
         {
-            Debug.LogError($"❌ 가문 '{familyId}' 로드 실패");
+            Debug.LogError($" 가문 '{familyId}' 로드 실패");
             yield break;
         }
 
@@ -298,7 +250,7 @@ public class UserManager : MonoBehaviour
 
         if (familyUnits == null || familyUnits.Count < 6)
         {
-            Debug.LogError($"❌ 가문 '{familyId}'의 유닛 데이터가 부족합니다.");
+            Debug.LogError($" 가문 '{familyId}'의 유닛 데이터가 부족합니다.");
             yield break;
         }
 
@@ -315,7 +267,7 @@ public class UserManager : MonoBehaviour
             );
 
             user.myUnits.Add(newUnit);
-            Debug.Log($"✅ 초기 유닛 추가: {familyUnits[i].Unit_Name}");
+            Debug.Log($" 초기 유닛 추가: {familyUnits[i].Unit_Name}");
         }
 
         SaveUser();

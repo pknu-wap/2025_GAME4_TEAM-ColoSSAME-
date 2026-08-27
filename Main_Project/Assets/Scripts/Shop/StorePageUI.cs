@@ -10,7 +10,7 @@ public class StorePageUI : MonoBehaviour
     public ItemDatabase itemDatabase;
 
     [Header("시설 업그레이드(상점 할인 적용용)")]
-    public BuildingUpgradeManager upgradeManager; // ✅ 인스펙터에서 연결
+    public BuildingUpgradeManager upgradeManager; //  인스펙터에서 연결
 
     [Header("UI 연결")]
     public Image iconImage;       
@@ -20,27 +20,27 @@ public class StorePageUI : MonoBehaviour
     public Button buyButton;      
 
     private ItemData currentData; 
-    private int cachedFinalPrice; // ✅ 현재 UI에 표시된(=결제에 써야 하는) 최종 가격 캐시
+    private int cachedFinalPrice; //  현재 UI에 표시된(=결제에 써야 하는) 최종 가격 캐시
 
     private void OnEnable()
     {
         RefreshUI();
 
-        // ✅ Buy 버튼 이벤트 연결
+        //  Buy 버튼 이벤트 연결
         if (buyButton != null)
         {
             buyButton.onClick.RemoveListener(OnClickBuy);
             buyButton.onClick.AddListener(OnClickBuy);
         }
 
-        // ✅ 상점 업그레이드 후 가격 자동 갱신
+        //  상점 업그레이드 후 가격 자동 갱신
         if (upgradeManager != null)
         {
             upgradeManager.OnBuildingUpgraded -= HandleBuildingUpgraded;
             upgradeManager.OnBuildingUpgraded += HandleBuildingUpgraded;
         }
 
-        // ✅ 돈 변화 시 버튼 interactable 갱신하고 싶다면(선택)
+        //  돈 변화 시 버튼 interactable 갱신하고 싶다면(선택)
         if (UserManager.Instance != null)
         {
             UserManager.Instance.OnMoneyChanged -= HandleMoneyChanged;
@@ -76,14 +76,14 @@ public class StorePageUI : MonoBehaviour
     {
         if (itemDatabase == null)
         {
-            Debug.LogError("❌ StorePageUI: itemDatabase가 연결되지 않았습니다.");
+            Debug.LogError(" StorePageUI: itemDatabase가 연결되지 않았습니다.");
             return;
         }
 
         currentData = itemDatabase.GetById(itemId);
         if (currentData == null)
         {
-            Debug.LogError($"❌ StorePageUI: 아이템 데이터를 찾을 수 없습니다. itemId={itemId}");
+            Debug.LogError($" StorePageUI: 아이템 데이터를 찾을 수 없습니다. itemId={itemId}");
             return;
         }
 
@@ -98,7 +98,7 @@ public class StorePageUI : MonoBehaviour
         if (nameText != null) nameText.text = currentData.itemName;
         if (descriptionText != null) descriptionText.text = currentData.description;
 
-        // ✅ 할인 적용된 최종 가격 계산 + 표시
+        //  할인 적용된 최종 가격 계산 + 표시
         cachedFinalPrice = currentData.price;
         if (upgradeManager != null)
             cachedFinalPrice = upgradeManager.GetDiscountedShopPrice(currentData.price);
@@ -107,7 +107,7 @@ public class StorePageUI : MonoBehaviour
 
         UpdateBuyButtonInteractable();
 
-        // ✅ 디버그(원가/할인율/최종가 확인)
+        //  디버그(원가/할인율/최종가 확인)
         // if (upgradeManager != null)
         //     Debug.Log($"[StorePageUI] base={currentData.price}, discount={upgradeManager.GetCurrentDiscountRate(BuildingType.Shop)}, final={cachedFinalPrice}");
     }
@@ -132,17 +132,17 @@ public class StorePageUI : MonoBehaviour
     {
         if (currentData == null)
         {
-            Debug.LogWarning("⚠️ StorePageUI: currentData가 없습니다. RefreshUI가 먼저 필요합니다.");
+            Debug.LogWarning(" StorePageUI: currentData가 없습니다. RefreshUI가 먼저 필요합니다.");
             return;
         }
 
         if (ShopController.Instance == null)
         {
-            Debug.LogError("❌ ShopController.Instance가 없습니다.");
+            Debug.LogError(" ShopController.Instance가 없습니다.");
             return;
         }
 
-        // ✅ 핵심: 할인 적용된 최종 가격으로 구매 요청
+        //  핵심: 할인 적용된 최종 가격으로 구매 요청
         ShopController.Instance.TryBuy(currentData.id, cachedFinalPrice);
 
         // 구매 후 UI 갱신(돈/버튼 상태)

@@ -45,26 +45,26 @@ public class FighterNameBinder : MonoBehaviour
 
         if (UserManager.Instance == null || UserManager.Instance.user == null)
         {
-            Debug.LogError("❌ UserManager 또는 user가 준비되지 않았습니다.");
+            Debug.LogError("UserManager 또는 user가 준비되지 않았습니다.");
             yield break;
         }
 
         if (fighterListParent == null)
         {
-            Debug.LogError("❌ fighterListParent가 비어있습니다.");
+            Debug.LogError("fighterListParent가 비어있습니다.");
             yield break;
         }
 
         var myUnits = UserManager.Instance.user.myUnits;
         if (myUnits == null)
         {
-            Debug.LogError("❌ myUnits가 null입니다.");
+            Debug.LogError("myUnits가 null입니다.");
             yield break;
         }
 
         if (buildingUpgradeManager == null)
         {
-            Debug.LogWarning("⚠️ BuildingUpgradeManager 참조가 비어있습니다. 훈련 비용 할인은 적용되지 않습니다.");
+            Debug.LogWarning("BuildingUpgradeManager 참조가 비어있습니다. 훈련 비용 할인은 적용되지 않습니다.");
         }
         
         if (getExpButton != null)
@@ -78,7 +78,7 @@ public class FighterNameBinder : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("⚠️ GetExpButton 참조가 비어있습니다.");
+            Debug.LogWarning("GetExpButton 참조가 비어있습니다.");
         }
 
         FighterSlotShowStats firstValidShow = null;
@@ -134,7 +134,7 @@ public class FighterNameBinder : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogWarning($"⚠️ [{slot.name}]에서 playerImage를 찾지 못했거나 unitId가 비어있습니다.");
+                    Debug.LogWarning($"[{slot.name}]에서 playerImage를 찾지 못했거나 unitId가 비어있습니다.");
                 }
             }
             else
@@ -160,14 +160,16 @@ public class FighterNameBinder : MonoBehaviour
             if (getExpButton != null)
                 getExpButton.RefreshSelectedUnitUI();
 
-            Debug.Log("✅ 첫 번째 캐릭터 슬롯 자동 선택 완료");
+            Debug.Log("첫 번째 캐릭터 슬롯 자동 선택 완료");
         }
         else
         {
-            Debug.LogWarning("⚠️ 자동 선택할 캐릭터 슬롯이 없습니다.");
+            Debug.LogWarning(" 자동 선택할 캐릭터 슬롯이 없습니다.");
         }
 
-        Debug.Log("✅ FighterNameBinder 세팅 완료");
+        UpdateSlotActive(myUnits);
+
+        Debug.Log(" FighterNameBinder 세팅 완료");
     }
     private void OnEnable()
     {
@@ -215,7 +217,7 @@ public class FighterNameBinder : MonoBehaviour
             if (getExpButton != null)
                 getExpButton.RefreshSelectedUnitUI();
 
-            Debug.Log("✅ 훈련소 재진입 시 UI 자동 갱신 완료");
+            Debug.Log(" 훈련소 재진입 시 UI 자동 갱신 완료");
         }
     }
     private string GetPortraitAddress(string unitId)
@@ -252,7 +254,7 @@ public class FighterNameBinder : MonoBehaviour
             locHandle.Result == null ||
             locHandle.Result.Count == 0)
         {
-            Debug.LogError($"❌ Addressables key를 찾지 못했습니다: {addressKey}");
+            Debug.LogError($" Addressables key를 찾지 못했습니다: {addressKey}");
 
             if (targetImage != null)
             {
@@ -280,7 +282,7 @@ public class FighterNameBinder : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"❌ Addressables Sprite 로드 실패: {addressKey}");
+            Debug.LogError($" Addressables Sprite 로드 실패: {addressKey}");
 
             if (targetImage != null)
             {
@@ -292,8 +294,17 @@ public class FighterNameBinder : MonoBehaviour
         Addressables.Release(locHandle);
     }
 
+    private void UpdateSlotActive(List<Unit> myUnits)
+    {
+        for (int i = 0; i < fighterListParent.childCount; i++)
+        {
+            fighterListParent.GetChild(i).gameObject.SetActive(i < myUnits.Count);
+        }
+    }
+    
     public void RefreshTrainingUI()
     {
+        UpdateSlotActive(UserManager.Instance.user.myUnits);
         getExpButton.RefreshSelectedUnitUI();
     }
 

@@ -14,8 +14,6 @@ public class User
     
     public List<Unit> myUnits;
     
-    public Dictionary<string, int> achievementProgress; // 그룹ID -> 현재 단계 인덱스(0=1단계)
-    public Dictionary<string, int> usedItemCounts;      // 아이템ID(string) 사용 누적 횟수
     public List<BuildingLevelSave> buildingLevels = new List<BuildingLevelSave>();
     
     [Serializable]
@@ -24,11 +22,8 @@ public class User
         public BuildingType type;
         public int level;
     }
-    
-    public User()
-    {
-        EnsureDictionaries();
-    }
+
+    public User() {}
     public User(string nickname)
     {
         this.userName = nickname;
@@ -43,7 +38,7 @@ public class User
     {
         money += amount;
         if (money < 0) money = 0;
-        Debug.Log($"✅ 골드 +{amount}, 총 골드: {money}");
+        Debug.Log($" 골드 +{amount}, 총 골드: {money}");
     }
 
     // 골드 차감
@@ -52,21 +47,13 @@ public class User
         if (money >= amount)
         {
             money -= amount;
-            Debug.Log($"✅ 골드 -{amount}, 남은 골드: {money}");
+            Debug.Log($" 골드 -{amount}, 남은 골드: {money}");
             return true;
         }
         else
         {
-            Debug.LogWarning($"❌ 골드 부족: {money} / {amount}");
+            Debug.LogWarning($" 골드 부족: {money} / {amount}");
             return false;
         }
-    }
-    public void EnsureDictionaries()
-    {
-        if (inventory == null) inventory = new Dictionary<string, int>();
-        if (myUnits == null) myUnits = new List<Unit>();
-
-        if (achievementProgress == null) achievementProgress = new Dictionary<string, int>();
-        if (usedItemCounts == null) usedItemCounts = new Dictionary<string, int>();
     }
 }

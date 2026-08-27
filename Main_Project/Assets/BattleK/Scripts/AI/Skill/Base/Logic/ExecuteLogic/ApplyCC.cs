@@ -1,5 +1,6 @@
 using BattleK.Scripts.AI.Skill.Base.Logic.LogicBase;
 using BattleK.Scripts.Data.Type.AIDataType.CC;
+using BattleK.Scripts.HP;
 using BattleK.Scripts.Manager.Battle;
 using UnityEngine;
 
@@ -15,6 +16,9 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic
         public float Duration = 2.0f;
         public bool IsHardCC = false;
         public PlayerState AnimState = PlayerState.DEBUFF;
+
+        [Header("Visual")]
+        public StatusVisualType VisualType = StatusVisualType.Normal;
 
         public void Execute(StaticAICore owner, StaticAICore target)
         {

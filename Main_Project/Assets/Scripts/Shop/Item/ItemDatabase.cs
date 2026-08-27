@@ -22,13 +22,13 @@ public class ItemDatabase : ScriptableObject
         {
             if (item == null)
             {
-                Debug.LogWarning("⚠️ ItemDatabase: null ItemData가 있습니다.");
+                Debug.LogWarning(" ItemDatabase: null ItemData가 있습니다.");
                 continue;
             }
 
             if (cache.ContainsKey(item.id))
             {
-                Debug.LogWarning($"⚠️ ItemDatabase: id 중복 발견: {item.id}");
+                Debug.LogWarning($" ItemDatabase: id 중복 발견: {item.id}");
                 continue;
             }
 
