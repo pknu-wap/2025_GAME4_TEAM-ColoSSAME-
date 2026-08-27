@@ -46,10 +46,9 @@ namespace BattleK.Scripts.Manager
 
             _statAdaptManager.ApplyToAllUnitsAndInitialize();
             _statsCollector.CollectFromBothTeams();
-            _calculateManager.RefreshFromCollectorOnce();
+            yield return _calculateManager.RefreshFromCollectorAndWait();
             _hpManager.setUnits();
             _statWindowManager.SetStrategyList();
-            _statWindowManager.ApplyStatWindow();
             _hpManager.ApplyHpToHPBar();
         }
         

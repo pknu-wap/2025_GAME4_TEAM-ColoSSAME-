@@ -1,4 +1,5 @@
 using BattleK.Scripts.AI.Skill.Base.Logic.LogicBase;
+using BattleK.Scripts.HP;
 using BattleK.Scripts.Manager.Battle;
 using UnityEngine;
 
@@ -24,23 +25,15 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics
 
         public bool IsPenetrating;
 
+        [Header("Visual")]
+        public StatusVisualType VisualType = StatusVisualType.Poison;
+
         public void Execute(StaticAICore owner, StaticAICore target)
         {
             if (!target) return;
-
-            float rawDamage;
-
-            if (UseMaxHpScaling)
-            {
-                rawDamage = target.Stat.MaxHP *
-                    (BaseRatio + HpSkillPointRatio * owner.Stat.SkillPoint);
-            }
-            else
-            {
-                //기본데미지
-                rawDamage = BaseDamage +
-                    (SkillPointRatio * owner.Stat.SkillPoint);
-            }
+            var rawDamage = UseMaxHpScaling
+                ? target.Stat.MaxHP * (BaseRatio + HpSkillPointRatio * owner.Stat.SkillPoint)
+                : BaseDamage + (SkillPointRatio * owner.Stat.SkillPoint);
 
             var statusManager = target.GetComponent<StatusEffectManager>();
             if (statusManager)

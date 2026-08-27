@@ -1,10 +1,8 @@
-// AI_Manager.cs
-
 using System;
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
+using BattleK.Scripts.HP;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace BattleK.Scripts.Manager
 {
@@ -22,21 +20,23 @@ namespace BattleK.Scripts.Manager
         public List<StaticAICore> enemyUnits  = new();
 
         public bool IsAlreadyDone = false;
-        
+
         [Header("Layer Settings")]
         public string playerLayerName = "Player";
         public string enemyLayerName  = "Enemy";
         public bool forceLayerBySide = true;
-        
+
         [Header("매니저")]
         [SerializeField] private LeagueSceneManager _leagueSceneManager;
         [SerializeField] private UnitLoadManager _unitLoadManager;
         [SerializeField] private UserSaveManager _userSaveManager;
         //[SerializeField] private EnemySaveManager _enemySaveManager;
         [SerializeField] private League _league;
+        [SerializeField] private HPManager _hpManager;
 
         public int PlayerLayer { get; private set; } = -1;
         public int EnemyLayer { get; private set; } = -1;
+        public HPManager HPManager => _hpManager;
 
         private void Awake()
         {
@@ -78,7 +78,7 @@ namespace BattleK.Scripts.Manager
                 userSaveManager: _userSaveManager,
                 enemySaveManager: EnemySaveManager.Instance,
                 league: LeagueManager.Instance.league);
-            
+
             if (sideIndex == 0)
             {
                 if (!playerUnits.Contains(unit)) playerUnits.Add(unit);
@@ -87,8 +87,10 @@ namespace BattleK.Scripts.Manager
             {
                 if (!enemyUnits.Contains(unit)) enemyUnits.Add(unit);
             }
+
+            _hpManager?.setUnits();
         }
-        
+
         public void UnregisterUnit(StaticAICore unit)
         {
             if (playerUnits.Contains(unit)) playerUnits.Remove(unit);
@@ -99,7 +101,7 @@ namespace BattleK.Scripts.Manager
         {
             PlayerLayer = LayerMask.NameToLayer(playerLayerName);
             EnemyLayer  = LayerMask.NameToLayer(enemyLayerName);
-            
+
             if (PlayerLayer == -1) Debug.LogError($"Layer '{playerLayerName}' 가 없습니다! Project Settings 확인 필요.");
             if (EnemyLayer == -1) Debug.LogError($"Layer '{enemyLayerName}' 가 없습니다! Project Settings 확인 필요.");
         }

@@ -1,7 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using BattleK.Scripts.AI;
+using BattleK.Scripts.Data.Stat;
 using BattleK.Scripts.Data.Type;
 using UnityEngine;
 
@@ -15,7 +16,6 @@ namespace BattleK.Scripts.Manager
         [SerializeField] private PlayerStatsCollector _playerStatsCollector;
 
         [Header("자동 재시도(유닛이 늦게 스폰될 때 대비)")]
-        [Tooltip("처음 갱신에 실패(리스트 0)하면 일정 간격으로 재시도")]
         [SerializeField] private bool _autoRetryIfEmpty = true;
 
         [Tooltip("재시도 간격(초)")]
@@ -28,19 +28,25 @@ namespace BattleK.Scripts.Manager
         [SerializeField] private List<CharacterStatsRow> _playerStats = new();
         [SerializeField] private List<CharacterStatsRow> _enemyStats  = new();
         [SerializeField] private List<CharacterStatsRow> _allStats    = new();
-        
-        [Header("보정치\n0 : Atk\n1 : Def\n2 : HP\n3 : AGI")]
-        [SerializeField] private List<float> _basicCorrection;
-        [SerializeField] private List<float> _starCorrection;
-        [SerializeField] private List<float> _bornStarCorrection;
+
+        [Tooltip("PlayerStatsCollector로 얻은, AICore 없는 미리보기 전용 결과 (로스터 UI 등에서 사용)")]
+        [SerializeField] private List<CharacterStatsRow> _playerPreviewStats = new();
+
+        [Header("보정 테이블")]
+        [SerializeField] private StatCorrectionTable _correctionTable;
+        private readonly Dictionary<CharacterStatsRow, StaticAICore> _rowToCore = new();
 
         public IReadOnlyList<CharacterStatsRow> AllStats => _allStats;
+        public IReadOnlyList<CharacterStatsRow> PlayerPreviewStats => _playerPreviewStats;
+
+        public StaticAICore GetCoreFor(CharacterStatsRow row) =>
+            row != null && _rowToCore.TryGetValue(row, out var core) ? core : null;
 
         private void Start()
         {
             StartCoroutine(RefreshFlow());
         }
-        
+
         [ContextMenu("Refresh Now")]
         public void RefreshNow()
         {
@@ -61,8 +67,14 @@ namespace BattleK.Scripts.Manager
                 yield return StartCoroutine(RefreshFromCollectorCoroutine());
             }
         }
-
-        public void RefreshPlayerOnly()
+        
+        public IEnumerator RefreshFromCollectorAndWait()
+        {
+            StopAllCoroutines();
+            yield return StartCoroutine(RefreshFromCollectorCoroutine());
+        }
+        
+        public void RefreshPlayerPreviewOnly()
         {
             if (_playerStatsCollector == null)
             {
@@ -71,13 +83,13 @@ namespace BattleK.Scripts.Manager
             }
 
             _playerStatsCollector.CollectPlayerUnits();
-
-            _playerStats = CloneList(_playerStatsCollector.PlayerStats);
-
-            _allStats = new List<CharacterStatsRow>(_playerStats);
+            _playerPreviewStats = CalculatePreviewRows(_playerStatsCollector.PlayerStats);
         }
 
-        private bool IsEmpty() => (_playerStats == null || _playerStats.Count == 0) && (_enemyStats  == null || _enemyStats.Count  == 0);
+        private bool IsEmpty() =>
+            (_playerStats == null || _playerStats.Count == 0) &&
+            (_enemyStats  == null || _enemyStats.Count  == 0);
+
         private IEnumerator RefreshFromCollectorCoroutine()
         {
             if (_statsCollector == null)
@@ -86,22 +98,26 @@ namespace BattleK.Scripts.Manager
                 ClearLocal();
                 yield break;
             }
-            
+
             _statsCollector.CollectFromBothTeams();
             yield return null;
 
-            _playerStats = CloneList(_statsCollector.PlayerStats);
-            _enemyStats  = CloneList(_statsCollector.EnemyStats);
+            _rowToCore.Clear();
+
+            _playerStats = CalculateRows(_statsCollector.PlayerStats);
+            _enemyStats  = CalculateRows(_statsCollector.EnemyStats);
 
             _allStats = new List<CharacterStatsRow>(_playerStats.Count + _enemyStats.Count);
             _allStats.AddRange(_playerStats);
             _allStats.AddRange(_enemyStats);
         }
+
         public void RefreshFromCollectorOnce()
         {
             StopAllCoroutines();
             StartCoroutine(RefreshFromCollectorCoroutine());
         }
+
         public CharacterStatsRow FindUnit(string unitId, bool searchEnemyToo = true)
         {
             if (string.IsNullOrWhiteSpace(unitId)) return null;
@@ -109,7 +125,9 @@ namespace BattleK.Scripts.Manager
             var found = _playerStats.Find(r => string.Equals(r.Unit_ID, unitId, StringComparison.Ordinal));
             if (found != null) return found;
 
-            return searchEnemyToo ? _enemyStats.Find(r => string.Equals(r.Unit_ID, unitId, StringComparison.Ordinal)) : null;
+            return searchEnemyToo
+                ? _enemyStats.Find(r => string.Equals(r.Unit_ID, unitId, StringComparison.Ordinal))
+                : null;
         }
 
         private void ClearLocal()
@@ -117,37 +135,88 @@ namespace BattleK.Scripts.Manager
             _playerStats = new List<CharacterStatsRow>();
             _enemyStats  = new List<CharacterStatsRow>();
             _allStats    = new List<CharacterStatsRow>();
+            _rowToCore.Clear();
         }
-
-        private List<CharacterStatsRow> CloneList(IReadOnlyList<CharacterStatsRow> src)
+        
+        private List<CharacterStatsRow> CalculateRows(IReadOnlyList<(CharacterStatsRow Row, StaticAICore Core)> src)
         {
             var list = new List<CharacterStatsRow>(src?.Count ?? 0);
             if (src == null) return list;
 
-            list.AddRange(from stat in src
-            let level = Mathf.Max(1, stat.Level)
-            let baseAtk = stat.ATK
-            let baseDef = stat.DEF
-            let baseHp = stat.HP
-            let baseAgi = stat.AGI
-            let rarity = stat.Rarity
-            let calcAtk = (int)Math.Round(baseAtk + (_basicCorrection[0] + level + _starCorrection[0]) * _bornStarCorrection[0])
-            let calcDef = (int)Math.Round(baseDef + (_basicCorrection[1] + level + _starCorrection[1]) * _bornStarCorrection[1])
-            let calcHp = (int)Math.Round(baseHp + (_basicCorrection[2] + level + _starCorrection[2]) * _bornStarCorrection[2])
-            let calcAgi = (int)Math.Round(baseAgi + (_basicCorrection[3] + level + _starCorrection[3]) * _bornStarCorrection[3])
-            select new CharacterStatsRow
+            foreach (var (row, core) in src)
             {
-                Unit_ID = stat.Unit_ID,
-                Unit_Name = stat.Unit_Name,
-                Level = level,
-                ATK = calcAtk,
-                DEF = calcDef,
-                HP = calcHp,
-                AGI = calcAgi,
-                Rarity = rarity,
-                SourceUnit = stat.SourceUnit
-            });
+                var baseStat = BuildBaseStat(row, core.Stat.AttackSpeed, core.Stat.SkillPoint, core.Stat.MoveSpeed, core.Stat.AttackDelay);
+                var finalStat = StatCalculator.Calculate(baseStat, _correctionTable);
+
+                var calculatedRow = new CharacterStatsRow
+                {
+                    Unit_ID = row.Unit_ID,
+                    Unit_Name = row.Unit_Name,
+                    Level = row.Level,
+                    ATK = finalStat.AttackDamage,
+                    DEF = finalStat.Defense,
+                    HP = finalStat.MaxHp,
+                    AGI = row.AGI,
+                    Rarity = row.Rarity,
+                    CurrentInjury = row.CurrentInjury
+                };
+
+                list.Add(calculatedRow);
+                _rowToCore[calculatedRow] = core;
+
+                finalStat.ApplyTo(core.Stat);
+                UnitStatRepository.Set(row.Unit_ID, row.Unit_Name, core.Stat.CharacterImage, finalStat);
+            }
             return list;
+        }
+        
+        private List<CharacterStatsRow> CalculatePreviewRows(IReadOnlyList<CharacterStatsRow> src)
+        {
+            var list = new List<CharacterStatsRow>(src?.Count ?? 0);
+            if (src == null) return list;
+
+            foreach (var row in src)
+            {
+                var baseStat = BuildBaseStat(row, 0f, 0, 0f, 0f);
+                var finalStat = StatCalculator.Calculate(baseStat, _correctionTable);
+
+                UnitStatRepository.Set(row.Unit_ID, row.Unit_Name, null, finalStat);
+
+                list.Add(new CharacterStatsRow
+                {
+                    Unit_ID = row.Unit_ID,
+                    Unit_Name = row.Unit_Name,
+                    Level = row.Level,
+                    ATK = finalStat.AttackDamage,
+                    DEF = finalStat.Defense,
+                    HP = finalStat.MaxHp,
+                    AGI = row.AGI,
+                    Rarity = row.Rarity,
+                    CurrentInjury = row.CurrentInjury
+                });
+            }
+            return list;
+        }
+
+        private static UnitBaseStat BuildBaseStat(
+            CharacterStatsRow row, float baseAttackSpeed, int baseSkillPoint, float baseMoveSpeed, float baseAttackDelay)
+        {
+            return new UnitBaseStat
+            {
+                UnitId = row.Unit_ID,
+                UnitName = row.Unit_Name,
+                Level = row.Level,
+                Rarity = row.Rarity,
+                BaseAtk = row.ATK,
+                BaseDef = row.DEF,
+                BaseHp = row.HP,
+                BaseAgi = row.AGI,
+                BaseAttackSpeed = baseAttackSpeed,
+                BaseSkillPoint = baseSkillPoint,
+                BaseMoveSpeed = baseMoveSpeed,
+                BaseAttackDelay = baseAttackDelay,
+                CurrentInjury = row.CurrentInjury
+            };
         }
     }
 }
