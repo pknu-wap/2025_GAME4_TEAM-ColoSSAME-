@@ -13,7 +13,7 @@ public class PlayerStatsUI : MonoBehaviour
 
     public void Refresh()
     {
-        calculateManager.RefreshPlayerOnly();
+        //calculateManager.RefreshPlayerOnly();
 
         var stats = calculateManager.AllStats;
 
