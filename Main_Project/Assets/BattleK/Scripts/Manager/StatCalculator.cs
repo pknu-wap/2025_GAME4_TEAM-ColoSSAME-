@@ -13,12 +13,8 @@ namespace BattleK.Scripts.Manager
             var atk = Mathf.RoundToInt(baseStat.BaseAtk + table.AtkBase + level * factor.AtkFactor * table.AtkMultiplier);
             var def = Mathf.RoundToInt(baseStat.BaseDef + table.DefBase + level * factor.DefFactor * table.DefMultiplier);
             var hp  = Mathf.RoundToInt(baseStat.BaseHp  + table.HpBase  + level * factor.HpFactor  * table.HpMultiplier);
-
             var agi = baseStat.BaseAgi;
-
-            var attackSpeedMultiplier = (100f + agi * table.AttackSpeedPerAgi) / 100f;
-            var attackSpeed = baseStat.BaseAttackSpeed * attackSpeedMultiplier;
-
+            var attackSpeed = baseStat.BaseAttackSpeed;
             var evasionRate = Mathf.Min(agi * table.EvasionRatePerAgi, table.EvasionRateCap);
 
             return new FinalStat(
