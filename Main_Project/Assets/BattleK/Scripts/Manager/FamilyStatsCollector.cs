@@ -86,7 +86,7 @@ namespace BattleK.Scripts.Manager
                     DEF = matchData.Stat_Distribution?.DEF ?? 0,
                     HP = matchData.Stat_Distribution?.HP ?? 0,
                     AGI = matchData.Stat_Distribution?.AGI ?? 0,
-                    Rarity = matchData.Rarity,
+                    Tier = matchData.Tier,
                     Level = level,
                     CurrentInjury = injury
                 };
