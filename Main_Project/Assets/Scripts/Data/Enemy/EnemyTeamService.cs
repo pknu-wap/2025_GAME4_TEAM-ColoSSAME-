@@ -172,9 +172,7 @@ public static class EnemyTeamService
         Debug.Log($"[EnemyGrowth] {team.name}에 {picked.Unit_Name} 추가 (level {startLevel})");
     }
 
-    private static SkillPoolRegistrySO _registry;
-    private static SkillPoolRegistrySO Registry =>
-        _registry != null ? _registry : (_registry = Resources.Load<SkillPoolRegistrySO>("SkillPool/SkillPoolRegistry"));
+    public static SkillPoolRegistrySO Registry;
 
     // 등급에 맞는 스킬 자동 부여
     private static void GrantSkillByRarity(Unit unit)

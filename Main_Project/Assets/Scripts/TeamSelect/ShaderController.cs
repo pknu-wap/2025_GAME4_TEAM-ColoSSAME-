@@ -19,6 +19,10 @@ public class ShaderController : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            if (cardOutlineMaterial) cardOutlineMaterial = new Material(cardOutlineMaterial);
+            if (bannerOutlineMaterial) bannerOutlineMaterial = new Material(bannerOutlineMaterial);
+            if (normalOutlineMaterial) normalOutlineMaterial = new Material(normalOutlineMaterial);
         }
         else
         {
