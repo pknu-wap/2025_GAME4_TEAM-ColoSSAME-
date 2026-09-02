@@ -13,11 +13,26 @@ using System.Collections.Generic;
         public int currentMatchIndex;
         public int currentEnemyTeamId;
         public string currentMatchId;
+        public List<Prediction> predictions = new();
 
-        [Newtonsoft.Json.JsonIgnore] public EnemyTeam currentEnemy;
+    [Newtonsoft.Json.JsonIgnore] public EnemyTeam currentEnemy;
     }
 
     [System.Serializable]
+    public class Prediction
+    {
+        public int round;          
+        public string matchId;
+        public int teamAId;
+        public int teamBId;
+        public int pickedTeamId;   
+        public int oddsX100;       
+        public bool resolved;      
+    }
+
+
+
+[System.Serializable]
     public class Settings
     {
         public string name;
