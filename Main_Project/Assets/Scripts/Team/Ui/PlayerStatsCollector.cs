@@ -42,7 +42,5 @@ public class PlayerStatsCollector : MonoBehaviour
                 AGI = data.Stat_Distribution.AGI
             });
         }
-
-        Debug.Log($"플레이어 스탯 수집 완료 : {_playerStats.Count}");
     }
 }
