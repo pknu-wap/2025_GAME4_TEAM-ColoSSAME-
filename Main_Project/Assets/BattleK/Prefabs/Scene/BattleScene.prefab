@@ -2034,6 +2034,7 @@ MonoBehaviour:
     currentMatchIndex: 0
     currentEnemyTeamId: 0
     currentMatchId: 
+    predictions: []
     currentEnemy:
       id: 0
       fid: 
@@ -2486,7 +2487,20 @@ PrefabInstance:
       propertyPath: m_Name
       value: ResultPannel
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 5485781705901874742, guid: b05292fbd86cf8b4fb55414cadda44a9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2718474757587175906}
+    - target: {fileID: 5485781705901874742, guid: b05292fbd86cf8b4fb55414cadda44a9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: OnClickReturn
+      objectReference: {fileID: 0}
+    - target: {fileID: 5485781705901874742, guid: b05292fbd86cf8b4fb55414cadda44a9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: LeagueSceneManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 5158167579068398716, guid: b05292fbd86cf8b4fb55414cadda44a9, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

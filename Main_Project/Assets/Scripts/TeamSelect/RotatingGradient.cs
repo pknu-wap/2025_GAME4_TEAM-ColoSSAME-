@@ -3,8 +3,6 @@ using UnityEngine;
 public class RotatingGradient : MonoBehaviour
 {
     private static readonly int Angle = Shader.PropertyToID("_Angle");
-    public Material material1;
-    public Material material2;
     public float rotationSpeed = 100f; // 초당 회전 속도 (도/초)
     private float currentAngle = 0f;
 
@@ -19,10 +17,11 @@ public class RotatingGradient : MonoBehaviour
             currentAngle -= 360f;
         }
 
+        var sc = ShaderController.Instance;
+        if (sc == null) return;
+
         // 셰이더의 _Angle 속성에 계산된 앵글 값을 적용한다.
-        if(material1)
-            material1.SetFloat(Angle, currentAngle);
-        if(material2)
-            material2.SetFloat(Angle, currentAngle);
+        if (sc.cardOutlineMaterial) sc.cardOutlineMaterial.SetFloat(Angle, currentAngle);
+        if (sc.bannerOutlineMaterial) sc.bannerOutlineMaterial.SetFloat(Angle, currentAngle);
     }
 }
