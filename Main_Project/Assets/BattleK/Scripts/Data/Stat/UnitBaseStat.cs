@@ -5,6 +5,7 @@ namespace BattleK.Scripts.Data.Stat
     public class UnitBaseStat
     {
         public string UnitId, UnitName;
+        public UnitClass UnitClass;
         public int Level, Rarity;
 
         public int BaseAtk, BaseDef, BaseHp, BaseAgi;
@@ -23,6 +24,7 @@ namespace BattleK.Scripts.Data.Stat
             {
                 UnitId = unitId ?? stat.Name,
                 UnitName = stat.Name,
+                UnitClass = stat.UnitClass,
                 Level = level,
                 Rarity = rarity,
                 BaseAtk = stat.AttackDamage,

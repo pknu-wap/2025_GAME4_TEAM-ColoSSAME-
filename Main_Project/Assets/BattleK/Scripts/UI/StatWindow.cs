@@ -1,22 +1,32 @@
-﻿using BattleK.Scripts.Manager;
+﻿using BattleK.Scripts.Data.ClassInfo;
+using BattleK.Scripts.Manager;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace BattleK.Scripts.UI
 {
     public class StatWindow : MonoBehaviour
     {
-        [Header("이름 텍스트")]
+        [Header("Name")]
         public TextMeshProUGUI NameText;
 
-        [Header("스탯 텍스트")]
+        [Header("Tier/Level")]
+        public TextMeshProUGUI TierText;
+        public TextMeshProUGUI LevelText;
+
+        [Header("StatText")]
         public TextMeshProUGUI AtkText;
         public TextMeshProUGUI DefText;
-        public TextMeshProUGUI InjuredText;
+        public TextMeshProUGUI HPText;
 
-        [Header("캐릭터 이미지")]
+        [Header("CharacterImage")]
         public Image CharacterImage;
+        
+        [Header("Class")]
+        public ClassIconTable ClassIconTable;
+        public Image ClassIcon;
 
         public string UnitId { get; private set; }
 
@@ -29,12 +39,20 @@ namespace BattleK.Scripts.UI
         {
             UnitId = info.UnitId;
 
-            if (CharacterImage) CharacterImage.sprite = info.CharacterImage;
             if (NameText) NameText.text = info.UnitName;
+            if (TierText) TierText.text = info.Tier.ToString();
+            if (LevelText) LevelText.text = info.Level.ToString();
+            if (CharacterImage) CharacterImage.sprite = info.CharacterImage;
+            if (ClassIcon && ClassIconTable)
+            {
+                var icon = ClassIconTable.GetIcon(info.UnitClass);
+                ClassIcon.sprite = icon;
+                ClassIcon.enabled = icon != null;
+            }
 
             if (AtkText) AtkText.text = $"ATK: {info.Stat.AttackDamage}";
             if (DefText) DefText.text = $"DEF: {info.Stat.Defense}";
-            if (InjuredText) InjuredText.text = $"HP: {info.Stat.CurrentHp} / {info.Stat.MaxHp}";
+            if (HPText) HPText.text = $"HP: {info.Stat.MaxHp}";
         }
     }
 }

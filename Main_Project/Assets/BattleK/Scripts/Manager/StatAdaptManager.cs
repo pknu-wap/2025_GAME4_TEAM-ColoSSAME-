@@ -50,7 +50,7 @@ namespace BattleK.Scripts.Manager
                 UnitId = row.Unit_ID,
                 UnitName = row.Unit_Name,
                 Level = row.Level,
-                Rarity = row.Rarity,
+                Rarity = row.Tier,
                 BaseAtk = row.ATK,
                 BaseDef = row.DEF,
                 BaseHp = row.HP,

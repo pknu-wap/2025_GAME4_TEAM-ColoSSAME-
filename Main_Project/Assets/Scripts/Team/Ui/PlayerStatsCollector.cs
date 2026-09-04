@@ -34,7 +34,7 @@ public class PlayerStatsCollector : MonoBehaviour
                 Unit_ID = unit.unitId,
                 Unit_Name = unit.unitName,
                 Level = unit.level,
-                Rarity = unit.rarity,
+                Tier = unit.rarity,
 
                 ATK = data.Stat_Distribution.ATK,
                 DEF = data.Stat_Distribution.DEF,

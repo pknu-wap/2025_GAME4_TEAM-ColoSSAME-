@@ -152,12 +152,13 @@ namespace BattleK.Scripts.Manager
                 {
                     Unit_ID = row.Unit_ID,
                     Unit_Name = row.Unit_Name,
+                    UnitClass = row.UnitClass,
                     Level = row.Level,
                     ATK = finalStat.AttackDamage,
                     DEF = finalStat.Defense,
                     HP = finalStat.MaxHp,
                     AGI = row.AGI,
-                    Rarity = row.Rarity,
+                    Tier = row.Tier,
                     CurrentInjury = row.CurrentInjury
                 };
 
@@ -165,7 +166,7 @@ namespace BattleK.Scripts.Manager
                 _rowToCore[calculatedRow] = core;
 
                 finalStat.ApplyTo(core.Stat);
-                UnitStatRepository.Set(row.Unit_ID, row.Unit_Name, core.Stat.CharacterImage, finalStat);
+                UnitStatRepository.Set(row.Unit_ID, row.Unit_Name, row.Tier, row.Level, row.UnitClass, core.Stat.CharacterImage, finalStat);
             }
             return list;
         }
@@ -180,18 +181,19 @@ namespace BattleK.Scripts.Manager
                 var baseStat = BuildBaseStat(row, 0f, 0, 0f, 0f);
                 var finalStat = StatCalculator.Calculate(baseStat, _correctionTable);
 
-                UnitStatRepository.Set(row.Unit_ID, row.Unit_Name, null, finalStat);
+                UnitStatRepository.Set(row.Unit_ID, row.Unit_Name, row.Tier, row.Level, row.UnitClass, null, finalStat);
 
                 list.Add(new CharacterStatsRow
                 {
                     Unit_ID = row.Unit_ID,
                     Unit_Name = row.Unit_Name,
+                    UnitClass = row.UnitClass,
                     Level = row.Level,
                     ATK = finalStat.AttackDamage,
                     DEF = finalStat.Defense,
                     HP = finalStat.MaxHp,
                     AGI = row.AGI,
-                    Rarity = row.Rarity,
+                    Tier = row.Tier,
                     CurrentInjury = row.CurrentInjury
                 });
             }
@@ -205,8 +207,9 @@ namespace BattleK.Scripts.Manager
             {
                 UnitId = row.Unit_ID,
                 UnitName = row.Unit_Name,
+                UnitClass = row.UnitClass,
                 Level = row.Level,
-                Rarity = row.Rarity,
+                Rarity = row.Tier,
                 BaseAtk = row.ATK,
                 BaseDef = row.DEF,
                 BaseHp = row.HP,

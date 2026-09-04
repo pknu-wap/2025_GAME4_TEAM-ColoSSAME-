@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
 using BattleK.Scripts.Data.ClassInfo;
+using UnityEngine.Serialization;
 
 namespace BattleK.Scripts.Data.Type
 {
@@ -9,8 +10,9 @@ namespace BattleK.Scripts.Data.Type
     {
         public string Unit_ID;
         public string Unit_Name;
+        public UnitClass UnitClass;
         public int ATK, DEF, HP, AGI;
-        public int Rarity;
+        public int Tier;
         public int Level;
         public InjuryStatus CurrentInjury;
     }
@@ -22,7 +24,7 @@ namespace BattleK.Scripts.Data.Type
     {
         public string Unit_ID;
         public string Unit_Name;
-        public int Rarity;
+        public int Tier;
         public int Level;
         public StatDistribution Stat_Distribution;
     }
