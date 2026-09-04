@@ -3,6 +3,7 @@ using UnityEngine;
 using TMPro;
 using System.Collections.Generic;
 using BattleK.Scripts.AI.Skill.Base;
+using BattleK.Scripts.Data.Stat;
 
 public class SkillTrainManager : MonoBehaviour
 {
@@ -78,10 +79,10 @@ public class SkillTrainManager : MonoBehaviour
 
     private UnitSkill GetSelectedSkill(int index)
     {
-        if (index >= currentUnit.selectedSkills.Count)
+        if (index >= currentUnit.EquippedSkills.Count)
             return null;
 
-        string skillName = currentUnit.selectedSkills[index];
+        string skillName = currentUnit.EquippedSkills[index].skillName;
 
         if (skillMap.TryGetValue(skillName, out UnitSkill skill))
         {
@@ -95,7 +96,7 @@ public class SkillTrainManager : MonoBehaviour
     {
         skillMap = new Dictionary<string, UnitSkill>();
 
-        foreach (UnitSkill skill in currentUnit.skills)
+        foreach (UnitSkill skill in currentUnit.OwnedSkills)
         {
             skillMap[skill.skillName] = skill;
         }
@@ -103,11 +104,11 @@ public class SkillTrainManager : MonoBehaviour
 
     private void ChangeSkill(int rarity, int slotIndex)
     {
-        if (currentUnit.rarity < rarity)
+        if (currentUnit.Tier < rarity)
             return;
 
         List<SkillSO> choices =
-            randomSkillGrantA.GetSkillChoices(currentUnit.unitClass, rarity);
+            randomSkillGrantA.GetSkillChoices(currentUnit.UnitClass, rarity);
 
         skillSelectUI.Show(choices, currentUnit, slotIndex);
     }

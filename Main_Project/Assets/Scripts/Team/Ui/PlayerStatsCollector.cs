@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using BattleK.Scripts.Data.Stat;
 using UnityEngine;
 using BattleK.Scripts.Data.Type;
 
@@ -24,17 +25,17 @@ public class PlayerStatsCollector : MonoBehaviour
         foreach (Unit unit in myUnits)
         {
             CharacterData data =
-                UnitDataManager.Instance.GetCharacterData(unit.unitId);
+                UnitDataManager.Instance.GetCharacterData(unit.Id);
 
             if (data == null)
                 continue;
 
             _playerStats.Add(new CharacterStatsRow
             {
-                Unit_ID = unit.unitId,
-                Unit_Name = unit.unitName,
-                Level = unit.level,
-                Tier = unit.rarity,
+                Unit_ID = unit.Id,
+                Unit_Name = unit.UnitName,
+                Level = unit.Level,
+                Tier = unit.Tier,
 
                 ATK = data.Stat_Distribution.ATK,
                 DEF = data.Stat_Distribution.DEF,

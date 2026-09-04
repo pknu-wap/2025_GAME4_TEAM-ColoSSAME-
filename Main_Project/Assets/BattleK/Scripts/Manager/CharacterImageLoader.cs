@@ -50,7 +50,7 @@ namespace BattleK.Scripts.Manager
             }
 
             var unitIds = user.myUnits
-                .Select(u => u.unitId)
+                .Select(u => u.Id)
                 .Where(id => !string.IsNullOrWhiteSpace(id))
                 .Select(id => id.Trim())
                 .ToList();

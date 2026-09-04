@@ -4,6 +4,7 @@ using UnityEngine;
 using Newtonsoft.Json;
 using System.IO;
 using BattleK.Scripts.Data;
+using BattleK.Scripts.Data.Stat;
 using BattleK.Scripts.Manager;
 using UnityEngine.UI;
 using Scripts.Team.FighterRandomBuy;
@@ -100,7 +101,7 @@ namespace Scripts.Team.FighterViewer
             HashSet<string> ownedIds = new();
 
             foreach (var u in userManager.user.myUnits)
-                ownedIds.Add(u.unitId);
+                ownedIds.Add(u.Id);
 
             fiveStarIds.RemoveAll(id => ownedIds.Contains(id));
             fourStarIds.RemoveAll(id => ownedIds.Contains(id));
@@ -122,12 +123,12 @@ namespace Scripts.Team.FighterViewer
             {
                 Unit unit = myUnits[i];
 
-                var unitSO = UnitDataManager.Instance.GetCharacterData(unit.unitId);;
+                var unitSO = UnitDataManager.Instance.GetCharacterData(unit.Id);;
 
                 //CharacterImage[i].preserveAspect = true;
 
                 CharacterID characterid = CharacterObject[i].GetComponent<CharacterID>();
-                characterid.characterKey = unit.unitId;
+                characterid.characterKey = unit.Id;
 
                 FamilyID familyid = CharacterObject[i].GetComponent<FamilyID>();
                 familyid.FamilyKey = getplayer.familyname;
@@ -149,7 +150,7 @@ namespace Scripts.Team.FighterViewer
 
             Unit unit = userManager.user.myUnits[playerIndex];
 
-            var unitData = UnitDataManager.Instance.GetCharacterData(unit.unitId);
+            var unitData = UnitDataManager.Instance.GetCharacterData(unit.Id);
             if (unitData == null) return;
 
             NameText.text = unitData.Unit_Name; // 또는 JSON에 있는 이름 필드
@@ -161,9 +162,9 @@ namespace Scripts.Team.FighterViewer
             for (int i = 0; i < StarCount.Length; i++)
                 StarCount[i].SetActive(false);
 
-            StarCount[unit.rarity - 1].SetActive(true);
+            StarCount[unit.Tier - 1].SetActive(true);
 
-            userManager.SetSelectedUnit(unit.unitId);
+            userManager.SetSelectedUnit(unit.Id);
   
         }
 

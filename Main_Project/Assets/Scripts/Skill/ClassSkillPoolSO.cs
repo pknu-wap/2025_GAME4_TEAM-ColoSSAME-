@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 using BattleK.Scripts.AI.Skill.Base;
+using BattleK.Scripts.Data.ClassInfo;
 
 [CreateAssetMenu(fileName = "ClassSkillPool", menuName = "Game/Class Skill Pool")]
 public class ClassSkillPoolSO : ScriptableObject
 {
-    public string unitClass;          // 이 풀이 담당하는 직업 
-    public List<SkillSO> skills;      // [0,1]=3성, [2,3]=4성, [4]=궁극기
+    public UnitClass unitClass; 
+    public List<SkillSO> skills;
 
     public List<SkillSO> GetSkillChoices(int rarity)
     {

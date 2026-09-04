@@ -1,6 +1,7 @@
 using BattleK.Scripts.AI.Skill.Base;
 using System.Collections.Generic;
 using System.Linq;
+using BattleK.Scripts.Data.Stat;
 using UnityEngine;
 
 public static class EnemyTeamService
@@ -51,9 +52,11 @@ public static class EnemyTeamService
 
         foreach (CharacterData character in recruits)
         {
-            Unit unit = new Unit(character.Unit_ID, character.Rarity, character.Unit_Name, character.Class);
-            unit.level = 1;
-            unit.exp = 0f;
+            var unit = new Unit(character.Unit_ID, character.Rarity, character.Unit_Name, character.Class)
+            {
+                Level = 1,
+                EXP = 0f
+            };
             enemyTeam.units.Add(unit);
         }
 
@@ -78,11 +81,11 @@ public static class EnemyTeamService
             bool changed = false;
             foreach (Unit unit in team.units)
             {
-                if (unit.level >= cap) continue;
+                if (unit.Level >= cap) continue;
                 int grow = GrowAmount(result);           
                 if (grow > 0)
                 {
-                    unit.level = Mathf.Min(unit.level + grow, cap);
+                    unit.Level = Mathf.Min(unit.Level + grow, cap);
                     changed = true;
                 }
             }
@@ -127,9 +130,9 @@ public static class EnemyTeamService
 
             foreach (Unit unit in team.units)
             {
-                unit.rarity = Mathf.Min(unit.rarity + 1, 5);
-                unit.level = resetLevel + rankBonus;
-                unit.exp = 0f;
+                unit.Tier = Mathf.Min(unit.Tier + 1, 5);
+                unit.Level = resetLevel + rankBonus;
+                unit.EXP = 0f;
                 GrantSkillByRarity(unit);
             }
 
@@ -147,7 +150,7 @@ public static class EnemyTeamService
         var familyUnits = UnitDataManager.Instance.GetFamilyUnits(fid);
         if (familyUnits == null || familyUnits.Count == 0) return;
 
-        var existingIds = new HashSet<string>(team.units.Select(u => u.unitId));
+        var existingIds = new HashSet<string>(team.units.Select(u => u.Id));
 
         var remaining = familyUnits
             .Where(c => c.Rarity > 1 && !existingIds.Contains(c.Unit_ID))
@@ -163,9 +166,11 @@ public static class EnemyTeamService
         var candidates = remaining.Where(c => c.Rarity == minRarity).ToList();
 
         var picked = candidates[UnityEngine.Random.Range(0, candidates.Count)];
-        var newUnit = new Unit(picked.Unit_ID, picked.Rarity, picked.Unit_Name, picked.Class);
-        newUnit.level = startLevel;
-        newUnit.exp = 0f;
+        var newUnit = new Unit(picked.Unit_ID, picked.Rarity, picked.Unit_Name, picked.Class)
+        {
+            Level = startLevel,
+            EXP = 0f
+        };
         GrantSkillsUpToRarity(newUnit);
         team.units.Add(newUnit);
 
@@ -179,9 +184,9 @@ public static class EnemyTeamService
     // 등급에 맞는 스킬 자동 부여
     private static void GrantSkillByRarity(Unit unit)
     {
-        var pool = Registry?.GetPool(unit.unitClass);
+        var pool = Registry?.GetPool(unit.UnitClass);
         if (pool == null) return;
-        int r = unit.rarity;
+        int r = unit.Tier;
 
         if (r == 3 || r == 4)
         {
@@ -198,26 +203,23 @@ public static class EnemyTeamService
 
     private static void AddSkill(Unit unit, SkillSO skill)
     {
-        if (unit.skills.Exists(s => s.skillName == skill.SkillName)) return;
-        unit.skills.Add(new UnitSkill(skill.SkillName, 1));
-
-        if (!unit.selectedSkills.Contains(skill.SkillName))
-            unit.selectedSkills.Add(skill.SkillName);
+        if (unit.OwnedSkills.Exists(s => s.skillName == skill.SkillName)) return;
+        unit.OwnedSkills.Add(new UnitSkill(skill.SkillName, 1));
     }
 
     // 획득 유닛 스킬 소급 부여
     private static void GrantSkillsUpToRarity(Unit unit)
     {
-        var pool = Registry?.GetPool(unit.unitClass);
+        var pool = Registry?.GetPool(unit.UnitClass);
         if (pool == null) return;
 
-        for (int r = 3; r <= Mathf.Min(unit.rarity, 4); r++)
+        for (int r = 3; r <= Mathf.Min(unit.Tier, 4); r++)
         {
             var choices = pool.GetSkillChoices(r);
             if (choices.Count == 0) continue;
             AddSkill(unit, choices[Random.Range(0, choices.Count)]);
         }
-        if (unit.rarity >= 5)
+        if (unit.Tier >= 5)
         {
             var ult = pool.GetUltimate();
             if (ult != null) AddSkill(unit, ult);
@@ -233,7 +235,7 @@ public static class EnemyTeamService
         float power = 0f;
         foreach (var u in team.units)
         {
-            power += u.level * 4f;                          // 레벨 
+            power += u.Level * 4f;                          // 레벨 
             //power += u.rarity * 3f;                         // 등급 
             //power += (u.selectedSkills?.Count ?? 0) * 3f;   // 장착 스킬
         }

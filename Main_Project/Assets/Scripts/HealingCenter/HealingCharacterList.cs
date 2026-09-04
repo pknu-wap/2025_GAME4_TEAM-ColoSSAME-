@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using BattleK.Scripts.Data;
+using BattleK.Scripts.Data.Stat;
 using BattleK.Scripts.Manager;
 using UnityEngine;
 

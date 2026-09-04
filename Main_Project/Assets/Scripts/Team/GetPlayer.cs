@@ -10,6 +10,7 @@ using Scripts.Team.FighterViewer;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using BattleK.Scripts.AI.Skill.Base;
+using BattleK.Scripts.Data.Stat;
 
 //나중에 가지고 있는 유닛 수가 최대일때 못뽑게하기 
 

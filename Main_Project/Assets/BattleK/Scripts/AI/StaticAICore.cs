@@ -476,7 +476,7 @@ namespace BattleK.Scripts.AI
 
             var user = _unitLoadManager.LoadedUser;
             var unitData = user?.myUnits?.Find(u =>
-                string.Equals(u.unitId?.Trim(), Stat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
+                string.Equals(u.Id?.Trim(), Stat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
 
             if (unitData == null) return;
 
@@ -496,17 +496,16 @@ namespace BattleK.Scripts.AI
 
             foreach (var unit in team.units)
             {
-                Debug.Log($"[EnemySave] unitName={unit.unitName}");
+                Debug.Log($"[EnemySave] unitName={unit.Id}");
             }
             var unitData = team?.units?.Find(u =>
-                string.Equals(u.unitName?.Trim(), Stat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
-            Debug.Log($"[EnemySave] unitData={(unitData == null ? "NULL" : unitData.unitName)}");      
+                string.Equals(u.Id?.Trim(), Stat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
+            Debug.Log($"[EnemySave] unitData={(unitData == null ? "NULL" : unitData.Id)}");      
             if (unitData == null) return;
 
             var seenEnemy = new SeenEnemyData
             {
-                unitId = unitData.unitId,
-                unitName = unitData.unitName,
+                unitId = unitData.Id,
                 teamFid = team.fid,
                 teamName = team.name
             };

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using BattleK.Scripts.Data.Stat;
 using UnityEngine;
 
 public class RecruitManager : MonoBehaviour
@@ -74,7 +75,7 @@ public class RecruitManager : MonoBehaviour
     }
     private string GetCurrentFamilyId()
     {
-        string selectedUnitId = UserManager.Instance.user.myUnits[0].unitId;
+        string selectedUnitId = UserManager.Instance.user.myUnits[0].Id;
 
         if (string.IsNullOrEmpty(selectedUnitId))
         {

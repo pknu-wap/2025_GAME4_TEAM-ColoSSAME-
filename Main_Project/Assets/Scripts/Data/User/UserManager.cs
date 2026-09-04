@@ -9,6 +9,8 @@ using Random = UnityEngine.Random;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using System.Collections;
+using BattleK.Scripts.Data.Stat;
+
 //
 
 public class UserManager : MonoBehaviour
@@ -56,7 +58,7 @@ public class UserManager : MonoBehaviour
         for (int i = 0; i < user.myUnits.Count; i++)
         {
             Unit u = user.myUnits[i];
-            if (u != null && u.unitId == unitId)
+            if (u != null && u.Id == unitId)
                 return u;
         }
         return null;
@@ -71,23 +73,23 @@ public class UserManager : MonoBehaviour
             Debug.LogWarning($"AddUnitExp 실패: 유닛을 찾지 못함 (unitId={unitId})");
             return false;
         }
-        int maxLevel = UnitCostCalculator.GetMaxLevelByRarity(unit.rarity);
+        int maxLevel = UnitCostCalculator.GetMaxLevelByRarity(unit.Tier);
 
-        if (unit.level >= maxLevel)
+        if (unit.Level >= maxLevel)
         {
-            unit.level = maxLevel;
-            unit.exp = 0;
+            unit.Level = maxLevel;
+            unit.EXP = 0;
             return false;
         }
 
-        unit.exp += amount;
-        Debug.Log($" 유닛 경험치 추가: {unit.unitName} +{amount}, 총합: {unit.exp}");
+        unit.EXP += amount;
+        Debug.Log($" 유닛 경험치 추가: {unit.Id} +{amount}, 총합: {unit.EXP}");
         
-        while (unit.exp >= 100)
+        while (unit.EXP >= 100)
         {
-            unit.exp -= 100;
-            unit.level++;
-            Debug.Log($" 유닛 레벨업! {unit.unitName} -> Lv {unit.level}");
+            unit.EXP -= 100;
+            unit.Level++;
+            Debug.Log($" 유닛 레벨업! {unit.Id} -> Lv {unit.Level}");
         }
 
         SaveUser();
@@ -104,10 +106,10 @@ public class UserManager : MonoBehaviour
             return false;
         }
 
-        unit.rarity += amount;
+        unit.Tier += amount;
 
-        if (unit.rarity > 5)
-            unit.rarity = 5;
+        if (unit.Tier > 5)
+            unit.Tier = 5;
 
         SaveUser();
 
@@ -218,7 +220,7 @@ public class UserManager : MonoBehaviour
     public void AddUnit(Unit newUnit)
     {
         user.myUnits.Add(newUnit);
-        Debug.Log($"새로운 유닛 영입: {newUnit.unitId}");
+        Debug.Log($"새로운 유닛 영입: {newUnit.Id}");
         SaveUser();
     }
     

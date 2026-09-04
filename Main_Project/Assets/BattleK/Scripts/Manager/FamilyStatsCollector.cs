@@ -5,6 +5,7 @@ using System.Linq;
 using BattleK.Scripts.AI;
 using BattleK.Scripts.Data;
 using BattleK.Scripts.Data.ClassInfo;
+using BattleK.Scripts.Data.Stat;
 using BattleK.Scripts.Data.Type;
 using BattleK.Scripts.JSON;
 using UnityEngine;
@@ -101,13 +102,13 @@ namespace BattleK.Scripts.Manager
             var baseLevel = defaultLevel > 0 ? defaultLevel : 1;
             var comparison = _caseInsensitiveMatch ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
             var unitData = isUser ? FindUserUnit(characterKey, comparison) : FindEnemyUnit(characterKey, comparison);
-            return unitData == null ? baseLevel : Mathf.Max(1, unitData.level);
+            return unitData == null ? baseLevel : Mathf.Max(1, unitData.Level);
         }
 
         private Unit FindUserUnit(string characterKey, StringComparison comparison)
         {
             var myUnits = _unitLoadManager?.LoadedUser?.myUnits;
-            return myUnits?.Find(u => string.Equals(u.unitId?.Trim(), characterKey, comparison));
+            return myUnits?.Find(u => string.Equals(u.Id?.Trim(), characterKey, comparison));
         }
 
         private Unit FindEnemyUnit(string characterKey, StringComparison comparison)
@@ -120,7 +121,7 @@ namespace BattleK.Scripts.Manager
             var team = _enemySaveManager.GetTeam(_league.currentEnemyTeamId);
             var units = team?.units;
 
-            return units?.Find(u => string.Equals(u.unitId?.Trim(), characterKey, comparison));
+            return units?.Find(u => string.Equals(u.Id?.Trim(), characterKey, comparison));
         }
         
         private FamilyJson LoadFamilyJson(string familyKey)
