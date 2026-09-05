@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using BattleK.Scripts.Data;
 using BattleK.Scripts.Data.Stat;
 using BattleK.Scripts.Data.Type;
@@ -110,7 +111,10 @@ namespace BattleK.Scripts.Manager
             _requestBuilder.BuildPlayerRequests(_playerSlots, _playerBookIndex, requests, assetRefs);
 
             if (EnemyUseFactionStrategy && EnemyFaction[_enemyBookIndex])
-                _requestBuilder.BuildEnemyRequests(_enemyBookIndex, EnemyFaction, _playerUnitsRoot, _enemyUnitsRoot, requests, assetRefs);
+            {
+                var allowedEnemyIds = GetCurrentEnemyRosterIds();
+                _requestBuilder.BuildEnemyRequests(_enemyBookIndex, EnemyFaction, _playerUnitsRoot, _enemyUnitsRoot, requests, assetRefs, allowedEnemyIds);
+            }
 
             _spawner.BeginBatch(requests.Count);
             for (var i = 0; i < requests.Count; i++)
@@ -119,6 +123,12 @@ namespace BattleK.Scripts.Manager
                 var root = req.isPlayer ? _playerUnitsRoot : _enemyUnitsRoot;
                 StartCoroutine(_spawner.Spawn(req, assetRefs[i], root, null));
             }
+        }
+        private List<string> GetCurrentEnemyRosterIds()
+        {
+            var teamId = LeagueManager.Instance.league.currentEnemyTeamId;
+            var team = EnemySaveManager.Instance.GetTeam(teamId);
+            return team?.units?.Select(u => u.Id).ToList() ?? new List<string>();
         }
     }
 }

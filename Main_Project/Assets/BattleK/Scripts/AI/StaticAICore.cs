@@ -232,7 +232,6 @@ namespace BattleK.Scripts.AI
             _modifiers.Clear();
             _flatModifiers.Clear();
             ClearAllVisualStatuses();
-
             RecalculateAllFromModifiers();
         }
 

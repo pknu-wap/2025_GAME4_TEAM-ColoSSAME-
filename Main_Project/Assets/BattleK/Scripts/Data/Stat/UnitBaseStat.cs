@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace BattleK.Scripts.Data.Stat
 {
+    [System.Serializable]
     public class UnitBaseStat
     {
         public string UnitId, UnitName;

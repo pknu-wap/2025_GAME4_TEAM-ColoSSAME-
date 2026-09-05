@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using BattleK.Scripts.AI;
 using BattleK.Scripts.Data;
-using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Data.Stat;
 using UnityEngine;
 
@@ -17,9 +16,8 @@ namespace BattleK.Scripts.Manager
 
         [Header("레벨 소스 (UnitLoadManager)")]
         [SerializeField] private UnitLoadManager _unitLoadManager;
-        // EnemySaveManager 수정되면 개편 예정
-        [SerializeField] private EnemySaveManager _enemySaveManager;
-        [SerializeField] private League _league;
+        private EnemySaveManager _enemySaveManager;
+        private League _league;
         [SerializeField] private ItemDatabase _itemDatabase;
 
         [Header("key setting")]
@@ -32,6 +30,12 @@ namespace BattleK.Scripts.Manager
 
         public IReadOnlyList<(UnitBaseStat Stat, StaticAICore Core)> PlayerStats => _playerStats;
         public IReadOnlyList<(UnitBaseStat Stat, StaticAICore Core)> EnemyStats  => _enemyStats;
+
+        private void Awake()
+        {
+            _league = LeagueManager.Instance.league;
+            _enemySaveManager ??= EnemySaveManager.Instance;
+        }
 
         public void CollectFromBothTeams()
         {
@@ -84,11 +88,6 @@ namespace BattleK.Scripts.Manager
 
         private Unit FindEnemyUnit(string characterKey, StringComparison comparison)
         {
-            if (_league == null) return null;
-
-            _enemySaveManager ??= EnemySaveManager.Instance;
-            if (_enemySaveManager == null) return null;
-
             var team = _enemySaveManager.GetTeam(_league.currentEnemyTeamId);
             var units = team?.units;
 

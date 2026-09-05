@@ -1,4 +1,5 @@
 ﻿using BattleK.Scripts.AI;
+using BattleK.Scripts.AI.CCState;
 using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Data.Type.AIDataType.CC;
 using BattleK.Scripts.Manager;
@@ -81,14 +82,16 @@ namespace BattleK.Scripts.UI
         {
             if (!_boundCore) return;
 
-            if (AtkText) AtkText.text = FormatWithDelta("ATK", _baseAttackDamage, _boundCore.CurrentAttackDamage);
-            if (DefText) DefText.text = FormatWithDelta("DEF", _baseDefense, _boundCore.CurrentDefense);
+            var atk = _boundCore.GetDisplayValue(FlatStatusType.AttackDamageFlat, StatusType.AttackDamageMultiplier, _boundCore.runtimeStat.AttackDamage);
+            var def = _boundCore.GetDisplayValue(FlatStatusType.DefenseFlat, StatusType.DefenseMultiplier, _boundCore.runtimeStat.Defense);
+
+            if (AtkText) AtkText.text = FormatWithDelta("ATK", atk.Total, atk.Delta);
+            if (DefText) DefText.text = FormatWithDelta("DEF", def.Total, def.Delta);
             if (HPText) HPText.text = $"HP: {_boundCore.runtimeStat.CurrentHP}/{_boundCore.CurrentMaxHp}";
         }
 
-        private static string FormatWithDelta(string label, float baseValue, float currentValue)
+        private static string FormatWithDelta(string label, float currentValue, float delta)
         {
-            var delta = currentValue - baseValue;
             if (Mathf.Abs(delta) < 0.01f)
                 return $"{label}: {currentValue:0}";
 
