@@ -63,9 +63,4 @@ public class SeenEnemyListUI : MonoBehaviour
                 Debug.LogWarning($"[SeenEnemyListUI] 적 초상화 로드 실패: {unitId}");
             });
     }
-
-    private void OnDestroy()
-    {
-        portraitLoader.ReleaseAll();
-    }
 }

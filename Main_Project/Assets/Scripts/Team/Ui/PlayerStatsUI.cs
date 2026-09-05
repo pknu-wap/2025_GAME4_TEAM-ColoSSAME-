@@ -5,17 +5,15 @@ using BattleK.Scripts.Manager;
 
 public class PlayerStatsUI : MonoBehaviour
 {
-    [SerializeField] private PlayerStatsCollector collector;
     [SerializeField] private CalculateManager calculateManager;
-
     [SerializeField] private TextMeshProUGUI[] statText;
 
 
     public void Refresh()
     {
-        //calculateManager.RefreshPlayerOnly();
+        calculateManager.RefreshPlayerPreviewOnly();
 
-        var stats = calculateManager.AllStats;
+        var stats = calculateManager.PlayerPreviewStats;
 
         for (int i = 0; i < statText.Length; i++)
         {
