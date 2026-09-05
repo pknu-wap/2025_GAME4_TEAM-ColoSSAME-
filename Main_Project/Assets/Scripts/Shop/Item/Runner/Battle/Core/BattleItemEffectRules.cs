@@ -31,8 +31,8 @@ internal static class BattleItemEffectRules
 
         float percent = ResolvePercent(effect);
         if (percent > 0f)
-            return Mathf.RoundToInt(owner.Stat.MaxHP * percent);
+            return Mathf.RoundToInt(owner.runtimeStat.MaxHP * percent);
 
-        return owner.Stat.MaxHP;
+        return owner.runtimeStat.MaxHP;
     }
 }

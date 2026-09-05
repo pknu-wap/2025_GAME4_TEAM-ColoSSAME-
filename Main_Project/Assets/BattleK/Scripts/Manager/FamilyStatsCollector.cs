@@ -1,13 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using BattleK.Scripts.AI;
 using BattleK.Scripts.Data;
 using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Data.Stat;
-using BattleK.Scripts.Data.Type;
-using BattleK.Scripts.JSON;
 using UnityEngine;
 
 namespace BattleK.Scripts.Manager
@@ -17,9 +14,6 @@ namespace BattleK.Scripts.Manager
         [Header("UnitRoots)")]
         [SerializeField] private Transform _playerUnitsRoot;
         [SerializeField] private Transform _enemyUnitsRoot;
-
-        [Header("Json 설정")]
-        [SerializeField] private string _familyJsonTemplate = "Assets/BattleK/Family/{FAMILY}/{FAMILY}.json";
 
         [Header("레벨 소스 (UnitLoadManager)")]
         [SerializeField] private UnitLoadManager _unitLoadManager;
@@ -33,26 +27,25 @@ namespace BattleK.Scripts.Manager
         [SerializeField] private bool _caseInsensitiveMatch = true;
 
         [Header("수집 결과 (읽기 전용)")]
-        [SerializeField] private List<(CharacterStatsRow Row, StaticAICore Core)> _playerStats = new();
-        [SerializeField] private List<(CharacterStatsRow Row, StaticAICore Core)> _enemyStats  = new();
+        [SerializeField] private List<(UnitBaseStat Stat, StaticAICore Core)> _playerStats = new();
+        [SerializeField] private List<(UnitBaseStat Stat, StaticAICore Core)> _enemyStats  = new();
 
-        private readonly Dictionary<string, FamilyJson> _familyCache = new();
+        public IReadOnlyList<(UnitBaseStat Stat, StaticAICore Core)> PlayerStats => _playerStats;
+        public IReadOnlyList<(UnitBaseStat Stat, StaticAICore Core)> EnemyStats  => _enemyStats;
 
-        public IReadOnlyList<(CharacterStatsRow Row, StaticAICore Core)> PlayerStats => _playerStats;
-        public IReadOnlyList<(CharacterStatsRow Row, StaticAICore Core)> EnemyStats  => _enemyStats;
-        
         public void CollectFromBothTeams()
         {
             _playerStats = CollectFromRoot(_playerUnitsRoot, true);
             _enemyStats  = CollectFromRoot(_enemyUnitsRoot, false);
         }
 
-        private List<(CharacterStatsRow Row, StaticAICore Core)> CollectFromRoot(Transform unitsRoot, bool isPlayer)
+        private List<(UnitBaseStat Stat, StaticAICore Core)> CollectFromRoot(Transform unitsRoot, bool isPlayer)
         {
-            var result = new List<(CharacterStatsRow Row, StaticAICore Core)>();
+            var result = new List<(UnitBaseStat Stat, StaticAICore Core)>();
             if (!unitsRoot) return result;
 
             var unitTransforms = unitsRoot.GetComponentsInChildren<Transform>(includeInactive: false);
+            var comparison = _caseInsensitiveMatch ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
 
             foreach (var unit in unitTransforms)
             {
@@ -65,44 +58,22 @@ namespace BattleK.Scripts.Manager
 
                 if (string.IsNullOrEmpty(charKey) || string.IsNullOrEmpty(familyKey)) continue;
 
-                var familyJson = LoadFamilyJson(familyKey);
-                if (familyJson?.Characters == null) continue;
+                var familyUnits = UnitDataManager.Instance.GetFamilyUnits(familyKey);
+                if (familyUnits == null) continue;
 
-                var comparison = _caseInsensitiveMatch ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-                var matchData = familyJson.Characters.FirstOrDefault(c => string.Equals(c.Unit_ID?.Trim(), charKey, comparison));
-
+                var matchData = familyUnits.FirstOrDefault(c => string.Equals(c.Unit_ID?.Trim(), charKey, comparison));
                 if (matchData == null) continue;
 
-                var level = ResolveLevel(charKey, matchData.Level, isPlayer);
                 var savedUnit = isPlayer ? FindUserUnit(charKey, comparison) : FindEnemyUnit(charKey, comparison);
 
-                aiCore.Stat.LoadFrom(savedUnit, _itemDatabase);
-                var injury = savedUnit?.currentInjury ?? InjuryStatus.Healthy;
+                aiCore.runtimeStat.LoadFrom(savedUnit, _itemDatabase);
 
-                var row = new CharacterStatsRow
-                {
-                    Unit_ID = matchData.Unit_ID,
-                    Unit_Name = matchData.Unit_Name,
-                    ATK = matchData.Stat_Distribution?.ATK ?? 0,
-                    DEF = matchData.Stat_Distribution?.DEF ?? 0,
-                    HP = matchData.Stat_Distribution?.HP ?? 0,
-                    AGI = matchData.Stat_Distribution?.AGI ?? 0,
-                    Tier = matchData.Tier,
-                    Level = level,
-                    CurrentInjury = injury
-                };
+                var baseStat = UnitBaseStat.FromFamilyAndSave(matchData, savedUnit);
 
-                result.Add((row, aiCore));
+                result.Add((baseStat, aiCore));
             }
 
             return result;
-        }
-        private int ResolveLevel(string characterKey, int defaultLevel, bool isUser)
-        {
-            var baseLevel = defaultLevel > 0 ? defaultLevel : 1;
-            var comparison = _caseInsensitiveMatch ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-            var unitData = isUser ? FindUserUnit(characterKey, comparison) : FindEnemyUnit(characterKey, comparison);
-            return unitData == null ? baseLevel : Mathf.Max(1, unitData.Level);
         }
 
         private Unit FindUserUnit(string characterKey, StringComparison comparison)
@@ -122,20 +93,6 @@ namespace BattleK.Scripts.Manager
             var units = team?.units;
 
             return units?.Find(u => string.Equals(u.Id?.Trim(), characterKey, comparison));
-        }
-        
-        private FamilyJson LoadFamilyJson(string familyKey)
-        {
-            if (_familyCache.TryGetValue(familyKey, out var cached)) return cached;
-
-            var path = _familyJsonTemplate.Replace("{FAMILY}",familyKey);
-            if (JsonFileHandler.TryLoadJsonFile<FamilyJson>(path, out var loadedData, out var msg))
-            {
-                _familyCache[familyKey] = loadedData;
-                return loadedData;
-            }
-            _familyCache[familyKey] = null;
-            return null;
         }
     }
 }

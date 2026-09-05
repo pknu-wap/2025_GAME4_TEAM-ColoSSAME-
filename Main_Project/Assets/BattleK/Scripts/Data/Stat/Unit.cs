@@ -19,6 +19,8 @@ namespace BattleK.Scripts.Data.Stat
         public List<UnitSkill> EquippedSkills = new();
         public List<UnitSkill> OwnedSkills = new();
         
+        public int equippedItemId;
+        
         public Unit(string id, int tier, string unitName, UnitClass unitClass)
         {
             this.Id = id;

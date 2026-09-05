@@ -11,15 +11,15 @@ internal sealed class BattleDeathExplosionMaxHpPercentHandler : IBattleItemEffec
         if (!BattleItemEffectRules.CanTrigger(runtime)) return;
 
         StaticAICore owner = runtime.Owner;
-        if (!owner || owner.Stat == null) return;
+        if (!owner || owner.runtimeStat == null) return;
 
         float percent = BattleItemEffectRules.ResolvePercent(runtime.Effect);
-        int damage = Mathf.RoundToInt(owner.Stat.MaxHP * percent);
+        int damage = Mathf.RoundToInt(owner.runtimeStat.MaxHP * percent);
         if (damage <= 0) return;
 
         foreach (StaticAICore target in context.TargetResolver.GetTargets(owner, ItemEffectTarget.Enemies))
         {
-            if (!target || target.IsDead || target.Stat == null) continue;
+            if (!target || target.IsDead || target.runtimeStat == null) continue;
             if (runtime.Effect.radius > 0f &&
                 Vector2.Distance(owner.transform.position, target.transform.position) > runtime.Effect.radius)
                 continue;

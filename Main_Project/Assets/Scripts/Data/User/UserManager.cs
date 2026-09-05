@@ -263,7 +263,7 @@ public class UserManager : MonoBehaviour
         {
             Unit newUnit = new Unit(
                 familyUnits[i].Unit_ID,
-                familyUnits[i].Rarity,
+                familyUnits[i].Tier,
                 familyUnits[i].Unit_Name,
                 familyUnits[i].Class
             );

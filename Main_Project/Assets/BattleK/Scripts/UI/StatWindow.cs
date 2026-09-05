@@ -2,7 +2,6 @@
 using BattleK.Scripts.Manager;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace BattleK.Scripts.UI

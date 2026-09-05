@@ -6,11 +6,13 @@ using BattleK.Scripts.AI.StaticScoreState.Attack;
 using BattleK.Scripts.AI.StaticScoreState.StaticVerStates;
 using BattleK.Scripts.AI.StaticScoreState.Targeting;
 using BattleK.Scripts.Data.ClassInfo;
+using BattleK.Scripts.Data.Stat;
 using BattleK.Scripts.Data.Type.AIDataType.CC;
 using BattleK.Scripts.HP;
 using BattleK.Scripts.Manager;
 using Pathfinding;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace BattleK.Scripts.AI
@@ -48,8 +50,8 @@ namespace BattleK.Scripts.AI
         private EnemySaveManager _enemySaveManager;
         private League _league;
 
-        [Header("Stats")]
-        public UnitStat Stat;
+        [FormerlySerializedAs("Stat")] [Header("Stats")]
+        public UnitRuntimeStat runtimeStat;
         public float CurrentMoveSpeed { get; private set; }
         public int CurrentAttackDamage { get; private set; }
         public int CurrentDefense { get; private set; }
@@ -170,19 +172,19 @@ namespace BattleK.Scripts.AI
 
         public void EnableWeapon()
         {
-            if(Stat.IsRanged) RangedWeapon.Fire(CurrentAttackDamage);
+            if(runtimeStat.IsRanged) RangedWeapon.Fire(CurrentAttackDamage);
             else MeleeWeapon.EnableHitBox(CurrentAttackDamage);
         }
 
         public void DisableWeapon()
         {
-            if (MeleeWeapon && !Stat.IsRanged) 
+            if (MeleeWeapon && !runtimeStat.IsRanged) 
                 MeleeWeapon.DisableHitBox();
         }
         
         public void SetAttackCooldown()
         {
-            _attackTimer = CurrentAttackDelay > 0f ? CurrentAttackDelay : Stat.AttackDelay;
+            _attackTimer = CurrentAttackDelay > 0f ? CurrentAttackDelay : runtimeStat.AttackDelay;
         }
 
         public void StopMovement()
@@ -213,13 +215,13 @@ namespace BattleK.Scripts.AI
 
         public void SetInitialStats()
         {
-            CurrentAttackDamage = Stat.AttackDamage;
-            CurrentDefense = Stat.Defense;
-            CurrentEvasionRate = Stat.EvasionRate;
-            CurrentMoveSpeed = Stat.MoveSpeed;
-            CurrentSkillPoint = Stat.SkillPoint;
-            CurrentAttackSpeed = Stat.AttackSpeed;
-            CurrentAttackDelay = Stat.AttackDelay;
+            CurrentAttackDamage = runtimeStat.AttackDamage;
+            CurrentDefense = runtimeStat.Defense;
+            CurrentEvasionRate = runtimeStat.EvasionRate;
+            CurrentMoveSpeed = runtimeStat.MoveSpeed;
+            CurrentSkillPoint = runtimeStat.SkillPoint;
+            CurrentAttackSpeed = runtimeStat.AttackSpeed;
+            CurrentAttackDelay = runtimeStat.AttackDelay;
             _modifiers.Clear();
             ClearAllVisualStatuses();
         }
@@ -244,13 +246,13 @@ namespace BattleK.Scripts.AI
             if (!HasReviveCharge) return false;
 
             HasReviveCharge = false;
-            Stat.CurrentHP = Mathf.Max(1, (int)(Stat.MaxHP * _reviveHpRatio));
+            runtimeStat.CurrentHP = Mathf.Max(1, (int)(runtimeStat.MaxHP * _reviveHpRatio));
             HPBar.UpdateHPBar();
 
             if (_reviveVisualType != StatusVisualType.Normal)
                 SetVisualStatus(_reviveVisualType, true);
 
-            Debug.Log($"{name} 부활! HP {Stat.CurrentHP}/{Stat.MaxHP}");
+            Debug.Log($"{name} 부활! HP {runtimeStat.CurrentHP}/{runtimeStat.MaxHP}");
             return true;
         }
         
@@ -319,20 +321,20 @@ namespace BattleK.Scripts.AI
             switch (type)
             {
                 case StatusType.MoveSpeedMultiplier:
-                    CurrentMoveSpeed = Stat.MoveSpeed * finalMul;
+                    CurrentMoveSpeed = runtimeStat.MoveSpeed * finalMul;
                     AiPath.maxSpeed = CurrentMoveSpeed;
                     break;
                 case StatusType.AttackDamageMultiplier:
-                    CurrentAttackDamage = (int)(Stat.AttackDamage * finalMul);
+                    CurrentAttackDamage = (int)(runtimeStat.AttackDamage * finalMul);
                     break;
                 case StatusType.DefenseMultiplier:
-                    CurrentDefense = (int)(Stat.Defense * finalMul);
+                    CurrentDefense = (int)(runtimeStat.Defense * finalMul);
                     break;
                 case StatusType.SkillPointMultiplier:
-                    CurrentSkillPoint = (int)(Stat.SkillPoint * finalMul);
+                    CurrentSkillPoint = (int)(runtimeStat.SkillPoint * finalMul);
                     break;
                 case StatusType.EvasionRateMultiplier:
-                    CurrentEvasionRate = (int)(Stat.EvasionRate * finalMul);
+                    CurrentEvasionRate = (int)(runtimeStat.EvasionRate * finalMul);
                     break;
                 case StatusType.AttackSpeedMultiplier:
                     ApplyAttackSpeedMultiplier(finalMul);
@@ -345,8 +347,8 @@ namespace BattleK.Scripts.AI
         private void ApplyAttackSpeedMultiplier(float finalMul)
         {
             finalMul = Mathf.Max(0.01f, finalMul);
-            CurrentAttackSpeed = Stat.AttackSpeed * finalMul;
-            CurrentAttackDelay = Stat.AttackDelay / finalMul;
+            CurrentAttackSpeed = runtimeStat.AttackSpeed * finalMul;
+            CurrentAttackDelay = runtimeStat.AttackDelay / finalMul;
 
             if (_attackTimer > CurrentAttackDelay)
             {
@@ -356,7 +358,7 @@ namespace BattleK.Scripts.AI
         
         public void ResetMoveSpeed()
         {
-            AiPath.maxSpeed = Stat.MoveSpeed;
+            AiPath.maxSpeed = runtimeStat.MoveSpeed;
         }
         
         public void PlayAnimation( PlayerState animState, int animIndex = 0)
@@ -387,7 +389,7 @@ namespace BattleK.Scripts.AI
 
         public void OnTakeDamage(int damage, bool isPenetrating = false)
         {
-            if (IsDead || Stat.CurrentHP == 0) return;
+            if (IsDead || runtimeStat.CurrentHP == 0) return;
             if (IsInvincible)
             {
                 return;
@@ -400,9 +402,9 @@ namespace BattleK.Scripts.AI
                 return;
             }
             var realDamage = isPenetrating ? damage : (int)Mathf.Max(1, damage * (float)(100.0 / (100 + CurrentDefense)));
-            Stat.CurrentHP -= realDamage;
+            runtimeStat.CurrentHP -= realDamage;
             HPBar.UpdateHPBar();
-            if (Stat.CurrentHP <= 0)
+            if (runtimeStat.CurrentHP <= 0)
             {
                 if (TryRevive()) return;
                 OnDead();
@@ -413,7 +415,7 @@ namespace BattleK.Scripts.AI
 
         public void OnHeal(int amount)
         {
-            Stat.CurrentHP = Mathf.Min(Stat.CurrentHP + amount, Stat.MaxHP);
+            runtimeStat.CurrentHP = Mathf.Min(runtimeStat.CurrentHP + amount, runtimeStat.MaxHP);
             HPBar.UpdateHPBar();
         }
 
@@ -436,8 +438,8 @@ namespace BattleK.Scripts.AI
                 case DeathReason.Combat:
                     if (AiManager.IsAlreadyDone) return;
                     AiManager.UnregisterUnit(this);
-                    if(Stat.InjuryLevel <= InjuryStatus.FatalInjury)
-                        ++Stat.InjuryLevel;
+                    if(runtimeStat.InjuryLevel <= InjuryStatus.FatalInjury)
+                        ++runtimeStat.InjuryLevel;
                     AiManager.IsWinner();
                     break;
                 case DeathReason.System:
@@ -452,9 +454,9 @@ namespace BattleK.Scripts.AI
 
         private void RegisterActionStates()
         {
-            if (Stat?.EquippedSkills is { Count: > 0 })
+            if (runtimeStat?.EquippedSkills is { Count: > 0 })
             {
-                _actionCandidates.Add(new StaticSkillState(this, Stat.EquippedSkills));
+                _actionCandidates.Add(new StaticSkillState(this, runtimeStat.EquippedSkills));
             }
             _actionCandidates.Add(new StaticRetreatState(this));
             _actionCandidates.Add(new StaticAttackState(this, _windupTime, _activeTime, _recoveryTime));
@@ -476,11 +478,11 @@ namespace BattleK.Scripts.AI
 
             var user = _unitLoadManager.LoadedUser;
             var unitData = user?.myUnits?.Find(u =>
-                string.Equals(u.Id?.Trim(), Stat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
+                string.Equals(u.Id?.Trim(), runtimeStat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
 
             if (unitData == null) return;
 
-            Stat.SaveTo(unitData);
+            runtimeStat.SaveTo(unitData);
             //unitData.equippedItemId = Stat.Item != null ? Stat.Item.ItemId : null;
 
             _userSaveManager.SaveUser(user);
@@ -492,14 +494,14 @@ namespace BattleK.Scripts.AI
 
             var team = _enemySaveManager.GetTeam(_league.currentEnemyTeamId);            
             
-            Debug.Log($"[EnemySave] Stat.Name={Stat.Name}");
+            Debug.Log($"[EnemySave] Stat.Name={runtimeStat.Name}");
 
             foreach (var unit in team.units)
             {
                 Debug.Log($"[EnemySave] unitName={unit.Id}");
             }
             var unitData = team?.units?.Find(u =>
-                string.Equals(u.Id?.Trim(), Stat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
+                string.Equals(u.Id?.Trim(), runtimeStat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
             Debug.Log($"[EnemySave] unitData={(unitData == null ? "NULL" : unitData.Id)}");      
             if (unitData == null) return;
 
@@ -512,7 +514,7 @@ namespace BattleK.Scripts.AI
 
             _enemySaveManager.RecordSeenEnemy(seenEnemy);
 
-            Stat.SaveTo(unitData);
+            runtimeStat.SaveTo(unitData);
             //unitData.equippedItemId = Stat.Item != null ? Stat.Item.ItemId : null;
             // TODO: EnemySaveManager 개편 시 실제 유닛 저장 메서드 연결
         }
@@ -520,10 +522,10 @@ namespace BattleK.Scripts.AI
 #if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {
-            if (Stat == null) return;
+            if (runtimeStat == null) return;
 
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(transform.position, Stat.SightRange);
+            Gizmos.DrawWireSphere(transform.position, runtimeStat.SightRange);
         }
 #endif
     }

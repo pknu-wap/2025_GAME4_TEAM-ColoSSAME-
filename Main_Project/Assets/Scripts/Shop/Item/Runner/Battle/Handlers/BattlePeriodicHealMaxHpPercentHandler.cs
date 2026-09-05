@@ -23,10 +23,10 @@ internal sealed class BattlePeriodicHealMaxHpPercentHandler : IBattleItemEffectH
 
         foreach (StaticAICore target in context.TargetResolver.GetTargets(runtime.Owner, runtime.Effect.target))
         {
-            if (!target || target.IsDead || target.Stat == null) continue;
+            if (!target || target.IsDead || target.runtimeStat == null) continue;
 
             float percent = BattleItemEffectRules.ResolvePercent(runtime.Effect);
-            int healAmount = Mathf.RoundToInt(target.Stat.MaxHP * percent);
+            int healAmount = Mathf.RoundToInt(target.runtimeStat.MaxHP * percent);
             if (healAmount <= 0) continue;
 
             target.OnHeal(healAmount);

@@ -18,41 +18,41 @@ internal sealed class BattleItemStatApplier
         foreach (KeyValuePair<StaticAICore, BattleUnitStatSnapshot> pair in statSnapshots)
         {
             StaticAICore unit = pair.Key;
-            if (!unit || unit.Stat == null) continue;
+            if (!unit || unit.runtimeStat == null) continue;
 
-            pair.Value.Restore(unit.Stat);
+            pair.Value.Restore(unit.runtimeStat);
             RefreshUnit(unit);
         }
     }
 
     public bool ApplyFlatStat(StaticAICore target, ItemEffectDefinition effect)
     {
-        if (!target || target.Stat == null) return false;
+        if (!target || target.runtimeStat == null) return false;
 
         int amount = Mathf.RoundToInt(effect.flatValue);
         if (amount == 0) return false;
 
         CaptureOriginal(target);
 
-        UnitStat stat = target.Stat;
+        UnitRuntimeStat runtimeStat = target.runtimeStat;
         switch (effect.statType)
         {
             case ItemStatType.MaxHp:
-                stat.MaxHP += amount;
-                stat.CurrentHP = Mathf.Clamp(stat.CurrentHP + amount, 1, stat.MaxHP);
+                runtimeStat.MaxHP += amount;
+                runtimeStat.CurrentHP = Mathf.Clamp(runtimeStat.CurrentHP + amount, 1, runtimeStat.MaxHP);
                 return true;
 
             case ItemStatType.Attack:
-                stat.AttackDamage += amount;
+                runtimeStat.AttackDamage += amount;
                 return true;
 
             case ItemStatType.Defense:
-                stat.Defense += amount;
+                runtimeStat.Defense += amount;
                 return true;
 
             case ItemStatType.Agility:
-                stat.EvasionRate = Mathf.Clamp(stat.EvasionRate + amount * 0.03f, 0f, 0.35f);
-                stat.AttackSpeed += amount * 1.05f;
+                runtimeStat.EvasionRate = Mathf.Clamp(runtimeStat.EvasionRate + amount * 0.03f, 0f, 0.35f);
+                runtimeStat.AttackSpeed += amount * 1.05f;
                 return true;
         }
 
@@ -65,7 +65,7 @@ internal sealed class BattleItemStatApplier
         float percent,
         int stackCount)
     {
-        if (!target || target.Stat == null) return;
+        if (!target || target.runtimeStat == null) return;
 
         CaptureOriginal(target);
 
@@ -116,7 +116,7 @@ internal sealed class BattleItemStatApplier
 
     public void RefreshUnit(StaticAICore unit)
     {
-        if (!unit || unit.Stat == null) return;
+        if (!unit || unit.runtimeStat == null) return;
 
         unit.SetInitialStats();
         UpdateHpBar(unit);
@@ -132,19 +132,19 @@ internal sealed class BattleItemStatApplier
 
     private void CaptureOriginal(StaticAICore unit)
     {
-        if (!unit || unit.Stat == null) return;
+        if (!unit || unit.runtimeStat == null) return;
         if (statSnapshots.ContainsKey(unit)) return;
 
-        statSnapshots.Add(unit, new BattleUnitStatSnapshot(unit.Stat));
+        statSnapshots.Add(unit, new BattleUnitStatSnapshot(unit.runtimeStat));
     }
 
     private void ApplyMaxHpPercent(StaticAICore target, float percent)
     {
-        int increase = Mathf.RoundToInt(target.Stat.MaxHP * percent);
+        int increase = Mathf.RoundToInt(target.runtimeStat.MaxHP * percent);
         if (increase == 0) return;
 
-        target.Stat.MaxHP += increase;
-        target.Stat.CurrentHP = Mathf.Clamp(target.Stat.CurrentHP + increase, 1, target.Stat.MaxHP);
+        target.runtimeStat.MaxHP += increase;
+        target.runtimeStat.CurrentHP = Mathf.Clamp(target.runtimeStat.CurrentHP + increase, 1, target.runtimeStat.MaxHP);
         RefreshUnit(target);
     }
 }

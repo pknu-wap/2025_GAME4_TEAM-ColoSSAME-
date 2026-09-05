@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using BattleK.Scripts.Data;
+using BattleK.Scripts.Data.Stat;
 using BattleK.Scripts.Data.Type;
 using BattleK.Scripts.HP;
 using BattleK.Scripts.Manager.Strategy.Runtime;
@@ -18,12 +19,12 @@ namespace BattleK.Scripts.Manager
 
         [Header("Manager")]
         [SerializeField] private AI_Manager aiManager;
-        [SerializeField] private FamilyStatsCollector statsCollector;
-        [SerializeField] private CalculateManager calculateManager;
         [SerializeField] private HPManager hpManager;
         [SerializeField] private StatWindowManager statWindowManager;
         [SerializeField] private FormationManager formationManager;
-        [SerializeField] private StatAdaptManager _statAdaptManager;
+
+        [Header("스탯 계산")]
+        [SerializeField] private StatCorrectionTable correctionTable;
 
         [Header("배틀 유닛 루트")]
         [SerializeField] private Transform _playerUnitsRoot;
@@ -65,14 +66,13 @@ namespace BattleK.Scripts.Manager
             _loader = new AddressableUnitLoader();
             _mover = new UnitMover();
             _presentation = new UnitPresentationSetup(playerLayerName, enemyLayerName);
-            _spawner = new UnitSpawner(_loader, _presentation, _mover, aiManager);
-            _coordinator = new SpawnCompletionCoordinator(_spawner, aiManager, statsCollector, calculateManager, hpManager, statWindowManager, _statAdaptManager);
+            _spawner = new UnitSpawner(_loader, _presentation, _mover, aiManager, correctionTable, playerLayerName, enemyLayerName);
+            _coordinator = new SpawnCompletionCoordinator(_spawner, hpManager, statWindowManager);
 
             _requestBuilder = new BattleFormationRequestBuilder(
                 formationManager, _addressBooks,
                 PlayerUiScale, EnemyUiScale, PlayerOffset, EnemyOffset,
                 PlayerAnimConfig, EnemyAnimConfig);
-
 
             if (_startBattleButton)
             {

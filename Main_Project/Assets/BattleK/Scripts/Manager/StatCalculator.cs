@@ -1,3 +1,4 @@
+using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Data.Stat;
 using UnityEngine;
 
@@ -26,8 +27,14 @@ namespace BattleK.Scripts.Manager
                 moveSpeed: baseStat.BaseMoveSpeed,
                 evasionRate: evasionRate,
                 attackSpeed: attackSpeed,
-                attackDelay: baseStat.BaseAttackDelay
+                attackDelay: baseStat.BaseAttackDelay,
+                currentInjury: baseStat.CurrentInjury
             );
+        }
+        public static void ApplyTo(UnitRuntimeStat target, UnitBaseStat baseStat, StatCorrectionTable table)
+        {
+            var finalStat = Calculate(baseStat, table);
+            finalStat.ApplyTo(target);
         }
     }
 }

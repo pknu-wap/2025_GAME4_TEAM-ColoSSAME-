@@ -200,7 +200,7 @@ public class BattleItemEffectRunner : MonoBehaviour
         for (int i = 0; i < units.Count; i++)
         {
             StaticAICore unit = units[i];
-            if (!unit || unit.Stat == null || !unit.IsInitialized)
+            if (!unit || unit.runtimeStat == null || !unit.IsInitialized)
                 return false;
         }
 

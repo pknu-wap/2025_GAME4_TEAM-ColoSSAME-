@@ -19,7 +19,7 @@ namespace BattleK.Scripts.AI.StaticScoreState.ActionStates
         {
             if (!_ai.Target) return false;
             var distance = Vector3.Distance(_ai.transform.position, _ai.Target.position);
-            return distance > _ai.Stat.AttackRange;
+            return distance > _ai.runtimeStat.AttackRange;
         }
         
         public void Enter()

@@ -6,4 +6,10 @@ namespace BattleK.Scripts.AI.StaticScoreState.Targeting
     {
         Transform FindTarget(StaticAICore ai);
     }
+    
+    public enum TargetStrategy
+    {
+        NearestTarget,
+        NearestTargetWithClass
+    }
 }

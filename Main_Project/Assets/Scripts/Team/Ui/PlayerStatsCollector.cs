@@ -1,14 +1,12 @@
 using System.Collections.Generic;
 using BattleK.Scripts.Data.Stat;
 using UnityEngine;
-using BattleK.Scripts.Data.Type;
 
 public class PlayerStatsCollector : MonoBehaviour
 {
-    [SerializeField] private List<CharacterStatsRow> _playerStats = new();
+    [SerializeField] private List<UnitBaseStat> _playerStats = new();
 
-    public IReadOnlyList<CharacterStatsRow> PlayerStats => _playerStats;
-
+    public IReadOnlyList<UnitBaseStat> PlayerStats => _playerStats;
 
     public void CollectPlayerUnits()
     {
@@ -24,24 +22,12 @@ public class PlayerStatsCollector : MonoBehaviour
 
         foreach (Unit unit in myUnits)
         {
-            CharacterData data =
-                UnitDataManager.Instance.GetCharacterData(unit.Id);
+            CharacterData data = UnitDataManager.Instance.GetCharacterData(unit.Id);
 
             if (data == null)
                 continue;
 
-            _playerStats.Add(new CharacterStatsRow
-            {
-                Unit_ID = unit.Id,
-                Unit_Name = unit.UnitName,
-                Level = unit.Level,
-                Tier = unit.Tier,
-
-                ATK = data.Stat_Distribution.ATK,
-                DEF = data.Stat_Distribution.DEF,
-                HP = data.Stat_Distribution.HP,
-                AGI = data.Stat_Distribution.AGI
-            });
+            _playerStats.Add(UnitBaseStat.FromFamilyAndSave(data, unit));
         }
 
         Debug.Log($"플레이어 스탯 수집 완료 : {_playerStats.Count}");

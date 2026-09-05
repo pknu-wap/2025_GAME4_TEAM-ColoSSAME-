@@ -16,7 +16,7 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.HealSkillLogics
                 return;
 
             int healAmount = Mathf.RoundToInt(
-                target.Stat.MaxHP * (BaseHealRatio + SkillPointBonusRatio * owner.Stat.SkillPoint)
+                target.runtimeStat.MaxHP * (BaseHealRatio + SkillPointBonusRatio * owner.runtimeStat.SkillPoint)
             );
 
             target.OnHeal(healAmount);

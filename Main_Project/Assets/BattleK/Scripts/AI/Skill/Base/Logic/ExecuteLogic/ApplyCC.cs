@@ -23,7 +23,7 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic
         public void Execute(StaticAICore owner, StaticAICore target)
         {
             if (!target) return;
-            var calculatedMultiplier = BasicStatMultiplier + SkillPointStatMultiplier * owner.Stat.SkillPoint;
+            var calculatedMultiplier = BasicStatMultiplier + SkillPointStatMultiplier * owner.runtimeStat.SkillPoint;
             var statusManager = target.GetComponent<StatusEffectManager>();
             if (statusManager)
             {

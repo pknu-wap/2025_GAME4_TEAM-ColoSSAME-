@@ -43,7 +43,7 @@ public static class EnemyTeamService
         EnemyTeam enemyTeam = new EnemyTeam(leagueTeam.id, leagueTeam.fid, leagueTeam.name);
 
         List<CharacterData> recruits = familyUnits
-            .Where(character => character.Rarity == 1)
+            .Where(character => character.Tier == 1)
             .Take(StartEnemyUnitCount)
             .ToList();
 
@@ -52,7 +52,7 @@ public static class EnemyTeamService
 
         foreach (CharacterData character in recruits)
         {
-            var unit = new Unit(character.Unit_ID, character.Rarity, character.Unit_Name, character.Class)
+            var unit = new Unit(character.Unit_ID, character.Tier, character.Unit_Name, character.Class)
             {
                 Level = 1,
                 EXP = 0f
@@ -153,7 +153,7 @@ public static class EnemyTeamService
         var existingIds = new HashSet<string>(team.units.Select(u => u.Id));
 
         var remaining = familyUnits
-            .Where(c => c.Rarity > 1 && !existingIds.Contains(c.Unit_ID))
+            .Where(c => c.Tier > 1 && !existingIds.Contains(c.Unit_ID))
             .ToList();
 
         if (remaining.Count == 0)
@@ -162,11 +162,11 @@ public static class EnemyTeamService
             return;
         }
 
-        int minRarity = remaining.Min(c => c.Rarity);
-        var candidates = remaining.Where(c => c.Rarity == minRarity).ToList();
+        int minRarity = remaining.Min(c => c.Tier);
+        var candidates = remaining.Where(c => c.Tier == minRarity).ToList();
 
         var picked = candidates[UnityEngine.Random.Range(0, candidates.Count)];
-        var newUnit = new Unit(picked.Unit_ID, picked.Rarity, picked.Unit_Name, picked.Class)
+        var newUnit = new Unit(picked.Unit_ID, picked.Tier, picked.Unit_Name, picked.Class)
         {
             Level = startLevel,
             EXP = 0f

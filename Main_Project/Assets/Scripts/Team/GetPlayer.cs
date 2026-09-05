@@ -190,7 +190,7 @@ namespace Scripts.Team.FighterRandomBuy
 
                 Unit newUnit = new Unit(
                     data.Unit_ID,
-                    data.Rarity,
+                    data.Tier,
                     data.Unit_Name,
                     data.Class
                 );
@@ -262,7 +262,7 @@ namespace Scripts.Team.FighterRandomBuy
             {
                 StarCount[i].SetActive(false);
             }
-            StarCount[characterdata.Rarity - 1].SetActive(true);
+            StarCount[characterdata.Tier - 1].SetActive(true);
 
             cardsstate.SetActive(true);
             cards.SetActive(false);

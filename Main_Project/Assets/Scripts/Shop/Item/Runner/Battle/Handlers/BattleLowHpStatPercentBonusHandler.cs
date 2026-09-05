@@ -13,10 +13,10 @@ internal sealed class BattleLowHpStatPercentBonusHandler : IBattleItemEffectHand
     public void Update(BattleItemEffectRuntime runtime, BattleItemEffectContext context)
     {
         if (runtime.Effect.effectKind != EffectKind) return;
-        if (!runtime.Owner || runtime.Owner.Stat == null || runtime.Owner.IsDead) return;
+        if (!runtime.Owner || runtime.Owner.runtimeStat == null || runtime.Owner.IsDead) return;
 
-        float maxHp = Mathf.Max(1, runtime.Owner.Stat.MaxHP);
-        float hpRatio = runtime.Owner.Stat.CurrentHP / maxHp;
+        float maxHp = Mathf.Max(1, runtime.Owner.runtimeStat.MaxHP);
+        float hpRatio = runtime.Owner.runtimeStat.CurrentHP / maxHp;
         float threshold = Mathf.Clamp01(runtime.Effect.hpThresholdRatio);
         bool shouldBeActive = hpRatio <= threshold;
 

@@ -28,7 +28,7 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic
                 if (!_results[i].TryGetComponent<StaticAICore>(out var core)) continue;
                 if (core.IsDead) continue;
 
-                float hp = core.Stat.CurrentHP;
+                float hp = core.runtimeStat.CurrentHP;
 
                 if (hp > maxHp)
                 {

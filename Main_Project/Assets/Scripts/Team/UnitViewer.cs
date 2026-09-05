@@ -85,7 +85,7 @@ namespace Scripts.Team.FighterViewer
 
             foreach (var c in units)
             {
-                switch (c.Rarity)
+                switch (c.Tier)
                 {
                     case 5: fiveStarIds.Add(c.Unit_ID); break;
                     case 4: fourStarIds.Add(c.Unit_ID); break;
