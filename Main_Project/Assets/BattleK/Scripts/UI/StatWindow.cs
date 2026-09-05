@@ -1,4 +1,6 @@
-﻿using BattleK.Scripts.Data.ClassInfo;
+﻿using BattleK.Scripts.AI;
+using BattleK.Scripts.Data.ClassInfo;
+using BattleK.Scripts.Data.Type.AIDataType.CC;
 using BattleK.Scripts.Manager;
 using TMPro;
 using UnityEngine;
@@ -22,21 +24,31 @@ namespace BattleK.Scripts.UI
 
         [Header("CharacterImage")]
         public Image CharacterImage;
-        
+
         [Header("Class")]
         public ClassIconTable ClassIconTable;
         public Image ClassIcon;
 
         public string UnitId { get; private set; }
 
+        private StaticAICore _boundCore;
+
+        private int _baseAttackDamage;
+        private int _baseDefense;
+
         public void SetPending(string unitId)
         {
+            UnbindCore();
             UnitId = unitId;
         }
 
         public void SetFromRepository(UnitDisplayInfo info)
         {
+            UnbindCore();
+
             UnitId = info.UnitId;
+            _baseAttackDamage = info.Stat.AttackDamage;
+            _baseDefense = info.Stat.Defense;
 
             if (NameText) NameText.text = info.UnitName;
             if (TierText) TierText.text = info.Tier.ToString();
@@ -53,5 +65,46 @@ namespace BattleK.Scripts.UI
             if (DefText) DefText.text = $"DEF: {info.Stat.Defense}";
             if (HPText) HPText.text = $"HP: {info.Stat.MaxHp}";
         }
+
+        public void BindToCore(StaticAICore core, UnitDisplayInfo info)
+        {
+            SetFromRepository(info);
+
+            _boundCore = core;
+            if (!_boundCore) return;
+
+            _boundCore.OnStatChanged += HandleStatChanged;
+            HandleStatChanged();
+        }
+
+        private void HandleStatChanged()
+        {
+            if (!_boundCore) return;
+
+            if (AtkText) AtkText.text = FormatWithDelta("ATK", _baseAttackDamage, _boundCore.CurrentAttackDamage);
+            if (DefText) DefText.text = FormatWithDelta("DEF", _baseDefense, _boundCore.CurrentDefense);
+            if (HPText) HPText.text = $"HP: {_boundCore.runtimeStat.CurrentHP}/{_boundCore.CurrentMaxHp}";
+        }
+
+        private static string FormatWithDelta(string label, float baseValue, float currentValue)
+        {
+            var delta = currentValue - baseValue;
+            if (Mathf.Abs(delta) < 0.01f)
+                return $"{label}: {currentValue:0}";
+
+            var sign = delta > 0 ? "+" : "-";
+            return $"{label}: {currentValue:0} ({sign}{Mathf.Abs(delta):0})";
+        }
+
+        private void UnbindCore()
+        {
+            if (!_boundCore) return;
+
+            _boundCore.OnStatChanged -= HandleStatChanged;
+            _boundCore = null;
+        }
+
+        private void OnDisable() => UnbindCore();
+        private void OnDestroy() => UnbindCore();
     }
 }

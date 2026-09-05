@@ -81,6 +81,7 @@ namespace BattleK.Scripts.AI
         private StaticAICore _targetCore;
         public bool IsDead => OverrideMachine.CurrentState is StaticDeathState;
         public bool IsInvincible => HasStatus(StatusType.Invincible);
+        public event System.Action OnStatChanged;
 
         [HideInInspector] public float LastRetreatFinishTime;
         private float _attackTimer;
@@ -162,6 +163,7 @@ namespace BattleK.Scripts.AI
         public void Initialize()
         {
             IsInitialized = true;
+            OnStatChanged?.Invoke();
         }
 
         private void CheckTargetStatus()
@@ -268,8 +270,8 @@ namespace BattleK.Scripts.AI
         {
             if (!_modifiers.ContainsKey(type)) _modifiers[type] = new Dictionary<object, StatModifierEntry>();
             _modifiers[type][source] = new StatModifierEntry(source, category, label, delta);
-            Debug.Log($"현재 {name}의 {type}형 stat이 {label}로부터 {delta:+0.0;-0.0}만큼 변화");
             UpdateFinalStat(type);
+            OnStatChanged?.Invoke();
         }
 
         public void RemoveStatMultiplier(StatusType type, object source)
@@ -277,12 +279,14 @@ namespace BattleK.Scripts.AI
             if (!_modifiers.TryGetValue(type, out var sourceDict)) return;
             sourceDict.Remove(source);
             UpdateFinalStat(type);
+            OnStatChanged?.Invoke();
         }
         public void SetFlatModifier(FlatStatusType type, object source, StatSourceCategory category, string label, float amount)
         {
             if (!_flatModifiers.ContainsKey(type)) _flatModifiers[type] = new Dictionary<object, StatModifierEntry>();
             _flatModifiers[type][source] = new StatModifierEntry(source, category, label, amount);
             UpdateFlatStat(type);
+            OnStatChanged?.Invoke();
         }
 
         public void RemoveFlatModifier(FlatStatusType type, object source)
@@ -290,6 +294,7 @@ namespace BattleK.Scripts.AI
             if (!_flatModifiers.TryGetValue(type, out var sourceDict)) return;
             sourceDict.Remove(source);
             UpdateFlatStat(type);
+            OnStatChanged?.Invoke();
         }
 
         private float GetFlatSum(FlatStatusType type)
@@ -490,6 +495,17 @@ namespace BattleK.Scripts.AI
 
             return new StatBreakdown(baseValue, contributions, baseValue + totalDelta);
         }
+        
+        public (float Base, float Total, float Delta) GetDisplayValue(FlatStatusType flatType, StatusType multiplierType, float baseValue)
+        {
+            var flatBreakdown = GetFlatBreakdown(flatType, baseValue);
+            var afterFlat = flatBreakdown.FinalValue;
+
+            var multiplierBreakdown = GetBreakdown(multiplierType, afterFlat);
+            var total = multiplierBreakdown.FinalValue;
+
+            return (baseValue, total, total - baseValue);
+        }
 
         public void PlayAnimation(PlayerState animState, int animIndex = 0)
         {
@@ -541,12 +557,14 @@ namespace BattleK.Scripts.AI
                 return;
             }
             if (OverrideMachine.CurrentState == null) OverrideMachine.ChangeState(new StaticHitState(this));
+            OnStatChanged?.Invoke();
         }
 
         public void OnHeal(int amount)
         {
             runtimeStat.CurrentHP = Mathf.Min(runtimeStat.CurrentHP + amount, runtimeStat.MaxHP);
             HPBar.UpdateHPBar();
+            OnStatChanged?.Invoke();
         }
 
         public void EnterCCState(PlayerState state)

@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
 using BattleK.Scripts.Data.Stat;
-using BattleK.Scripts.Data.Type;
 using UnityEngine;
 
 namespace BattleK.Scripts.Manager
@@ -42,14 +41,10 @@ namespace BattleK.Scripts.Manager
 
         public IReadOnlyList<UnitBaseStat> AllStats => _allStats;
         public IReadOnlyList<UnitBaseStat> PlayerPreviewStats => _playerPreviewStats;
+        public event Action OnStatsReady;
 
         public StaticAICore GetCoreFor(UnitBaseStat stat) =>
             stat != null && _statToCore.TryGetValue(stat, out var core) ? core : null;
-
-        private void Start()
-        {
-            StartCoroutine(RefreshFlow());
-        }
 
         [ContextMenu("Refresh Now")]
         public void RefreshNow()
@@ -62,20 +57,24 @@ namespace BattleK.Scripts.Manager
         {
             yield return StartCoroutine(RefreshFromCollectorCoroutine());
 
-            if (!_autoRetryIfEmpty || !IsEmpty()) yield break;
-            var tries = 0;
-            while (tries < _maxRetries && IsEmpty())
+            if (_autoRetryIfEmpty && IsEmpty())
             {
-                tries++;
-                yield return new WaitForSeconds(_retryIntervalSeconds);
-                yield return StartCoroutine(RefreshFromCollectorCoroutine());
+                var tries = 0;
+                while (tries < _maxRetries && IsEmpty())
+                {
+                    tries++;
+                    yield return new WaitForSeconds(_retryIntervalSeconds);
+                    yield return StartCoroutine(RefreshFromCollectorCoroutine());
+                }
             }
+
+            OnStatsReady?.Invoke();
         }
 
         public IEnumerator RefreshFromCollectorAndWait()
         {
             StopAllCoroutines();
-            yield return StartCoroutine(RefreshFromCollectorCoroutine());
+            yield return StartCoroutine(RefreshFlow());
         }
 
         public void RefreshPlayerPreviewOnly()
@@ -142,8 +141,6 @@ namespace BattleK.Scripts.Manager
             _statToCore.Clear();
         }
 
-        // src: FamilyStatsCollector가 (FamilyCharacter + 세이브를 이미 합성한) UnitBaseStat과
-        // StaticAICore를 묶어 전달한다고 가정. MoveSpeed 등 직업 고정값은 ClassBaseStatTable에서 채운다.
         private List<UnitBaseStat> CalculateStats(IReadOnlyList<(UnitBaseStat Stat, StaticAICore Core)> src)
         {
             var list = new List<UnitBaseStat>(src?.Count ?? 0);
