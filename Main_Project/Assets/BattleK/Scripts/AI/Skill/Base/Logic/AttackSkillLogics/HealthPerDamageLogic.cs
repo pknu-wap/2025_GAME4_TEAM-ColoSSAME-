@@ -1,5 +1,6 @@
 using BattleK.Scripts.AI;
 using BattleK.Scripts.AI.Skill.Base.Logic.LogicBase;
+using Shop.Item.Runner.Battle.Core;
 using UnityEngine;
 
 namespace BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics

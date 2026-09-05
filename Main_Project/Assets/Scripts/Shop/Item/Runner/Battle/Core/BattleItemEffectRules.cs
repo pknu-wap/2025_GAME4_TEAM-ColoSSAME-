@@ -1,4 +1,5 @@
 using BattleK.Scripts.AI;
+using Shop.Item;
 using UnityEngine;
 
 internal static class BattleItemEffectRules

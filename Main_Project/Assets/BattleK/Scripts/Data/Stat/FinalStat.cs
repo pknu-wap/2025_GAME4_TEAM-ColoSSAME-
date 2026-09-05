@@ -8,7 +8,6 @@ namespace BattleK.Scripts.Data.Stat
         public readonly int CurrentHp;
         public readonly int AttackDamage;
         public readonly int Defense;
-        public readonly int SkillPoint;
         public readonly float MoveSpeed;
         public readonly float EvasionRate;
         public readonly float AttackSpeed;
@@ -20,7 +19,6 @@ namespace BattleK.Scripts.Data.Stat
             int currentHp,
             int attackDamage,
             int defense,
-            int skillPoint,
             float moveSpeed,
             float evasionRate,
             float attackSpeed,
@@ -31,7 +29,6 @@ namespace BattleK.Scripts.Data.Stat
             CurrentHp = currentHp;
             AttackDamage = attackDamage;
             Defense = defense;
-            SkillPoint = skillPoint;
             MoveSpeed = moveSpeed;
             EvasionRate = evasionRate;
             AttackSpeed = attackSpeed;
@@ -45,7 +42,6 @@ namespace BattleK.Scripts.Data.Stat
             runtimeStat.CurrentHP = CurrentHp;
             runtimeStat.AttackDamage = AttackDamage;
             runtimeStat.Defense = Defense;
-            runtimeStat.SkillPoint = SkillPoint;
             runtimeStat.MoveSpeed = MoveSpeed;
             runtimeStat.EvasionRate = EvasionRate;
             runtimeStat.AttackSpeed = AttackSpeed;

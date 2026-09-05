@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace BattleK.Scripts.Data.Stat
 {
-    [CreateAssetMenu(menuName = "BattleK/StatCorrectionTable")]
+    [CreateAssetMenu(menuName = "BattleK/Stat/StatCorrectionTable")]
     public class StatCorrectionTable : ScriptableObject
     {
         [Serializable]

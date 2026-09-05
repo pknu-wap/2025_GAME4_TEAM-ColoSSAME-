@@ -1,4 +1,6 @@
-namespace BattleK.Scripts.AI
+using BattleK.Scripts.AI;
+
+namespace Shop.Item.Runner.Battle.Core
 {
     public static class StaticAICoreItemDamageExtensions
     {
@@ -10,7 +12,7 @@ namespace BattleK.Scripts.AI
         {
             if (!target) return;
 
-            global::BattleItemEffectRunner.Instance?.RecordDamageSource(target, attacker);
+            BattleItemEffectRunner.Instance?.RecordDamageSource(target, attacker);
             target.OnTakeDamage(damage, isPenetrating);
         }
     }

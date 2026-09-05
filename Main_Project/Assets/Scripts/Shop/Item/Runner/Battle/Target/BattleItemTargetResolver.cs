@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
 using BattleK.Scripts.Manager;
+using Shop.Item;
 using UnityEngine;
 
 internal sealed class BattleItemTargetResolver

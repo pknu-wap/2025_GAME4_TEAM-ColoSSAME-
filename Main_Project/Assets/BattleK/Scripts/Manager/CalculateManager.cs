@@ -34,6 +34,10 @@ namespace BattleK.Scripts.Manager
 
         [Header("보정 테이블")]
         [SerializeField] private StatCorrectionTable _correctionTable;
+
+        [Tooltip("직업(UnitClass)별 MoveSpeed/AttackSpeed/AttackDelay 고정값 테이블")]
+        [SerializeField] private ClassBaseStatTable _classBaseStatTable;
+
         private readonly Dictionary<UnitBaseStat, StaticAICore> _statToCore = new();
 
         public IReadOnlyList<UnitBaseStat> AllStats => _allStats;
@@ -139,7 +143,7 @@ namespace BattleK.Scripts.Manager
         }
 
         // src: FamilyStatsCollector가 (FamilyCharacter + 세이브를 이미 합성한) UnitBaseStat과
-        // StaticAICore를 묶어 전달한다고 가정. BaseAttackSpeed 등 런타임 전용 값만 여기서 채운다.
+        // StaticAICore를 묶어 전달한다고 가정. MoveSpeed 등 직업 고정값은 ClassBaseStatTable에서 채운다.
         private List<UnitBaseStat> CalculateStats(IReadOnlyList<(UnitBaseStat Stat, StaticAICore Core)> src)
         {
             var list = new List<UnitBaseStat>(src?.Count ?? 0);
@@ -147,12 +151,7 @@ namespace BattleK.Scripts.Manager
 
             foreach (var (stat, core) in src)
             {
-                stat.BaseAttackSpeed = core.runtimeStat.AttackSpeed;
-                stat.BaseSkillPoint  = core.runtimeStat.SkillPoint;
-                stat.BaseMoveSpeed   = core.runtimeStat.MoveSpeed;
-                stat.BaseAttackDelay = core.runtimeStat.AttackDelay;
-
-                var finalStat = StatCalculator.Calculate(stat, _correctionTable);
+                var finalStat = StatCalculator.Calculate(stat, _correctionTable, _classBaseStatTable);
 
                 var calculatedStat = new UnitBaseStat
                 {
@@ -166,10 +165,6 @@ namespace BattleK.Scripts.Manager
                     BaseHp = finalStat.MaxHp,
                     BaseAgi = stat.BaseAgi,
                     BaseEvasionRate = finalStat.EvasionRate,
-                    BaseAttackSpeed = finalStat.AttackSpeed,
-                    BaseSkillPoint = finalStat.SkillPoint,
-                    BaseMoveSpeed = finalStat.MoveSpeed,
-                    BaseAttackDelay = finalStat.AttackDelay,
                     CurrentInjury = stat.CurrentInjury
                 };
 
@@ -189,7 +184,7 @@ namespace BattleK.Scripts.Manager
 
             foreach (var stat in src)
             {
-                var finalStat = StatCalculator.Calculate(stat, _correctionTable);
+                var finalStat = StatCalculator.Calculate(stat, _correctionTable, _classBaseStatTable);
 
                 UnitStatRepository.Set(stat.UnitId, stat.UnitName, stat.Rarity, stat.Level, stat.UnitClass, null, finalStat);
 
@@ -205,10 +200,6 @@ namespace BattleK.Scripts.Manager
                     BaseHp = finalStat.MaxHp,
                     BaseAgi = stat.BaseAgi,
                     BaseEvasionRate = finalStat.EvasionRate,
-                    BaseAttackSpeed = finalStat.AttackSpeed,
-                    BaseSkillPoint = finalStat.SkillPoint,
-                    BaseMoveSpeed = finalStat.MoveSpeed,
-                    BaseAttackDelay = finalStat.AttackDelay,
                     CurrentInjury = stat.CurrentInjury
                 });
             }

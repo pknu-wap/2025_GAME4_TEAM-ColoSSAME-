@@ -16,6 +16,7 @@ namespace BattleK.Scripts.Manager
         private readonly UnitMover _mover;
         private readonly AI_Manager _aiManager;
         private readonly StatCorrectionTable _correctionTable;
+        private readonly ClassBaseStatTable _classBaseStatTable;
         private readonly string _playerLayerName;
         private readonly string _enemyLayerName;
 
@@ -28,6 +29,7 @@ namespace BattleK.Scripts.Manager
             UnitMover mover,
             AI_Manager aiManager,
             StatCorrectionTable correctionTable,
+            ClassBaseStatTable classBaseStatTable,
             string playerLayerName,
             string enemyLayerName)
         {
@@ -36,6 +38,7 @@ namespace BattleK.Scripts.Manager
             _mover = mover;
             _aiManager = aiManager;
             _correctionTable = correctionTable;
+            _classBaseStatTable = classBaseStatTable;
             _playerLayerName = playerLayerName;
             _enemyLayerName = enemyLayerName;
         }
@@ -80,7 +83,7 @@ namespace BattleK.Scripts.Manager
             var baseStat = UnitBaseStatProvider.Get(req.logicalKey, req.isPlayer);
             if (baseStat != null)
             {
-                StatCalculator.ApplyTo(aiCore.runtimeStat, baseStat, _correctionTable);
+                StatCalculator.ApplyTo(aiCore.runtimeStat, baseStat, _correctionTable, _classBaseStatTable);
                 return;
             }
         }

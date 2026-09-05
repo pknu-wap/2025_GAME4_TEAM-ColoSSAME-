@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
+using Shop.Item;
 
 internal sealed class BattleItemEffectRegistry
 {

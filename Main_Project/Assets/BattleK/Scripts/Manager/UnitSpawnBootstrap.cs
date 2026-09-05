@@ -26,6 +26,9 @@ namespace BattleK.Scripts.Manager
         [Header("스탯 계산")]
         [SerializeField] private StatCorrectionTable correctionTable;
 
+        [Tooltip("직업(UnitClass)별 MoveSpeed/AttackSpeed/AttackDelay 고정값 테이블")]
+        [SerializeField] private ClassBaseStatTable classBaseStatTable;
+
         [Header("배틀 유닛 루트")]
         [SerializeField] private Transform _playerUnitsRoot;
         [SerializeField] private Transform _enemyUnitsRoot;
@@ -66,7 +69,7 @@ namespace BattleK.Scripts.Manager
             _loader = new AddressableUnitLoader();
             _mover = new UnitMover();
             _presentation = new UnitPresentationSetup(playerLayerName, enemyLayerName);
-            _spawner = new UnitSpawner(_loader, _presentation, _mover, aiManager, correctionTable, playerLayerName, enemyLayerName);
+            _spawner = new UnitSpawner(_loader, _presentation, _mover, aiManager, correctionTable, classBaseStatTable, playerLayerName, enemyLayerName);
             _coordinator = new SpawnCompletionCoordinator(_spawner, hpManager, statWindowManager);
 
             _requestBuilder = new BattleFormationRequestBuilder(

@@ -1,150 +1,169 @@
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
-using BattleK.Scripts.Data.ClassInfo;
+using BattleK.Scripts.AI.CCState;
 using BattleK.Scripts.Data.Type.AIDataType.CC;
 using UnityEngine;
 
-internal sealed class BattleItemStatApplier
+namespace Shop.Item.Runner.Battle.Stat
 {
-    private readonly Dictionary<StaticAICore, BattleUnitStatSnapshot> statSnapshots = new();
-
-    public void ClearSnapshots()
+    internal sealed class BattleItemStatApplier
     {
-        statSnapshots.Clear();
-    }
-
-    public void RestoreOriginalStats()
-    {
-        foreach (KeyValuePair<StaticAICore, BattleUnitStatSnapshot> pair in statSnapshots)
+        private readonly struct FlatRecord
         {
-            StaticAICore unit = pair.Key;
-            if (!unit || unit.runtimeStat == null) continue;
+            public readonly StaticAICore Target;
+            public readonly ItemEffectDefinition Effect;
+            public readonly object Source;
 
-            pair.Value.Restore(unit.runtimeStat);
-            RefreshUnit(unit);
-        }
-    }
-
-    public bool ApplyFlatStat(StaticAICore target, ItemEffectDefinition effect)
-    {
-        if (!target || target.runtimeStat == null) return false;
-
-        int amount = Mathf.RoundToInt(effect.flatValue);
-        if (amount == 0) return false;
-
-        CaptureOriginal(target);
-
-        UnitRuntimeStat runtimeStat = target.runtimeStat;
-        switch (effect.statType)
-        {
-            case ItemStatType.MaxHp:
-                runtimeStat.MaxHP += amount;
-                runtimeStat.CurrentHP = Mathf.Clamp(runtimeStat.CurrentHP + amount, 1, runtimeStat.MaxHP);
-                return true;
-
-            case ItemStatType.Attack:
-                runtimeStat.AttackDamage += amount;
-                return true;
-
-            case ItemStatType.Defense:
-                runtimeStat.Defense += amount;
-                return true;
-
-            case ItemStatType.Agility:
-                runtimeStat.EvasionRate = Mathf.Clamp(runtimeStat.EvasionRate + amount * 0.03f, 0f, 0.35f);
-                runtimeStat.AttackSpeed += amount * 1.05f;
-                return true;
+            public FlatRecord(StaticAICore target, ItemEffectDefinition effect, object source)
+            {
+                Target = target;
+                Effect = effect;
+                Source = source;
+            }
         }
 
-        return false;
-    }
+        private readonly List<FlatRecord> _appliedFlatRecords = new();
 
-    public void ApplyPercentStat(
-        StaticAICore target,
-        BattleItemEffectRuntime runtime,
-        float percent,
-        int stackCount)
-    {
-        if (!target || target.runtimeStat == null) return;
-
-        CaptureOriginal(target);
-
-        int safeStackCount = Mathf.Max(1, stackCount);
-        float multiplier = 1f + percent * safeStackCount;
-
-        switch (runtime.Effect.statType)
+        public void ClearRecords()
         {
-            case ItemStatType.MaxHp:
-                ApplyMaxHpPercent(target, percent * safeStackCount);
-                break;
-
-            case ItemStatType.Attack:
-                target.SetStatMultiplier(StatusType.AttackDamageMultiplier, runtime, multiplier);
-                break;
-
-            case ItemStatType.Defense:
-                target.SetStatMultiplier(StatusType.DefenseMultiplier, runtime, multiplier);
-                break;
-
-            case ItemStatType.Agility:
-                target.SetStatMultiplier(StatusType.AttackSpeedMultiplier, runtime, multiplier);
-                target.SetStatMultiplier(StatusType.EvasionRateMultiplier, runtime, multiplier);
-                break;
+            _appliedFlatRecords.Clear();
         }
-    }
 
-    public void RemovePercentStat(StaticAICore target, BattleItemEffectRuntime runtime)
-    {
-        if (!target) return;
-
-        switch (runtime.Effect.statType)
+        public void RemoveAllAppliedEffects()
         {
-            case ItemStatType.Attack:
-                target.RemoveStatMultiplier(StatusType.AttackDamageMultiplier, runtime);
-                break;
-
-            case ItemStatType.Defense:
-                target.RemoveStatMultiplier(StatusType.DefenseMultiplier, runtime);
-                break;
-
-            case ItemStatType.Agility:
-                target.RemoveStatMultiplier(StatusType.AttackSpeedMultiplier, runtime);
-                target.RemoveStatMultiplier(StatusType.EvasionRateMultiplier, runtime);
-                break;
+            foreach (var record in _appliedFlatRecords)
+            {
+                if (!record.Target) continue;
+                RemoveFlatStat(record.Target, record.Effect, record.Source);
+            }
+            _appliedFlatRecords.Clear();
         }
-    }
 
-    public void RefreshUnit(StaticAICore unit)
-    {
-        if (!unit || unit.runtimeStat == null) return;
-
-        unit.SetInitialStats();
-        UpdateHpBar(unit);
-    }
-
-    public static void UpdateHpBar(StaticAICore unit)
-    {
-        if (unit && unit.HPBar)
+        public bool ApplyFlatStat(StaticAICore target, ItemEffectDefinition effect, object source)
         {
-            unit.HPBar.UpdateHPBar();
+            if (!target || target.runtimeStat == null) return false;
+
+            var amount = effect.flatValue;
+            if (amount == 0f) return false;
+
+            var label = effect.DisplayName;
+
+            switch (effect.statType)
+            {
+                case ItemStatType.MaxHp:
+                    target.SetFlatModifier(FlatStatusType.MaxHpFlat, source, StatSourceCategory.Item, label, amount);
+                    break;
+
+                case ItemStatType.Attack:
+                    target.SetFlatModifier(FlatStatusType.AttackDamageFlat, source, StatSourceCategory.Item, label, amount);
+                    break;
+
+                case ItemStatType.Defense:
+                    target.SetFlatModifier(FlatStatusType.DefenseFlat, source, StatSourceCategory.Item, label, amount);
+                    break;
+
+                case ItemStatType.Agility:
+                    target.SetFlatModifier(FlatStatusType.EvasionRateFlat, source, StatSourceCategory.Item, label, amount * 0.03f);
+                    target.SetFlatModifier(FlatStatusType.AttackSpeedFlat, source, StatSourceCategory.Item, label, amount * 1.05f);
+                    break;
+
+                default:
+                    return false;
+            }
+
+            _appliedFlatRecords.Add(new FlatRecord(target, effect, source));
+            return true;
         }
-    }
 
-    private void CaptureOriginal(StaticAICore unit)
-    {
-        if (!unit || unit.runtimeStat == null) return;
-        if (statSnapshots.ContainsKey(unit)) return;
+        public void RemoveFlatStat(StaticAICore target, ItemEffectDefinition effect, object source)
+        {
+            if (!target) return;
 
-        statSnapshots.Add(unit, new BattleUnitStatSnapshot(unit.runtimeStat));
-    }
+            switch (effect.statType)
+            {
+                case ItemStatType.MaxHp:
+                    target.RemoveFlatModifier(FlatStatusType.MaxHpFlat, source);
+                    break;
 
-    private void ApplyMaxHpPercent(StaticAICore target, float percent)
-    {
-        int increase = Mathf.RoundToInt(target.runtimeStat.MaxHP * percent);
-        if (increase == 0) return;
+                case ItemStatType.Attack:
+                    target.RemoveFlatModifier(FlatStatusType.AttackDamageFlat, source);
+                    break;
 
-        target.runtimeStat.MaxHP += increase;
-        target.runtimeStat.CurrentHP = Mathf.Clamp(target.runtimeStat.CurrentHP + increase, 1, target.runtimeStat.MaxHP);
-        RefreshUnit(target);
+                case ItemStatType.Defense:
+                    target.RemoveFlatModifier(FlatStatusType.DefenseFlat, source);
+                    break;
+
+                case ItemStatType.Agility:
+                    target.RemoveFlatModifier(FlatStatusType.EvasionRateFlat, source);
+                    target.RemoveFlatModifier(FlatStatusType.AttackSpeedFlat, source);
+                    break;
+            }
+        }
+
+        public void ApplyPercentStat(
+            StaticAICore target,
+            BattleItemEffectRuntime runtime,
+            float percent,
+            int stackCount)
+        {
+            if (!target || target.runtimeStat == null) return;
+
+            var safeStackCount = Mathf.Max(1, stackCount);
+            var delta = percent * safeStackCount;
+            var label = runtime.Effect.DisplayName;
+
+            switch (runtime.Effect.statType)
+            {
+                case ItemStatType.MaxHp:
+                    target.SetFlatModifier(FlatStatusType.MaxHpPercent, runtime, StatSourceCategory.Item, label, delta);
+                    break;
+
+                case ItemStatType.Attack:
+                    target.SetStatMultiplier(StatusType.AttackDamageMultiplier, runtime, StatSourceCategory.Item, label, delta);
+                    break;
+
+                case ItemStatType.Defense:
+                    target.SetStatMultiplier(StatusType.DefenseMultiplier, runtime, StatSourceCategory.Item, label, delta);
+                    break;
+
+                case ItemStatType.Agility:
+                    target.SetStatMultiplier(StatusType.AttackSpeedMultiplier, runtime, StatSourceCategory.Item, label, delta);
+                    target.SetStatMultiplier(StatusType.EvasionRateMultiplier, runtime, StatSourceCategory.Item, label, delta);
+                    break;
+            }
+        }
+
+        public void RemovePercentStat(StaticAICore target, BattleItemEffectRuntime runtime)
+        {
+            if (!target) return;
+
+            switch (runtime.Effect.statType)
+            {
+                case ItemStatType.MaxHp:
+                    target.RemoveFlatModifier(FlatStatusType.MaxHpPercent, runtime);
+                    break;
+
+                case ItemStatType.Attack:
+                    target.RemoveStatMultiplier(StatusType.AttackDamageMultiplier, runtime);
+                    break;
+
+                case ItemStatType.Defense:
+                    target.RemoveStatMultiplier(StatusType.DefenseMultiplier, runtime);
+                    break;
+
+                case ItemStatType.Agility:
+                    target.RemoveStatMultiplier(StatusType.AttackSpeedMultiplier, runtime);
+                    target.RemoveStatMultiplier(StatusType.EvasionRateMultiplier, runtime);
+                    break;
+            }
+        }
+
+        public static void UpdateHpBar(StaticAICore unit)
+        {
+            if (unit && unit.HPBar)
+            {
+                unit.HPBar.UpdateHPBar();
+            }
+        }
     }
 }

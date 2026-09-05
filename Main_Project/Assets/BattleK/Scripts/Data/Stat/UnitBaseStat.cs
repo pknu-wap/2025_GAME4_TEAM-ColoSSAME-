@@ -11,34 +11,9 @@ namespace BattleK.Scripts.Data.Stat
 
         public int BaseAtk, BaseDef, BaseHp, BaseAgi;
         public float BaseEvasionRate;
-        public float BaseAttackSpeed;
-
-        public int BaseSkillPoint;
-        public float BaseMoveSpeed;
-        public float BaseAttackDelay;
 
         public InjuryStatus CurrentInjury;
-        public static UnitBaseStat FromUnitStat(UnitRuntimeStat runtimeStat, int level, int rarity, int baseAgi, string unitId = null)
-        {
-            return new UnitBaseStat
-            {
-                UnitId = unitId ?? runtimeStat.Name,
-                UnitName = runtimeStat.Name,
-                UnitClass = runtimeStat.UnitClass,
-                Level = level,
-                Rarity = rarity,
-                BaseAtk = runtimeStat.AttackDamage,
-                BaseDef = runtimeStat.Defense,
-                BaseHp = runtimeStat.MaxHP,
-                BaseAgi = baseAgi,
-                BaseEvasionRate = runtimeStat.EvasionRate,
-                BaseAttackSpeed = runtimeStat.AttackSpeed,
-                BaseSkillPoint = runtimeStat.SkillPoint,
-                BaseMoveSpeed = runtimeStat.MoveSpeed,
-                BaseAttackDelay = runtimeStat.AttackDelay,
-                CurrentInjury = runtimeStat.InjuryLevel
-            };
-        }
+        
         public static UnitBaseStat FromFamilyAndSave(CharacterData family, Unit savedUnit)
         {
             var level = savedUnit != null && savedUnit.Level > 0 ? savedUnit.Level : 1;
