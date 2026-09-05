@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using BattleK.Scripts.Data;
+using BattleK.Scripts.Data.Stat;
 using BattleK.Scripts.Data.Type;
 using BattleK.Scripts.HP;
 using BattleK.Scripts.Manager.Strategy.Runtime;
@@ -18,12 +20,16 @@ namespace BattleK.Scripts.Manager
 
         [Header("Manager")]
         [SerializeField] private AI_Manager aiManager;
-        [SerializeField] private FamilyStatsCollector statsCollector;
-        [SerializeField] private CalculateManager calculateManager;
         [SerializeField] private HPManager hpManager;
         [SerializeField] private StatWindowManager statWindowManager;
         [SerializeField] private FormationManager formationManager;
-        [SerializeField] private StatAdaptManager _statAdaptManager;
+        [SerializeField] private CalculateManager calculateManager;
+
+        [Header("스탯 계산")]
+        [SerializeField] private StatCorrectionTable correctionTable;
+
+        [Tooltip("직업(UnitClass)별 MoveSpeed/AttackSpeed/AttackDelay 고정값 테이블")]
+        [SerializeField] private ClassBaseStatTable classBaseStatTable;
 
         [Header("배틀 유닛 루트")]
         [SerializeField] private Transform _playerUnitsRoot;
@@ -65,14 +71,13 @@ namespace BattleK.Scripts.Manager
             _loader = new AddressableUnitLoader();
             _mover = new UnitMover();
             _presentation = new UnitPresentationSetup(playerLayerName, enemyLayerName);
-            _spawner = new UnitSpawner(_loader, _presentation, _mover, aiManager);
-            _coordinator = new SpawnCompletionCoordinator(_spawner, aiManager, statsCollector, calculateManager, hpManager, statWindowManager, _statAdaptManager);
+            _spawner = new UnitSpawner(_loader, _presentation, _mover, aiManager, correctionTable, classBaseStatTable, playerLayerName, enemyLayerName);
+            _coordinator = new SpawnCompletionCoordinator(_spawner, hpManager, statWindowManager, calculateManager, this);
 
             _requestBuilder = new BattleFormationRequestBuilder(
                 formationManager, _addressBooks,
                 PlayerUiScale, EnemyUiScale, PlayerOffset, EnemyOffset,
                 PlayerAnimConfig, EnemyAnimConfig);
-
 
             if (_startBattleButton)
             {
@@ -106,7 +111,10 @@ namespace BattleK.Scripts.Manager
             _requestBuilder.BuildPlayerRequests(_playerSlots, _playerBookIndex, requests, assetRefs);
 
             if (EnemyUseFactionStrategy && EnemyFaction[_enemyBookIndex])
-                _requestBuilder.BuildEnemyRequests(_enemyBookIndex, EnemyFaction, _playerUnitsRoot, _enemyUnitsRoot, requests, assetRefs);
+            {
+                var allowedEnemyIds = GetCurrentEnemyRosterIds();
+                _requestBuilder.BuildEnemyRequests(_enemyBookIndex, EnemyFaction, _playerUnitsRoot, _enemyUnitsRoot, requests, assetRefs, allowedEnemyIds);
+            }
 
             _spawner.BeginBatch(requests.Count);
             for (var i = 0; i < requests.Count; i++)
@@ -115,6 +123,12 @@ namespace BattleK.Scripts.Manager
                 var root = req.isPlayer ? _playerUnitsRoot : _enemyUnitsRoot;
                 StartCoroutine(_spawner.Spawn(req, assetRefs[i], root, null));
             }
+        }
+        private List<string> GetCurrentEnemyRosterIds()
+        {
+            var teamId = LeagueManager.Instance.league.currentEnemyTeamId;
+            var team = EnemySaveManager.Instance.GetTeam(teamId);
+            return team?.units?.Select(u => u.Id).ToList() ?? new List<string>();
         }
     }
 }

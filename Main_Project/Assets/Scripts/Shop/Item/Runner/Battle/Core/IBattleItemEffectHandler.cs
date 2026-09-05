@@ -1,3 +1,5 @@
+using Shop.Item;
+
 internal interface IBattleItemEffectHandler
 {
     ItemEffectKind EffectKind { get; }

@@ -1,4 +1,3 @@
-using System.Collections;
 using BattleK.Scripts.HP;
 using BattleK.Scripts.UI;
 using UnityEngine;
@@ -7,51 +6,42 @@ namespace BattleK.Scripts.Manager
 {
     public class SpawnCompletionCoordinator
     {
-        private readonly AI_Manager _aiManager;
-        private readonly FamilyStatsCollector _statsCollector;
-        private readonly CalculateManager _calculateManager;
+        private readonly UnitSpawner _spawner;
         private readonly HPManager _hpManager;
         private readonly StatWindowManager _statWindowManager;
-        private readonly StatAdaptManager _statAdaptManager;
-        private readonly UnitSpawner _spawner;
+        private readonly CalculateManager _calculateManager;
+        private readonly MonoBehaviour _coroutineRunner;
 
         public SpawnCompletionCoordinator(
             UnitSpawner spawner,
-            AI_Manager aiManager,
-            FamilyStatsCollector statsCollector,
-            CalculateManager calculateManager,
             HPManager hpManager,
             StatWindowManager statWindowManager,
-            StatAdaptManager statAdaptManager)
+            CalculateManager calculateManager,
+            MonoBehaviour coroutineRunner)
         {
             _spawner = spawner;
-            _aiManager = aiManager;
-            _statsCollector = statsCollector;
-            _calculateManager = calculateManager;
             _hpManager = hpManager;
             _statWindowManager = statWindowManager;
-            _statAdaptManager = statAdaptManager;
+            _calculateManager = calculateManager;
+            _coroutineRunner = coroutineRunner;
 
             spawner.OnAllSpawnsComplete += HandleAllSpawnsComplete;
         }
 
         private void HandleAllSpawnsComplete()
         {
-            CoroutineRunner.Run(NotifyManagersRoutine());
+            _coroutineRunner.StartCoroutine(RunAfterStatsReady());
         }
 
-        private IEnumerator NotifyManagersRoutine()
+        private System.Collections.IEnumerator RunAfterStatsReady()
         {
-            yield return new WaitUntil(() => _aiManager.playerUnits.Count > 0 && _aiManager.enemyUnits.Count > 0);
+            yield return _coroutineRunner.StartCoroutine(_calculateManager.RefreshFromCollectorAndWait());
 
-            _statAdaptManager.ApplyToAllUnitsAndInitialize();
-            _statsCollector.CollectFromBothTeams();
-            yield return _calculateManager.RefreshFromCollectorAndWait();
             _hpManager.setUnits();
             _statWindowManager.SetStrategyList();
             _hpManager.ApplyHpToHPBar();
         }
-        
+
         public void Dispose()
         {
             _spawner.OnAllSpawnsComplete -= HandleAllSpawnsComplete;

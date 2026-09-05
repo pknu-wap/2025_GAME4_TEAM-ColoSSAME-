@@ -30,7 +30,7 @@ namespace BattleK.Scripts.AI.StaticScoreState.ActionStates
             if (!_ai.IsAttackReady) return false;
             
             var distSq = (_ai.Target.position - _ai.transform.position).sqrMagnitude;
-            var range = _ai.Stat.AttackRange + 0.1f;
+            var range = _ai.runtimeStat.AttackRange + 0.1f;
             return distSq <= range * range;
         }
         

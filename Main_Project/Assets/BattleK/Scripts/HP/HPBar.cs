@@ -36,8 +36,8 @@ namespace BattleK.Scripts.HP
 
             if (shieldFillImage) shieldFillImage.fillAmount = 0f;
 
-            if (OwnerAi && OwnerAi.Stat.MaxHP > 0)
-                hpSlider.value = Mathf.Clamp01((float)OwnerAi.Stat.CurrentHP / OwnerAi.Stat.MaxHP);
+            if (OwnerAi && OwnerAi.runtimeStat.MaxHP > 0)
+                hpSlider.value = Mathf.Clamp01((float)OwnerAi.runtimeStat.CurrentHP / OwnerAi.runtimeStat.MaxHP);
         }
 
         private void LateUpdate()
@@ -58,7 +58,7 @@ namespace BattleK.Scripts.HP
         public void UpdateHPBar()
         {
             if (!hpSlider || !OwnerAi) return;
-            var v = (OwnerAi.Stat.MaxHP <= 0) ? 0f : Mathf.Clamp01((float)OwnerAi.Stat.CurrentHP / OwnerAi.Stat.MaxHP);
+            var v = (OwnerAi.runtimeStat.MaxHP <= 0) ? 0f : Mathf.Clamp01((float)OwnerAi.runtimeStat.CurrentHP / OwnerAi.runtimeStat.MaxHP);
             hpSlider.value = v;
         }
 

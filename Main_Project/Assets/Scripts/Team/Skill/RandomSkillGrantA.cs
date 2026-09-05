@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using BattleK.Scripts.AI.Skill.Base;
+using BattleK.Scripts.Data.ClassInfo;
+using BattleK.Scripts.Data.Stat;
+
 //randomskillgrant 수정본
 
 public class RandomSkillGrantA : MonoBehaviour
@@ -12,22 +15,22 @@ public class RandomSkillGrantA : MonoBehaviour
     [SerializeField] private List<SkillSO> thiefSkill;
     [SerializeField] private List<SkillSO> bufferSkill;
 
-    private Dictionary<string, List<SkillSO>> skillPools;
+    private Dictionary<UnitClass, List<SkillSO>> skillPools;
 
     private void Awake()
     {
-        skillPools = new Dictionary<string, List<SkillSO>>
+        skillPools = new Dictionary<UnitClass, List<SkillSO>>
         {
-            { "군단병", tankSkill },
-            { "척후병", archerSkill },
-            { "주술사", mageSkill },
-            { "검투사", swordSkill },
-            { "암살자", thiefSkill },
-            { "사제", bufferSkill }
+            { UnitClass.Shieldman, tankSkill },
+            { UnitClass.Archer, archerSkill },
+            { UnitClass.Mage, mageSkill },
+            { UnitClass.Swordsman, swordSkill },
+            { UnitClass.Thief, thiefSkill },
+            { UnitClass.Priest, bufferSkill }
         };
     }
 
-    public List<SkillSO> GetAllSkills(string unitClass)
+    public List<SkillSO> GetAllSkills(UnitClass unitClass)
     {
         if (skillPools.TryGetValue(unitClass, out List<SkillSO> pool))
         {
@@ -38,7 +41,7 @@ public class RandomSkillGrantA : MonoBehaviour
     }
 
     // 3성 / 4성 선택지
-    public List<SkillSO> GetSkillChoices(string unitClass, int rarity)
+    public List<SkillSO> GetSkillChoices(UnitClass unitClass, int rarity)
     {
         List<SkillSO> result = new();
 
@@ -59,7 +62,7 @@ public class RandomSkillGrantA : MonoBehaviour
         return result;
     }
 
-    public SkillSO GetUltimateSkill(string unitClass)
+    public SkillSO GetUltimateSkill(UnitClass unitClass)
     {
         if (skillPools.TryGetValue(unitClass, out List<SkillSO> pool) &&
             pool.Count >= 5)

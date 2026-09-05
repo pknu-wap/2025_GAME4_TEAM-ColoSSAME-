@@ -20,7 +20,7 @@ namespace BattleK.Scripts.AI.StaticScoreState.Targeting
 
         public Transform FindTarget(StaticAICore ai)
         {
-            var size = Physics2D.OverlapCircleNonAlloc(ai.transform.position, ai.Stat.SightRange, _results, _targetLayer);
+            var size = Physics2D.OverlapCircleNonAlloc(ai.transform.position, ai.runtimeStat.SightRange, _results, _targetLayer);
             var myPos = ai.transform.position;
 
             foreach (var targetClass in _priorityList)
@@ -34,7 +34,7 @@ namespace BattleK.Scripts.AI.StaticScoreState.Targeting
                     if (col.transform == ai.transform) continue;
 
                     var targetAI = col.GetComponent<StaticAICore>();
-                    if (!targetAI || targetAI.IsDead || targetAI.Stat.UnitClass != targetClass) continue;
+                    if (!targetAI || targetAI.IsDead || targetAI.runtimeStat.UnitClass != targetClass) continue;
 
                     var distSqr = (col.transform.position - myPos).sqrMagnitude;
                     if (!(distSqr < closestDistSqr)) continue;

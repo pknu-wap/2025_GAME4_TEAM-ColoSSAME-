@@ -79,7 +79,7 @@ namespace BattleK.Scripts.CharacterCreator
             var aiCore = parent.GetComponent<StaticAICore>();
             var statusManager = parent.GetComponent<StatusEffectManager>();
             
-            aiCore.Stat = new UnitStat
+            aiCore.runtimeStat = new UnitRuntimeStat
             {
                 IsRanged = isRanged,
                 UnitClass = unitClassName,
@@ -92,7 +92,7 @@ namespace BattleK.Scripts.CharacterCreator
 
             statusManager._aiCore = aiCore;
             
-            if(aiCore.Stat.UnitClass is UnitClass.Archer or UnitClass.Mage or UnitClass.Priest)  aiCore.Stat.IsRanged = true;
+            if(aiCore.runtimeStat.UnitClass is UnitClass.Archer or UnitClass.Mage or UnitClass.Priest)  aiCore.runtimeStat.IsRanged = true;
             
             aiCore.AttackIndex = unitClassName switch
             {

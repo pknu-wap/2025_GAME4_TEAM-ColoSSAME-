@@ -1,5 +1,6 @@
 using BattleK.Scripts.AI;
 using BattleK.Scripts.AI.Skill.Base.Logic.LogicBase;
+using Shop.Item.Runner.Battle.Core;
 using UnityEngine;
 
 namespace BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics
@@ -23,11 +24,11 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics
             // 공격력 계산
             float attackValue =
                 owner.CurrentAttackDamage *
-                (BaseMultiplier + SkillPointRatio * owner.Stat.SkillPoint);
+                (BaseMultiplier + SkillPointRatio * owner.runtimeStat.SkillPoint);
 
             // 방어력 감소 계산
             float defenseReduce =
-                target.Stat.Defense * DefenseRatio;
+                target.runtimeStat.Defense * DefenseRatio;
 
             // 최종 데미지
             int finalDamage =

@@ -1,48 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using BattleK.Scripts.AI.Skill.Base;
+using BattleK.Scripts.Data.Stat;
 using UnityEngine;
 using UnityEngine.Serialization;
 
 namespace BattleK.Scripts.Data.ClassInfo
 {
-    public enum UnitClass
-    {
-        Swordsman,
-        Archer,
-        Mage,
-        Axeman,
-        Spearman,
-        Thief,
-        Priest,
-        Shieldman
-    }
-
-    public enum UnitAttackDelay
-    {
-        Swordsman = 25,
-        Archer = 50,
-        Mage = 25,
-        Axeman = 43,
-        Spearman = 30,
-        Thief = 25
-    }
-
-    public enum TargetStrategy
-    {
-        NearestTarget,
-        NearestTargetWithClass
-    }
-
-    public enum InjuryStatus
-    {
-        Healthy,
-        Injury,
-        FatalInjury
-    }
-
     [System.Serializable]
-    public class UnitStat
+    public class UnitRuntimeStat
     {
         public string Name;
         public Sprite CharacterImage;
@@ -77,34 +43,35 @@ namespace BattleK.Scripts.Data.ClassInfo
         public float MoveSpeed;
         public float EvasionRate;
         
-        public void LoadEquipped(UnitStat unit, List<string> savedIds)
+        public void LoadEquipped(UnitRuntimeStat unitRuntime, List<UnitSkill> savedIds)
         {
-            if (unit.AllPossibleSkills == null || unit.AllPossibleSkills.Count == 0)
+            if (unitRuntime.AllPossibleSkills == null || unitRuntime.AllPossibleSkills.Count == 0)
             {
-                unit.EquippedSkills = new List<SkillSO>();
+                unitRuntime.EquippedSkills = new List<SkillSO>();
                 return;
             }
 
-            var ids = savedIds ?? new List<string>();
+            var ids = savedIds ?? new List<UnitSkill>();
+            var equippedNames = new HashSet<string>(ids.Select(u => u.skillName));
 
-            unit.EquippedSkills = unit.AllPossibleSkills
-                .Where(s => ids.Contains(s.SkillName))
+            unitRuntime.EquippedSkills = unitRuntime.AllPossibleSkills
+                .Where(s => equippedNames.Contains(s.SkillName))
                 .ToList();
         }
 
         public void SaveTo(Unit unit)
         {
             unit.currentInjury = InjuryLevel;
-            // unit.equippedItemId = Item != null ? Item.ItemId : null;
-            unit.selectedSkills = EquippedSkills?.Select(s => s.SkillName).ToList() ?? new List<string>();
+            unit.equippedItemId = Item != null ? Item.id : -1;
+            unit.EquippedSkills = EquippedSkills?.Select(s => new UnitSkill(s.SkillName, s.SkillLevel)).ToList() ?? new List<UnitSkill>();
         }
 
         public void LoadFrom(Unit unit, ItemDatabase itemDb)
         {
             if (unit == null) return;
             InjuryLevel = unit.currentInjury;
-            // Item = string.IsNullOrEmpty(unit.equippedItemId) ? null : itemDb.GetById(unit.equippedItemId);
-            LoadEquipped(this, unit.selectedSkills);
+            Item = itemDb?.GetById(unit.equippedItemId);
+            LoadEquipped(this, unit.EquippedSkills);
         }
     }
 }

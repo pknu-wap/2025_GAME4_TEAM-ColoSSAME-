@@ -1,5 +1,6 @@
 using BattleK.Scripts.AI;
 using BattleK.Scripts.AI.Skill.Base.Logic.LogicBase;
+using Shop.Item.Runner.Battle.Core;
 using UnityEngine;
 
 namespace BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics
@@ -12,7 +13,7 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics
         {
             if (!target || target == owner) return;
             if (((1 << target.gameObject.layer) & owner.TargetLayer) == 0) return;
-            var finalDamage = Mathf.RoundToInt(target.Stat.MaxHP * BaseDamageRatio + SkillPointBonusRatio * owner.Stat.SkillPoint);
+            var finalDamage = Mathf.RoundToInt(target.runtimeStat.MaxHP * BaseDamageRatio + SkillPointBonusRatio * owner.runtimeStat.SkillPoint);
             target.OnTakeDamage(finalDamage, owner, true);
             UnityEngine.Debug.Log($"[HealthPerDamage] {target.name}에게 {finalDamage} 데미지 적용!");
         }

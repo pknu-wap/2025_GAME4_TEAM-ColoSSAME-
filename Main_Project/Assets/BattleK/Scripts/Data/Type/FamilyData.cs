@@ -5,37 +5,6 @@ using UnityEngine.Serialization;
 
 namespace BattleK.Scripts.Data.Type
 {
-    [System.Serializable]
-    public class CharacterStatsRow
-    {
-        public string Unit_ID;
-        public string Unit_Name;
-        public UnitClass UnitClass;
-        public int ATK, DEF, HP, AGI;
-        public int Tier;
-        public int Level;
-        public InjuryStatus CurrentInjury;
-    }
-    public class FamilyJson
-    {
-        public List<FamilyCharacter> Characters;
-    }
-    public class FamilyCharacter
-    {
-        public string Unit_ID;
-        public string Unit_Name;
-        public int Tier;
-        public int Level;
-        public StatDistribution Stat_Distribution;
-    }
-    public class StatDistribution
-    {
-        public int ATK;
-        public int DEF;
-        public int HP;
-        public int AGI;
-    }
-
     public enum FamilyName
     {
         Astra,

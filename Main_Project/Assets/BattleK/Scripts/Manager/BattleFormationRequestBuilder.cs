@@ -78,12 +78,18 @@ namespace BattleK.Scripts.Manager
             }
         }
 
+        /// <summary>
+        /// 적 팀 스폰 요청을 만듭니다.
+        /// allowedEnemyIds를 넘기면 EnemyFactionConfig.PickRosterKeys가 저장 로스터에 존재하는 유닛만
+        /// 후보로 허용하도록 교차 검증하여, 저장 데이터에 없는 유닛이 소환되는 것을 방지합니다.
+        /// </summary>
         public void BuildEnemyRequests(int enemyBookIndex, List<EnemyFactionConfig> enemyFaction,
             Transform playerRoot, Transform enemyRoot,
-            List<UnitSpawnRequest> requests, List<AssetReferenceGameObject> assetRefs)
+            List<UnitSpawnRequest> requests, List<AssetReferenceGameObject> assetRefs,
+            IReadOnlyCollection<string> allowedEnemyIds = null)
         {
             var factionConfig = enemyFaction[enemyBookIndex];
-            var keys = factionConfig.PickRosterKeys();
+            var keys = factionConfig.PickRosterKeys(allowedEnemyIds);
             if (keys == null || keys.Count == 0) return;
 
             List<Vector3> positions;

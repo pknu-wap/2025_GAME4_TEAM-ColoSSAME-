@@ -14,7 +14,7 @@ namespace BattleK.Scripts.AI.StaticScoreState.Targeting
 
         public Transform FindTarget(StaticAICore ai)
         {
-            var size = Physics2D.OverlapCircleNonAlloc(ai.transform.position, ai.Stat.SightRange, _results, ai.TargetLayer);
+            var size = Physics2D.OverlapCircleNonAlloc(ai.transform.position, ai.runtimeStat.SightRange, _results, ai.TargetLayer);
 
             Transform bestTarget = null;
             var closestDistSqr = Mathf.Infinity;

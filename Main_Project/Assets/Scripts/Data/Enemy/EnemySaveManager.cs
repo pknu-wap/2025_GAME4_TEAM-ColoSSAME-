@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using BattleK.Scripts.Data.Stat;
 using UnityEngine;
 
 // 적 팀 로스터/성장 상태를 저장하는 순수 C# 싱글턴.
@@ -175,7 +176,7 @@ public class EnemySaveManager
 
         foreach (var team in _teamMap.Values)
         {
-            var unit = team.units.Find(u => u.unitId == unitId);
+            var unit = team.units.Find(u => u.Id == unitId);
             if (unit != null) { modify(unit); return; }  
         }
     }

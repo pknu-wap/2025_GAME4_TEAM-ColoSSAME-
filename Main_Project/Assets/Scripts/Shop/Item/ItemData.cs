@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Shop.Item;
 using UnityEngine;
 using UnityEngine.Serialization;
 

@@ -1,6 +1,6 @@
 using UnityEngine;
 using TMPro;
-using BattleK.Scripts.Data.Type;
+using BattleK.Scripts.Data.Stat;
 using BattleK.Scripts.Manager;
 
 public class PlayerStatsUI : MonoBehaviour
@@ -9,7 +9,6 @@ public class PlayerStatsUI : MonoBehaviour
     [SerializeField] private CalculateManager calculateManager;
 
     [SerializeField] private TextMeshProUGUI[] statText;
-
 
     public void Refresh()
     {
@@ -25,13 +24,13 @@ public class PlayerStatsUI : MonoBehaviour
                 continue;
             }
 
-            CharacterStatsRow stat = stats[i];
+            UnitBaseStat stat = stats[i];
 
             statText[i].text =
-                $"ATK : {stat.ATK}\n" +
-                $"DEF : {stat.DEF}\n" +
-                $"HP : {stat.HP}\n" +
-                $"AGI : {stat.AGI}";
+                $"ATK : {stat.BaseAtk}\n" +
+                $"DEF : {stat.BaseDef}\n" +
+                $"HP : {stat.BaseHp}\n" +
+                $"AGI : {stat.BaseAgi}";
         }
     }
 }

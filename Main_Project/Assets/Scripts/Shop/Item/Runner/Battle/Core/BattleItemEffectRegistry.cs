@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
+using Shop.Item;
 
 internal sealed class BattleItemEffectRegistry
 {
@@ -16,10 +17,10 @@ internal sealed class BattleItemEffectRegistry
 
     public bool RegisterUnit(StaticAICore unit)
     {
-        if (!unit || unit.Stat == null || unit.Stat.Item == null) return false;
+        if (!unit || unit.runtimeStat == null || unit.runtimeStat.Item == null) return false;
         if (effectsByOwner.ContainsKey(unit)) return false;
 
-        ItemData item = unit.Stat.Item;
+        ItemData item = unit.runtimeStat.Item;
         if (!item.HasEffectDomain(ItemEffectDomain.Battle)) return false;
 
         List<BattleItemEffectRuntime> ownerEffects = new List<BattleItemEffectRuntime>();

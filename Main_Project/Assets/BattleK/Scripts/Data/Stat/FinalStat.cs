@@ -8,45 +8,45 @@ namespace BattleK.Scripts.Data.Stat
         public readonly int CurrentHp;
         public readonly int AttackDamage;
         public readonly int Defense;
-        public readonly int SkillPoint;
         public readonly float MoveSpeed;
         public readonly float EvasionRate;
         public readonly float AttackSpeed;
         public readonly float AttackDelay;
+        public readonly InjuryStatus CurrentInjury;
 
         public FinalStat(
             int maxHp,
             int currentHp,
             int attackDamage,
             int defense,
-            int skillPoint,
             float moveSpeed,
             float evasionRate,
             float attackSpeed,
-            float attackDelay)
+            float attackDelay,
+            InjuryStatus currentInjury)
         {
             MaxHp = maxHp;
             CurrentHp = currentHp;
             AttackDamage = attackDamage;
             Defense = defense;
-            SkillPoint = skillPoint;
             MoveSpeed = moveSpeed;
             EvasionRate = evasionRate;
             AttackSpeed = attackSpeed;
             AttackDelay = attackDelay;
+            CurrentInjury = currentInjury;
         }
 
-        public void ApplyTo(UnitStat stat)
+        public void ApplyTo(UnitRuntimeStat runtimeStat)
         {
-            stat.MaxHP = MaxHp;
-            stat.CurrentHP = CurrentHp;
-            stat.AttackDamage = AttackDamage;
-            stat.Defense = Defense;
-            stat.SkillPoint = SkillPoint;
-            stat.MoveSpeed = MoveSpeed;
-            stat.EvasionRate = EvasionRate;
-            stat.AttackSpeed = AttackSpeed;
-            stat.AttackDelay = AttackDelay;
+            runtimeStat.MaxHP = MaxHp;
+            runtimeStat.CurrentHP = CurrentHp;
+            runtimeStat.AttackDamage = AttackDamage;
+            runtimeStat.Defense = Defense;
+            runtimeStat.MoveSpeed = MoveSpeed;
+            runtimeStat.EvasionRate = EvasionRate;
+            runtimeStat.AttackSpeed = AttackSpeed;
+            runtimeStat.AttackDelay = AttackDelay;
+            runtimeStat.InjuryLevel = CurrentInjury;
         }
     }
 }
