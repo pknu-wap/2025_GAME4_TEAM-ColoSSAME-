@@ -1,7 +1,9 @@
 using BattleK.Scripts.Data.ClassInfo;
+using UnityEngine;
 
 namespace BattleK.Scripts.Data.Stat
 {
+    [System.Serializable]
     public class UnitBaseStat
     {
         public string UnitId, UnitName;
@@ -10,33 +12,27 @@ namespace BattleK.Scripts.Data.Stat
 
         public int BaseAtk, BaseDef, BaseHp, BaseAgi;
         public float BaseEvasionRate;
-        public float BaseAttackSpeed;
-
-        public int BaseSkillPoint;
-        public float BaseMoveSpeed;
-        public float BaseAttackDelay;
 
         public InjuryStatus CurrentInjury;
         
-        public static UnitBaseStat FromUnitStat(UnitStat stat, int level, int rarity, int baseAgi, string unitId = null)
+        public static UnitBaseStat FromFamilyAndSave(CharacterData family, Unit savedUnit)
         {
+            var level = savedUnit != null && savedUnit.Level > 0 ? savedUnit.Level : 1;
+            var rarity = savedUnit != null && savedUnit.Tier > 0 ? savedUnit.Tier : Mathf.Max(1, family.Tier);
+            var unitClass = savedUnit?.UnitClass ?? family.Class;
+
             return new UnitBaseStat
             {
-                UnitId = unitId ?? stat.Name,
-                UnitName = stat.Name,
-                UnitClass = stat.UnitClass,
+                UnitId = family.Unit_ID,
+                UnitName = family.Unit_Name,
+                UnitClass = unitClass,
                 Level = level,
                 Rarity = rarity,
-                BaseAtk = stat.AttackDamage,
-                BaseDef = stat.Defense,
-                BaseHp = stat.MaxHP,
-                BaseAgi = baseAgi,
-                BaseEvasionRate = stat.EvasionRate,
-                BaseAttackSpeed = stat.AttackSpeed,
-                BaseSkillPoint = stat.SkillPoint,
-                BaseMoveSpeed = stat.MoveSpeed,
-                BaseAttackDelay = stat.AttackDelay,
-                CurrentInjury = stat.InjuryLevel
+                BaseAtk = family.Stat_Distribution?.ATK ?? 0,
+                BaseDef = family.Stat_Distribution?.DEF ?? 0,
+                BaseHp  = family.Stat_Distribution?.HP  ?? 0,
+                BaseAgi = family.Stat_Distribution?.AGI ?? 0,
+                CurrentInjury = savedUnit?.currentInjury ?? InjuryStatus.Healthy
             };
         }
     }

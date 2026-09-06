@@ -1,5 +1,6 @@
 using System;
 using BattleK.Scripts.Data;
+using BattleK.Scripts.Data.Stat;
 using BattleK.Scripts.Manager;
 using TMPro;
 using UnityEngine;

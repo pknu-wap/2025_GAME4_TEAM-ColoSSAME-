@@ -352,13 +352,13 @@ namespace BattleK.Scripts.AI.Skill.SkillExample
         {
             foreach (var unit in team)
             {
-                if (!unit || unit.Stat == null)
+                if (!unit || unit.runtimeStat == null)
                 {
                     continue;
                 }
 
-                var currentHp = unit.Stat.CurrentHP;
-                var maxHp = unit.Stat.MaxHP;
+                var currentHp = unit.runtimeStat.CurrentHP;
+                var maxHp = unit.runtimeStat.MaxHP;
 
                 if (!lastHp.TryGetValue(unit, out var previousHp))
                 {
@@ -399,13 +399,13 @@ namespace BattleK.Scripts.AI.Skill.SkillExample
 
         private static void WarnIfUnitIsNotReady(StaticAICore unit)
         {
-            if (unit.Stat == null)
+            if (unit.runtimeStat == null)
             {
                 global::UnityEngine.Debug.LogWarning($"[SkillExampleBattleStarter] {unit.name} has no Stat data.");
                 return;
             }
 
-            if (unit.Stat.EquippedSkills == null || unit.Stat.EquippedSkills.Count == 0)
+            if (unit.runtimeStat.EquippedSkills == null || unit.runtimeStat.EquippedSkills.Count == 0)
             {
                 global::UnityEngine.Debug.LogWarning($"[SkillExampleBattleStarter] {unit.name} has no skills in Stat > EquippedSkills.");
             }

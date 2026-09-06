@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using BattleK.Scripts.AI.Skill.Base;
+using BattleK.Scripts.Data.Stat;
 
 public class SkillSelectUI : MonoBehaviour
 {
@@ -51,12 +52,12 @@ public class SkillSelectUI : MonoBehaviour
 
     public void SelectSkill(SkillSO skill)
     {
-        while (targetUnit.selectedSkills.Count <= selectedSlot)
+        while (targetUnit.EquippedSkills.Count <= selectedSlot)
         {
-            targetUnit.selectedSkills.Add("");
+            targetUnit.EquippedSkills.Add(new UnitSkill("", 1));
         }
 
-        targetUnit.selectedSkills[selectedSlot] = skill.name;
+        targetUnit.EquippedSkills[selectedSlot].skillName = skill.name;
 
         UserManager.Instance.SaveUser();
 

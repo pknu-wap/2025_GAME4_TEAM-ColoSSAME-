@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using BattleK.Scripts.AI;
 using BattleK.Scripts.Data;
+using BattleK.Scripts.Data.Stat;
 using BattleK.Scripts.Data.Type;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -10,58 +11,83 @@ namespace BattleK.Scripts.Manager
 {
     public class UnitSpawner
     {
-        public event Action OnAllSpawnsComplete;
-
-        private int _pendingSpawns;
-
         private readonly AddressableUnitLoader _loader;
         private readonly UnitPresentationSetup _presentation;
         private readonly UnitMover _mover;
         private readonly AI_Manager _aiManager;
+        private readonly StatCorrectionTable _correctionTable;
+        private readonly ClassBaseStatTable _classBaseStatTable;
+        private readonly string _playerLayerName;
+        private readonly string _enemyLayerName;
 
-        public UnitSpawner(AddressableUnitLoader loader, UnitPresentationSetup presentation, UnitMover mover, AI_Manager aiManager)
+        public event Action OnAllSpawnsComplete;
+        private int _pending;
+
+        public UnitSpawner(
+            AddressableUnitLoader loader,
+            UnitPresentationSetup presentation,
+            UnitMover mover,
+            AI_Manager aiManager,
+            StatCorrectionTable correctionTable,
+            ClassBaseStatTable classBaseStatTable,
+            string playerLayerName,
+            string enemyLayerName)
         {
             _loader = loader;
             _presentation = presentation;
             _mover = mover;
             _aiManager = aiManager;
+            _correctionTable = correctionTable;
+            _classBaseStatTable = classBaseStatTable;
+            _playerLayerName = playerLayerName;
+            _enemyLayerName = enemyLayerName;
         }
 
-        public void BeginBatch(int totalRequests)
+        public IEnumerator Spawn(UnitSpawnRequest req, AssetReferenceGameObject assetRef, Transform root, Action<GameObject> onSpawned)
         {
-            _pendingSpawns = totalRequests;
-        }
+            GameObject spawnedInstance = null;
 
-        public IEnumerator Spawn(UnitSpawnRequest req, AssetReferenceGameObject ar, Transform root, Action onComplete)
-        {
-            GameObject go = null;
-            yield return _loader.LoadOrGetAsync(req.logicalKey, ar, root, result => go = result);
-
-            if (go == null)
+            yield return _loader.LoadOrGetAsync(req.logicalKey, assetRef, root, instance =>
             {
-                onComplete?.Invoke();
-                DecrementAndCheck();
-                yield break;
-            }
+                spawnedInstance = instance;
+                if (instance == null) return;
 
-            _presentation.Apply(go, req);
+                var aiCore = instance.GetComponent<StaticAICore>();
+                if (aiCore != null)
+                {
+                    ApplyStatsOrFallback(aiCore, req);
+                    var targetLayerName = req.isPlayer ? _enemyLayerName : _playerLayerName;
+                    aiCore.TargetLayer = LayerMask.GetMask(targetLayerName);
+                    aiCore.SetInitialStats();
+                    aiCore.Initialize();
+                }
+                _presentation.Apply(instance, req);
+            });
 
-            var aiCore = go.GetComponent<StaticAICore>();
-            var sideIndex = req.isPlayer ? 0 : 1;
-            _aiManager.RegisterUnit(aiCore, sideIndex);
+            if (spawnedInstance == null) yield break;
 
-            var moveTime = req.duration > 0f ? req.duration : UnitMover.DefaultDuration;
-            yield return _mover.MoveTo(go.transform, req.startPos, req.endPos, moveTime);
+            yield return _mover.MoveTo(spawnedInstance.transform, req.startPos, req.endPos, req.duration);
 
-            onComplete?.Invoke();
-            DecrementAndCheck();
+            onSpawned?.Invoke(spawnedInstance);
+
+            var core = spawnedInstance.GetComponent<StaticAICore>();
+            if (req.isPlayer) _aiManager.playerUnits.Add(core);
+            else _aiManager.enemyUnits.Add(core);
+
+            _pending--;
+            if (_pending <= 0) OnAllSpawnsComplete?.Invoke();
         }
 
-        private void DecrementAndCheck()
+        private void ApplyStatsOrFallback(StaticAICore aiCore, UnitSpawnRequest req)
         {
-            _pendingSpawns--;
-            if (_pendingSpawns <= 0)
-                OnAllSpawnsComplete?.Invoke();
+            var baseStat = UnitBaseStatProvider.Get(req.logicalKey, req.isPlayer);
+            if (baseStat != null)
+            {
+                StatCalculator.ApplyTo(aiCore.runtimeStat, baseStat, _correctionTable, _classBaseStatTable);
+                return;
+            }
         }
+
+        public void BeginBatch(int count) => _pending = count;
     }
 }
