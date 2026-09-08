@@ -1,3 +1,4 @@
+using BattleK.Scripts.Data.Stat;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -41,18 +42,18 @@ public class GetExpButton : MonoBehaviour
             return;
         }
 
-        if (curLevelText != null) curLevelText.text = unit.level.ToString();
-        if (curExpText != null)   curExpText.text   = unit.exp.ToString();
+        if (curLevelText != null) curLevelText.text = unit.Level.ToString();
+        if (curExpText != null)   curExpText.text   = unit.EXP.ToString();
 
         if (expSlider != null)
         {
             expSlider.maxValue = 100f;
-            expSlider.value = unit.exp;
+            expSlider.value = unit.EXP;
         }
 
         if (expCostText != null)
         {
-            int baseCost = UnitCostCalculator.CalculateGoldCost(unit.level);
+            int baseCost = UnitCostCalculator.CalculateGoldCost(unit.Level);
             int discountedCost = GetDiscountedTrainingCost(baseCost);
             expCostText.text = $"레벨업 비용 {discountedCost}골드";
         }
@@ -82,14 +83,14 @@ public class GetExpButton : MonoBehaviour
             return;
         }
 
-        int maxLevel = UnitCostCalculator.GetMaxLevelByRarity(unit.rarity);
-        if (unit.level >= maxLevel)
+        int maxLevel = UnitCostCalculator.GetMaxLevelByRarity(unit.Tier);
+        if (unit.Level >= maxLevel)
         {
-            Debug.Log($"{unit.unitName}는 만렙입니다");
+            Debug.Log($"{unit.Id}는 만렙입니다");
             return;
         }
 
-        int baseCost = UnitCostCalculator.CalculateGoldCost(unit.level);
+        int baseCost = UnitCostCalculator.CalculateGoldCost(unit.Level);
         int requiredGold = GetDiscountedTrainingCost(baseCost);
 
         bool goldSuccess = UserManager.Instance.user.SpendGold(requiredGold);
@@ -111,7 +112,7 @@ public class GetExpButton : MonoBehaviour
         Unit refreshedUnit = UserManager.Instance.GetMyUnitById(unitId);
         if (refreshedUnit != null)
         {
-            Debug.Log($" EXP 반영 완료: {refreshedUnit.unitName} / Lv.{refreshedUnit.level} / Exp:{refreshedUnit.exp} / 소모 골드:{requiredGold}");
+            Debug.Log($" EXP 반영 완료: {refreshedUnit.Id} / Lv.{refreshedUnit.Level} / Exp:{refreshedUnit.EXP} / 소모 골드:{requiredGold}");
         }
     }
 }

@@ -47,8 +47,8 @@ MonoBehaviour:
   _aiManager: {fileID: 1160425972069385896}
   _playerUnits: []
   _enemyUnits: []
-  allyDefaultColor: {r: 0.4716981, g: 0.113369845, b: 0.09567462, a: 1}
-  enemyDefaultColor: {r: 0.12332202, g: 0.08388218, b: 0.6132076, a: 1}
+  allyDefaultColor: {r: 0.12156863, g: 0.08235294, b: 0.6117647, a: 1}
+  enemyDefaultColor: {r: 0.47058824, g: 0.11372549, b: 0.09411765, a: 1}
   shieldColor: {r: 0.6, g: 0.6, b: 0.6, a: 0.5}
   statusColors:
   - Type: 1
@@ -156,7 +156,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _statsCollector: {fileID: 8116832239421772936}
-  _playerStatsCollector: {fileID: 0}
+  _playerStatsCollector: {fileID: 2366668018955879411}
   _autoRetryIfEmpty: 1
   _retryIntervalSeconds: 0.25
   _maxRetries: 40
@@ -165,6 +165,7 @@ MonoBehaviour:
   _allStats: []
   _playerPreviewStats: []
   _correctionTable: {fileID: 11400000, guid: a23bec5b2e167ea43a5f790b6fdaeabb, type: 2}
+  _classBaseStatTable: {fileID: 11400000, guid: 41e0da17272ca6840adac5ccb008cfbf, type: 2}
 --- !u!1 &1119953708594777593
 GameObject:
   m_ObjectHideFlags: 0
@@ -1720,6 +1721,7 @@ MonoBehaviour:
   _hpManager: {fileID: 8808550664364146167}
   _calculateManager: {fileID: 7754367905373421671}
   _correctionTable: {fileID: 11400000, guid: a23bec5b2e167ea43a5f790b6fdaeabb, type: 2}
+  _classBaseStatTable: {fileID: 11400000, guid: 41e0da17272ca6840adac5ccb008cfbf, type: 2}
 --- !u!1 &8066140303599634192
 GameObject:
   m_ObjectHideFlags: 0
@@ -1978,6 +1980,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3902718727317276717}
   - component: {fileID: 8116832239421772936}
+  - component: {fileID: 2366668018955879411}
   m_Layer: 0
   m_Name: FamilyStatCollector
   m_TagString: Untagged
@@ -2014,35 +2017,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerUnitsRoot: {fileID: 4185177606197206826}
   _enemyUnitsRoot: {fileID: 694902108949482927}
-  _familyJsonTemplate: Assets/BattleK/Family/{FAMILY}/{FAMILY}.json
   _unitLoadManager: {fileID: 5756451760395963063}
-  _league:
-    settings:
-      name: 
-      totalRounds: 0
-      pointRule:
-        win: 0
-        draw: 0
-        lose: 0
-      playerTeamId: 0
-      playerTeamName: 
-      tier: 0
-      tierName: 
-    teams: []
-    schedule: []
-    currentRound: 0
-    currentMatchIndex: 0
-    currentEnemyTeamId: 0
-    currentMatchId: 
-    currentEnemy:
-      id: 0
-      fid: 
-      name: 
-      money: 0
-      growthStage: 0
-      units: []
-  _itemDatabase: {fileID: 0}
+  _itemDatabase: {fileID: 11400000, guid: 2fe93d274923bdb408a4107de123d51a, type: 2}
   _caseInsensitiveMatch: 1
+--- !u!114 &2366668018955879411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9158317091198972223}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 815d420ab27762c4ca8e4bcdc31461d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _playerStats: []
 --- !u!1001 &302924437852733065
 PrefabInstance:
   m_ObjectHideFlags: 0

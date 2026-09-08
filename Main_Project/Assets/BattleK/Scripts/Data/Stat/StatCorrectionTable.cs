@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace BattleK.Scripts.Data.Stat
 {
-    [CreateAssetMenu(menuName = "BattleK/StatCorrectionTable")]
+    [CreateAssetMenu(menuName = "BattleK/Stat/StatCorrectionTable")]
     public class StatCorrectionTable : ScriptableObject
     {
         [Serializable]
@@ -36,9 +36,6 @@ namespace BattleK.Scripts.Data.Stat
         public List<RarityStatFactor> RarityFactors = new();
 
         [Header("AGI 파생 공식 설정")]
-        [Tooltip("공격속도 배율 = (100 + AGI * AttackSpeedPerAgi) / 100. 기본값 5 (AGI 1당 5%).")]
-        public float AttackSpeedPerAgi = 5f;
-
         [Tooltip("회피율 = AGI * EvasionRatePerAgi. 기본값 0.03 (AGI 1당 3%).")]
         public float EvasionRatePerAgi = 0.03f;
 

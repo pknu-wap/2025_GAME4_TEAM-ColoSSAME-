@@ -32,8 +32,8 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic
                 // 아군
                 if (core.gameObject.layer != owner.gameObject.layer) continue;
 
-                float hp = core.Stat.CurrentHP;
-                float maxHp = core.Stat.MaxHP;
+                float hp = core.runtimeStat.CurrentHP;
+                float maxHp = core.runtimeStat.MaxHP;
 
                 if (hp < lowestHp)
                 {

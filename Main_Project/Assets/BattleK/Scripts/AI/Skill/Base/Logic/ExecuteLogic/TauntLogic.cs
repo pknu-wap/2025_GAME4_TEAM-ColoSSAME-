@@ -9,6 +9,11 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic
         [SerializeField] private bool RestorePreviousTarget = true;
         [SerializeField] private bool RefreshDuration = true;
 
+        public float GetDuration()
+        {
+            return Mathf.Max(0f, Duration);
+        }
+
         public void Execute(StaticAICore owner, StaticAICore target)
         {
             if (!owner || !target) return;
@@ -21,7 +26,7 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic
                 controller = target.gameObject.AddComponent<TauntTargetController>();
             }
 
-            controller.Apply(owner, Duration, RestorePreviousTarget, RefreshDuration);
+            controller.Apply(owner, GetDuration(), RestorePreviousTarget, RefreshDuration);
         }
     }
 

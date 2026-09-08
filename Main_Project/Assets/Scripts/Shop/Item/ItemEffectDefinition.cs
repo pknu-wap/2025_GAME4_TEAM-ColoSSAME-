@@ -1,88 +1,96 @@
 using System;
 using UnityEngine;
 
-public enum ItemUseType
+namespace Shop.Item
 {
-    OneBattleConsumable,
-    PermanentAccessory
-}
+    public enum ItemUseType
+    {
+        OneBattleConsumable,
+        PermanentAccessory
+    }
 
-public enum ItemEffectDomain
-{
-    Battle,
-    Book
-}
+    public enum ItemEffectDomain
+    {
+        Battle,
+        Book
+    }
 
-public enum ItemEffectTrigger
-{
-    BattleStart,
-    BattleEnd,
-    Death,
-    Kill,
-    LowHp,
-    Tick
-}
+    public enum ItemEffectTrigger
+    {
+        BattleStart,
+        BattleEnd,
+        Death,
+        Kill,
+        LowHp,
+        Tick
+    }
 
-public enum ItemEffectKind
-{
-    None,
-    StatFlatBonus,
-    StatPercentBonus,
-    ReviveOnce,
-    PeriodicHealMaxHpPercent,
-    LowHpStatPercentBonus,
-    TeamDeathStackingStatPercentBonus,
-    KillStackingStatPercentBonus,
-    DeathExplosionMaxHpPercent,
-    MatchWinGoldPercentBonus,
-    MatchLoseGoldPenalty
-}
+    public enum ItemEffectKind
+    {
+        None,
+        StatFlatBonus,
+        StatPercentBonus,
+        ReviveOnce,
+        PeriodicHealMaxHpPercent,
+        LowHpStatPercentBonus,
+        TeamDeathStackingStatPercentBonus,
+        KillStackingStatPercentBonus,
+        DeathExplosionMaxHpPercent,
+        MatchWinGoldPercentBonus,
+        MatchLoseGoldPenalty
+    }
 
-public enum ItemStatType
-{
-    None,
-    MaxHp,
-    Attack,
-    Defense,
-    Agility
-}
+    public enum ItemStatType
+    {
+        None,
+        MaxHp,
+        Attack,
+        Defense,
+        Agility
+    }
 
-public enum ItemEffectTarget
-{
-    Owner,
-    Team,
-    Enemies,
-    Meta
-}
+    public enum ItemEffectTarget
+    {
+        Owner,
+        Team,
+        Enemies,
+        Meta
+    }
 
-[Serializable]
-public class ItemEffectDefinition
-{
-    [Header("Effect Identity")]
-    public ItemEffectDomain domain = ItemEffectDomain.Battle;
-    public ItemEffectTrigger trigger = ItemEffectTrigger.BattleStart;
-    public ItemEffectKind effectKind = ItemEffectKind.None;
-    public ItemEffectTarget target = ItemEffectTarget.Owner;
+    [Serializable]
+    public class ItemEffectDefinition
+    {
+        [Header("Effect Identity")]
+        public ItemEffectDomain domain = ItemEffectDomain.Battle;
+        public ItemEffectTrigger trigger = ItemEffectTrigger.BattleStart;
+        public ItemEffectKind effectKind = ItemEffectKind.None;
+        public ItemEffectTarget target = ItemEffectTarget.Owner;
 
-    [Header("Stat")]
-    public ItemStatType statType = ItemStatType.None;
+        [Tooltip("스탯창 등 UI에 표시할 이름. 비어있으면 statType으로 대체 표시.")]
+        [SerializeField] private string displayName;
 
-    [Tooltip("Fixed stat value. Example: Attack +20, MaxHp +50.")]
-    public float flatValue;
+        public string DisplayName => string.IsNullOrEmpty(displayName) ? statType.ToString() : displayName;
 
-    [Tooltip("Percent value as a ratio. Example: 0.25 means +25%.")]
-    public float percentValue;
+        [Header("Stat")]
+        public ItemStatType statType = ItemStatType.None;
 
-    [Tooltip("Optional upper percent for random ranges. Example: regen 0.01 to 0.02.")]
-    public float maxPercentValue;
+        [Tooltip("Fixed stat value. Example: Attack +20, MaxHp +50.")]
+        public float flatValue;
 
-    [Header("Condition")]
-    [Range(0f, 1f)]
-    public float hpThresholdRatio;
+        [Tooltip("Percent value as a ratio. Example: 0.25 means +25%.")]
+        public float percentValue;
 
-    [Min(0f)]
-    public float tickInterval;
+        [Tooltip("Optional upper percent for random ranges. Example: regen 0.01 to 0.02.")]
+        public float maxPercentValue;
 
-    [Min(0f)]
-    public float radius;
+        [Header("Condition")]
+        [Range(0f, 1f)]
+        public float hpThresholdRatio;
+
+        [Min(0f)]
+        public float tickInterval;
+
+        [Min(0f)]
+        public float radius;
+    }
 }

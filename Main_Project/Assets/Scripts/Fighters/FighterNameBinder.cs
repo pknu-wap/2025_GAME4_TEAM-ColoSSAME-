@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using BattleK.Scripts.Data.ClassInfo;
+using BattleK.Scripts.Data.Stat;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceLocations;
@@ -117,18 +119,18 @@ public class FighterNameBinder : MonoBehaviour
                 Unit unit = myUnits[i];
 
                 if (nameText != null)
-                    nameText.text = unit.unitName;
+                    nameText.text = unit.Id;
 
-                data.unitId    = unit.unitId;
-                data.unitClass = unit.unitClass;
+                data.unitId    = unit.Id;
+                data.unitClass = unit.UnitClass;
 
-                if (portraitImage != null && !string.IsNullOrEmpty(unit.unitId))
+                if (portraitImage != null && !string.IsNullOrEmpty(unit.Id))
                 {
                     portraitImage.sprite  = null;
                     portraitImage.enabled = false;
                     
-                    string portraitAddress = GetPortraitAddress(unit.unitId);
-                    Debug.Log($"[Portrait Load Try] unitId={unit.unitId}, address={portraitAddress}");
+                    string portraitAddress = GetPortraitAddress(unit.Id);
+                    Debug.Log($"[Portrait Load Try] unitId={unit.Id}, address={portraitAddress}");
 
                     yield return StartCoroutine(LoadUnitPortrait(portraitAddress, portraitImage));
                 }
@@ -143,7 +145,7 @@ public class FighterNameBinder : MonoBehaviour
                     nameText.text = "";
 
                 data.unitId    = "";
-                data.unitClass = "";
+                data.unitClass = UnitClass.None;
 
                 if (portraitImage != null)
                 {
