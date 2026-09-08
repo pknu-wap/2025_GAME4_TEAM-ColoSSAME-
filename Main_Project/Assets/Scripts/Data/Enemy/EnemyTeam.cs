@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using BattleK.Scripts.Data.Stat;
 using UnityEngine;
 
 [System.Serializable]

@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
 using BattleK.Scripts.AI.Skill.Base;
+using BattleK.Scripts.Data.Stat;
 using TMPro;
 
 public class AddRarity : MonoBehaviour
@@ -54,7 +55,7 @@ public class AddRarity : MonoBehaviour
         if (unit == null)
             yield break;
 
-        RefreshRarityObject(unit.rarity);
+        RefreshRarityObject(unit.Tier);
         UpdateSuccessRateUI(unit);
     }
 
@@ -80,7 +81,7 @@ public class AddRarity : MonoBehaviour
 
     private float GetSuccessRate(Unit unit)
     {
-        int index = unit.rarity - 1;
+        int index = unit.Tier - 1;
 
         if (index < 0 || index >= baseSuccessRate.Length)
             return 100f;
@@ -121,7 +122,7 @@ public class AddRarity : MonoBehaviour
 
         Unit unit = UserManager.Instance.GetMyUnitById(unitId);
 
-        if ((unit.rarity >= 5) || (unit.level < unit.rarity * 10))
+        if ((unit.Tier >= 5) || (unit.Level < unit.Tier * 10))
             return;
         
         float rate = GetSuccessRate(unit);
@@ -140,7 +141,7 @@ public class AddRarity : MonoBehaviour
 
         unit.bonusSuccessRarity = 0;
 
-        AddSkillByRarity(unit, unit.rarity);
+        AddSkillByRarity(unit, unit.Tier);
         
         RefreshSelectedUnitUI();
     }
@@ -151,11 +152,11 @@ public class AddRarity : MonoBehaviour
         if(newRarity == 3 || newRarity == 4)
         {
             List<SkillSO> choices =
-                randomSkillGrantA.GetSkillChoices(unit.unitClass, newRarity);
+                randomSkillGrantA.GetSkillChoices(unit.UnitClass, newRarity);
 
             foreach (SkillSO skill in choices)
             {
-                unit.skills.Add(new UnitSkill(skill.name, 1));
+                unit.OwnedSkills.Add(new UnitSkill(skill.name, 1));
             }
             
             UserManager.Instance.SaveUser();
@@ -168,15 +169,11 @@ public class AddRarity : MonoBehaviour
         else if(newRarity == 5)
         {
             SkillSO ultimate =
-                randomSkillGrantA.GetUltimateSkill(unit.unitClass);
+                randomSkillGrantA.GetUltimateSkill(unit.UnitClass);
 
             if(ultimate != null)
             {
-                unit.skills.Add(
-                    new UnitSkill(ultimate.name,1)
-                );
-
-                unit.selectedSkills.Add(ultimate.name);
+                unit.OwnedSkills.Add(new UnitSkill(ultimate.name,1));
 
                 UserManager.Instance.SaveUser();
                 skillTrainingManager.RefreshUnit();

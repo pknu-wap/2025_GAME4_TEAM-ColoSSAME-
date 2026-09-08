@@ -12,27 +12,27 @@ internal readonly struct BattleUnitStatSnapshot
     private readonly float evasionRate;
     private readonly float moveSpeed;
 
-    public BattleUnitStatSnapshot(UnitStat stat)
+    public BattleUnitStatSnapshot(UnitRuntimeStat runtimeStat)
     {
-        maxHp = stat.MaxHP;
-        currentHp = stat.CurrentHP;
-        attackDamage = stat.AttackDamage;
-        defense = stat.Defense;
-        attackSpeed = stat.AttackSpeed;
-        attackDelay = stat.AttackDelay;
-        evasionRate = stat.EvasionRate;
-        moveSpeed = stat.MoveSpeed;
+        maxHp = runtimeStat.MaxHP;
+        currentHp = runtimeStat.CurrentHP;
+        attackDamage = runtimeStat.AttackDamage;
+        defense = runtimeStat.Defense;
+        attackSpeed = runtimeStat.AttackSpeed;
+        attackDelay = runtimeStat.AttackDelay;
+        evasionRate = runtimeStat.EvasionRate;
+        moveSpeed = runtimeStat.MoveSpeed;
     }
 
-    public void Restore(UnitStat stat)
+    public void Restore(UnitRuntimeStat runtimeStat)
     {
-        stat.MaxHP = maxHp;
-        stat.CurrentHP = Mathf.Clamp(currentHp, 0, maxHp);
-        stat.AttackDamage = attackDamage;
-        stat.Defense = defense;
-        stat.AttackSpeed = attackSpeed;
-        stat.AttackDelay = attackDelay;
-        stat.EvasionRate = evasionRate;
-        stat.MoveSpeed = moveSpeed;
+        runtimeStat.MaxHP = maxHp;
+        runtimeStat.CurrentHP = Mathf.Clamp(currentHp, 0, maxHp);
+        runtimeStat.AttackDamage = attackDamage;
+        runtimeStat.Defense = defense;
+        runtimeStat.AttackSpeed = attackSpeed;
+        runtimeStat.AttackDelay = attackDelay;
+        runtimeStat.EvasionRate = evasionRate;
+        runtimeStat.MoveSpeed = moveSpeed;
     }
 }

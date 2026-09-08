@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using BattleK.Scripts.Data.Stat;
 using UnityEngine;
 
 public static class FamilyUtility
@@ -13,7 +14,7 @@ public static class FamilyUtility
             return null;
         }
 
-        string selectedUnitId = myUnits[0].unitId;
+        string selectedUnitId = myUnits[0].Id;
 
         if (string.IsNullOrEmpty(selectedUnitId))
         {

@@ -33,6 +33,7 @@ namespace BattleK.Scripts.AI.Skill.Base
         [Header("Basic Settings")]
         public string SkillName;
         public int InternalPriority;
+        public int SkillLevel = 1;
     
         [Header("Skill Prefab Settings")]
         public GameObject SkillPrefab;

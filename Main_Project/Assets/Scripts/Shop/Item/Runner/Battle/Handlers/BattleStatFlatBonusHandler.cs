@@ -1,29 +1,21 @@
-using System.Collections.Generic;
 using BattleK.Scripts.AI;
 
-internal sealed class BattleStatFlatBonusHandler : IBattleItemEffectHandler
+namespace Shop.Item.Runner.Battle.Handlers
 {
-    public ItemEffectKind EffectKind => ItemEffectKind.StatFlatBonus;
-
-    public void Execute(BattleItemEffectRuntime runtime, BattleItemEffectContext context)
+    internal sealed class BattleStatFlatBonusHandler : IBattleItemEffectHandler
     {
-        if (!BattleItemEffectRules.CanTrigger(runtime)) return;
+        public ItemEffectKind EffectKind => ItemEffectKind.StatFlatBonus;
 
-        HashSet<StaticAICore> touchedUnits = new HashSet<StaticAICore>();
-
-        foreach (StaticAICore target in context.TargetResolver.GetTargets(runtime.Owner, runtime.Effect.target))
+        public void Execute(BattleItemEffectRuntime runtime, BattleItemEffectContext context)
         {
-            if (context.StatApplier.ApplyFlatStat(target, runtime.Effect))
+            if (!BattleItemEffectRules.CanTrigger(runtime)) return;
+
+            foreach (StaticAICore target in context.TargetResolver.GetTargets(runtime.Owner, runtime.Effect.target))
             {
-                touchedUnits.Add(target);
+                context.StatApplier.ApplyFlatStat(target, runtime.Effect, runtime);
             }
-        }
 
-        foreach (StaticAICore touchedUnit in touchedUnits)
-        {
-            context.StatApplier.RefreshUnit(touchedUnit);
+            runtime.TriggerCount++;
         }
-
-        runtime.TriggerCount++;
     }
 }

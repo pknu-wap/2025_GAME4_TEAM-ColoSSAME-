@@ -24,6 +24,8 @@ public class SettingsUI : MonoBehaviour
         ingameSlider.onValueChanged.AddListener(
             SettingsManager.Instance.SetIngameVolume);
 
+        RefreshSliders();
+        
         mainButton.SetActive(
         SceneManager.GetActiveScene().name != "MainMenu");
     }

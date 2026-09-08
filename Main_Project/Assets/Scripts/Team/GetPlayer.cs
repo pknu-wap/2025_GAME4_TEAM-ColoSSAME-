@@ -10,6 +10,7 @@ using Scripts.Team.FighterViewer;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using BattleK.Scripts.AI.Skill.Base;
+using BattleK.Scripts.Data.Stat;
 
 //나중에 가지고 있는 유닛 수가 최대일때 못뽑게하기 
 
@@ -189,7 +190,7 @@ namespace Scripts.Team.FighterRandomBuy
 
                 Unit newUnit = new Unit(
                     data.Unit_ID,
-                    data.Rarity,
+                    data.Tier,
                     data.Unit_Name,
                     data.Class
                 );
@@ -261,7 +262,7 @@ namespace Scripts.Team.FighterRandomBuy
             {
                 StarCount[i].SetActive(false);
             }
-            StarCount[characterdata.Rarity - 1].SetActive(true);
+            StarCount[characterdata.Tier - 1].SetActive(true);
 
             cardsstate.SetActive(true);
             cards.SetActive(false);

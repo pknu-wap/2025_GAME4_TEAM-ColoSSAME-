@@ -81,7 +81,7 @@ namespace BattleK.Scripts.UI
 
                 if (!string.IsNullOrEmpty(unitId) && UnitStatRepository.TryGet(unitId, out var info))
                 {
-                    statWindow.SetFromRepository(info);
+                    statWindow.BindToCore(core, info);
                 }
                 else
                 {

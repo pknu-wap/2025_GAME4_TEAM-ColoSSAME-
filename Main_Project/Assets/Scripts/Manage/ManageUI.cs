@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using BattleK.Scripts.Data.Stat;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -124,7 +125,7 @@ public class ManageUI : MonoBehaviour
                 continue;
             }
 
-            string unitId = myUnits[i].unitId;
+            string unitId = myUnits[i].Id;
             StartCoroutine(LoadSlotPortraitRoutine(slotImage, unitId));
         }
     }
@@ -152,7 +153,7 @@ public class ManageUI : MonoBehaviour
         }
 
         Unit selectedUnit = myUnits[slotIndex];
-        selectedUnitId = selectedUnit.unitId;
+        selectedUnitId = selectedUnit.Id;
 
         DisplayCharacterDetail(selectedUnit);
         SetDetailButtonsInteractable(true);
@@ -160,11 +161,11 @@ public class ManageUI : MonoBehaviour
     
     private void DisplayCharacterDetail(Unit unit)
     {
-        CharacterData characterData = CharacterInfoProvider.GetCharacterData(unit.unitId);
+        CharacterData characterData = CharacterInfoProvider.GetCharacterData(unit.Id);
 
         if (characterData == null)
         {
-            Debug.LogWarning($"[ManageUI] 캐릭터 데이터를 찾을 수 없습니다: {unit.unitId}");
+            Debug.LogWarning($"[ManageUI] 캐릭터 데이터를 찾을 수 없습니다: {unit.Id}");
             return;
         }
 
@@ -180,7 +181,7 @@ public class ManageUI : MonoBehaviour
 
         if (levelText != null)
         {
-            levelText.text = $"Lv.{unit.level}";
+            levelText.text = $"Lv.{unit.Level}";
         }
 
         DisplayStats(characterData);

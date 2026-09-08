@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using BattleK.Scripts.Data.Stat;
 using Newtonsoft.Json;
 using Scripts.Team.FighterViewer;
 
@@ -38,7 +39,7 @@ public class UnitSellManager : MonoBehaviour
     //판매가격
     int CalculateSellPrice(Unit unit)
     {
-        return baseSellPrice * unit.rarity;
+        return baseSellPrice * unit.Tier;
     }
 
     void SaveUserData()
