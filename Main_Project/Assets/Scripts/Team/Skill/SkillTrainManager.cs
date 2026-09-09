@@ -79,7 +79,7 @@ public class SkillTrainManager : MonoBehaviour
 
     private UnitSkill GetSelectedSkill(int index)
     {
-        if (index >= currentUnit.EquippedSkills.Count)
+        if (currentUnit.EquippedSkills == null || index >= currentUnit.EquippedSkills.Count)
             return null;
 
         string skillName = currentUnit.EquippedSkills[index].skillName;
@@ -95,6 +95,9 @@ public class SkillTrainManager : MonoBehaviour
     private void BuildSkillMap()
     {
         skillMap = new Dictionary<string, UnitSkill>();
+
+        if (currentUnit.OwnedSkills == null)
+            return;
 
         foreach (UnitSkill skill in currentUnit.OwnedSkills)
         {
