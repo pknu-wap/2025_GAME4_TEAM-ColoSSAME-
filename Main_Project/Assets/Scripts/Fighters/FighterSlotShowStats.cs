@@ -75,7 +75,7 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
         }
 
         if (selectedNameText != null)
-            selectedNameText.text = found.Id;
+            selectedNameText.text = found.UnitName;
 
         if (selectedPortraitImage != null)
         {

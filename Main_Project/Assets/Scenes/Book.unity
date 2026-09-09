@@ -977,11 +977,6 @@ RectTransform:
   m_AnchoredPosition: {x: -280, y: -50}
   m_SizeDelta: {x: 400, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &209639266 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1969055090697892178, guid: 1152edb45f5e8ea498a7229348b326cf, type: 3}
-  m_PrefabInstance: {fileID: 482323119}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &209639267 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3707871556469937867, guid: 1152edb45f5e8ea498a7229348b326cf, type: 3}
@@ -1537,7 +1532,6 @@ RectTransform:
   - {fileID: 1237103570}
   - {fileID: 358317211}
   - {fileID: 1885015213}
-  - {fileID: 730669868}
   - {fileID: 2055662126}
   - {fileID: 2026976790}
   - {fileID: 1180774242}
@@ -1810,11 +1804,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 395175340}
   m_CullTransparentMesh: 1
---- !u!1 &403684636 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1777418867476621546, guid: ad11960e66b392849a367a85d49820a9, type: 3}
-  m_PrefabInstance: {fileID: 1735762024}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &403684637 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2142143846204086062, guid: ad11960e66b392849a367a85d49820a9, type: 3}
@@ -2416,7 +2405,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 730669867}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Scripts.Team.Fightermanage.State, Assembly-CSharp
         m_MethodName: trainBack
         m_Mode: 1
@@ -2500,7 +2489,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 730669867}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Scripts.Team.Fightermanage.State, Assembly-CSharp
         m_MethodName: deathFighter
         m_Mode: 1
@@ -2898,11 +2887,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &547154892 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5075787244158767836, guid: a33d175f1467b014f854e948faf878d4, type: 3}
-  m_PrefabInstance: {fileID: 1535201619}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &547154893 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1984304200408427047, guid: a33d175f1467b014f854e948faf878d4, type: 3}
@@ -3771,116 +3755,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &730669866
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 730669868}
-  - component: {fileID: 730669867}
-  - component: {fileID: 730669869}
-  m_Layer: 5
-  m_Name: fighterTrainEvent
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &730669867
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 730669866}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bedf35283dea25343a030eb5b0a30861, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  userManager: {fileID: 0}
-  familystat: {fileID: 0}
-  selectedIndex: -1
-  CharacterImage:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  CharacterObject:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  StarCount:
-  - {fileID: 547154892}
-  - {fileID: 1169749693}
-  - {fileID: 951545250}
-  - {fileID: 209639266}
-  - {fileID: 403684636}
-  getplayer: {fileID: 0}
-  fiveStarIds: []
-  fourStarIds: []
-  oneStarIds: []
-  NameText: {fileID: 1075264983}
-  StatText: {fileID: 208044517}
---- !u!224 &730669868
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 730669866}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 361330700}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &730669869
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 730669866}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b6931570792490469b0cf05e632cc69, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  unitViewer: {fileID: 730669867}
-  baseSellPrice: 100
 --- !u!114 &742960088 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3116582766720969662, guid: b06243054678ea84ba8522307a400a40, type: 3}
@@ -4769,11 +4643,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 950437318}
   m_CullTransparentMesh: 1
---- !u!1 &951545250 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4006191481326596405, guid: 4e6318912d7ada944aee9daa2b8e594e, type: 3}
-  m_PrefabInstance: {fileID: 1737616587}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &951545251 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 388477959477822934, guid: 4e6318912d7ada944aee9daa2b8e594e, type: 3}
@@ -5728,11 +5597,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &1169749693 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5646076153061874529, guid: 1dd2a0f65c409a9458c5326be538f905, type: 3}
-  m_PrefabInstance: {fileID: 1024393059}
-  m_PrefabAsset: {fileID: 0}
 --- !u!224 &1169749694 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1902980936425943001, guid: 1dd2a0f65c409a9458c5326be538f905, type: 3}
@@ -6152,7 +6016,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 730669867}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Scripts.Team.FighterViewer.UnitViewer, Assembly-CSharp
         m_MethodName: UnitShow
         m_Mode: 1
@@ -6164,7 +6028,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 730669867}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Scripts.Team.FighterViewer.UnitViewer, Assembly-CSharp
         m_MethodName: trainBack
         m_Mode: 1
@@ -6585,7 +6449,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 730669867}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Scripts.Team.Fightermanage.State, Assembly-CSharp
         m_MethodName: trainBack
         m_Mode: 1
@@ -6669,7 +6533,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 730669869}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: UnitSellManager, Assembly-CSharp
         m_MethodName: SellSelectedUnit
         m_Mode: 1
@@ -6681,7 +6545,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 730669867}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Scripts.Team.FighterViewer.UnitViewer, Assembly-CSharp
         m_MethodName: LoadUserData
         m_Mode: 1
@@ -6693,7 +6557,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 730669867}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: Scripts.Team.FighterViewer.UnitViewer, Assembly-CSharp
         m_MethodName: UnitShow
         m_Mode: 1
@@ -11138,6 +11002,14 @@ PrefabInstance:
     - target: {fileID: 1330671651287030576, guid: ffade2a797419ce4fb6a831d6a52984d, type: 3}
       propertyPath: m_Name
       value: Mail
+      objectReference: {fileID: 0}
+    - target: {fileID: 5073125132311482459, guid: ffade2a797419ce4fb6a831d6a52984d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7734531930810139848, guid: ffade2a797419ce4fb6a831d6a52984d, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8000782823092352544, guid: ffade2a797419ce4fb6a831d6a52984d, type: 3}
       propertyPath: m_LocalPosition.x

@@ -74,7 +74,7 @@ public class FighterNameBinder : MonoBehaviour
             getExpButton.curLevelText = curLevelText;
             getExpButton.curExpText   = curExpText;
             getExpButton.expSlider    = expSlider;
-            //getExpButton.expCostText  = expCostText;
+            getExpButton.expCostText  = expCostText;
             getExpButton.buildingUpgradeManager = buildingUpgradeManager;
             getExpButton.RefreshSelectedUnitUI();
         }
@@ -119,7 +119,7 @@ public class FighterNameBinder : MonoBehaviour
                 Unit unit = myUnits[i];
 
                 if (nameText != null)
-                    nameText.text = unit.Id;
+                    nameText.text = unit.UnitName;
 
                 data.unitId    = unit.Id;
                 data.unitClass = unit.UnitClass;
