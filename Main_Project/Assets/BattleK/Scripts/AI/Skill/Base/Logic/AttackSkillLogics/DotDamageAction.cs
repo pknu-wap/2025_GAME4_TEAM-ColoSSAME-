@@ -32,8 +32,8 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics
         {
             if (!target) return;
             var rawDamage = UseMaxHpScaling
-                ? target.Stat.MaxHP * (BaseRatio + HpSkillPointRatio * owner.Stat.SkillPoint)
-                : BaseDamage + (SkillPointRatio * owner.Stat.SkillPoint);
+                ? target.runtimeStat.MaxHP * (BaseRatio + HpSkillPointRatio * owner.runtimeStat.SkillPoint)
+                : BaseDamage + (SkillPointRatio * owner.runtimeStat.SkillPoint);
 
             var statusManager = target.GetComponent<StatusEffectManager>();
             if (statusManager)

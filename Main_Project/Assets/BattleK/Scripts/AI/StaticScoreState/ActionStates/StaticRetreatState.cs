@@ -32,7 +32,7 @@ namespace BattleK.Scripts.AI.StaticScoreState.ActionStates
         {
             if (!_ai.Target) return false;
             if(Time.time < _ai.LastRetreatFinishTime + 5.0f) return false;
-            var hpRatio = (_ai.Stat.MaxHP > 0) ? (float)_ai.Stat.CurrentHP / _ai.Stat.MaxHP : 0f;
+            var hpRatio = (_ai.runtimeStat.MaxHP > 0) ? (float)_ai.runtimeStat.CurrentHP / _ai.runtimeStat.MaxHP : 0f;
             return hpRatio < retreatHpThreshold;
         }
         

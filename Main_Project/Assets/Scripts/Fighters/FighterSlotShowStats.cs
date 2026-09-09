@@ -1,3 +1,4 @@
+using BattleK.Scripts.Data.Stat;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -50,7 +51,7 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
         Unit found = null;
         for (int i = 0; i < units.Count; i++)
         {
-            if (units[i] != null && units[i].unitId == slotData.unitId)
+            if (units[i] != null && units[i].Id == slotData.unitId)
             {
                 found = units[i];
                 break;
@@ -65,16 +66,16 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
 
         UserManager.Instance.SetSelectedUnit(slotData.unitId);
 
-        if (curLevelText != null) curLevelText.text = found.level.ToString();
-        if (curExpText != null)   curExpText.text   = found.exp.ToString();
+        if (curLevelText != null) curLevelText.text = found.Level.ToString();
+        if (curExpText != null)   curExpText.text   = found.EXP.ToString();
         if (expSlider != null)
         {
             expSlider.maxValue = 100f;
-            expSlider.value = found.exp;
+            expSlider.value = found.EXP;
         }
 
         if (selectedNameText != null)
-            selectedNameText.text = found.unitName;
+            selectedNameText.text = found.Id;
 
         if (selectedPortraitImage != null)
         {
@@ -99,7 +100,7 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
                 Debug.LogWarning(" 슬롯에서 'playerImage'를 찾지 못했습니다.");
             }
         }
-        int baseCost = UnitCostCalculator.CalculateGoldCost(found.level);
+        int baseCost = UnitCostCalculator.CalculateGoldCost(found.Level);
         int cost = GetDiscountedTrainingCost(baseCost);
 
         if (expCostText != null)
@@ -107,6 +108,6 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
             expCostText.text = $"레벨업 비용 {cost}골드";
         }
 
-        Debug.Log($" UI 갱신: {found.unitName} / Lv {found.level} / Exp {found.exp} / 비용: {cost}G");
+        Debug.Log($" UI 갱신: {found.Id} / Lv {found.Level} / Exp {found.EXP} / 비용: {cost}G");
     }
 }

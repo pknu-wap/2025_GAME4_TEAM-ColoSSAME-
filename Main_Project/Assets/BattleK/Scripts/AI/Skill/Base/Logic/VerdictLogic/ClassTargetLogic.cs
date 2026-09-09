@@ -20,7 +20,7 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic
             for (var i = 0; i < size; i++)
             {
                 if (!_results[i].TryGetComponent<StaticAICore>(out var core)) continue;
-                if (!TargetClasses.Contains(core.Stat.UnitClass)) continue;
+                if (!TargetClasses.Contains(core.runtimeStat.UnitClass)) continue;
                 bestTarget = core.transform;
                 return true;
             }

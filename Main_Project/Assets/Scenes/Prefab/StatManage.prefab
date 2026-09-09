@@ -196,21 +196,8 @@ MonoBehaviour:
     Rarity: 1
     Level: 1
     CurrentInjury: 0
-  _basicCorrection:
-  - 20
-  - 30
-  - 200
-  - 0
-  _starCorrection:
-  - 0
-  - 0
-  - 0
-  - 0
-  _bornStarCorrection:
-  - 1
-  - 1
-  - 1
-  - 1
+  _playerPreviewStats: []
+  _correctionTable: {fileID: 11400000, guid: a23bec5b2e167ea43a5f790b6fdaeabb, type: 2}
 --- !u!1 &909264949603392117
 GameObject:
   m_ObjectHideFlags: 0
@@ -323,6 +310,7 @@ MonoBehaviour:
     currentMatchIndex: 0
     currentEnemyTeamId: 0
     currentMatchId: 
+    predictions: []
     currentEnemy:
       id: 0
       fid: 
@@ -330,81 +318,58 @@ MonoBehaviour:
       money: 0
       growthStage: 0
       units: []
+  _itemDatabase: {fileID: 0}
   _caseInsensitiveMatch: 1
-  _playerStats:
-  - Unit_ID: Caelus_Recruit_Sorcerer
-    Unit_Name: "\uCE74\uC774\uB8E8\uC2A4 \uC2E0\uBCD1 \uC8FC\uC220\uC0AC"
-    ATK: 4
-    DEF: 1
-    HP: 3
-    AGI: 2
-    Rarity: 1
-    Level: 1
-    CurrentInjury: 0
-  - Unit_ID: Caelus_Recruit_Skirmisher
-    Unit_Name: "\uCE74\uC774\uB8E8\uC2A4 \uC2E0\uBCD1 \uCC99\uD6C4\uBCD1"
-    ATK: 3
-    DEF: 1
-    HP: 2
-    AGI: 4
-    Rarity: 1
-    Level: 1
-    CurrentInjury: 0
-  - Unit_ID: Caelus_Recruit_Legionary
-    Unit_Name: "\uCE74\uC774\uB8E8\uC2A4 \uC2E0\uBCD1 \uAD70\uB2E8\uBCD1"
-    ATK: 2
-    DEF: 4
-    HP: 3
-    AGI: 1
-    Rarity: 1
-    Level: 1
-    CurrentInjury: 0
-  - Unit_ID: Caelus_Recruit_Gladiator
-    Unit_Name: "\uCE74\uC774\uB8E8\uC2A4 \uC2E0\uBCD1 \uAC80\uD22C\uC0AC"
-    ATK: 4
-    DEF: 2
-    HP: 3
-    AGI: 1
-    Rarity: 1
-    Level: 1
-    CurrentInjury: 0
-  _enemyStats:
-  - Unit_ID: Astra_Recruit_Priest
-    Unit_Name: "\uC544\uC2A4\uD2B8\uB77C \uC2E0\uBCD1 \uC0AC\uC81C"
-    ATK: 1
-    DEF: 2
-    HP: 4
-    AGI: 3
-    Rarity: 1
-    Level: 1
-    CurrentInjury: 0
-  - Unit_ID: Astra_Recruit_Skirmisher
-    Unit_Name: "\uC544\uC2A4\uD2B8\uB77C \uC2E0\uBCD1 \uCC99\uD6C4\uBCD1"
-    ATK: 3
-    DEF: 1
-    HP: 2
-    AGI: 4
-    Rarity: 1
-    Level: 1
-    CurrentInjury: 0
-  - Unit_ID: Astra_Recruit_Legionary
-    Unit_Name: "\uC544\uC2A4\uD2B8\uB77C \uC2E0\uBCD1 \uAD70\uB2E8\uBCD1"
-    ATK: 2
-    DEF: 4
-    HP: 3
-    AGI: 1
-    Rarity: 1
-    Level: 1
-    CurrentInjury: 0
-  - Unit_ID: Astra_Recruit_Assassin
-    Unit_Name: "\uC544\uC2A4\uD2B8\uB77C \uC2E0\uBCD1 \uC554\uC0B4\uC790"
-    ATK: 4
-    DEF: 1
-    HP: 1
-    AGI: 4
-    Rarity: 1
-    Level: 1
-    CurrentInjury: 0
+--- !u!1 &6082737753141194628
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8074268635654755945}
+  - component: {fileID: 8963874830655172141}
+  m_Layer: 0
+  m_Name: StatsRfreshManger
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8074268635654755945
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6082737753141194628}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 2.2773058, y: -2.9597116, z: 152.36504}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3610337611794060122}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8963874830655172141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6082737753141194628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77fc67a96cd1c644b9d0467b11d5b6fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _unitLoadManager: {fileID: 667550761229746126}
+  _familyStatsCollector: {fileID: 4782778124760786219}
+  _calculateManager: {fileID: 5614839030743010754}
+  _waitOneFrameBeforeCollect: 1
+  _waitOneFrameBeforeCalculate: 1
+  _useCalculateManagerRefreshFlow: 1
 --- !u!1 &6455238855440414467
 GameObject:
   m_ObjectHideFlags: 0
@@ -434,6 +399,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 8074268635654755945}
   - {fileID: 6729391580521987144}
   - {fileID: 7925075881973520230}
   - {fileID: 5443460989829686218}
