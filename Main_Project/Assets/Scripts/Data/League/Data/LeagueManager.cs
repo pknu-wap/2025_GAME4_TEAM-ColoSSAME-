@@ -14,12 +14,16 @@ public class LeagueManager : MonoBehaviour
     public LeagueSaveManager saveManager;
     private LeagueSettingManager settingManager;
 
+    [SerializeField] private SkillPoolRegistrySO skillPoolRegistry;
+
     void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(this.gameObject);
+
+            EnemyTeamService.Registry = skillPoolRegistry;
 
             saveManager = GetComponent<LeagueSaveManager>();
             settingManager = GetComponent<LeagueSettingManager>();
