@@ -190,19 +190,20 @@ public static class EnemyTeamService
         {
             var choices = pool.GetSkillChoices(r);
             if (choices.Count == 0) return;
-            AddSkill(unit, choices[Random.Range(0, choices.Count)]);
+            AddSkill(unit, choices[Random.Range(0, choices.Count)].skillName);
         }
         else if (r == 5)
         {
             var ult = pool.GetUltimate();
-            if (ult != null) AddSkill(unit, ult);
+            if (ult != null) AddSkill(unit, ult.skillName);
         }
     }
 
-    private static void AddSkill(Unit unit, SkillSO skill)
+    private static void AddSkill(Unit unit, string skillName)
     {
-        if (unit.OwnedSkills.Exists(s => s.skillName == skill.SkillName)) return;
-        unit.OwnedSkills.Add(new UnitSkill(skill.SkillName, 1));
+        if (string.IsNullOrEmpty(skillName)) return;
+        if (unit.OwnedSkills.Exists(s => s.skillName == skillName)) return;
+        unit.OwnedSkills.Add(new UnitSkill(skillName, 1));
     }
 
     // 획득 유닛 스킬 소급 부여
@@ -215,12 +216,12 @@ public static class EnemyTeamService
         {
             var choices = pool.GetSkillChoices(r);
             if (choices.Count == 0) continue;
-            AddSkill(unit, choices[Random.Range(0, choices.Count)]);
+            AddSkill(unit, choices[Random.Range(0, choices.Count)].skillName);
         }
         if (unit.Tier >= 5)
         {
             var ult = pool.GetUltimate();
-            if (ult != null) AddSkill(unit, ult);
+            if (ult != null) AddSkill(unit, ult.skillName);
         }
     }
 

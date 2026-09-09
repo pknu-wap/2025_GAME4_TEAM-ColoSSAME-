@@ -10,46 +10,45 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 118a914a25676ed4eb83b53cf6f25c75, type: 3}
-  m_Name: Assasin_Tier2_Suri
+  m_Name: Assasin_Tier3_Sting
   m_EditorClassIdentifier: 
   TargetType: 0
   ExecutionCondition:
-  - rid: 9000000000000000001
-  SkillName: Suri
-  InternalPriority: 200
-  SkillPrefab: {fileID: 7601000000000000001, guid: 13318ec148ac479c93f36e7db5b4604d, type: 3}
-  SkillPrefabScale: 0.4
+  - rid: 8120591626785259521
+  SkillName: ASN_T3_2_S
+  InternalPriority: 300
+  SkillPrefab: {fileID: 6800312759422427733, guid: d9bc832d1999a35429254d7365f84c6c, type: 3}
+  SkillPrefabScale: 1
   FlipSkillPrefabByOwnerFacing: 0
   FollowSkillPrefab: 0
-  SkillPrefabSpawnCount: 3
-  SkillPrefabSpawnInterval: 0.1
-  WindupPrefab: {fileID: 2716880340532199156, guid: 6cf9a7ef0ded3314eb4c262dbdc4dccc, type: 3}
+  SkillPrefabSpawnCount: 1
+  SkillPrefabSpawnInterval: 0
+  WindupPrefab: {fileID: 0}
   WindupSpawnAt: 0
   WindupPrefabScale: 1
   FlipWindupPrefabByOwnerFacing: 0
   FadeWindupPrefab: 1
   WindupFadeInTime: 0.15
   WindupFadeOutTime: 0.15
-  Cooldown: 10
-  SkillArea: {x: 10, y: 10}
-  MaxHitTargets: 1
+  Cooldown: 5
+  SkillArea: {x: 1, y: 1}
+  MaxHitTargets: 0
   OwnerFrontDistance: 1
   SpawnAt: 0
-  WindupTime: 0.5
-  ActiveTime: 1.2
-  RecoveryTime: 0.4
+  WindupTime: 0
+  ActiveTime: 0.5
+  RecoveryTime: 0
   SkillLogics:
-  - rid: 9000000000000000002
+  - rid: 8120591626785259520
   AnimationIndex: 0
   references:
     version: 2
     RefIds:
-    - rid: 9000000000000000001
+    - rid: 8120591626785259520
+      type: {class: SPMultipleDamage, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
+      data:
+        SkillPointRatio: 0.1
+        basicBonusPoint: 1.4
+    - rid: 8120591626785259521
       type: {class: NearestTargetLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic, asm: Assembly-CSharp}
       data: 
-    - rid: 9000000000000000002
-      type: {class: DfMultipleDamage, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
-      data:
-        SkillPointRatio: 0.045
-        BaseMultiplier: 0.58
-        DefenseRatio: 0.09

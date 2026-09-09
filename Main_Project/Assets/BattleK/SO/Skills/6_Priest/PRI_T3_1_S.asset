@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 118a914a25676ed4eb83b53cf6f25c75, type: 3}
-  m_Name: Assasin_Ultimate
+  m_Name: Priest_Tier3_Skill1
   m_EditorClassIdentifier: 
-  TargetType: 0
+  TargetType: 1
   ExecutionCondition:
-  - rid: 5257176787301433344
-  SkillName: AssasinUltimate
-  InternalPriority: 300
-  SkillPrefab: {fileID: 6433028759829344782, guid: 1ad96d57b9f409643bfdf9c6ded0be19, type: 3}
+  - rid: 8656211662439972865
+  SkillName: PRI_T3_1_S
+  InternalPriority: 100
+  SkillPrefab: {fileID: 4192756381711643309, guid: ff5a24345cd36aa408cd62545614e260, type: 3}
   SkillPrefabScale: 1
   FlipSkillPrefabByOwnerFacing: 0
   FollowSkillPrefab: 0
@@ -28,28 +28,27 @@ MonoBehaviour:
   WindupPrefabScale: 1
   FlipWindupPrefabByOwnerFacing: 0
   FadeWindupPrefab: 1
-  WindupFadeInTime: 0.15
-  WindupFadeOutTime: 0.15
-  Cooldown: 20
+  WindupFadeInTime: 0.5
+  WindupFadeOutTime: 0.5
+  Cooldown: 10
   SkillArea: {x: 100, y: 100}
   MaxHitTargets: 0
   OwnerFrontDistance: 1
-  SpawnAt: 0
-  WindupTime: 0
-  ActiveTime: 0.5
+  SpawnAt: 1
+  WindupTime: 1
+  ActiveTime: 0.7
   RecoveryTime: 0
   SkillLogics:
-  - rid: 5257176787301433345
+  - rid: 8656211662439972866
   AnimationIndex: 0
   references:
     version: 2
     RefIds:
-    - rid: 5257176787301433344
-      type: {class: ClassTargetLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic, asm: Assembly-CSharp}
+    - rid: 8656211662439972865
+      type: {class: LowHealthTargetLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic, asm: Assembly-CSharp}
+      data: 
+    - rid: 8656211662439972866
+      type: {class: HealthPerHealLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.HealSkillLogics, asm: Assembly-CSharp}
       data:
-        TargetClasses: 010000000200000006000000
-    - rid: 5257176787301433345
-      type: {class: HealthPerDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
-      data:
-        BaseDamageRatio: 0.35
-        SkillPointBonusRatio: 0.02
+        BaseHealRatio: 0.12
+        SkillPointBonusRatio: 0.006
