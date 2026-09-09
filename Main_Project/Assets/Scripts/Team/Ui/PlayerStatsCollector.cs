@@ -29,7 +29,5 @@ public class PlayerStatsCollector : MonoBehaviour
 
             _playerStats.Add(UnitBaseStat.FromFamilyAndSave(data, unit));
         }
-
-        Debug.Log($"플레이어 스탯 수집 완료 : {_playerStats.Count}");
     }
 }
