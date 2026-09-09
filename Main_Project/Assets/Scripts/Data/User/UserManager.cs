@@ -100,19 +100,12 @@ public class UserManager : MonoBehaviour
     {
         Unit unit = GetMyUnitById(unitId);
 
-        if (unit == null)
-        {
-            Debug.LogWarning($" 유닛 없음 : {unitId}");
-            return false;
-        }
-
         unit.Tier += amount;
 
         if (unit.Tier > 5)
             unit.Tier = 5;
 
-        SaveUser();
-
+        //SaveUser();
 
         return true;
     }
