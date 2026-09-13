@@ -636,8 +636,18 @@ namespace BattleK.Scripts.AI
 
         private void PersistEnemyUnit()
         {
-            if (_enemySaveManager == null || _league == null) return;
+            if (_enemySaveManager == null)
+            {
+                Debug.LogError("[EnemySave] _enemySaveManager가 NULL");
+                
+            }
 
+            if (_league == null)
+            {
+                Debug.LogError("[EnemySave] _league가 NULL");
+    
+            }
+            if (_enemySaveManager == null || _league == null) return;
             var team = _enemySaveManager.GetTeam(_league.currentEnemyTeamId);
 
             Debug.Log($"[EnemySave] Stat.Name={runtimeStat.Name}");
@@ -648,6 +658,7 @@ namespace BattleK.Scripts.AI
             }
             var unitData = team?.units?.Find(u =>
                 string.Equals(u.Id?.Trim(), runtimeStat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
+
             Debug.Log($"[EnemySave] unitData={(unitData == null ? "NULL" : unitData.Id)}");
             if (unitData == null) return;
 
