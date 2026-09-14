@@ -5,13 +5,10 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
-//수정
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using System.Collections;
 using BattleK.Scripts.Data.Stat;
-
-//
 
 public class UserManager : MonoBehaviour
 {
@@ -43,7 +40,7 @@ public class UserManager : MonoBehaviour
     // 현재 UI에서 선택된 유닛 ID (fighter 클릭 시 저장)
     public string selectedUnitId { get; private set; }
 
-// 선택된 유닛을 저장하는 함수
+    // 선택된 유닛을 저장하는 함수
     public void SetSelectedUnit(string unitId)
     {
         selectedUnitId = unitId;
@@ -100,19 +97,10 @@ public class UserManager : MonoBehaviour
     {
         Unit unit = GetMyUnitById(unitId);
 
-        if (unit == null)
-        {
-            Debug.LogWarning($" 유닛 없음 : {unitId}");
-            return false;
-        }
-
         unit.Tier += amount;
 
         if (unit.Tier > 5)
             unit.Tier = 5;
-
-        SaveUser();
-
 
         return true;
     }

@@ -131,6 +131,8 @@ public class AddRarity : MonoBehaviour
         {
             Debug.Log("강화 실패");
             unit.bonusSuccessRarity = 0;
+            UserManager.Instance.SaveUser();
+
             return;
         }
 
@@ -142,6 +144,8 @@ public class AddRarity : MonoBehaviour
         unit.bonusSuccessRarity = 0;
 
         AddSkillByRarity(unit, unit.Tier);
+
+        UserManager.Instance.SaveUser();
         
         RefreshSelectedUnitUI();
     }
