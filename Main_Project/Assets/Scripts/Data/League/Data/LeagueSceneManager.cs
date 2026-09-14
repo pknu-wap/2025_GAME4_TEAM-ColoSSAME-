@@ -53,17 +53,20 @@ public class LeagueSceneManager : MonoBehaviour
         resultPanel.SetActive(false);
     }
 
+    private enum PendingResult { None, Win, Lose, Draw }
+    private PendingResult pending = PendingResult.None;
+
     public void OnClickWin()
     {
-        leagueManager.ProcessRoundResult(true);
+        pending = PendingResult.Win;             
         resultEnemyTeamImage.color = new Color(1, 1, 1, 0.3f);
         resultMyTeamImage.color = Color.white;
-        ShowResultUI(myTeam.id);
+        ShowResultUI(myTeam.id);              
     }
 
     public void OnClickLose()
     {
-        leagueManager.ProcessRoundResult(false);
+        pending = PendingResult.Lose;
         resultMyTeamImage.color = new Color(1, 1, 1, 0.3f);
         resultEnemyTeamImage.color = Color.white;
         ShowResultUI(opponentTeam.id);
@@ -71,10 +74,22 @@ public class LeagueSceneManager : MonoBehaviour
 
     public void OnClickDraw()
     {
-        leagueManager.ProcessRoundResult(true, isDraw: true); 
+        pending = PendingResult.Draw;
         resultMyTeamImage.color = Color.white;
         resultEnemyTeamImage.color = Color.white;
-        ShowResultUI(0);   // 0 = 무승부
+        ShowResultUI(0);
+    }
+
+    public void OnClickReturn()
+    {
+        switch (pending)
+        {
+            case PendingResult.Win: leagueManager.ProcessRoundResult(true); break;
+            case PendingResult.Lose: leagueManager.ProcessRoundResult(false); break;
+            case PendingResult.Draw: leagueManager.ProcessRoundResult(true, isDraw: true); break;
+        }
+        pending = PendingResult.None;
+        SceneTransition.Instance.Load("Book");
     }
 
 
