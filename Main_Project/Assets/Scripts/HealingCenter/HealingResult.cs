@@ -4,8 +4,7 @@ namespace Colosseum.HealingCenter
     {
         Success,
         NotInjured,
-        NotEnoughMoney,
-        NoCharacterSelected
+        NotEnoughMoney
     }
     
     public class HealingResult
@@ -22,7 +21,7 @@ namespace Colosseum.HealingCenter
             UnitId = unitId;
             SpentGold = spentGold;
         }
-        
+
         public string GetMessage()
         {
             switch (ResultType)
@@ -33,9 +32,8 @@ namespace Colosseum.HealingCenter
                     return "치유가 필요하지 않습니다.";
                 case HealingResultType.NotEnoughMoney:
                     return "골드가 부족합니다.";
-                default:
-                    return "선택된 캐릭터가 없습니다.";
             }
+            return "";
         }
     }
 }

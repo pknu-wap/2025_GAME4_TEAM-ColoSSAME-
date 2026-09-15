@@ -1,5 +1,6 @@
 using System;
 using BattleK.Scripts.Data;
+using BattleK.Scripts.Data.Stat;
 using BattleK.Scripts.Manager;
 using TMPro;
 using UnityEngine;
@@ -7,42 +8,38 @@ using UnityEngine.UI;
 
 namespace Colosseum.HealingCenter
 {
-  
     public class HealingCharacterItem : MonoBehaviour
     {
         [SerializeField] private Image portraitImage;
-        [SerializeField] private TMP_Text nameText;
         [SerializeField] private TMP_Text hpText;
         [SerializeField] private Button selectButton;
         [SerializeField] private GameObject selectedHighlight;
 
-        private string _unitId;
-        private Action<string> _onSelected;
+        private Unit _unit;
+        private Action<Unit> _onSelected;
 
-        public string UnitId => _unitId;
+        public string UnitId => _unit?.Id;
 
         private void Awake()
         {
             selectButton.onClick.AddListener(HandleClick);
         }
-        
-        // curHp 추가 에정
-        public void SetData(string unitId, string characterName, string portraitAssetName, AddressableAssetLoader<Sprite> portraitLoader, Action<string> onSelected)
+
+        public void SetData(Unit unit, CharacterData data, AddressableAssetLoader<Sprite> portraitLoader, MonoBehaviour coroutineHost, Action<Unit> onSelected)
         {
-            _unitId = unitId;
+            _unit = unit;
             _onSelected = onSelected;
 
-            nameText.SetText(characterName);
-            // hpText.SetText($"HP {currentHp}");
-
-            LoadPortrait(portraitAssetName, portraitLoader);
+            hpText.SetText(InjuryStatusLocalization.GetDisplayName(unit.currentInjury));
 
             gameObject.SetActive(true);
+
+            LoadPortrait(data, portraitLoader, coroutineHost);
         }
 
         public void Hide()
         {
-            _unitId = null;
+            _unit = null;
             gameObject.SetActive(false);
         }
 
@@ -54,24 +51,29 @@ namespace Colosseum.HealingCenter
             }
         }
 
-        private void LoadPortrait(string portraitAssetName, AddressableAssetLoader<Sprite> portraitLoader)
+        public void RefreshStatus()
         {
-            if (string.IsNullOrEmpty(portraitAssetName))
-            {
-                return;
-            }
+            if (_unit == null) return;
+            hpText.SetText(InjuryStatusLocalization.GetDisplayName(_unit.currentInjury));
+        }
 
-            StartCoroutine(portraitLoader.LoadAsync(
-                AddressableAssetType.Character,
-                portraitAssetName,
+        private void LoadPortrait(CharacterData data, AddressableAssetLoader<Sprite> portraitLoader, MonoBehaviour coroutineHost)
+        {
+            MonoBehaviour host = coroutineHost != null ? coroutineHost : this;
+            host.StartCoroutine(CharacterInfoProvider.LoadPortraitAsync(
+                portraitLoader,
+                data,
                 sprite => portraitImage.sprite = sprite,
-                () => Debug.LogWarning($"[HealingCharacterItem] 포트레이트 로드 실패: {portraitAssetName}")
+                () => Debug.LogWarning($"[HealingCharacterItem] \ud3ec\ud2b8\ub808\uc774\ud2b8 \ub85c\ub4dc \uc2e4\ud328: {data?.Unit_ID}")
             ));
         }
 
         private void HandleClick()
         {
-            _onSelected?.Invoke(_unitId);
+            if (_unit != null)
+            {
+                _onSelected?.Invoke(_unit);
+            }
         }
     }
 }
