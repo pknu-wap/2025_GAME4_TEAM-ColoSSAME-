@@ -21,11 +21,11 @@ public class RandomSkillGrantA : MonoBehaviour
     {
         skillPools = new Dictionary<UnitClass, List<SkillSO>>
         {
-            { UnitClass.Shieldman, tankSkill },
-            { UnitClass.Archer, archerSkill },
-            { UnitClass.Mage, mageSkill },
-            { UnitClass.Swordsman, swordSkill },
-            { UnitClass.Thief, thiefSkill },
+            { UnitClass.Legionary, tankSkill },
+            { UnitClass.Skirmisher, archerSkill },
+            { UnitClass.Magician, mageSkill },
+            { UnitClass.Gladiator, swordSkill },
+            { UnitClass.Assasin, thiefSkill },
             { UnitClass.Priest, bufferSkill }
         };
     }
