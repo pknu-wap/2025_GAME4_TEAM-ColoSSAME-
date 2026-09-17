@@ -13,11 +13,19 @@ namespace Shop.Item.Runner.Battle
 
         [Header("Manager")]
         [SerializeField] private AI_Manager aiManager;
+        [SerializeField] private CalculateManager calculateManager;
+
+        [Header("Auto Start")]
+        [SerializeField] private bool waitForCalculatedStats = true;
+        [SerializeField, Min(0)] private int calculatedStatsFallbackFrameDelay = 5;
 
         private BattleItemEffectContext context;
         private BattleItemEffectRegistry registry;
         private BattleItemEffectDispatcher dispatcher;
         private bool battleStartApplied;
+        private bool calculatedStatsReady;
+        private bool subscribedToStatsReady;
+        private int autoStartReadyFrame = -1;
         private readonly List<StaticAICore> observedUnits = new();
         private readonly Dictionary<StaticAICore, StaticAICore> lastDamageSources = new();
         private readonly HashSet<StaticAICore> notifiedDeadUnits = new();
@@ -43,10 +51,12 @@ namespace Shop.Item.Runner.Battle
 
             if (!aiManager) aiManager = AI_Manager.Instance;
             context.SetAiManager(aiManager);
+            TrySubscribeToStatsReady();
         }
 
         private void OnDestroy()
         {
+            UnsubscribeFromStatsReady();
             if (Instance == this) Instance = null;
         }
 
@@ -181,8 +191,15 @@ namespace Shop.Item.Runner.Battle
             if (battleStartApplied) return;
             if (!TryResolveAiManager()) return;
             if (aiManager.IsAlreadyDone) return;
-            if (!HasInitializedUnits(aiManager.playerUnits)) return;
-            if (!HasInitializedUnits(aiManager.enemyUnits)) return;
+            if (!HasInitializedUnits(aiManager.playerUnits) ||
+                !HasInitializedUnits(aiManager.enemyUnits))
+            {
+                autoStartReadyFrame = -1;
+                return;
+            }
+
+            if (!CanApplyItemStatsAfterBaseStats())
+                return;
 
             StartBattle(aiManager);
         }
@@ -194,6 +211,46 @@ namespace Shop.Item.Runner.Battle
             aiManager = AI_Manager.Instance;
             context.SetAiManager(aiManager);
             return aiManager != null;
+        }
+
+        private bool CanApplyItemStatsAfterBaseStats()
+        {
+            if (!waitForCalculatedStats) return true;
+            if (calculatedStatsReady) return true;
+
+            TrySubscribeToStatsReady();
+            if (!calculateManager) return true;
+
+            if (autoStartReadyFrame < 0)
+                autoStartReadyFrame = Time.frameCount;
+
+            return Time.frameCount - autoStartReadyFrame >= calculatedStatsFallbackFrameDelay;
+        }
+
+        private void TrySubscribeToStatsReady()
+        {
+            if (subscribedToStatsReady) return;
+
+            if (!calculateManager)
+                calculateManager = FindObjectOfType<CalculateManager>();
+
+            if (!calculateManager) return;
+
+            calculateManager.OnStatsReady += HandleStatsReady;
+            subscribedToStatsReady = true;
+        }
+
+        private void UnsubscribeFromStatsReady()
+        {
+            if (!subscribedToStatsReady || !calculateManager) return;
+
+            calculateManager.OnStatsReady -= HandleStatsReady;
+            subscribedToStatsReady = false;
+        }
+
+        private void HandleStatsReady()
+        {
+            calculatedStatsReady = true;
         }
 
         private static bool HasInitializedUnits(List<StaticAICore> units)
@@ -239,6 +296,8 @@ namespace Shop.Item.Runner.Battle
             lastDamageSources.Clear();
             notifiedDeadUnits.Clear();
             battleStartApplied = false;
+            calculatedStatsReady = false;
+            autoStartReadyFrame = -1;
         }
     }
 }
