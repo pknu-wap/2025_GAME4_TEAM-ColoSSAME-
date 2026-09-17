@@ -1,3 +1,5 @@
+using System.Collections;
+using BattleK.Scripts.Data.Stat;
 using UnityEngine;
 
 namespace Colosseum.HealingCenter
@@ -6,9 +8,13 @@ namespace Colosseum.HealingCenter
     {
         [SerializeField] private HealingCharacterList characterList;
         [SerializeField] private HealingCharacterDetail characterDetail;
+        [SerializeField] private TextToastUI toastUI;
 
         private void Awake()
         {
+            characterList.CoroutineHost = this;
+            characterDetail.CoroutineHost = this;
+
             characterList.OnCharacterSelected += characterDetail.ShowCharacter;
             characterDetail.OnHealRequested += HandleHealRequested;
         }
@@ -21,24 +27,40 @@ namespace Colosseum.HealingCenter
 
         private void OnEnable()
         {
-            characterList.Refresh();
-            characterDetail.Clear();
+            StartCoroutine(RefreshNextFrame());
         }
 
-        private void HandleHealRequested(string unitId)
+        private IEnumerator RefreshNextFrame()
         {
-            HealingResult result = HealingService.Instance.TryHeal(unitId);
+            yield return null;
+
+            characterList.Refresh();
+
+            Unit first = characterList.GetFirstUnit();
+            if (first != null)
+            {
+                characterList.Select(first);
+            }
+            else
+            {
+                characterDetail.Clear();
+            }
+        }
+
+        private void HandleHealRequested(Unit unit)
+        {
+            HealingResult result = HealingService.Instance.TryHeal(unit);
 
             if (!result.IsSuccess)
             {
                 Debug.Log($"[HealingCenterUI] {result.GetMessage()}");
-                // TODO: 실제 토스트/팝업 매니저가 있다면 연동
-                // 예: ToastManager.Instance.Show(result.GetMessage());
+                if (toastUI != null)
+                {
+                    toastUI.Show(result.GetMessage(), 2f);
+                }
                 return;
             }
-
-            // 치유 완료: 좌측(HP 갱신) + 우측(상태 갱신) 모두 다시 그린다.
-            characterList.Refresh();
+            characterList.RefreshSelectedSlotStatus();
             characterDetail.Refresh();
         }
     }

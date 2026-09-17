@@ -8,7 +8,7 @@ public class ShopController : MonoBehaviour
     public ItemDatabase itemDatabase;
 
     [Header("메시지 UI(선택)")]
-    public ShopToastUI toastUI;
+    public TextToastUI toastUI;
 
     [Header("시설 업그레이드 매니저(상점 할인 적용용)")]
     public BuildingUpgradeManager upgradeManager; //  인스펙터에서 연결 (선택)
