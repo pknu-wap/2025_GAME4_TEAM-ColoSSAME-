@@ -17,11 +17,13 @@ namespace Colosseum.HealingCenter
         [SerializeField] private TMP_Text healingCostText;
         [SerializeField] private Button healButton;
 
+        public MonoBehaviour CoroutineHost { get; set; }
+
         private readonly AddressableAssetLoader<Sprite> _portraitLoader = new();
 
-        private string _currentUnitId;
-        
-        public event Action<string> OnHealRequested;
+        private Unit _currentUnit;
+
+        public event Action<Unit> OnHealRequested;
 
         private void Awake()
         {
@@ -33,15 +35,15 @@ namespace Colosseum.HealingCenter
             _portraitLoader.ReleaseAll();
         }
 
-        public void ShowCharacter(string unitId)
+        public void ShowCharacter(Unit unit)
         {
-            _currentUnitId = unitId;
+            _currentUnit = unit;
             Refresh();
         }
 
         public void Clear()
         {
-            _currentUnitId = null;
+            _currentUnit = null;
             nameText.SetText(string.Empty);
             hpText.SetText(string.Empty);
             injuryStatusText.SetText(string.Empty);
@@ -49,53 +51,50 @@ namespace Colosseum.HealingCenter
             portraitImage.sprite = null;
             healButton.interactable = false;
         }
-        
         public void Refresh()
         {
-            if (string.IsNullOrEmpty(_currentUnitId))
+            if (_currentUnit == null)
             {
                 Clear();
                 return;
             }
 
-            CharacterData characterData = UnitDataManager.Instance.GetCharacterData(_currentUnitId);
-            Unit myUnit = UserManager.Instance.GetMyUnitById(_currentUnitId);
-
-            if (characterData == null || myUnit == null)
+            CharacterData characterData = CharacterInfoProvider.GetCharacterData(_currentUnit.Id);
+            if (characterData == null)
             {
-                Debug.LogWarning($"[HealingCharacterDetail] 캐릭터 데이터를 찾을 수 없습니다: {_currentUnitId}");
+                Debug.LogWarning($"[HealingCharacterDetail] \uce90\ub9ad\ud130 \ub370\uc774\ud130\ub97c \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4: {_currentUnit.Id}");
                 Clear();
                 return;
             }
 
-            nameText.SetText(characterData.Unit_Name);
-            // hpText.SetText($"HP {myUnit.currentHp}"); // TODO: 실제 HP 필드명 확인 필요
+            nameText.SetText($"이름 : {characterData.Unit_Name}");
+            bool isInjured = HealingService.Instance.IsInjured(_currentUnit);
+            injuryStatusText.SetText($"상태 : {HealingService.Instance.GetInjuryStatusText(_currentUnit)}");
 
-            bool isInjured = HealingService.Instance.IsInjured(_currentUnitId);
-            injuryStatusText.SetText(HealingService.Instance.GetInjuryStatusText(_currentUnitId));
+            int cost = HealingService.Instance.GetHealingCost(_currentUnit);
+            healingCostText.SetText(isInjured ? $"비용 : {cost} G" : "비용 : -");
 
-            int cost = HealingService.Instance.GetHealingCost(_currentUnitId);
-            healingCostText.SetText(isInjured ? $"{cost} G" : "-");
+            bool hasEnoughGold = HealingService.Instance.HasEnoughGold(_currentUnit);
+            healButton.interactable = isInjured && hasEnoughGold;
 
-            healButton.interactable = isInjured;
-
-            StartCoroutine(_portraitLoader.LoadAsync(
-                AddressableAssetType.Character,
-                characterData.Unit_Name, // TODO: 포트레이트 전용 필드가 따로 있다면 그 필드로 교체
+            MonoBehaviour host = CoroutineHost != null ? CoroutineHost : this;
+            host.StartCoroutine(CharacterInfoProvider.LoadPortraitAsync(
+                _portraitLoader,
+                characterData,
                 sprite => portraitImage.sprite = sprite,
-                () => Debug.LogWarning($"[HealingCharacterDetail] 포트레이트 로드 실패: {characterData.Unit_Name}")
+                () => Debug.LogWarning($"[HealingCharacterDetail] \ud3ec\ud2b8\ub808\uc774\ud2b8 \ub85c\ub4dc \uc2e4\ud328: {characterData.Unit_ID}")
             ));
         }
 
         private void HandleHealClicked()
         {
-            if (string.IsNullOrEmpty(_currentUnitId))
+            if (_currentUnit == null)
             {
-                Debug.LogWarning("[HealingCharacterDetail] 선택된 캐릭터가 없습니다.");
+                Debug.LogWarning("[HealingCharacterDetail] \uc120\ud0dd\ub41c \uce90\ub9ad\ud130\uac00 \uc5c6\uc2b5\ub2c8\ub2e4.");
                 return;
             }
 
-            OnHealRequested?.Invoke(_currentUnitId);
+            OnHealRequested?.Invoke(_currentUnit);
         }
     }
 }

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
-public class ShopToastUI : MonoBehaviour
+public class TextToastUI : MonoBehaviour
 {
     public Text infoText;
     private Coroutine c;
