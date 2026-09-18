@@ -94,43 +94,42 @@ public class EnemySaveManager
         Save();
     }
 
-    public void RecordSeenEnemy(SeenEnemyData data)
+
+    public void RecordSeenEnemyTeam(EnemyTeam team)
     {
-        if (data == null)
-            return;
+        if (team == null || team.units == null) return;
 
-        if (string.IsNullOrWhiteSpace(data.teamFid) || string.IsNullOrWhiteSpace(data.unitId))
-            return;
-
-        data.teamFid = data.teamFid.Trim();
-        data.unitId = data.unitId.Trim();
-
-        var teamData = _seenEnemyTeams.Find(x =>
-            string.Equals(
-                x.teamFid,
-                data.teamFid,
-                StringComparison.OrdinalIgnoreCase));
+        var teamData = _seenEnemyTeams.Find(
+            t => t.teamFid == team.fid);
 
         if (teamData == null)
         {
             teamData = new SeenEnemyTeamData
             {
-                teamFid = data.teamFid
+                teamFid = team.fid
             };
 
             _seenEnemyTeams.Add(teamData);
         }
 
-        bool alreadySeen = teamData.enemies.Exists(x =>
-            string.Equals(
-                x.unitId,
-                data.unitId,
-                StringComparison.OrdinalIgnoreCase));
+        foreach (var unit in team.units)
+        {
+            var existingEnemy = teamData.enemies.Find(
+                e => e.unitId == unit.Id);
 
-        if (alreadySeen)
-            return;
+            if (existingEnemy != null)
+                continue;
 
-        teamData.enemies.Add(data);
+            teamData.enemies.Add(new SeenEnemyData
+            {
+                unitId = unit.Id,
+                unitName = unit.UnitName,
+                teamFid = team.fid,
+                teamName = team.name,
+                Tier = unit.Tier,
+                level = unit.Level
+            });
+        }
 
         Save();
     }

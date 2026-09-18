@@ -132,6 +132,9 @@ namespace BattleK.Scripts.AI
             OverrideMachine = new StaticStateMachine(this);
             MainMachine = new StaticStateMachine(this);
 
+            _enemySaveManager = EnemySaveManager.Instance;
+            _league = LeagueManager.Instance.league;
+
             if (MeleeWeapon) MeleeWeapon.Initialize(this);
             if (RangedWeapon) RangedWeapon.Initialize(this);
 
@@ -645,30 +648,35 @@ namespace BattleK.Scripts.AI
         private void PersistEnemyUnit()
         {
             if (_enemySaveManager == null || _league == null) return;
-
             var team = _enemySaveManager.GetTeam(_league.currentEnemyTeamId);
 
-            Debug.Log($"[EnemySave] Stat.Name={runtimeStat.Name}");
+            //Debug.Log($"[EnemySave] Stat.Name={runtimeStat.Name}");
 
-            foreach (var unit in team.units)
+            /*foreach (var unit in team.units)
             {
                 Debug.Log($"[EnemySave] unitName={unit.Id}");
+
+                var seenEnemy = new SeenEnemyData
+                {
+                    unitId = unit.Id,
+                    unitName = unit.UnitName,
+                    teamFid = team.fid,
+                    teamName = team.name
+                };
+
+
             }
             var unitData = team?.units?.Find(u =>
                 string.Equals(u.Id?.Trim(), runtimeStat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
-            Debug.Log($"[EnemySave] unitData={(unitData == null ? "NULL" : unitData.Id)}");
-            if (unitData == null) return;
+            */
+            //Debug.Log($"[EnemySave] unitData={(unitData == null ? "NULL" : unitData.Id)}");
+            //if (unitData == null) return;
 
-            var seenEnemy = new SeenEnemyData
-            {
-                unitId = unitData.Id,
-                teamFid = team.fid,
-                teamName = team.name
-            };
+            
 
-            _enemySaveManager.RecordSeenEnemy(seenEnemy);
+            _enemySaveManager.RecordSeenEnemyTeam(team);
 
-            runtimeStat.SaveTo(unitData);
+            //runtimeStat.SaveTo(unitData);
         }
 
 #if UNITY_EDITOR
