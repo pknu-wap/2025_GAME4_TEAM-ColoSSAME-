@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using BattleK.Scripts.AI.Skill.Base;
 using BattleK.Scripts.Data.Stat;
 using UnityEngine;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.Serialization;
 
 namespace BattleK.Scripts.Data.ClassInfo
@@ -25,8 +27,8 @@ namespace BattleK.Scripts.Data.ClassInfo
     
         [Header("스킬")]
         [FormerlySerializedAs("Skills")]
-        public List<SkillSO> EquippedSkills;
-        public List<SkillSO> AllPossibleSkills;
+        public List<ClassSkillPoolSO.SkillRef> EquippedSkills = new();
+        public ClassSkillPoolSO SkillPoolSo;
         
         [Header("아이템")]
         public ItemData Item;
@@ -43,27 +45,61 @@ namespace BattleK.Scripts.Data.ClassInfo
         public float MoveSpeed;
         public float EvasionRate;
         
-        public void LoadEquipped(UnitRuntimeStat unitRuntime, List<UnitSkill> savedIds)
+        public void LoadEquipped(List<UnitSkill> savedSkills)
         {
-            if (unitRuntime.AllPossibleSkills == null || unitRuntime.AllPossibleSkills.Count == 0)
+            if (SkillPoolSo == null || SkillPoolSo.skills.Count == 0)
             {
-                unitRuntime.EquippedSkills = new List<SkillSO>();
+                EquippedSkills = new List<ClassSkillPoolSO.SkillRef>();
                 return;
             }
 
-            var ids = savedIds ?? new List<UnitSkill>();
-            var equippedNames = new HashSet<string>(ids.Select(u => u.skillName));
-
-            unitRuntime.EquippedSkills = unitRuntime.AllPossibleSkills
-                .Where(s => equippedNames.Contains(s.SkillName))
-                .ToList();
+            var savedNames = new HashSet<string>((savedSkills ?? Enumerable.Empty<UnitSkill>())
+                .Where(u => u != null).Select(u => u.skillName));
+            EquippedSkills = SkillPoolSo.skills
+                .Where(s => s != null && savedNames.Contains(s.skillName)).ToList();
         }
+        
+        public async Task<List<SkillSO>> ResolveEquippedSkillsAsync()
+        {
+            var result = new List<SkillSO>();
+            if (EquippedSkills == null || EquippedSkills.Count == 0) return result;
 
+            foreach (var skillRef in EquippedSkills)
+            {
+                if (skillRef?.asset == null || !skillRef.asset.RuntimeKeyIsValid()) continue;
+
+                AsyncOperationHandle<SkillSO> handle = skillRef.asset.LoadAssetAsync();
+                var skill = await handle.Task;
+                if (handle.Status == AsyncOperationStatus.Succeeded && skill != null)
+                {
+                    result.Add(skill);
+                }
+                else
+                {
+                    Debug.LogWarning($"[UnitRuntimeStat] 스킬 로드 실패: {skillRef.skillName}");
+                }
+            }
+
+            return result;
+        }
+        
+        public void ReleaseEquippedSkills()
+        {
+            if (EquippedSkills == null) return;
+            foreach (var skillRef in EquippedSkills)
+            {
+                if (skillRef?.asset != null && skillRef.asset.IsValid())
+                {
+                    skillRef.asset.ReleaseAsset();
+                }
+            }
+        }
+        
         public void SaveTo(Unit unit)
         {
             unit.currentInjury = InjuryLevel;
             unit.equippedItemId = Item != null ? Item.id : -1;
-            unit.EquippedSkills = EquippedSkills?.Select(s => new UnitSkill(s.SkillName, s.SkillLevel)).ToList() ?? new List<UnitSkill>();
+            unit.EquippedSkills = EquippedSkills?.Where(s => s != null).Select(s => new UnitSkill(s.skillName, 1)).ToList() ?? new List<UnitSkill>();
         }
 
         public void LoadFrom(Unit unit, ItemDatabase itemDb)
@@ -71,7 +107,7 @@ namespace BattleK.Scripts.Data.ClassInfo
             if (unit == null) return;
             InjuryLevel = unit.currentInjury;
             Item = itemDb?.GetById(unit.equippedItemId);
-            LoadEquipped(this, unit.EquippedSkills);
+            LoadEquipped(unit.EquippedSkills);
         }
     }
 }
