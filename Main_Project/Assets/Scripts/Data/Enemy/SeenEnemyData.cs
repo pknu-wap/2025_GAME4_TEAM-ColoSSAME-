@@ -12,11 +12,6 @@ public class SeenEnemyData
     public string teamFid;
     public string teamName;
     
-    public int rarity;
+    public int Tier;
     public int level;
-
-    public int maxHP;
-    public int attackDamage;
-    public int defense;
-    public float moveSpeed;
 }

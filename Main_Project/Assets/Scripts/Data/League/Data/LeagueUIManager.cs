@@ -187,8 +187,9 @@ public class LeagueUIManager : MonoBehaviour
     private void OpenTeamInfoPage(Team team)
     {
         teamInfoUI.SetTeam(team);
-        seenEnemyListUI.ShowTeam(team);
+        
         hideManager.ShowPanel(teamInfoPanel);
+        seenEnemyListUI.ShowTeam(team);
         // pageController.OnButtonClicked(teamInfoPageIndex);
     }
 

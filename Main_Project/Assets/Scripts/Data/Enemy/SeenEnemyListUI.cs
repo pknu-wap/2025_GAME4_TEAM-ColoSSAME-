@@ -38,29 +38,41 @@ public class SeenEnemyListUI : MonoBehaviour
             if (image != null)
             {
                 image.sprite = null;
-
-                string unitId = enemies[i].unitId;
-
-                StartCoroutine(LoadPortraitRoutine(unitId, image));
             }
         }
+
+        StartCoroutine(LoadAllPortraits(enemies));
     }
 
-     private IEnumerator LoadPortraitRoutine(string unitId, Image targetImage)
+    private IEnumerator LoadAllPortraits(List<SeenEnemyData> enemies)
     {
-        yield return portraitLoader.LoadAsync(
-            AddressableAssetType.Character,
-            unitId,
-            sprite =>
+        for (int i = 0; i < enemies.Count && i < content.childCount; i++)
+        {
+            GameObject enemyUI = content.GetChild(i).gameObject;
+
+            Image image = enemyUI.GetComponentInChildren<Image>(true);
+
+            if (image == null)
             {
-                if (targetImage != null)
+                continue;
+            }
+
+            string unitId = enemies[i].unitId;
+
+
+            yield return portraitLoader.LoadAsync(
+                AddressableAssetType.Character,
+                unitId,
+                sprite =>
                 {
-                    targetImage.sprite = sprite;
-                }
-            },
-            () =>
-            {
-                Debug.LogWarning($"[SeenEnemyListUI] 적 초상화 로드 실패: {unitId}");
-            });
+                    if (image != null)
+                    {
+                        image.sprite = sprite;
+                    }
+                },
+                () =>
+                {
+                });
+        }
     }
 }

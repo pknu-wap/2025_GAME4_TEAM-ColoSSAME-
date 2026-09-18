@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using BattleK.Scripts.AI.CCState;
+using BattleK.Scripts.AI.Skill.Base;
 using BattleK.Scripts.AI.StaticScoreState;
 using BattleK.Scripts.AI.StaticScoreState.ActionStates;
 using BattleK.Scripts.AI.StaticScoreState.Attack;
@@ -53,6 +55,7 @@ namespace BattleK.Scripts.AI
 
         [FormerlySerializedAs("Stat")] [Header("Stats")]
         public UnitRuntimeStat runtimeStat;
+        public List<SkillSO> ResolvedSkills = new();
         public float CurrentMoveSpeed { get; private set; }
         public int CurrentAttackDamage { get; private set; }
         public int CurrentDefense { get; private set; }
@@ -81,7 +84,7 @@ namespace BattleK.Scripts.AI
         private StaticAICore _targetCore;
         public bool IsDead => OverrideMachine.CurrentState is StaticDeathState;
         public bool IsInvincible => HasStatus(StatusType.Invincible);
-        public event System.Action OnStatChanged;
+        public event Action OnStatChanged;
 
         [HideInInspector] public float LastRetreatFinishTime;
         private float _attackTimer;
@@ -106,7 +109,12 @@ namespace BattleK.Scripts.AI
             var isAlly = gameObject.layer == AiManager.PlayerLayer;
             AiManager.HPManager.NotifyStatusChanged(this, isAlly);
         }
-
+        
+        public async Task PrepareAsync()
+        {
+            ResolvedSkills = await runtimeStat.ResolveEquippedSkillsAsync();
+        }
+        
         public void InjectSaveDependencies(
             UnitLoadManager unitLoadManager,
             UserSaveManager userSaveManager,
@@ -123,6 +131,9 @@ namespace BattleK.Scripts.AI
         {
             OverrideMachine = new StaticStateMachine(this);
             MainMachine = new StaticStateMachine(this);
+
+            _enemySaveManager = EnemySaveManager.Instance;
+            _league = LeagueManager.Instance.league;
 
             if (MeleeWeapon) MeleeWeapon.Initialize(this);
             if (RangedWeapon) RangedWeapon.Initialize(this);
@@ -603,7 +614,7 @@ namespace BattleK.Scripts.AI
         {
             if (runtimeStat?.EquippedSkills is { Count: > 0 })
             {
-                _actionCandidates.Add(new StaticSkillState(this, runtimeStat.EquippedSkills));
+                _actionCandidates.Add(new StaticSkillState(this, ResolvedSkills));
             }
             _actionCandidates.Add(new StaticRetreatState(this));
             _actionCandidates.Add(new StaticAttackState(this, _windupTime, _activeTime, _recoveryTime));
@@ -637,30 +648,35 @@ namespace BattleK.Scripts.AI
         private void PersistEnemyUnit()
         {
             if (_enemySaveManager == null || _league == null) return;
-
             var team = _enemySaveManager.GetTeam(_league.currentEnemyTeamId);
 
-            Debug.Log($"[EnemySave] Stat.Name={runtimeStat.Name}");
+            //Debug.Log($"[EnemySave] Stat.Name={runtimeStat.Name}");
 
-            foreach (var unit in team.units)
+            /*foreach (var unit in team.units)
             {
                 Debug.Log($"[EnemySave] unitName={unit.Id}");
+
+                var seenEnemy = new SeenEnemyData
+                {
+                    unitId = unit.Id,
+                    unitName = unit.UnitName,
+                    teamFid = team.fid,
+                    teamName = team.name
+                };
+
+
             }
             var unitData = team?.units?.Find(u =>
                 string.Equals(u.Id?.Trim(), runtimeStat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
-            Debug.Log($"[EnemySave] unitData={(unitData == null ? "NULL" : unitData.Id)}");
-            if (unitData == null) return;
+            */
+            //Debug.Log($"[EnemySave] unitData={(unitData == null ? "NULL" : unitData.Id)}");
+            //if (unitData == null) return;
 
-            var seenEnemy = new SeenEnemyData
-            {
-                unitId = unitData.Id,
-                teamFid = team.fid,
-                teamName = team.name
-            };
+            
 
-            _enemySaveManager.RecordSeenEnemy(seenEnemy);
+            _enemySaveManager.RecordSeenEnemyTeam(team);
 
-            runtimeStat.SaveTo(unitData);
+            //runtimeStat.SaveTo(unitData);
         }
 
 #if UNITY_EDITOR
