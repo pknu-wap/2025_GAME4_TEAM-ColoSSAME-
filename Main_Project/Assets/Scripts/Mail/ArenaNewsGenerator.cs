@@ -1,125 +1,134 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.ParticleSystem;
 
+// 소식통 3칸: 리그 소식 / 경기장 소문 / 우리 팀 여론
+public class NewsBundle
+{
+    public string leagueNews;   // 이번 라운드 실제 사건 중 점수 최고
+    public string rumor;        // 다른 팀 유닛 소식 (레벨/스킬/영입/부상)
+    public string opinion;      // 우리 팀에 대한 팬 여론
+}
+
+// 선택 로직
 public class ArenaNewsGenerator
 {
-    // 연승 연패 기준
-    private readonly int streakThreshold;
+    private readonly ArenaNewsTemplateSO templates;
+    private readonly int streakThreshold;   // 연승 연패 기준
 
     private System.Random rng;
 
-    public ArenaNewsGenerator(int streakThreshold = 3)
+    public ArenaNewsGenerator(ArenaNewsTemplateSO templates, int streakThreshold = 3)
     {
+        this.templates = templates;
         this.streakThreshold = streakThreshold;
     }
 
-    private class ArenaNews { 
-        public string text; 
-        public int score; 
-        public int teamId; }
-
-    private static readonly Dictionary<NewsEventType, (int score, string[] templates)> NewsData = new()
+    private class ArenaNews
     {
-        [NewsEventType.Draw] = (30, new[]
-        {
-            "{winnerWa} {loser}, 무승부로 승점 1점씩 나누다",
-            "{winner} vs {loser}, 팽팽한 접전 끝에 무승부",
-        }),
-        [NewsEventType.WinStreakMax] = (100, new[]
-        {
-            "{winner}, 파죽의 {streak}연승 — 막을 자가 없다",
-            "{winner}, {streak}연승 달성으로 리그를 지배하다",
-        }),
-        [NewsEventType.TopRank] = (100, new[]
-        {
-            "{winner}, {loserEul} 꺾고 단독 선두 등극",
-            "{winner}, 승리와 함께 리그 정상에 서다",
-        }),
-        [NewsEventType.Upset] = (100, new[]
-        {
-            "최하위 {winner}, 선두 {loserEul} 꺾는 이변",
-            "{winner}, {loserEul} 상대로 대이변 연출",
-        }),
-        [NewsEventType.WinStreak5] = (80, new[]
-        {
-            "{winner}, 5연승으로 거침없이 질주하다",
-            "{winner}, 파죽의 5연승 달성",
-            "{winner}의 상승세가 멈추지 않는다 — 5연승",
-        }),
-        [NewsEventType.LoseStreak5] = (80, new[]
-        {
-            "{loser}, 5연패 수렁에 빠지다",
-            "{loser}, 5연패 — 반전의 계기가 필요하다",
-            "{loser}의 침체가 깊어지다 — 5연패",
-        }),
-        [NewsEventType.BreakLoseStreak] = (80, new[]
-        {
-            "{winner}, {streak}연패를 끊고 반격에 나서다",
-            "{winner}, 연패 탈출 성공 — 분위기 반전 노린다",
-            "{winner}, 마침내 연패의 사슬을 끊다",
-        }),
-        [NewsEventType.EndWinStreak] = (80, new[]
-        {
-            "{loser}의 {streak}연승 행진이 막을 내리다",
-            "{loser}, 연승 마감 — {winner}에 발목 잡히다",
-            "{winner}, {loser}의 연승을 끊어내다",
-        }),
-        [NewsEventType.WinStreakN] = (60, new[]
-        {
-            "{winner}, {streak}연승으로 기세를 올리다",
-            "{winner}, 또 한 번 승리하며 {streak}연승 달성",
-            "{winner}, 연승 행진을 이어가다",
-        }),
-        [NewsEventType.LoseStreakN] = (60, new[]
-        {
-            "{loser}, {streak}연패 — 위기에 빠지다",
-            "{loser}, 연패 행진이 멈추지 않는다",
-            "{loser}, {streak}연패 수렁에서 헤어나오지 못하다",
-        }),
-        [NewsEventType.FirstWin] = (60, new[]
-        {
-            "{winner}, 시즌 첫 승 신고",
-            "{winner}, 첫 승리를 거두며 웃음을 되찾다",
-            "{winner}, 마침내 시즌 첫 승을 따내다",
-        }),
-        [NewsEventType.FirstLose] = (60, new[]
-        {
-            "{loser}, 시즌 첫 패배를 당하다",
-            "{loser}의 무패 행진, {winner}에 의해 막히다",
-            "{loser}, 첫 패 — 무패 기록이 무너지다",
-        }),
-        [NewsEventType.PlainWin] = (40, new[]
-        {
-            "{winner}, {loserEul} 꺾고 승점을 쌓다",
-            "{winner}, {loserEul} 상대로 값진 승리",
-        }),
-    };
+        public string text;
+        public int score;
+        public int teamId;
+        public NewsEventType type;
+    }
 
-    private readonly string[] openingLines =
-    {
-        "콜로세움 리그, 드디어 막을 올리다",
-        "10개 가문이 왕좌를 두고 격돌한다",
-        "카이루스 가문, 이번 시즌 우승 후보로 주목받다",
-        "이그니스 가문의 새 전략, 이번 시즌 통할 것인가",
-        "녹스 가문, 조용한 강자로 떠오르다",
-        "플로라 가문, 치유의 전술로 이변을 노린다",
-        "루멘 가문의 철벽 수비, 이번 시즌도 건재할까",
-        "아스트라 가문, 예언대로라면 우승은 따놓은 당상",
-        "테라 가문의 수호자들, 투기장에 입성하다",
-        "모르스 가문, 망령의 힘으로 리그를 뒤흔든다"
-    };
 
-    public List<string> Generate(League league)
+    public NewsBundle Generate(League league)
     {
+        if (templates == null || league == null) return new NewsBundle { leagueNews = "", rumor = "", opinion = "" };
+
         int lastRound = FindLastCompletedRound(league);
-        rng = new System.Random(lastRound);
+        rng = new System.Random(lastRound);   // 같은 라운드엔 같은 뉴스
 
-        if (lastRound == 0) return GetOpeningLines(5);
+        return new NewsBundle
+        {
+            leagueNews = BuildLeagueNews(league, lastRound),
+            rumor = BuildRumor(league, lastRound),
+            opinion = BuildOpinion(league, lastRound),
+        };
+    }
 
-        var cur = BuildTeamHistory(league, lastRound);
-        var prev = BuildTeamHistory(league, lastRound - 1);
-        var round = league.schedule.Find(r => r.roundNumber == lastRound);
+    // 리그 소식
+    private string BuildLeagueNews(League league, int lastRound)
+    {
+        if (lastRound == 0) return Pick(templates.openingLines);
+
+        var pool = CollectRoundPool(league, lastRound);
+
+        if (lastRound > 1)
+        {
+            var prevPool = CollectRoundPool(league, lastRound - 1);
+            if (prevPool.Count > 0)
+            {
+                var prevType = prevPool[0].type;
+                foreach (var n in pool)
+                    if (n.type == prevType) n.score -= templates.repeatPenalty;
+                pool.Sort((a, b) => b.score.CompareTo(a.score));
+            }
+        }
+
+        return pool.Count > 0 ? pool[0].text : Pick(templates.openingLines);
+    }
+
+    // 2경기장 소문
+    private string BuildRumor(League league, int lastRound)
+    {
+        // 리그 시작 직후엔 승급/영입 이벤트
+        var events = league.unitEvents?.FindAll(e => e.round == lastRound);
+        if (events == null || events.Count == 0) return Pick(templates.noRumorLines);
+
+        UnitNewsEvent best = null;
+        List<string> bestTemplates = null;
+        int bestScore = int.MinValue;
+
+        foreach (var e in events)
+        {
+            if (!templates.TryGetRumor(e.type, out int baseScore, out var tpls)) continue;
+
+            int score = baseScore
+                      + (e.type == UnitNewsType.LevelJump ? e.amount * 10 : 0)
+                      + (e.teamId == league.currentEnemyTeamId ? templates.nextOpponentBonus : 0)
+                      + rng.Next(0, 10);   // 동점 흔들기
+
+            if (score > bestScore) { bestScore = score; best = e; bestTemplates = tpls; }
+        }
+        if (best == null) return Pick(templates.noRumorLines);
+
+        return FillRumor(Pick(bestTemplates), best);
+    }
+
+    // 우리 팀 여론(직전 결과×순위×연승/연패)
+    private string BuildOpinion(League league, int lastRound)
+    {
+        var me = league.teams.Find(t => t.id == league.settings.playerTeamId);
+        if (me == null || lastRound == 0)
+            return FillOpinion(Pick(templates.GetOpinion(OpinionMood.Preseason)), me, 0);
+
+        var hist = GetHist(BuildTeamHistory(league, lastRound), me.id);
+        char last = hist.Count > 0 ? hist[hist.Count - 1] : 'N';
+        int winStreak = GetCurrentStreak(hist, 'W');
+        int loseStreak = GetCurrentStreak(hist, 'L');
+        bool isLast = me.rank >= league.teams.Count;
+
+        OpinionMood mood =
+            winStreak >= streakThreshold ? OpinionMood.Hype :
+            loseStreak >= streakThreshold ? OpinionMood.Crisis :
+            last == 'W' && me.rank == 1 ? OpinionMood.Top :
+            last == 'W' ? OpinionMood.Win :
+            last == 'L' && isLast ? OpinionMood.Bottom :
+            last == 'L' ? OpinionMood.Lose :
+            last == 'D' ? OpinionMood.Draw : OpinionMood.Preseason;
+
+        int streak = mood == OpinionMood.Hype ? winStreak : loseStreak;
+        return FillOpinion(Pick(templates.GetOpinion(mood)), me, streak);
+    }
+
+    // 리그 소식 수집
+
+    private List<ArenaNews> CollectRoundPool(League league, int roundNo)
+    {
+        var cur = BuildTeamHistory(league, roundNo);
+        var prev = BuildTeamHistory(league, roundNo - 1);
+        var round = league.schedule.Find(r => r.roundNumber == roundNo);
 
         var pool = new List<ArenaNews>();
         if (round?.matches != null)
@@ -129,15 +138,7 @@ public class ArenaNewsGenerator
 
         pool = DeduplicateByTeam(pool);
         pool.Sort((a, b) => b.score.CompareTo(a.score));
-
-        var result = new List<string>();
-        for (int i = 0; i < Mathf.Min(5, pool.Count); i++) result.Add(pool[i].text);
-        foreach (var line in GetOpeningLines(5 - result.Count))
-        {
-            if (result.Count >= 5) break;
-            result.Add(line);
-        }
-        return result;
+        return pool;
     }
 
     private void CollectMatchEvents(
@@ -228,15 +229,16 @@ public class ArenaNewsGenerator
     private void Add(List<ArenaNews> pool, NewsEventType type,
                      Team winner, Team loser, int streak, int subjectId, int bonus)
     {
-        if (!NewsData.TryGetValue(type, out var data) || data.templates.Length == 0) return;
-        string tpl = data.templates[rng.Next(0, data.templates.Length)];
+        if (!templates.TryGetLeague(type, out int score, out var tpls)) return;
         pool.Add(new ArenaNews
         {
-            text = Fill(tpl, winner, loser, streak),
-            score = data.score + bonus,
-            teamId = subjectId
+            text = Fill(Pick(tpls), winner, loser, streak),
+            score = score + bonus,
+            teamId = subjectId,
+            type = type,
         });
     }
+
     private string Fill(string t, Team winner, Team loser, int streak)
     {
         string wn = winner?.name ?? "", ln = loser?.name ?? "";
@@ -250,12 +252,27 @@ public class ArenaNewsGenerator
             .Replace("{streak}", streak.ToString());
     }
 
-    private List<string> GetOpeningLines(int count)
+    private string FillRumor(string t, UnitNewsEvent e)
     {
-        var list = new List<string>(openingLines);
-        Shuffle(list);
-        return list.GetRange(0, Mathf.Min(count, list.Count));
+        string un = e.unitName ?? "";
+        return t
+            .Replace("{unitEul}", un == "" ? "" : un + KoreanParticle.Get(un, Particle.EulReul))
+            .Replace("{unit}", un)
+            .Replace("{team}", e.teamName ?? "")
+            .Replace("{detail}", e.detail ?? "");
     }
+
+    private string FillOpinion(string t, Team me, int streak)
+    {
+        return t
+            .Replace("{team}", me?.name ?? "우리 팀")
+            .Replace("{rank}", (me?.rank ?? 0).ToString())
+            .Replace("{streak}", streak.ToString());
+    }
+
+    private string Pick(IReadOnlyList<string> lines)
+        => lines == null || lines.Count == 0 ? "" : lines[rng.Next(lines.Count)];
+
 
     private List<ArenaNews> DeduplicateByTeam(List<ArenaNews> pool)
     {
@@ -316,14 +333,5 @@ public class ArenaNewsGenerator
             else break;
         }
         return count;
-    }
-
-    private void Shuffle(List<string> list)
-    {
-        for (int i = list.Count - 1; i > 0; i--)
-        {
-            int j = rng.Next(i + 1);
-            (list[i], list[j]) = (list[j], list[i]);
-        }
     }
 }
