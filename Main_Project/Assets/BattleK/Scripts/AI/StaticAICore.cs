@@ -650,9 +650,9 @@ namespace BattleK.Scripts.AI
             if (_enemySaveManager == null || _league == null) return;
             var team = _enemySaveManager.GetTeam(_league.currentEnemyTeamId);
 
-            //Debug.Log($"[EnemySave] Stat.Name={runtimeStat.Name}");
+            Debug.Log($"[EnemySave] Stat.Name={runtimeStat.Name}");
 
-            /*foreach (var unit in team.units)
+            foreach (var unit in team.units)
             {
                 Debug.Log($"[EnemySave] unitName={unit.Id}");
 
@@ -664,19 +664,17 @@ namespace BattleK.Scripts.AI
                     teamName = team.name
                 };
 
-
             }
             var unitData = team?.units?.Find(u =>
                 string.Equals(u.Id?.Trim(), runtimeStat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
-            */
-            //Debug.Log($"[EnemySave] unitData={(unitData == null ? "NULL" : unitData.Id)}");
-            //if (unitData == null) return;
+            Debug.Log($"[EnemySave] unitData={(unitData == null ? "NULL" : unitData.Id)}");
+            if (unitData == null) return;
 
             
 
             _enemySaveManager.RecordSeenEnemyTeam(team);
 
-            //runtimeStat.SaveTo(unitData);
+            runtimeStat.SaveTo(unitData);
         }
 
 #if UNITY_EDITOR

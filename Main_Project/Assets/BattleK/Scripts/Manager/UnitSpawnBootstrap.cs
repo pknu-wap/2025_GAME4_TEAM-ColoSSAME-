@@ -24,6 +24,7 @@ namespace BattleK.Scripts.Manager
         [SerializeField] private StatWindowManager statWindowManager;
         [SerializeField] private FormationManager formationManager;
         [SerializeField] private CalculateManager calculateManager;
+        [SerializeField] private StatAdaptManager statAdaptManager;
 
         [Header("스탯 계산")]
         [SerializeField] private StatCorrectionTable correctionTable;
@@ -72,7 +73,7 @@ namespace BattleK.Scripts.Manager
             _mover = new UnitMover();
             _presentation = new UnitPresentationSetup(playerLayerName, enemyLayerName);
             _spawner = new UnitSpawner(_loader, _presentation, _mover, aiManager, correctionTable, classBaseStatTable, playerLayerName, enemyLayerName);
-            _coordinator = new SpawnCompletionCoordinator(_spawner, hpManager, statWindowManager, calculateManager, this);
+            _coordinator = new SpawnCompletionCoordinator(_spawner, hpManager, statWindowManager, calculateManager, statAdaptManager, this);
 
             _requestBuilder = new BattleFormationRequestBuilder(
                 formationManager, _addressBooks,

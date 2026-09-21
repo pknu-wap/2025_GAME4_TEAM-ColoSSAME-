@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using BattleK.Scripts.CharacterCreator;
 using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Data.Type;
+using Skill;
 using UnityEditor;
 using UnityEngine;
 

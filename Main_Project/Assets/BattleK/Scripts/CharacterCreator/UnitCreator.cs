@@ -8,6 +8,7 @@ using BattleK.Scripts.HP;
 using BattleK.Scripts.Manager.Battle;
 using Pathfinding;
 using Pathfinding.RVO;
+using Skill;
 using UnityEngine;
 
 namespace BattleK.Scripts.CharacterCreator

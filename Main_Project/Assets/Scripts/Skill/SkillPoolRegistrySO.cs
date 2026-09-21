@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using BattleK.Scripts.Data.ClassInfo;
+using Skill;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "SkillPoolRegistry", menuName = "Game/Skill Pool Registry")]

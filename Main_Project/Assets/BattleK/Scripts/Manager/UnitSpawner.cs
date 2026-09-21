@@ -46,7 +46,6 @@ namespace BattleK.Scripts.Manager
         public IEnumerator Spawn(UnitSpawnRequest req, AssetReferenceGameObject assetRef, Transform root, Action<GameObject> onSpawned)
         {
             GameObject spawnedInstance = null;
-            StaticAICore pendingCore = null;
 
             yield return _loader.LoadOrGetAsync(req.logicalKey, assetRef, root, instance =>
             {
@@ -56,22 +55,13 @@ namespace BattleK.Scripts.Manager
                 var aiCore = instance.GetComponent<StaticAICore>();
                 if (aiCore != null)
                 {
-                    ApplyStatsOrFallback(aiCore, req);
                     var targetLayerName = req.isPlayer ? _enemyLayerName : _playerLayerName;
                     aiCore.TargetLayer = LayerMask.GetMask(targetLayerName);
-                    aiCore.SetInitialStats();
-                    pendingCore = aiCore;
-                    aiCore.Initialize();
                 }
                 _presentation.Apply(instance, req);
             });
 
             if (spawnedInstance == null) yield break;
-
-            if (pendingCore != null)
-            {
-                
-            }
 
             yield return _mover.MoveTo(spawnedInstance.transform, req.startPos, req.endPos, req.duration);
 

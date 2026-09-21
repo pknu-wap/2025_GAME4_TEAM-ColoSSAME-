@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using BattleK.Scripts.Data.ClassInfo;
+using Skill;
 using UnityEngine;
 
 namespace BattleK.Scripts.CharacterCreator
