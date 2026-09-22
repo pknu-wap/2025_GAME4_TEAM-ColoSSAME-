@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using BattleK.Scripts.AI.Skill.Base.Logic.LogicBase;
 using BattleK.Scripts.AI.Skill.Base.Projectile;
+using BattleK.Scripts.Manager;
 using BattleK.Scripts.Utils;
 using UnityEngine;
 
@@ -87,18 +88,16 @@ namespace BattleK.Scripts.AI.Skill.Base
             var spawnRot = owner.transform.rotation;
             var spawnPos = GetSpawnPosition(owner, target, SpawnAt);
 
-            var instance = Instantiate(SkillPrefab, spawnPos, spawnRot);
+            var instance = PrefabPoolManager.Instance ? PrefabPoolManager.Instance.Spawn(SkillPrefab, spawnPos, spawnRot) : Instantiate(SkillPrefab, spawnPos, spawnRot);
             ApplySkillPrefabScale(instance);
             var processors = instance.GetComponents<LogicProcessor>();
             
-            // 방향 계산
             Vector2 direction = Vector2.zero;
             if (target != null)
             {
                 direction = ((Vector2)(target.position - spawnPos)).normalized;
             }
 
-            // Initialize projectile movement.
             var movement = instance.GetComponent<ProjectileMovement>();
             if (movement != null)
             {
@@ -122,7 +121,8 @@ namespace BattleK.Scripts.AI.Skill.Base
 
             if (processors.Length == 0)
             {
-                Destroy(instance, activeTime);
+                var releaser = instance.GetComponent<PooledLifetime>() ?? instance.AddComponent<PooledLifetime>();
+                releaser.ReturnAfter(activeTime);
             }
 
             return instance;
@@ -136,7 +136,7 @@ namespace BattleK.Scripts.AI.Skill.Base
             if (WindupPrefab && WindupTime > 0f)
             {
                 var windupPos = GetSpawnPosition(owner, target, WindupSpawnAt);
-                windupInstance = Instantiate(WindupPrefab, windupPos, owner.transform.rotation);
+                windupInstance = PrefabPoolManager.Instance ? PrefabPoolManager.Instance.Spawn(WindupPrefab, windupPos, owner.transform.rotation) : Instantiate(WindupPrefab, windupPos, owner.transform.rotation);
                 ApplyWindupPrefabScale(windupInstance);
                 ApplyOwnerFacingFlip(windupInstance, owner, FlipWindupPrefabByOwnerFacing);
 
@@ -149,20 +149,13 @@ namespace BattleK.Scripts.AI.Skill.Base
 
             if (windupInstance)
             {
-                var elapsed = 0f;
-
-                while (elapsed < WindupTime)
+                if (FadeWindupPrefab)
                 {
-                    UpdateWindupFollow(windupInstance, owner, target);
-
-                    if (FadeWindupPrefab)
-                    {
-                        SetSpriteFadeAlpha(windupFadeTargets, CalculateWindupFadeAlpha(elapsed, WindupTime));
-                    }
-
-                    elapsed += Time.deltaTime;
-                    yield return null;
+                    SetSpriteFadeAlpha(windupFadeTargets, 0f);
                 }
+
+                if (PrefabPoolManager.Instance) PrefabPoolManager.Instance.Release(windupInstance);
+                else Destroy(windupInstance);
             }
             else
             {

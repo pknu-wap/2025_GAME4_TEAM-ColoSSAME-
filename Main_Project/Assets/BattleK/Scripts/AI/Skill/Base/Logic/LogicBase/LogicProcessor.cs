@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using BattleK.Scripts.Manager;
 using UnityEngine;
 
 namespace BattleK.Scripts.AI.Skill.Base.Logic.LogicBase
 {
-    public abstract class LogicProcessor : MonoBehaviour 
+    public abstract class LogicProcessor : MonoBehaviour
     {
         protected StaticAICore _owner;
         private List<ISkillLogic> _logics;
@@ -20,18 +21,33 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.LogicBase
             _targetTransform = target;
             _targetPosition = targetPos;
             _maxHitTargets = Mathf.Max(0, maxHitTargets);
-            Destroy(gameObject, lifeTime);
+
+            CancelInvoke(nameof(ReturnToPool));
+            Invoke(nameof(ReturnToPool), lifeTime);
         }
-        
+
         public abstract void StartProcess();
 
-        protected void ApplyLogicsToTarget(StaticAICore target) 
+        protected void ApplyLogicsToTarget(StaticAICore target)
         {
             if (_logics == null || !target) return;
-            foreach (var logic in _logics) 
+            foreach (var logic in _logics)
             {
-                logic.Execute(_owner, target); 
+                logic.Execute(_owner, target);
             }
+        }
+
+        protected void ReturnToPool()
+        {
+            CancelInvoke(nameof(ReturnToPool));
+            _owner = null;
+            _logics = null;
+            _targetTransform = null;
+
+            if (PrefabPoolManager.Instance)
+                PrefabPoolManager.Instance.Release(gameObject);
+            else
+                Destroy(gameObject);
         }
     }
 }

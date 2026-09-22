@@ -1,3 +1,4 @@
+using BattleK.Scripts.Manager;
 using UnityEngine;
 
 namespace BattleK.Scripts.AI.StaticScoreState.Attack
@@ -17,9 +18,13 @@ namespace BattleK.Scripts.AI.StaticScoreState.Attack
         public void Fire(int damage)
         {
             if (!_owner.Target) return;
-            
-            var projectile = Instantiate(_projectilePrefab, transform.position, Quaternion.identity);
+
             var dir = (_owner.Target.position - transform.position).normalized;
+            var rotation = Quaternion.AngleAxis(Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg, Vector3.forward);
+
+            var projectile = PrefabPoolManager.Instance.Spawn(_projectilePrefab, transform.position, rotation);
+            if (!projectile) return;
+
             projectile.Initialize(_owner, damage, dir);
         }
     }

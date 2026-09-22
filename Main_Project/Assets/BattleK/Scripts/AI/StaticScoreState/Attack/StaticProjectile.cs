@@ -1,6 +1,5 @@
-using System;
-using BattleK.Scripts.AI;
 using UnityEngine;
+using BattleK.Scripts.Manager;
 
 namespace BattleK.Scripts.AI.StaticScoreState.Attack
 {
@@ -19,11 +18,12 @@ namespace BattleK.Scripts.AI.StaticScoreState.Attack
             _owner = owner;
             _damage = damage;
             _direction = direction;
-            
+
             var angle = Mathf.Atan2(_direction.y, _direction.x) * Mathf.Rad2Deg;
             transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
-            
-            Destroy(gameObject, _lifetime);
+
+            CancelInvoke(nameof(ReturnToPool));
+            Invoke(nameof(ReturnToPool), _lifetime);
         }
 
         private void Update()
@@ -35,11 +35,25 @@ namespace BattleK.Scripts.AI.StaticScoreState.Attack
         {
             if (_owner && other.gameObject.layer == _owner.gameObject.layer) return;
             if (other.GetComponent<StaticProjectile>()) return;
-            
+
             var target = other.GetComponent<StaticAICore>();
             if (!target || target.IsDead) return;
             target.OnTakeDamage(_damage, _owner);
-            Destroy(gameObject);
+            ReturnToPool();
+        }
+
+        private void ReturnToPool()
+        {
+            CancelInvoke(nameof(ReturnToPool));
+
+            if (PrefabPoolManager.Instance) PrefabPoolManager.Instance.Release(gameObject);
+            else Destroy(gameObject);
+        }
+
+        private void OnDisable()
+        {
+            CancelInvoke(nameof(ReturnToPool));
+            _owner = null;
         }
     }
 }
