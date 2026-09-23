@@ -5,7 +5,6 @@ using BattleK.Scripts.AI.CCState;
 using BattleK.Scripts.AI.Skill.Base;
 using BattleK.Scripts.AI.StaticScoreState;
 using BattleK.Scripts.AI.StaticScoreState.ActionStates;
-using BattleK.Scripts.AI.StaticScoreState.Attack;
 using BattleK.Scripts.AI.StaticScoreState.StaticVerStates;
 using BattleK.Scripts.AI.StaticScoreState.Targeting;
 using BattleK.Scripts.Data.ClassInfo;

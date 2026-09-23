@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4132831445674654682}
   - component: {fileID: 8504248006865287098}
-  - component: {fileID: 6552380438399529377}
   - component: {fileID: 5952038094528629634}
+  - component: {fileID: -4814668493925363676}
   m_Layer: 0
   m_Name: Ski_U
   m_TagString: Untagged
@@ -80,24 +80,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &6552380438399529377
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4132831445674654683}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 450eab84cba464d73b559c4b3cbd0ed6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _useMovement: 1
-  _speed: 5
-  _lifeTime: 2
-  _useFlip: 1
-  _useRotation: 1
-  _baseAngleOffset: 0
 --- !u!114 &5952038094528629634
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -112,6 +94,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _damage: 20
   _knockbackPower: 3
+--- !u!114 &-4814668493925363676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4132831445674654683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92b2be1e052990d49a6364a61477f9d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _speed: 5
+  _lifetime: 2
+  _useFlip: 1
+  _useRotation: 1
+  _baseAngleOffset: 0
 --- !u!1 &4132831445949991210
 GameObject:
   m_ObjectHideFlags: 0

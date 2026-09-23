@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using BattleK.Scripts.AI.Skill.Base.Logic.LogicBase;
-using BattleK.Scripts.AI.Skill.Base.Projectile;
+using BattleK.Scripts.AI.Attack;
 using BattleK.Scripts.Manager;
 using BattleK.Scripts.Utils;
 using UnityEngine;
@@ -98,8 +98,8 @@ namespace BattleK.Scripts.AI.Skill.Base
                 direction = ((Vector2)(target.position - spawnPos)).normalized;
             }
 
-            var movement = instance.GetComponent<ProjectileMovement>();
-            if (movement != null)
+            var movement = instance.GetComponent<ProjectileBase>();
+            if (movement)
             {
                 movement.Init(direction);
             }
@@ -109,7 +109,7 @@ namespace BattleK.Scripts.AI.Skill.Base
             LayerMask targetMask = TargetType switch
             {
                 TargetingType.Enemy => owner.TargetLayer,
-                TargetingType.Ally => (LayerMask)(1 << owner.gameObject.layer),
+                TargetingType.Ally => (1 << owner.gameObject.layer),
                 _ => 0
             };
             
@@ -272,7 +272,7 @@ namespace BattleK.Scripts.AI.Skill.Base
             LayerMask mask = TargetType switch
             {
                 TargetingType.Enemy => owner.TargetLayer,
-                TargetingType.Ally => (LayerMask)(1 << owner.gameObject.layer),
+                TargetingType.Ally => (1 << owner.gameObject.layer),
                 _ => 0
             };
             
