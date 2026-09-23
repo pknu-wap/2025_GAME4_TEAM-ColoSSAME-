@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using BattleK.Scripts.AI.Skill.Base;
 using BattleK.Scripts.Data.ClassInfo;
 using Skill;
 using UnityEngine;
@@ -18,6 +19,10 @@ namespace BattleK.Scripts.CharacterCreator
         public float AttackRange = 0.9f;
         public float MoveSpeed = 2f;
         public float SightRange = 9f;
+        
+        [Header("일반 공격")]
+        [Tooltip("이 직업의 기본 공격(평타) 데이터. NormalMeleeAttackSO 또는 NormalRangedAttackSO를 사용")]
+        public SkillSO NormalAttackData;
 
         [Header("스킬")]
         [Tooltip("이 직업이 공통으로 사용하는 스킬 풀 (3성/4성/궁극기 슬롯 포함)")]

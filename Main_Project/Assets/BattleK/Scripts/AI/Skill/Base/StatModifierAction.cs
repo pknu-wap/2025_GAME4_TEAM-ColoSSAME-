@@ -11,7 +11,7 @@ namespace BattleK.Scripts.AI.Skill.Base
         [Header("Status Settings")]
         public StatusType TargetStat;
         [Tooltip("기존 스탯 대비 증감 비율. 예: -0.5는 50% 감소, 0.3은 30% 증가")]
-        public float MultiplierDelta = 0f;
+        public float MultiplierDelta;
 
         [Header("표시용 정보")]
         public StatSourceCategory Category = StatSourceCategory.Debuff;
