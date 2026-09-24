@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using BattleK.Scripts.AI.Skill.Base.Logic.LogicBase;
 using BattleK.Scripts.AI.Attack;
 using BattleK.Scripts.Manager;
@@ -379,11 +380,7 @@ namespace BattleK.Scripts.AI.Skill.Base
             if (!instance) return targets;
 
             var renderers = instance.GetComponentsInChildren<SpriteRenderer>(true);
-            foreach (var spriteRenderer in renderers)
-            {
-                if (!spriteRenderer) continue;
-                targets.Add(new SpriteFadeTarget(spriteRenderer, spriteRenderer.color));
-            }
+            targets.AddRange(from spriteRenderer in renderers where spriteRenderer select new SpriteFadeTarget(spriteRenderer, spriteRenderer.color));
 
             return targets;
         }
