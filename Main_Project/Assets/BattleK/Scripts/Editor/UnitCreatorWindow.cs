@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using BattleK.Scripts.CharacterCreator;
 using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Data.Type;
+using Skill;
 using UnityEditor;
 using UnityEngine;
 
@@ -14,8 +15,6 @@ namespace BattleK.Scripts.Editor
         private string _unitName = "New Unit";
         private Sprite _unitImage;
         private GameObject _spumPrefab;
-        private GameObject _rangedAttack;
-        private GameObject _meleeAttack;
         private GameObject _hpBar;
 
         private UnitClass _unitClass;
@@ -76,6 +75,10 @@ namespace BattleK.Scripts.Editor
             {
                 EditorGUILayout.HelpBox("이 직업에 대한 ClassDefinitionSO가 등록되어 있지 않습니다. ClassDefinitionDatabase에 추가하세요.", MessageType.Warning);
             }
+            else if (_currentClassDefinition.NormalAttackData == null)
+            {
+                EditorGUILayout.HelpBox("이 직업의 ClassDefinitionSO에 NormalAttackData(일반 공격 스킬 애셋)가 지정되어 있지 않습니다.", MessageType.Warning);
+            }
 
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("이미지 설정", EditorStyles.boldLabel);
@@ -84,8 +87,6 @@ namespace BattleK.Scripts.Editor
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("프리팹 설정", EditorStyles.boldLabel);
             _spumPrefab = (GameObject)EditorGUILayout.ObjectField(new GUIContent("SPUM Prefab"), _spumPrefab, typeof(GameObject), false);
-            _rangedAttack = (GameObject)EditorGUILayout.ObjectField(new GUIContent("RangedAttack Prefab"), _rangedAttack, typeof(GameObject), false);
-            _meleeAttack = (GameObject)EditorGUILayout.ObjectField(new GUIContent("MeleeAttack Prefab"), _meleeAttack, typeof(GameObject), false);
             _hpBar = (GameObject)EditorGUILayout.ObjectField(new GUIContent("HP Bar"), _hpBar, typeof(GameObject), false);
 
             EditorGUILayout.Space(10);
@@ -135,17 +136,12 @@ namespace BattleK.Scripts.Editor
                 EditorUtility.DisplayDialog("입력 오류", "선택한 직업에 대한 ClassDefinitionSO가 없습니다.", "확인");
                 return false;
             }
-            switch (_currentClassDefinition.IsRangedDefault)
+            if (_currentClassDefinition.NormalAttackData == null)
             {
-                case true when !_rangedAttack:
-                    EditorUtility.DisplayDialog("입력 오류", "RangedAttack Prefab을 지정하세요.", "확인");
-                    return false;
-                case false when !_meleeAttack:
-                    EditorUtility.DisplayDialog("입력 오류", "MeleeAttack Prefab을 지정하세요.", "확인");
-                    return false;
-                default:
-                    return true;
+                EditorUtility.DisplayDialog("입력 오류", "선택한 직업의 ClassDefinitionSO에 NormalAttackData가 지정되어 있지 않습니다.", "확인");
+                return false;
             }
+            return true;
         }
 
         private void LoadClassDefinition(UnitClass unitClass)
@@ -168,8 +164,6 @@ namespace BattleK.Scripts.Editor
                 classDefinition: _currentClassDefinition,
                 unitImage: _unitImage,
                 spumPrefab: _spumPrefab,
-                rangedPrefab: _rangedAttack,
-                meleePrefab: _meleeAttack,
                 hpBarPrefab: _hpBar
             );
 

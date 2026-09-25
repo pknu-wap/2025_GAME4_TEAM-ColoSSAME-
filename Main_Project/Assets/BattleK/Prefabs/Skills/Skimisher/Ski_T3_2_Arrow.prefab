@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 7600000000000000002}
   - component: {fileID: 7600000000000000003}
   - component: {fileID: 7600000000000000004}
-  - component: {fileID: 7600000000000000005}
   - component: {fileID: 7600000000000000006}
+  - component: {fileID: 6582870677866541940}
   m_Layer: 0
   m_Name: Ski_T3_2_Arrow
   m_TagString: Untagged
@@ -132,24 +132,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &7600000000000000005
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7600000000000000001}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 450eab84cba464d73b559c4b3cbd0ed6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _useMovement: 1
-  _speed: 10
-  _lifeTime: 2
-  _useFlip: 1
-  _useRotation: 1
-  _baseAngleOffset: 0
 --- !u!114 &7600000000000000006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -165,3 +147,20 @@ MonoBehaviour:
   _isContinuous: 1
   _hitSameTargetOnlyOnce: 1
   _destroyWhenMaxHitTargetsReached: 1
+--- !u!114 &6582870677866541940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7600000000000000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92b2be1e052990d49a6364a61477f9d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _speed: 10
+  _lifetime: 2
+  _useFlip: 1
+  _useRotation: 1
+  _baseAngleOffset: 0

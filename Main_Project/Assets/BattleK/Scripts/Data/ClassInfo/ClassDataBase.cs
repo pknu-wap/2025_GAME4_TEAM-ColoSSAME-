@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BattleK.Scripts.AI.Skill.Base;
 using BattleK.Scripts.Data.Stat;
+using Skill;
 using UnityEngine;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.Serialization;

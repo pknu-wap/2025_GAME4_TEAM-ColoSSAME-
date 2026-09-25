@@ -10,6 +10,7 @@ namespace BattleK.Scripts.Manager
         private readonly HPManager _hpManager;
         private readonly StatWindowManager _statWindowManager;
         private readonly CalculateManager _calculateManager;
+        private readonly StatAdaptManager _statAdaptManager;
         private readonly MonoBehaviour _coroutineRunner;
 
         public SpawnCompletionCoordinator(
@@ -17,12 +18,14 @@ namespace BattleK.Scripts.Manager
             HPManager hpManager,
             StatWindowManager statWindowManager,
             CalculateManager calculateManager,
+            StatAdaptManager statAdaptManager,
             MonoBehaviour coroutineRunner)
         {
             _spawner = spawner;
             _hpManager = hpManager;
             _statWindowManager = statWindowManager;
             _calculateManager = calculateManager;
+            _statAdaptManager = statAdaptManager;
             _coroutineRunner = coroutineRunner;
 
             spawner.OnAllSpawnsComplete += HandleAllSpawnsComplete;
@@ -35,8 +38,8 @@ namespace BattleK.Scripts.Manager
 
         private System.Collections.IEnumerator RunAfterStatsReady()
         {
-            yield return _coroutineRunner.StartCoroutine(_calculateManager.RefreshFromCollectorAndWait());
-
+            yield return _calculateManager.RefreshFromCollectorAndWait();
+            _statAdaptManager.ApplyToAllUnitsAndInitialize();
             _hpManager.setUnits();
             _statWindowManager.SetStrategyList();
             _hpManager.ApplyHpToHPBar();

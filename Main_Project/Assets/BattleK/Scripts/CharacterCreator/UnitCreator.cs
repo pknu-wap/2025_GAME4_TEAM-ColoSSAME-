@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
-using BattleK.Scripts.AI.StaticScoreState.Attack;
 using BattleK.Scripts.Data;
 using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Data.Type;
@@ -8,6 +7,7 @@ using BattleK.Scripts.HP;
 using BattleK.Scripts.Manager.Battle;
 using Pathfinding;
 using Pathfinding.RVO;
+using Skill;
 using UnityEngine;
 
 namespace BattleK.Scripts.CharacterCreator
@@ -21,8 +21,6 @@ namespace BattleK.Scripts.CharacterCreator
             ClassDefinitionSO classDefinition,
             Sprite unitImage,
             GameObject spumPrefab,
-            GameObject rangedPrefab,
-            GameObject meleePrefab,
             GameObject hpBarPrefab)
         {
             if (classDefinition == null)
@@ -30,8 +28,6 @@ namespace BattleK.Scripts.CharacterCreator
                 Debug.LogError("[UnitCreator] ClassDefinitionSO가 지정되지 않았습니다.");
                 return null;
             }
-
-            var isRanged = classDefinition.IsRangedDefault;
 
             var unitFullName = classDefinition.isRecruit ? $"{familyName}_Recruit_{characterName}": $"{familyName}_{characterName}";
             var parent = new GameObject(unitFullName)
@@ -46,9 +42,6 @@ namespace BattleK.Scripts.CharacterCreator
             var rectTransform = visual.GetComponent<RectTransform>();
             if(rectTransform) rectTransform.anchoredPosition3D = new Vector3(0, -0.3f, 0);
             else visual.transform.localPosition = new Vector3(0, -0.3f, 0);
-
-            var weapon = isRanged ? InstantiatePrefab(rangedPrefab, parent.transform, "Ranged") : InstantiatePrefab(meleePrefab, parent.transform, "Melee");
-            weapon.transform.localPosition = new Vector3(-0.5f, 0, 0);
 
             var hpBar = InstantiatePrefab(hpBarPrefab, parent.transform, "HP Bar");
 
@@ -86,11 +79,10 @@ namespace BattleK.Scripts.CharacterCreator
         {
             var aiCore = parent.GetComponent<StaticAICore>();
             var statusManager = parent.GetComponent<StatusEffectManager>();
-            var isRanged = classDefinition.IsRangedDefault;
 
             aiCore.runtimeStat = new UnitRuntimeStat
             {
-                IsRanged = isRanged,
+                IsRanged = classDefinition.IsRangedDefault,
                 UnitClass = classDefinition.UnitClass,
                 CharacterImage = unitImage,
                 AttackRange = classDefinition.AttackRange,
@@ -103,6 +95,7 @@ namespace BattleK.Scripts.CharacterCreator
             statusManager._aiCore = aiCore;
 
             aiCore.AttackIndex = classDefinition.AttackAnimationIndex;
+            aiCore.NormalAttack = classDefinition.NormalAttackData;
 
             var playerObj = parent.GetComponent<PlayerObjC>();
             playerObj._prefabs = spumInstance.GetComponent<SPUM_Prefabs>();
@@ -132,8 +125,6 @@ namespace BattleK.Scripts.CharacterCreator
             aiCore.Rigidbody = rb;
             aiCore.player = playerObj;
             aiCore.HPBar = hpBarComponent;
-            if (isRanged) aiCore.RangedWeapon = parent.GetComponentInChildren<StaticRangedAttack>();
-            else aiCore.MeleeWeapon = parent.GetComponentInChildren<StaticMeleeAttack>();
         }
 
         private static GameObject InstantiatePrefab(GameObject prefab, Transform parent, string name)
