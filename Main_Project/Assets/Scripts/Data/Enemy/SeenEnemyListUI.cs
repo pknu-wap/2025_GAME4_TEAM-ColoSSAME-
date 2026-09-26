@@ -28,7 +28,7 @@ public class SeenEnemyListUI : MonoBehaviour
             Image image = enemyUI.GetComponentInChildren<Image>(true);
 
             bool hasEnemy = i < enemies.Count;
-            enemyUI.SetActive(hasEnemy);
+            //enemyUI.SetActive(hasEnemy);
 
             if (!hasEnemy)
                 continue;
