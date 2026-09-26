@@ -342,12 +342,13 @@ public class LeagueManager : MonoBehaviour
     {
         int nextTier = Mathf.Min(league.settings.tier + 1, 6);
 
-        // 플레이어 팀 정보 보존 (InitializeLeague가 덮어쓰기 때문)
+        // 플레이어 팀 정보 보존 
         int savedPlayerTeamId = league.settings.playerTeamId;
         string savedPlayerTeamName = league.settings.playerTeamName;
 
-        // 적 팀 성장 (새 리그 생성 전에 처리)
+        // 적 팀 성장 (새 리그 생성 전에 처리) — 승급/영입 소문이 unitEvents에 쌓임
         EnemyTeamService.GrowTeamsForNextLeague(league, nextTier);
+        var carriedUnitEvents = league.unitEvents;
 
         // 새 리그 생성
         league = settingManager.InitializeLeague();
@@ -355,6 +356,9 @@ public class LeagueManager : MonoBehaviour
         // 플레이어 팀 정보 복원
         league.settings.playerTeamId = savedPlayerTeamId;
         league.settings.playerTeamName = savedPlayerTeamName;
+
+        // 새 리그 객체로 소문 이벤트 이관
+        league.unitEvents = carriedUnitEvents ?? new List<UnitNewsEvent>();
 
         league.settings.tier = nextTier;
         league.settings.tierName = GetTierName(nextTier);

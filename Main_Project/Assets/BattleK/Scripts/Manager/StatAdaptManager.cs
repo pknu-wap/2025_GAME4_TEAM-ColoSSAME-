@@ -26,8 +26,8 @@ namespace BattleK.Scripts.Manager
             {
                 var core = _calculateManager.GetCoreFor(stat);
                 if (core == null) continue;
-
-                ApplyStat(core, stat, _correctionTable, _classBaseStatTable);
+                if (!UnitStatRepository.TryGet(stat.UnitId, out var info)) continue;
+                ApplyStat(core, info);
                 MarkReady(core);
                 core.Initialize();
             }
@@ -40,11 +40,11 @@ namespace BattleK.Scripts.Manager
             ready.MarkReady();
         }
 
-        private static void ApplyStat(StaticAICore ai, UnitBaseStat stat, StatCorrectionTable table, ClassBaseStatTable classTable)
+        private static void ApplyStat(StaticAICore ai, UnitDisplayInfo info)
         {
-            ai.runtimeStat.Name = stat.UnitName;
-            var finalStat = StatCalculator.Calculate(stat, table, classTable);
-            finalStat.ApplyTo(ai.runtimeStat);
+            ai.runtimeStat.Name = info.UnitName;
+            ai.runtimeStat.CharacterImage = info.CharacterImage;
+            info.Stat.ApplyTo(ai.runtimeStat);
 
             ai.SetInitialStats();
         }

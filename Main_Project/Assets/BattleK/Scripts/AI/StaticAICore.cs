@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using BattleK.Scripts.AI.CCState;
+using BattleK.Scripts.AI.Skill.Base;
 using BattleK.Scripts.AI.StaticScoreState;
 using BattleK.Scripts.AI.StaticScoreState.ActionStates;
-using BattleK.Scripts.AI.StaticScoreState.Attack;
 using BattleK.Scripts.AI.StaticScoreState.StaticVerStates;
 using BattleK.Scripts.AI.StaticScoreState.Targeting;
 using BattleK.Scripts.Data.ClassInfo;
@@ -31,9 +32,6 @@ namespace BattleK.Scripts.AI
 
         [Header("AI Settings")]
         [SerializeField] private float _aiUpdateInterval = 0.2f;
-        [SerializeField] private float _windupTime = 0.5f;
-        [SerializeField] private float _activeTime = 0.5f;
-        [SerializeField] private float _recoveryTime = 0.5f;
         public int AttackIndex;
         public int SkillIndex;
         public bool IsInitialized { get; private set; }
@@ -41,8 +39,6 @@ namespace BattleK.Scripts.AI
         [Header("References")]
         public AIPath AiPath;
         public Rigidbody2D Rigidbody;
-        public StaticMeleeAttack MeleeWeapon;
-        public StaticRangedAttack RangedWeapon;
         public HPBar HPBar;
         public PlayerObjC player;
         public AI_Manager AiManager;
@@ -53,6 +49,8 @@ namespace BattleK.Scripts.AI
 
         [FormerlySerializedAs("Stat")] [Header("Stats")]
         public UnitRuntimeStat runtimeStat;
+        public SkillSO NormalAttack;
+        public List<SkillSO> ResolvedSkills = new();
         public float CurrentMoveSpeed { get; private set; }
         public int CurrentAttackDamage { get; private set; }
         public int CurrentDefense { get; private set; }
@@ -81,7 +79,7 @@ namespace BattleK.Scripts.AI
         private StaticAICore _targetCore;
         public bool IsDead => OverrideMachine.CurrentState is StaticDeathState;
         public bool IsInvincible => HasStatus(StatusType.Invincible);
-        public event System.Action OnStatChanged;
+        public event Action OnStatChanged;
 
         [HideInInspector] public float LastRetreatFinishTime;
         private float _attackTimer;
@@ -106,7 +104,12 @@ namespace BattleK.Scripts.AI
             var isAlly = gameObject.layer == AiManager.PlayerLayer;
             AiManager.HPManager.NotifyStatusChanged(this, isAlly);
         }
-
+        
+        public async Task PrepareAsync()
+        {
+            ResolvedSkills = await runtimeStat.ResolveEquippedSkillsAsync();
+        }
+        
         public void InjectSaveDependencies(
             UnitLoadManager unitLoadManager,
             UserSaveManager userSaveManager,
@@ -126,9 +129,6 @@ namespace BattleK.Scripts.AI
 
             _enemySaveManager = EnemySaveManager.Instance;
             _league = LeagueManager.Instance.league;
-
-            if (MeleeWeapon) MeleeWeapon.Initialize(this);
-            if (RangedWeapon) RangedWeapon.Initialize(this);
 
             RegisterActionStates();
         }
@@ -177,18 +177,6 @@ namespace BattleK.Scripts.AI
             Target = null;
             _targetCore = null;
             DecideNextAction();
-        }
-
-        public void EnableWeapon()
-        {
-            if (runtimeStat.IsRanged) RangedWeapon.Fire(CurrentAttackDamage);
-            else MeleeWeapon.EnableHitBox(CurrentAttackDamage);
-        }
-
-        public void DisableWeapon()
-        {
-            if (MeleeWeapon && !runtimeStat.IsRanged)
-                MeleeWeapon.DisableHitBox();
         }
 
         public void SetAttackCooldown()
@@ -606,10 +594,10 @@ namespace BattleK.Scripts.AI
         {
             if (runtimeStat?.EquippedSkills is { Count: > 0 })
             {
-                _actionCandidates.Add(new StaticSkillState(this, runtimeStat.EquippedSkills));
+                _actionCandidates.Add(new StaticSkillState(this, ResolvedSkills));
             }
             _actionCandidates.Add(new StaticRetreatState(this));
-            _actionCandidates.Add(new StaticAttackState(this, _windupTime, _activeTime, _recoveryTime));
+            _actionCandidates.Add(new StaticAttackState(this, NormalAttack));
             _actionCandidates.Add(new StaticChaseState(this));
             _actionCandidates.Add(new StaticIdleState(this));
             _actionCandidates.Add(new StaticSearchState(this));
@@ -642,9 +630,9 @@ namespace BattleK.Scripts.AI
             if (_enemySaveManager == null || _league == null) return;
             var team = _enemySaveManager.GetTeam(_league.currentEnemyTeamId);
 
-            //Debug.Log($"[EnemySave] Stat.Name={runtimeStat.Name}");
+            Debug.Log($"[EnemySave] Stat.Name={runtimeStat.Name}");
 
-            /*foreach (var unit in team.units)
+            foreach (var unit in team.units)
             {
                 Debug.Log($"[EnemySave] unitName={unit.Id}");
 
@@ -656,19 +644,17 @@ namespace BattleK.Scripts.AI
                     teamName = team.name
                 };
 
-
             }
             var unitData = team?.units?.Find(u =>
                 string.Equals(u.Id?.Trim(), runtimeStat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
-            */
-            //Debug.Log($"[EnemySave] unitData={(unitData == null ? "NULL" : unitData.Id)}");
-            //if (unitData == null) return;
+            Debug.Log($"[EnemySave] unitData={(unitData == null ? "NULL" : unitData.Id)}");
+            if (unitData == null) return;
 
             
 
             _enemySaveManager.RecordSeenEnemyTeam(team);
 
-            //runtimeStat.SaveTo(unitData);
+            runtimeStat.SaveTo(unitData);
         }
 
 #if UNITY_EDITOR

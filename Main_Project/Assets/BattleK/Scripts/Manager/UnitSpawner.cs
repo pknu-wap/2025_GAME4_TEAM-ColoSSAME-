@@ -55,11 +55,8 @@ namespace BattleK.Scripts.Manager
                 var aiCore = instance.GetComponent<StaticAICore>();
                 if (aiCore != null)
                 {
-                    ApplyStatsOrFallback(aiCore, req);
                     var targetLayerName = req.isPlayer ? _enemyLayerName : _playerLayerName;
                     aiCore.TargetLayer = LayerMask.GetMask(targetLayerName);
-                    aiCore.SetInitialStats();
-                    aiCore.Initialize();
                 }
                 _presentation.Apply(instance, req);
             });

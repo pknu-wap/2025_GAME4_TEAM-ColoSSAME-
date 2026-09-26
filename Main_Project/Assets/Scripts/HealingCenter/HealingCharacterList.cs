@@ -7,16 +7,18 @@ using UnityEngine;
 
 namespace Colosseum.HealingCenter
 {
-   
     public class HealingCharacterList : MonoBehaviour
     {
         [SerializeField] private List<HealingCharacterItem> characterSlots;
 
+        public MonoBehaviour CoroutineHost { get; set; }
+
         private readonly AddressableAssetLoader<Sprite> _portraitLoader = new();
+        private readonly List<(Unit Unit, CharacterData Data)> _ownedUnits = new();
 
         private string _selectedUnitId;
-        
-        public event Action<string> OnCharacterSelected;
+
+        public event Action<Unit> OnCharacterSelected;
 
         private void OnDestroy()
         {
@@ -25,37 +27,20 @@ namespace Colosseum.HealingCenter
 
         public void Refresh()
         {
-            List<CharacterData> ownedCharacters = GetOwnedCharacters();
+            CollectOwnedUnitsInCurrentFamily();
 
             int slotIndex = 0;
-
-            for (int i = 0; i < ownedCharacters.Count; i++)
+            for (int i = 0; i < _ownedUnits.Count; i++)
             {
                 if (slotIndex >= characterSlots.Count)
                 {
-                    Debug.LogWarning("[HealingCharacterList] 슬롯 개수가 부족합니다. 인스펙터에서 슬롯을 추가하세요.");
+                    Debug.LogWarning("[HealingCharacterList] \uc2ac\ub86f \uac1c\uc218\uac00 \ubd80\uc871\ud569\ub2c8\ub2e4. \uc778\uc2a4\ud399\ud130\uc5d0\uc11c \uc2ac\ub86f\uc744 \ucd94\uac00\ud558\uc138\uc694.");
                     break;
                 }
 
-                CharacterData characterData = ownedCharacters[i];
-
-                Unit myUnit = UserManager.Instance.GetMyUnitById(characterData.Unit_ID);
-                if (myUnit == null)
-                {
-                    continue;
-                }
-
-                HealingCharacterItem slot = characterSlots[slotIndex];
-                slot.SetData(
-                    characterData.Unit_ID,
-                    characterData.Unit_Name,
-                    // myUnit.currentHp,
-                    characterData.Unit_Name, // TODO: 포트레이트 전용 필드가 따로 있다면 그 필드로 교체
-                    _portraitLoader,
-                    HandleSlotSelected
-                );
-                slot.SetSelected(characterData.Unit_ID == _selectedUnitId);
-
+                (Unit unit, CharacterData data) = _ownedUnits[i];
+                characterSlots[slotIndex].SetData(unit, data, _portraitLoader, CoroutineHost, HandleSlotSelected);
+                characterSlots[slotIndex].SetSelected(unit.Id == _selectedUnitId);
                 slotIndex++;
             }
 
@@ -76,40 +61,57 @@ namespace Colosseum.HealingCenter
             }
         }
 
-        private void HandleSlotSelected(string unitId)
+        // \ud798 \ud6c4 \ud574\ub2f9 \uc720\ub2db \uc2ac\ub86f\uc758 \ubd80\uc0c1 \ud14d\uc2a4\ud2b8\ub9cc \uac31\uc2e0 (\uc804\uccb4 Refresh \ubcf4\ub2e4 \uac00\ubcbc\uc74c)
+        public void RefreshSelectedSlotStatus()
         {
-            _selectedUnitId = unitId;
-            RefreshHighlightOnly();
-            OnCharacterSelected?.Invoke(unitId);
-        }
-
-        private List<CharacterData> GetOwnedCharacters()
-        {
-            string currentFamilyId = FamilyUtility.GetCurrentFamilyId();
-
-            if (string.IsNullOrEmpty(currentFamilyId))
+            foreach (HealingCharacterItem slot in characterSlots)
             {
-                return new List<CharacterData>();
-            }
-
-            List<CharacterData> familyUnits = UnitDataManager.Instance.GetFamilyUnits(currentFamilyId);
-
-            if (familyUnits == null)
-            {
-                return new List<CharacterData>();
-            }
-
-            List<CharacterData> owned = new List<CharacterData>();
-
-            foreach (CharacterData characterData in familyUnits)
-            {
-                if (UserManager.Instance.GetMyUnitById(characterData.Unit_ID) != null)
+                if (slot.gameObject.activeSelf && slot.UnitId == _selectedUnitId)
                 {
-                    owned.Add(characterData);
+                    slot.RefreshStatus();
+                    break;
                 }
             }
+        }
 
-            return owned;
+        public void Select(Unit unit)
+        {
+            if (unit == null) return;
+            HandleSlotSelected(unit);
+        }
+
+        public Unit GetFirstUnit() => _ownedUnits.Count > 0 ? _ownedUnits[0].Unit : null;
+
+        private void HandleSlotSelected(Unit unit)
+        {
+            _selectedUnitId = unit.Id;
+            RefreshHighlightOnly();
+            OnCharacterSelected?.Invoke(unit);
+        }
+        private void CollectOwnedUnitsInCurrentFamily()
+        {
+            _ownedUnits.Clear();
+
+            string currentFamilyId = FamilyUtility.GetCurrentFamilyId();
+            if (string.IsNullOrEmpty(currentFamilyId))
+            {
+                return;
+            }
+
+            List<Unit> myUnits = UserManager.Instance.user.myUnits;
+            if (myUnits == null)
+            {
+                return;
+            }
+
+            foreach (Unit unit in myUnits)
+            {
+                CharacterData data = CharacterInfoProvider.GetCharacterData(unit.Id);
+                if (data != null && data.Family_ID == currentFamilyId)
+                {
+                    _ownedUnits.Add((unit, data));
+                }
+            }
         }
     }
 }

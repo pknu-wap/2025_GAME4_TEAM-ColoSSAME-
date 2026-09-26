@@ -15,6 +15,8 @@ using System.Collections.Generic;
         public string currentMatchId;
         public List<Prediction> predictions = new();
 
+        public List<UnitNewsEvent> unitEvents = new();  
+
     [Newtonsoft.Json.JsonIgnore] public EnemyTeam currentEnemy;
     }
 

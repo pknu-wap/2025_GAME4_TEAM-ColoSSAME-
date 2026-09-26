@@ -85,8 +85,13 @@ public static class EnemyTeamService
                 int grow = GrowAmount(result);           
                 if (grow > 0)
                 {
+                    int before = unit.Level;
                     unit.Level = Mathf.Min(unit.Level + grow, cap);
                     changed = true;
+
+                    int gained = unit.Level - before;
+                    if (gained >= 2)
+                        UnitNewsRecorder.Record(league, playedRound.roundNumber, team, unit, UnitNewsType.LevelJump, gained);
                 }
             }
             if (changed) EnemySaveManager.Instance.SaveTeam(team);
@@ -133,10 +138,13 @@ public static class EnemyTeamService
                 unit.Tier = Mathf.Min(unit.Tier + 1, 5);
                 unit.Level = resetLevel + rankBonus;
                 unit.EXP = 0f;
-                GrantSkillByRarity(unit);
+
+                string gainedSkill = GrantSkillByRarity(unit);
+                if (gainedSkill != null)
+                    UnitNewsRecorder.Record(league, 0, team, unit, UnitNewsType.NewSkill, unit.Tier, gainedSkill);
             }
 
-            AddNewLowestRarityUnit(team, leagueTeam.fid, resetLevel);
+            AddNewLowestRarityUnit(league, team, leagueTeam.fid, resetLevel);
 
             team.growthStage = nextTier;
             EnemySaveManager.Instance.SaveTeam(team);
@@ -145,7 +153,7 @@ public static class EnemyTeamService
         Debug.Log($"적 팀 성장 완료 (tier {nextTier}, resetLevel {resetLevel})");
     }
 
-    private static void AddNewLowestRarityUnit(EnemyTeam team, string fid, int startLevel)
+    private static void AddNewLowestRarityUnit(League league, EnemyTeam team, string fid, int startLevel)
     {
         var familyUnits = UnitDataManager.Instance.GetFamilyUnits(fid);
         if (familyUnits == null || familyUnits.Count == 0) return;
@@ -173,6 +181,7 @@ public static class EnemyTeamService
         };
         GrantSkillsUpToRarity(newUnit);
         team.units.Add(newUnit);
+        UnitNewsRecorder.Record(league, 0, team, newUnit, UnitNewsType.Recruited, newUnit.Tier);
 
         Debug.Log($"[EnemyGrowth] {team.name}에 {picked.Unit_Name} 추가 (level {startLevel})");
     }
@@ -180,30 +189,34 @@ public static class EnemyTeamService
     public static SkillPoolRegistrySO Registry;
 
     // 등급에 맞는 스킬 자동 부여
-    private static void GrantSkillByRarity(Unit unit)
+    // 실제로 새로 부여된 스킬 이름을 반환 (없으면 null) — 뉴스 기록용
+    private static string GrantSkillByRarity(Unit unit)
     {
         var pool = Registry?.GetPool(unit.UnitClass);
-        if (pool == null) return;
+        if (pool == null) return null;
         int r = unit.Tier;
 
         if (r == 3 || r == 4)
         {
             var choices = pool.GetSkillChoices(r);
-            if (choices.Count == 0) return;
-            AddSkill(unit, choices[Random.Range(0, choices.Count)].skillName);
+            if (choices.Count == 0) return null;
+            string name = choices[Random.Range(0, choices.Count)].skillName;
+            return AddSkill(unit, name) ? name : null;
         }
-        else if (r == 5)
+        if (r == 5)
         {
             var ult = pool.GetUltimate();
-            if (ult != null) AddSkill(unit, ult.skillName);
+            if (ult != null && AddSkill(unit, ult.skillName)) return ult.skillName;
         }
+        return null;
     }
 
-    private static void AddSkill(Unit unit, string skillName)
+    private static bool AddSkill(Unit unit, string skillName)
     {
-        if (string.IsNullOrEmpty(skillName)) return;
-        if (unit.OwnedSkills.Exists(s => s.skillName == skillName)) return;
+        if (string.IsNullOrEmpty(skillName)) return false;
+        if (unit.OwnedSkills.Exists(s => s.skillName == skillName)) return false;
         unit.OwnedSkills.Add(new UnitSkill(skillName, 1));
+        return true;
     }
 
     // 획득 유닛 스킬 소급 부여

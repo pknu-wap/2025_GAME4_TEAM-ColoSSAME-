@@ -1,10 +1,8 @@
 using System.Collections.Generic;
-using System.Linq;
-using BattleK.Scripts.AI.Skill.Base;
 using BattleK.Scripts.CharacterCreator;
-using BattleK.Scripts.Data;
 using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Data.Type;
+using Skill;
 using UnityEditor;
 using UnityEngine;
 
@@ -15,133 +13,112 @@ namespace BattleK.Scripts.Editor
         private FamilyName _familyName = FamilyName.Astra;
         private bool _isUsingSpumName;
         private string _unitName = "New Unit";
-        private bool _isRecruit;
-        private bool _isRanged;
-        private UnitClass _unitClass;
         private Sprite _unitImage;
-        private GameObject spumPrefab;
-        private GameObject _rangedAttack;
-        private GameObject _meleeAttack;
+        private GameObject _spumPrefab;
         private GameObject _hpBar;
-        private ClassSkillDatabase _skillDatabase;
-        private List<SkillSO> _classSkills = new();
-        private List<SkillSO> _uniqueSkills = new();
-        private UnitClass _lastLoadedClass;
 
-        private const float BaseHeight = 520f;
-        private const float SkillSlotHeight = 23f;
-        private const float WindowWidth = 450f;
-        
+        private UnitClass _unitClass;
+        private ClassDefinitionDatabase _classDefinitionDatabase;
+        private ClassDefinitionSO _currentClassDefinition;
+        private List<ClassSkillPoolSO.SkillRef> _classSkills = new();
+        private UnitClass _lastLoadedClass;
+        private bool _hasLoadedOnce;
+
+        private Vector2 _scrollPosition;
+        private static readonly Vector2 MinWindowSize = new(380f, 420f);
+
         [MenuItem("Tools/Colossame/Create Unit")]
         public static void ShowWindow()
         {
             var window = GetWindow<UnitCreatorWindow>("Unit Creator");
-            window.UpdateWindowSize();
+            window.minSize = MinWindowSize;
         }
-        
+
         private void OnEnable()
         {
-            var guids = AssetDatabase.FindAssets("t:ClassSkillDatabase");
+            minSize = MinWindowSize;
+
+            var guids = AssetDatabase.FindAssets("t:ClassDefinitionDatabase");
             if (guids.Length > 0)
             {
                 var path = AssetDatabase.GUIDToAssetPath(guids[0]);
-                _skillDatabase = AssetDatabase.LoadAssetAtPath<ClassSkillDatabase>(path);
+                _classDefinitionDatabase = AssetDatabase.LoadAssetAtPath<ClassDefinitionDatabase>(path);
+            }
+            else
+            {
+                Debug.LogWarning("[UnitCreatorWindow] ClassDefinitionDatabase 애셋을 찾을 수 없습니다.");
             }
         }
-        
+
         private void OnGUI()
         {
+            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
+
             GUILayout.Label("유닛 생성 설정", EditorStyles.boldLabel);
             EditorGUILayout.Space();
-            
+
             GUILayout.Label("유닛 이름 설정");
             _isUsingSpumName = EditorGUILayout.Toggle("스펌 프리팹 이름 사용", _isUsingSpumName);
             _unitName = EditorGUILayout.TextField("유닛 이름", _unitName);
             _familyName = (FamilyName)EditorGUILayout.EnumPopup(new GUIContent("가문명"), _familyName);
-            _isRecruit = EditorGUILayout.Toggle("훈련병", _isRecruit);
-            
-            _isRanged = EditorGUILayout.Toggle("원거리 유닛", _isRanged);
+
+            EditorGUILayout.Space();
             _unitClass = (UnitClass)EditorGUILayout.EnumPopup(new GUIContent("유닛 직업"), _unitClass);
-            if (_unitClass != _lastLoadedClass)
+            if (_unitClass != _lastLoadedClass || !_hasLoadedOnce)
             {
-                LoadSkillsForClass(_unitClass);
+                LoadClassDefinition(_unitClass);
                 _lastLoadedClass = _unitClass;
+                _hasLoadedOnce = true;
             }
-        
+
+            if (_currentClassDefinition == null)
+            {
+                EditorGUILayout.HelpBox("이 직업에 대한 ClassDefinitionSO가 등록되어 있지 않습니다. ClassDefinitionDatabase에 추가하세요.", MessageType.Warning);
+            }
+            else if (_currentClassDefinition.NormalAttackData == null)
+            {
+                EditorGUILayout.HelpBox("이 직업의 ClassDefinitionSO에 NormalAttackData(일반 공격 스킬 애셋)가 지정되어 있지 않습니다.", MessageType.Warning);
+            }
+
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("이미지 설정", EditorStyles.boldLabel);
             _unitImage = (Sprite)EditorGUILayout.ObjectField(new GUIContent("캐릭터 이미지"), _unitImage, typeof(Sprite), true);
-            
+
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("프리팹 설정", EditorStyles.boldLabel);
-            spumPrefab = (GameObject)EditorGUILayout.ObjectField(new GUIContent("SPUM Prefab"), spumPrefab, typeof(GameObject), false);
-            _rangedAttack = (GameObject)EditorGUILayout.ObjectField(new GUIContent("RangedAttack Prefab"), _rangedAttack, typeof(GameObject), false);
-            _meleeAttack = (GameObject)EditorGUILayout.ObjectField(new GUIContent("MeleeAttack Prefab"), _meleeAttack, typeof(GameObject), false);
+            _spumPrefab = (GameObject)EditorGUILayout.ObjectField(new GUIContent("SPUM Prefab"), _spumPrefab, typeof(GameObject), false);
             _hpBar = (GameObject)EditorGUILayout.ObjectField(new GUIContent("HP Bar"), _hpBar, typeof(GameObject), false);
-            
+
             EditorGUILayout.Space(10);
-            EditorGUILayout.LabelField("직업 공통 스킬 (자동)", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("직업 공통 스킬 (참고용, 자동)", EditorStyles.boldLabel);
             EditorGUILayout.BeginVertical("box");
             {
                 if (_classSkills.Count == 0)
                     EditorGUILayout.HelpBox("이 직업에 등록된 공통 스킬이 없습니다.", MessageType.Info);
 
-                foreach (var skill in _classSkills)
+                foreach (var skillRef in _classSkills)
                 {
                     using (new EditorGUI.DisabledScope(true))
                     {
-                        EditorGUILayout.ObjectField(skill, typeof(SkillSO), false);
+                        EditorGUILayout.TextField(skillRef.skillName);
                     }
                 }
             }
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.Space(10);
-            EditorGUILayout.LabelField("전용기 (수동 추가)", EditorStyles.boldLabel);
-            EditorGUILayout.BeginVertical("box");
+            using (new EditorGUI.DisabledScope(_currentClassDefinition == null))
             {
-                _uniqueSkills ??= new List<SkillSO>();
-                var indexToRemove = -1;
-                for (var i = 0; i < _uniqueSkills.Count; i++)
+                if (GUILayout.Button("유닛 생성", GUILayout.Height(35)))
                 {
-                    EditorGUILayout.BeginHorizontal();
-                    GUILayout.Label($"Unique {i + 1}", GUILayout.Width(60));
-                    _uniqueSkills[i] = EditorGUILayout.ObjectField(_uniqueSkills[i], typeof(SkillSO), false) as SkillSO;
-
-                    if (GUILayout.Button("-", GUILayout.Width(25)))
-                    {
-                        indexToRemove = i;
-                    }
-                    EditorGUILayout.EndHorizontal();
-                }
-
-                if (indexToRemove >= 0)
-                {
-                    _uniqueSkills.RemoveAt(indexToRemove);
-                    GUI.FocusControl(null);
-                    UpdateWindowSize();
-                }
-
-                GUILayout.Space(5);
-                if (GUILayout.Button("+ 전용기 추가", GUILayout.Height(30)))
-                {
-                    _uniqueSkills.Add(null);
-                    UpdateWindowSize();
+                    if (ValidateInputs()) CreateUnitEditor();
                 }
             }
-            EditorGUILayout.EndVertical();
+
+            EditorGUILayout.Space(10);
+            EditorGUILayout.EndScrollView();
         }
 
-        private void UpdateWindowSize()
-        {
-            var count = (_classSkills?.Count ?? 0) + (_uniqueSkills?.Count ?? 0);
-            var targetHeight = BaseHeight + (count * SkillSlotHeight);
-            var newSize = new Vector2(WindowWidth, targetHeight);
-
-            this.minSize = newSize;
-            this.maxSize = newSize;
-        }
-        
         private bool ValidateInputs()
         {
             if (string.IsNullOrWhiteSpace(_unitName))
@@ -149,47 +126,45 @@ namespace BattleK.Scripts.Editor
                 EditorUtility.DisplayDialog("입력 오류", "unitName을 지정하세요. {가문명}_{unitName}", "확인");
                 return false;
             }
-            if (!spumPrefab)
+            if (!_spumPrefab)
             {
                 EditorUtility.DisplayDialog("입력 오류", "SPUM Prefab을 지정하세요.", "확인");
                 return false;
             }
-            switch (_isRanged)
+            if (_currentClassDefinition == null)
             {
-                case true when !_rangedAttack:
-                    EditorUtility.DisplayDialog("입력 오류", "RangedAttack Prefab을 지정하세요.", "확인");
-                    return false;
-                case false when !_meleeAttack:
-                    EditorUtility.DisplayDialog("입력 오류", "MeleeAttack Prefab을 지정하세요.", "확인");
-                    return false;
-                default:
-                    return true;
+                EditorUtility.DisplayDialog("입력 오류", "선택한 직업에 대한 ClassDefinitionSO가 없습니다.", "확인");
+                return false;
             }
+            if (_currentClassDefinition.NormalAttackData == null)
+            {
+                EditorUtility.DisplayDialog("입력 오류", "선택한 직업의 ClassDefinitionSO에 NormalAttackData가 지정되어 있지 않습니다.", "확인");
+                return false;
+            }
+            return true;
         }
-        
-        private void LoadSkillsForClass(UnitClass unitClass)
+
+        private void LoadClassDefinition(UnitClass unitClass)
         {
-            _classSkills = _skillDatabase != null ? new List<SkillSO>(_skillDatabase.GetSkillsForClass(unitClass)) : new List<SkillSO>();
-            UpdateWindowSize();
+            _currentClassDefinition = _classDefinitionDatabase != null
+                ? _classDefinitionDatabase.GetDefinition(unitClass)
+                : null;
+
+            _classSkills = _currentClassDefinition?.CommonSkillPool != null
+                ? new List<ClassSkillPoolSO.SkillRef>(_currentClassDefinition.CommonSkillPool.skills)
+                : new List<ClassSkillPoolSO.SkillRef>();
         }
-        
+
         private void CreateUnitEditor()
         {
-            var allSkills = _classSkills.Concat(_uniqueSkills.Where(s => s != null)).Distinct().ToList();
-            
             var created = UnitCreator.CreateUnit(
                 familyName: _familyName,
                 characterName: _unitName,
-                isRecruit: _isRecruit,
                 isUsingSPUMName: _isUsingSpumName,
-                isRanged: _isRanged,
-                unitClassName: _unitClass,
+                classDefinition: _currentClassDefinition,
                 unitImage: _unitImage,
-                spumPrefab: spumPrefab,
-                rangedPrefab: _rangedAttack,
-                meleePrefab: _meleeAttack,
-                hpBarPrefab: _hpBar,
-                allPossibleSkills: allSkills
+                spumPrefab: _spumPrefab,
+                hpBarPrefab: _hpBar
             );
 
             if (!created) return;
