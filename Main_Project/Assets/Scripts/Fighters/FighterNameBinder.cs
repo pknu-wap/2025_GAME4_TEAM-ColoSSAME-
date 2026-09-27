@@ -234,8 +234,27 @@ public class FighterNameBinder : MonoBehaviour
     
     public void RefreshTrainingUI()
     {
-        UpdateSlotActive(UserManager.Instance.user.myUnits);
+        List<Unit> myUnits = UserManager.Instance.user.myUnits;
+
+        UpdateSlotActive(myUnits);
+        StartCoroutine(RefreshPortraits(myUnits));
+
         getExpButton.RefreshSelectedUnitUI();
+    }
+
+    private IEnumerator RefreshPortraits(List<Unit> myUnits)
+    {
+        for (int i = 0; i < myUnits.Count; i++)
+        {
+            Transform slot = fighterListParent.GetChild(i);
+            Image portraitImage = FindPortraitImage(slot);
+            
+            string portraitAddress = GetPortraitAddress(myUnits[i].Id);
+
+            yield return StartCoroutine(
+                LoadUnitPortrait(portraitAddress, portraitImage)
+            );
+        }
     }
 
     private void OnDestroy()

@@ -28,17 +28,11 @@ public class SeenEnemyListUI : MonoBehaviour
             Image image = enemyUI.GetComponentInChildren<Image>(true);
 
             bool hasEnemy = i < enemies.Count;
-            //enemyUI.SetActive(hasEnemy);
 
             if (!hasEnemy)
                 continue;
 
-            text.text = enemies[i].unitName;
-
-            if (image != null)
-            {
-                image.sprite = null;
-            }
+            text.text = $"{enemies[i].unitName}\n{enemies[i].level}";
         }
 
         StartCoroutine(LoadAllPortraits(enemies));
