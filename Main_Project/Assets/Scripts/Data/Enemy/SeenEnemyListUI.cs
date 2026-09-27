@@ -26,13 +26,24 @@ public class SeenEnemyListUI : MonoBehaviour
             GameObject enemyUI = content.GetChild(i).gameObject;
             TMP_Text text = enemyUI.GetComponentInChildren<TMP_Text>();
             Image image = enemyUI.GetComponentInChildren<Image>(true);
+            Transform tierParent = enemyUI.transform.GetChild(2);
 
             bool hasEnemy = i < enemies.Count;
 
-            if (!hasEnemy)
-                continue;
-
             text.text = $"{enemies[i].unitName}\n{enemies[i].level}";
+
+            for (int j = 0; j < tierParent.childCount; j++)
+            {
+                tierParent.GetChild(j).gameObject.SetActive(false);
+            }
+
+            int tierIndex = enemies[i].Tier - 1;
+
+            if (tierIndex >= 0 && tierIndex < tierParent.childCount)
+            {
+                tierParent.GetChild(tierIndex).gameObject.SetActive(true);
+            }
+        
         }
 
         StartCoroutine(LoadAllPortraits(enemies));
