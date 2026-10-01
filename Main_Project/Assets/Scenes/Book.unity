@@ -1434,6 +1434,12 @@ MonoBehaviour:
   - id: 11
     order: 0
     parent: 4
+  - id: 12
+    order: 0
+    parent: 5
+  - id: 13
+    order: 1
+    parent: 5
   initialPage: 1
 --- !u!1 &361330696
 GameObject:
@@ -1605,7 +1611,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC2DC\uC124"
+  m_text: "\uD300\uAD00\uB9AC"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 77c29c8d2919e8540aad94e4b7d48af4, type: 2}
   m_sharedMaterial: {fileID: -3092453161054597578, guid: 77c29c8d2919e8540aad94e4b7d48af4, type: 2}
@@ -10909,6 +10915,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: caaca36ff4db151478c040ebb9611a26, type: 3}
+--- !u!114 &34775521244507124 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2640999373812646292, guid: caaca36ff4db151478c040ebb9611a26, type: 3}
+  m_PrefabInstance: {fileID: 34775521244507123}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2900ac8443fd40242b131054cf68d58b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &320493980781997021
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10917,6 +10934,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 358317211}
     m_Modifications:
+    - target: {fileID: 2588432881430058325, guid: 1e4087a7b1868364cbb62a480a79ad1f, type: 3}
+      propertyPath: pageController
+      value: 
+      objectReference: {fileID: 358317213}
     - target: {fileID: 3541710593228362956, guid: 1e4087a7b1868364cbb62a480a79ad1f, type: 3}
       propertyPath: pageController
       value: 
@@ -11005,6 +11026,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Manage
       objectReference: {fileID: 0}
+    - target: {fileID: 8835324672961256238, guid: 1e4087a7b1868364cbb62a480a79ad1f, type: 3}
+      propertyPath: pageController
+      value: 
+      objectReference: {fileID: 358317213}
+    - target: {fileID: 8905617798392619215, guid: 1e4087a7b1868364cbb62a480a79ad1f, type: 3}
+      propertyPath: skillGrant
+      value: 
+      objectReference: {fileID: 34775521244507124}
+    - target: {fileID: 8905617798392619215, guid: 1e4087a7b1868364cbb62a480a79ad1f, type: 3}
+      propertyPath: pageController
+      value: 
+      objectReference: {fileID: 358317213}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

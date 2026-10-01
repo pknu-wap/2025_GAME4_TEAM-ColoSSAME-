@@ -4,14 +4,16 @@ using BattleK.Scripts.Data.Stat;
 using BattleK.Scripts.Manager;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-namespace Colosseum.HealingCenter
+namespace Colosseum.Character
 {
-    public class HealingCharacterItem : MonoBehaviour
+    public class CharacterItem : MonoBehaviour
     {
         [SerializeField] private Image portraitImage;
-        [SerializeField] private TMP_Text hpText;
+        [FormerlySerializedAs("hpText")]
+        [SerializeField] private TMP_Text statusText;
         [SerializeField] private Button selectButton;
         [SerializeField] private GameObject selectedHighlight;
 
@@ -22,7 +24,8 @@ namespace Colosseum.HealingCenter
 
         private void Awake()
         {
-            selectButton.onClick.AddListener(HandleClick);
+            if (selectButton == null) selectButton = GetComponent<Button>();
+            if (selectButton != null) selectButton.onClick.AddListener(HandleClick);
         }
 
         public void SetData(Unit unit, CharacterData data, AddressableAssetLoader<Sprite> portraitLoader, MonoBehaviour coroutineHost, Action<Unit> onSelected)
@@ -30,7 +33,7 @@ namespace Colosseum.HealingCenter
             _unit = unit;
             _onSelected = onSelected;
 
-            hpText.SetText(InjuryStatusLocalization.GetDisplayName(unit.currentInjury));
+            if (statusText != null) statusText.SetText(InjuryStatusLocalization.GetDisplayName(unit.currentInjury));
 
             gameObject.SetActive(true);
 
@@ -53,8 +56,8 @@ namespace Colosseum.HealingCenter
 
         public void RefreshStatus()
         {
-            if (_unit == null) return;
-            hpText.SetText(InjuryStatusLocalization.GetDisplayName(_unit.currentInjury));
+            if (_unit == null || statusText == null) return;
+            statusText.SetText(InjuryStatusLocalization.GetDisplayName(_unit.currentInjury));
         }
 
         private void LoadPortrait(CharacterData data, AddressableAssetLoader<Sprite> portraitLoader, MonoBehaviour coroutineHost)
@@ -64,7 +67,7 @@ namespace Colosseum.HealingCenter
                 portraitLoader,
                 data,
                 sprite => portraitImage.sprite = sprite,
-                () => Debug.LogWarning($"[HealingCharacterItem] \ud3ec\ud2b8\ub808\uc774\ud2b8 \ub85c\ub4dc \uc2e4\ud328: {data?.Unit_ID}")
+                () => Debug.LogWarning($"[CharacterItem] \ud3ec\ud2b8\ub808\uc774\ud2b8 \ub85c\ub4dc \uc2e4\ud328: {data?.Unit_ID}")
             ));
         }
 
