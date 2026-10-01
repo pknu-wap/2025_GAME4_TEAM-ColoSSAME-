@@ -15,8 +15,13 @@ public class PagedSlotFiller<TData>
 
     public void SetItems(List<TData> newItems)
     {
+        SetItems(newItems, false);
+    }
+
+    public void SetItems(List<TData> newItems, bool keepPage)
+    {
         items = newItems ?? new List<TData>();
-        currentPage = 0;
+        currentPage = keepPage ? Mathf.Min(currentPage, MaxPage) : 0;
         RefreshPage();
     }
 

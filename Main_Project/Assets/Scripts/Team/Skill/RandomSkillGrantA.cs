@@ -19,6 +19,13 @@ public class RandomSkillGrantA : MonoBehaviour
 
     private void Awake()
     {
+        EnsurePoolsBuilt();
+    }
+
+    private void EnsurePoolsBuilt()
+    {
+        if (skillPools != null) return;
+
         skillPools = new Dictionary<UnitClass, List<SkillSO>>
         {
             { UnitClass.Legionary, tankSkill },
@@ -32,6 +39,7 @@ public class RandomSkillGrantA : MonoBehaviour
 
     public List<SkillSO> GetAllSkills(UnitClass unitClass)
     {
+        EnsurePoolsBuilt();
         if (skillPools.TryGetValue(unitClass, out List<SkillSO> pool))
         {
             return pool;
@@ -44,6 +52,7 @@ public class RandomSkillGrantA : MonoBehaviour
     public List<SkillSO> GetSkillChoices(UnitClass unitClass, int rarity)
     {
         List<SkillSO> result = new();
+        EnsurePoolsBuilt();
 
         if (!skillPools.TryGetValue(unitClass, out List<SkillSO> pool))
             return result;
@@ -64,6 +73,7 @@ public class RandomSkillGrantA : MonoBehaviour
 
     public SkillSO GetUltimateSkill(UnitClass unitClass)
     {
+        EnsurePoolsBuilt();
         if (skillPools.TryGetValue(unitClass, out List<SkillSO> pool) &&
             pool.Count >= 5)
         {
