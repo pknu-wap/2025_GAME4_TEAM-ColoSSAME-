@@ -122,7 +122,7 @@ namespace BattleK.Scripts.Editor
 
         private bool ValidateInputs()
         {
-            if (string.IsNullOrWhiteSpace(_unitName))
+            if (!_isUsingSpumName && string.IsNullOrWhiteSpace(_unitName))
             {
                 EditorUtility.DisplayDialog("입력 오류", "unitName을 지정하세요. {가문명}_{unitName}", "확인");
                 return false;
