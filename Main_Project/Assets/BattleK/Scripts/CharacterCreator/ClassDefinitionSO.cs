@@ -27,10 +27,6 @@ namespace BattleK.Scripts.CharacterCreator
         [Tooltip("이 직업이 공통으로 사용하는 스킬 풀 (3성/4성/궁극기 슬롯 포함)")]
         public ClassSkillPoolSO CommonSkillPool;
 
-        [Header("전용기 슬롯 정의 (선택)")]
-        [Tooltip("직업 자체에 귀속되지 않고 유닛 개체별로 다르게 붙는 전용기가 있다면, 최대 개수 등 제약만 여기 둘 수 있음")]
-        public int MaxUniqueSkillSlots = 1;
-
         public int AttackAnimationIndex => AttackType switch
         {
             AttackType.Archer => 2,
