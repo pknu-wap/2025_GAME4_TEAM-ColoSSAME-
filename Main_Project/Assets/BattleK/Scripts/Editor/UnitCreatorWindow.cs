@@ -87,7 +87,6 @@ namespace BattleK.Scripts.Editor
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("프리팹 설정", EditorStyles.boldLabel);
             _spumPrefab = (GameObject)EditorGUILayout.ObjectField(new GUIContent("SPUM Prefab"), _spumPrefab, typeof(GameObject), false);
-            _hpBar = (GameObject)EditorGUILayout.ObjectField(new GUIContent("HP Bar"), _hpBar, typeof(GameObject), false);
 
             EditorGUILayout.Space(10);
             EditorGUILayout.LabelField("직업 공통 스킬 (참고용, 자동)", EditorStyles.boldLabel);
@@ -131,26 +130,22 @@ namespace BattleK.Scripts.Editor
                 EditorUtility.DisplayDialog("입력 오류", "SPUM Prefab을 지정하세요.", "확인");
                 return false;
             }
-            if (_currentClassDefinition == null)
+            if (!_currentClassDefinition)
             {
                 EditorUtility.DisplayDialog("입력 오류", "선택한 직업에 대한 ClassDefinitionSO가 없습니다.", "확인");
                 return false;
             }
-            if (_currentClassDefinition.NormalAttackData == null)
-            {
-                EditorUtility.DisplayDialog("입력 오류", "선택한 직업의 ClassDefinitionSO에 NormalAttackData가 지정되어 있지 않습니다.", "확인");
-                return false;
-            }
-            return true;
+
+            if (_currentClassDefinition.NormalAttackData) return true;
+            EditorUtility.DisplayDialog("입력 오류", "선택한 직업의 ClassDefinitionSO에 NormalAttackData가 지정되어 있지 않습니다.", "확인");
+            return false;
         }
 
         private void LoadClassDefinition(UnitClass unitClass)
         {
-            _currentClassDefinition = _classDefinitionDatabase != null
-                ? _classDefinitionDatabase.GetDefinition(unitClass)
-                : null;
-
-            _classSkills = _currentClassDefinition?.CommonSkillPool != null
+            _currentClassDefinition = _classDefinitionDatabase ? _classDefinitionDatabase.GetDefinition(unitClass) : null;
+            _hpBar = _classDefinitionDatabase.hpBar;
+            _classSkills = _currentClassDefinition?.CommonSkillPool
                 ? new List<ClassSkillPoolSO.SkillRef>(_currentClassDefinition.CommonSkillPool.skills)
                 : new List<ClassSkillPoolSO.SkillRef>();
         }
