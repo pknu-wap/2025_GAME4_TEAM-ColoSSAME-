@@ -12,7 +12,6 @@ namespace BattleK.Scripts.CharacterCreator
         [Header("식별")]
         public UnitClass UnitClass;
         public AttackType AttackType;
-        public bool isRecruit;
 
         [Header("전투 기본값")]
         public bool IsRangedDefault;

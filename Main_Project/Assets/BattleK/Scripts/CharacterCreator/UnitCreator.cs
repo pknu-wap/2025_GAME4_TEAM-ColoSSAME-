@@ -18,6 +18,7 @@ namespace BattleK.Scripts.CharacterCreator
             FamilyName familyName,
             string characterName,
             bool isUsingSPUMName,
+            bool isRecruit,
             ClassDefinitionSO classDefinition,
             Sprite unitImage,
             GameObject spumPrefab,
@@ -29,7 +30,7 @@ namespace BattleK.Scripts.CharacterCreator
                 return null;
             }
 
-            var unitFullName = classDefinition.isRecruit ? $"{familyName}_Recruit_{characterName}": $"{familyName}_{characterName}";
+            var unitFullName = isRecruit ? $"{familyName}_Recruit_{characterName}": $"{familyName}_{characterName}";
             var parent = new GameObject(unitFullName)
             {
                 transform = { localScale = new Vector3(0.7f, 0.7f, 1f) }

@@ -12,6 +12,7 @@ namespace BattleK.Scripts.Editor
     {
         private FamilyName _familyName = FamilyName.Astra;
         private bool _isUsingSpumName;
+        private bool _isRecruit;
         private string _unitName = "New Unit";
         private Sprite _unitImage;
         private GameObject _spumPrefab;
@@ -61,6 +62,7 @@ namespace BattleK.Scripts.Editor
             _isUsingSpumName = EditorGUILayout.Toggle("스펌 프리팹 이름 사용", _isUsingSpumName);
             _unitName = EditorGUILayout.TextField("유닛 이름", _unitName);
             _familyName = (FamilyName)EditorGUILayout.EnumPopup(new GUIContent("가문명"), _familyName);
+            _isRecruit = EditorGUILayout.Toggle("훈련병 여부", _isRecruit);
 
             EditorGUILayout.Space();
             _unitClass = (UnitClass)EditorGUILayout.EnumPopup(new GUIContent("유닛 직업"), _unitClass);
@@ -106,7 +108,7 @@ namespace BattleK.Scripts.Editor
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.Space(10);
-            using (new EditorGUI.DisabledScope(_currentClassDefinition == null))
+            using (new EditorGUI.DisabledScope(!_currentClassDefinition))
             {
                 if (GUILayout.Button("유닛 생성", GUILayout.Height(35)))
                 {
@@ -156,6 +158,7 @@ namespace BattleK.Scripts.Editor
                 familyName: _familyName,
                 characterName: _unitName,
                 isUsingSPUMName: _isUsingSpumName,
+                isRecruit: _isRecruit,
                 classDefinition: _currentClassDefinition,
                 unitImage: _unitImage,
                 spumPrefab: _spumPrefab,
