@@ -59,7 +59,7 @@ namespace Colosseum.Character
             }
         }
 
-        public void RefreshHighlightOnly()
+        private void RefreshHighlightOnly()
         {
             foreach (CharacterItem slot in characterSlots)
             {
@@ -160,7 +160,6 @@ namespace Colosseum.Character
             if (result != 0) return result;
 
             result = b.Unit.Tier.CompareTo(a.Unit.Tier);
-            Debug.Log("부상상태별 정렬");
             return result != 0 ? result : b.Unit.Level.CompareTo(a.Unit.Level);
         }
 
@@ -170,7 +169,6 @@ namespace Colosseum.Character
             if (result != 0) return result;
 
             result = ((int)b.Unit.currentInjury).CompareTo((int)a.Unit.currentInjury);
-            Debug.Log("성급별 정렬");
             return result != 0 ? result : b.Unit.Level.CompareTo(a.Unit.Level);
         }
 
@@ -180,7 +178,6 @@ namespace Colosseum.Character
             if (result != 0) return result;
 
             result = ((int)b.Unit.currentInjury).CompareTo((int)a.Unit.currentInjury);
-            Debug.Log("레벨별 정렬");
             return result != 0 ? result : b.Unit.Tier.CompareTo(a.Unit.Tier);
         }
     }

@@ -2,23 +2,30 @@ using System;
 using BattleK.Scripts.Data;
 using BattleK.Scripts.Data.Stat;
 using BattleK.Scripts.Manager;
-using Colosseum.HealingCenter;   // TODO: 치료 UI 분리 시 제거 (HealingService 임시 의존)
+using Colosseum.HealingCenter;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Serialization;
 
 namespace Colosseum.Character
 {
     public class CharacterDetail : MonoBehaviour
     {
+        [Header("캐릭터 기본 정보")]
         [SerializeField] private Image portraitImage;
         [SerializeField] private TMP_Text nameText;
-        [SerializeField] private TMP_Text hpText;
+        [Header("이전 씬의 체력 텍스트 (초기화 전용)")]
+        [FormerlySerializedAs("hpText")]
+        [SerializeField] private TMP_Text legacyHpText;
+
+        [Header("레벨 및 기본 능력치")]
         [SerializeField] private TMP_Text levelText;
         [SerializeField] private TMP_Text attackText;
         [SerializeField] private TMP_Text agilityText;
         [SerializeField] private TMP_Text defenseText;
-        [SerializeField] private TMP_Text healthText;
+        [FormerlySerializedAs("healthText")]
+        [SerializeField] private TMP_Text baseHealthText;
         
         [Header("Optional - HealingCenter 화면용 (비워두면 표시하지 않음)")]
         [SerializeField] private Button healButton;
@@ -41,6 +48,7 @@ namespace Colosseum.Character
 
         private void OnDestroy()
         {
+            if (healButton != null) healButton.onClick.RemoveListener(HandleHealClicked);
             _portraitLoader.ReleaseAll();
         }
 
@@ -54,14 +62,14 @@ namespace Colosseum.Character
         {
             _currentUnit = null;
             SetText(nameText, string.Empty);
-            SetText(hpText, string.Empty);
+            SetText(legacyHpText, string.Empty);
             SetText(injuryStatusText, string.Empty);
             SetText(healingCostText, string.Empty);
             SetText(levelText, string.Empty);
             SetText(attackText, string.Empty);
             SetText(agilityText, string.Empty);
             SetText(defenseText, string.Empty);
-            SetText(healthText, string.Empty);
+            SetText(baseHealthText, string.Empty);
             if (portraitImage != null) portraitImage.sprite = null;
             if (healButton != null) healButton.interactable = false;
         }
@@ -94,7 +102,6 @@ namespace Colosseum.Character
             ));
         }
 
-        // 치료소 전용 표시 (치료 UI가 연결되지 않았거나 HealingService가 없으면 건너뜀)
         private void RefreshHealingInfo()
         {
             if (injuryStatusText == null && healingCostText == null && healButton == null) return;
@@ -119,7 +126,7 @@ namespace Colosseum.Character
             SetText(attackText, $"공격력 : {stats.ATK}");
             SetText(agilityText, $"민첩 : {stats.AGI}");
             SetText(defenseText, $"방어력 : {stats.DEF}");
-            SetText(healthText, $"체력 : {stats.HP}");
+            SetText(baseHealthText, $"체력 : {stats.HP}");
         }
 
         private static void SetText(TMP_Text target, string value)

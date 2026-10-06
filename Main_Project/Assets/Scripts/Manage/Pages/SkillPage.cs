@@ -44,7 +44,6 @@ namespace TeamManage
         protected override void OnPageOpened()
         {
             isOpen = true;
-            Subscribe(false);
             Subscribe(true);
             SetMessage(string.Empty);
             Refresh();
@@ -59,6 +58,10 @@ namespace TeamManage
         private void OnDestroy()
         {
             Subscribe(false);
+            foreach (SkillEntryView entry in entryViews)
+                if (entry != null) entry.Clicked -= HandleEntryClicked;
+            foreach (EquipSlotView slot in equippedSlots)
+                if (slot != null) slot.Clicked -= HandleEquippedSlotClicked;
         }
 
         private void Subscribe(bool on)

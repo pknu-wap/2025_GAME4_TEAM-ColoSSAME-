@@ -14,12 +14,11 @@ namespace TeamManage
         ItemUnavailable
     }
 
-    /// <summary>아이템 페이지 한 칸에 표시할 데이터 (보유 수량 + 장착 상태).</summary>
     public readonly struct ItemEntryData
     {
         public readonly ItemData Item;
         public readonly int OwnedCount;
-        public readonly int AvailableCount;      // 보유 - (전체 유닛에 장착된 수)
+        public readonly int AvailableCount;
         public readonly bool EquippedByCurrentUnit;
 
         public bool Selectable => EquippedByCurrentUnit || AvailableCount > 0;
@@ -33,18 +32,12 @@ namespace TeamManage
         }
     }
 
-    /// <summary>
-    /// 스킬/아이템 장착 규칙만 담당하는 상태 없는 static 서비스.
-    /// UI/저장은 다루지 않음 (저장은 TeamManageController.CommitEquipment).
-    /// </summary>
     public static class EquipmentService
     {
         public const int MaxSkillSlots = 3;
 
-        /// <summary>Unit.equippedItemId가 "장착 없음"일 때의 값 (ClassDataBase.SaveTo와 동일).</summary>
-        public const int NoItem = -1;
+        public const int NoItem = Unit.NoEquippedItemId;
 
-        // ───────────── Skill ─────────────
 
         public static List<string> GetEquippedSkillNames(Unit unit)
         {
@@ -60,7 +53,6 @@ namespace TeamManage
             return result;
         }
 
-        /// <summary>장착 중이면 해제, 아니면 빈 슬롯에 장착.</summary>
         public static EquipResult ToggleSkill(Unit unit, string skillName)
         {
             if (unit == null || string.IsNullOrEmpty(skillName)) return EquipResult.InvalidTarget;
@@ -92,7 +84,6 @@ namespace TeamManage
             return removed > 0 ? EquipResult.Unequipped : EquipResult.InvalidTarget;
         }
 
-        // 기존 훈련 UI(SkillSelectUI)가 남겨둔 빈 슬롯("")/null 항목 제거
         private static void NormalizeEquippedSkills(Unit unit)
         {
             unit.EquippedSkills ??= new List<UnitSkill>();
@@ -111,16 +102,14 @@ namespace TeamManage
             return null;
         }
 
-        // ───────────── Item ─────────────
 
-        public static int GetOwnedCount(User user, int itemId)
+        private static int GetOwnedCount(User user, int itemId)
         {
             if (user?.inventory == null) return 0;
             return user.inventory.TryGetValue(itemId.ToString(), out int count) ? count : 0;
         }
 
-        /// <summary>해당 아이템을 장착 중인 유닛 수 (유닛당 슬롯 1개이므로 = 사용 중인 개수).</summary>
-        public static int GetEquippedCount(User user, int itemId)
+        private static int GetEquippedCount(User user, int itemId)
         {
             if (user?.myUnits == null) return 0;
 
@@ -133,12 +122,6 @@ namespace TeamManage
             return count;
         }
 
-        public static int GetAvailableCount(User user, int itemId)
-        {
-            return Math.Max(0, GetOwnedCount(user, itemId) - GetEquippedCount(user, itemId));
-        }
-
-        /// <summary>장착 중이면 해제, 아니면 장착 (기존 아이템은 교체). 남은 수량이 없으면 거부.</summary>
         public static EquipResult ToggleItem(User user, Unit unit, int itemId)
         {
             if (user == null || unit == null) return EquipResult.InvalidTarget;
@@ -149,8 +132,9 @@ namespace TeamManage
                 return EquipResult.Unequipped;
             }
 
-            if (GetOwnedCount(user, itemId) <= 0) return EquipResult.NotOwned;
-            if (GetAvailableCount(user, itemId) <= 0) return EquipResult.ItemUnavailable;
+            int ownedCount = GetOwnedCount(user, itemId);
+            if (ownedCount <= 0) return EquipResult.NotOwned;
+            if (ownedCount <= GetEquippedCount(user, itemId)) return EquipResult.ItemUnavailable;
 
             unit.equippedItemId = itemId;
             return EquipResult.Equipped;
@@ -164,10 +148,6 @@ namespace TeamManage
             return EquipResult.Unequipped;
         }
 
-        /// <summary>
-        /// 보유 아이템 목록 (id 오름차순). 장착 여부를 지우지 않고 표시용으로 함께 담는다.
-        /// categories가 비어 있으면 전체 카테고리.
-        /// </summary>
         public static List<ItemEntryData> BuildItemEntries(
             User user,
             Unit selectedUnit,
@@ -178,6 +158,7 @@ namespace TeamManage
             if (user?.inventory == null || itemDatabase == null) return result;
 
             bool filterByCategory = categories != null && categories.Count > 0;
+            Dictionary<int, int> equippedCounts = null;
 
             foreach (KeyValuePair<string, int> pair in user.inventory)
             {
@@ -188,12 +169,32 @@ namespace TeamManage
                 if (item == null) continue;
                 if (filterByCategory && !categories.Contains(item.category)) continue;
 
+                equippedCounts ??= BuildEquippedCounts(user);
+                equippedCounts.TryGetValue(itemId, out int equippedCount);
+                int availableCount = Math.Max(0, GetOwnedCount(user, itemId) - equippedCount);
                 bool equippedByCurrent = selectedUnit != null && selectedUnit.equippedItemId == itemId;
-                result.Add(new ItemEntryData(item, pair.Value, GetAvailableCount(user, itemId), equippedByCurrent));
+                result.Add(new ItemEntryData(item, pair.Value, availableCount, equippedByCurrent));
             }
 
             result.Sort((a, b) => a.Item.id.CompareTo(b.Item.id));
             return result;
+        }
+
+        private static Dictionary<int, int> BuildEquippedCounts(User user)
+        {
+            var counts = new Dictionary<int, int>();
+            if (user.myUnits == null) return counts;
+
+            foreach (Unit unit in user.myUnits)
+            {
+                if (unit == null) continue;
+
+                int itemId = unit.equippedItemId;
+                counts.TryGetValue(itemId, out int count);
+                counts[itemId] = count + 1;
+            }
+
+            return counts;
         }
     }
 }

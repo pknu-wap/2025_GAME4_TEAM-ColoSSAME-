@@ -26,6 +26,7 @@ namespace TeamManage
         [Header("안내 메시지 (선택 사항)")]
         [SerializeField] private TMP_Text messageText;
 
+        private readonly List<ItemEntryData> emptyItems = new List<ItemEntryData>();
         private readonly List<ItemEntryView> entryViews = new List<ItemEntryView>();
         private PagedSlotFiller<ItemEntryData> pager;
         private TeamManageController controller;
@@ -41,7 +42,6 @@ namespace TeamManage
             }
         }
 
-        // Inspector: 이전/다음 페이지 버튼 OnClick
         public void NextPage()
         {
             EnsureCollected();
@@ -57,7 +57,6 @@ namespace TeamManage
         protected override void OnPageOpened()
         {
             isOpen = true;
-            Subscribe(false);
             Subscribe(true);
             SetMessage(string.Empty);
             Refresh(false);
@@ -72,6 +71,9 @@ namespace TeamManage
         private void OnDestroy()
         {
             Subscribe(false);
+            foreach (ItemEntryView entry in entryViews)
+                if (entry != null) entry.Clicked -= HandleEntryClicked;
+            if (equippedItemSlot != null) equippedItemSlot.Clicked -= HandleEquippedSlotClicked;
         }
 
         private void Subscribe(bool on)
@@ -88,7 +90,7 @@ namespace TeamManage
 
         private void HandleEquipmentChanged(Unit unit)
         {
-            if (isOpen) Refresh(true);   // 장착 후에도 보던 페이지 유지
+            if (isOpen) Refresh(true);
         }
 
         private void SetMessage(string message)
@@ -105,7 +107,7 @@ namespace TeamManage
             {
                 if (unitPanel != null) unitPanel.Clear();
                 if (equippedItemSlot != null) equippedItemSlot.Clear();
-                pager?.SetItems(new List<ItemEntryData>(), false);
+                pager?.SetItems(emptyItems, false);
                 return;
             }
 

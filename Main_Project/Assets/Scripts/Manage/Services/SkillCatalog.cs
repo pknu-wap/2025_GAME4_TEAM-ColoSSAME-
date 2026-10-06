@@ -36,16 +36,17 @@ namespace TeamManage
     {
         public static string GetTierLabel(SkillTier tier)
         {
-            switch (tier)
+            return tier switch
             {
-                case SkillTier.Tier3: return "티어 3";
-                case SkillTier.Tier2: return "티어 2";
-                case SkillTier.Ultimate: return "궁극기";
-                default: return string.Empty;
-            }
+                SkillTier.Tier3 => "티어 3",
+                SkillTier.Tier2 => "티어 2",
+                SkillTier.Ultimate => "궁극기",
+                SkillTier.Unknown => string.Empty,
+                _ => string.Empty
+            };
         }
 
-        public static SkillTier GetTierByPoolIndex(int index)
+        private static SkillTier GetTierByPoolIndex(int index)
         {
             if (index == 0 || index == 1) return SkillTier.Tier3;
             if (index == 2 || index == 3) return SkillTier.Tier2;
@@ -59,6 +60,12 @@ namespace TeamManage
             if (grant == null || unit == null || string.IsNullOrEmpty(skillName)) return null;
 
             List<SkillSO> pool = grant.GetAllSkills(unit.UnitClass);
+            return FindSkill(pool, skillName, out tier);
+        }
+
+        private static SkillSO FindSkill(List<SkillSO> pool, string skillName, out SkillTier tier)
+        {
+            tier = SkillTier.Unknown;
             for (int i = 0; i < pool.Count; i++)
             {
                 if (pool[i] != null && pool[i].name == skillName)
@@ -77,20 +84,26 @@ namespace TeamManage
             if (unit?.OwnedSkills == null) return result;
 
             List<string> equippedNames = EquipmentService.GetEquippedSkillNames(unit);
-            var sortKeys = new List<int>();
+            List<SkillSO> pool = null;
+            bool poolLoaded = false;
 
             foreach (UnitSkill owned in unit.OwnedSkills)
             {
                 if (owned == null || string.IsNullOrEmpty(owned.skillName)) continue;
 
-                SkillSO skill = FindSkill(grant, unit, owned.skillName, out SkillTier tier);
+                if (grant != null && !poolLoaded)
+                {
+                    pool = grant.GetAllSkills(unit.UnitClass);
+                    poolLoaded = true;
+                }
+
+                SkillTier tier = SkillTier.Unknown;
+                SkillSO skill = grant != null ? FindSkill(pool, owned.skillName, out tier) : null;
                 bool equipped = equippedNames.Contains(owned.skillName);
 
-                int key = (int)tier * 1000 + result.Count;
-                int insertAt = sortKeys.FindIndex(k => k > key);
-                if (insertAt < 0) insertAt = sortKeys.Count;
-
-                sortKeys.Insert(insertAt, key);
+                int insertAt = 0;
+                while (insertAt < result.Count && result[insertAt].Tier.CompareTo(tier) <= 0)
+                    insertAt++;
                 result.Insert(insertAt, new SkillEntryData(owned.skillName, skill, tier, owned.level, equipped));
             }
 

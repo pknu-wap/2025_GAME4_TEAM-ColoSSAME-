@@ -7,11 +7,6 @@ using UnityEngine.UI;
 
 namespace TeamManage
 {
-    /// <summary>
-    /// 팀 관리 화면의 상태 조율자 (선택 유닛 / 장착 결과 저장 / 안내 메시지).
-    /// Manage 루트(항상 활성)에 붙인다 — 하위 페이지(SkillPage, ItemPage)가 GetComponentInParent로 찾는다.
-    /// 페이지 전환과 content 토글은 Book 시스템(BookPage, BookPageButton, BookBackButton)이 담당한다.
-    /// </summary>
     public class TeamManageController : MonoBehaviour
     {
         [Header("메인 오른쪽 페이지")]
@@ -24,18 +19,13 @@ namespace TeamManage
         [Header("안내 메시지 (선택 사항)")]
         [SerializeField] private TMP_Text messageText;
 
-        public string SelectedUnitId { get; private set; }
+        private string SelectedUnitId { get; set; }
 
         public Unit SelectedUnit =>
             UserManager.Instance != null ? UserManager.Instance.GetMyUnitById(SelectedUnitId) : null;
 
-        /// <summary>유닛을 선택했을 때 (왼쪽 목록 클릭).</summary>
-        public event Action<Unit> UnitSelected;
-
-        /// <summary>장착 상태가 바뀌고 저장까지 끝났을 때.</summary>
         public event Action<Unit> EquipmentChanged;
 
-        /// <summary>안내 문구 (스킬/아이템 페이지가 각자 표시).</summary>
         public event Action<string> MessageRaised;
 
         private void OnEnable()
@@ -50,15 +40,13 @@ namespace TeamManage
             if (unit == null) return;
 
             SelectedUnitId = unit.Id;
-            UserManager.Instance.SetSelectedUnit(unit.Id);   // 기존 훈련/스킬 화면과 선택 상태 공유
+            UserManager.Instance.SetSelectedUnit(unit.Id);
 
             RefreshMainDetail();
             SetDetailButtonsInteractable(true);
             ShowMessage(string.Empty);
-            UnitSelected?.Invoke(unit);
         }
 
-        /// <summary>보유 유닛이 없을 때 선택/상세/버튼 상태를 비운다.</summary>
         public void ClearSelection()
         {
             SelectedUnitId = null;
@@ -66,7 +54,6 @@ namespace TeamManage
             SetDetailButtonsInteractable(false);
         }
 
-        /// <summary>장착/해제가 성공했으면 즉시 저장하고 화면 갱신 이벤트를 보낸다.</summary>
         public void CommitEquipment(Unit unit, EquipResult result)
         {
             switch (result)

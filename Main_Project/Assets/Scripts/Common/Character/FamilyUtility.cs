@@ -14,22 +14,22 @@ public static class FamilyUtility
             return null;
         }
 
-        string selectedUnitId = myUnits[0].Id;
+        string firstOwnedUnitId = myUnits[0].Id;
 
-        if (string.IsNullOrEmpty(selectedUnitId))
+        if (string.IsNullOrEmpty(firstOwnedUnitId))
         {
-            Debug.LogWarning("[FamilyUtility] 선택된 유닛(selectedUnitId)이 없습니다.");
+            Debug.LogWarning("[FamilyUtility] 첫 번째 보유 유닛(firstOwnedUnitId)이 없습니다.");
             return null;
         }
 
-        CharacterData selectedCharacterData = UnitDataManager.Instance.GetCharacterData(selectedUnitId);
+        CharacterData firstOwnedCharacterData = UnitDataManager.Instance.GetCharacterData(firstOwnedUnitId);
 
-        if (selectedCharacterData == null)
+        if (firstOwnedCharacterData == null)
         {
-            Debug.LogWarning($"[FamilyUtility] 선택된 유닛의 데이터를 찾을 수 없습니다: {selectedUnitId}");
+            Debug.LogWarning($"[FamilyUtility] 첫 번째 보유 유닛의 데이터를 찾을 수 없습니다: {firstOwnedUnitId}");
             return null;
         }
 
-        return selectedCharacterData.Family_ID;
+        return firstOwnedCharacterData.Family_ID;
     }
 }
