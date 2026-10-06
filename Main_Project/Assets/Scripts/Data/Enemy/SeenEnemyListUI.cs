@@ -10,8 +10,31 @@ public class SeenEnemyListUI : MonoBehaviour
 {
     [SerializeField] private Transform content;
 
+    private TMP_Text[] enemyTexts;
+    private Image[] enemyImages;
+    private Transform[] tierParents;
+    private const int TierParentIndex = 2;
+
     private readonly AddressableAssetLoader<Sprite> portraitLoader 
         = new AddressableAssetLoader<Sprite>();
+
+    private void Awake()
+    {
+        int count = content.childCount;
+
+        enemyTexts = new TMP_Text[count];
+        enemyImages = new Image[count];
+        tierParents = new Transform[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            Transform enemyUI = content.GetChild(i);
+
+            enemyTexts[i] = enemyUI.GetComponentInChildren<TMP_Text>();
+            enemyImages[i] = enemyUI.GetComponentInChildren<Image>(true);
+            tierParents[i] = enemyUI.GetChild(TierParentIndex);
+        }
+    }    
 
     public void ShowTeam(Team team)
     {
@@ -21,16 +44,13 @@ public class SeenEnemyListUI : MonoBehaviour
         List<SeenEnemyData> enemies =
             EnemySaveManager.Instance.GetSeenEnemiesByTeam(team.fid);
 
-        for (int i = 0; i < content.childCount; i++)
+        for (int i = 0; i < enemies.Count && i < content.childCount; i++)
         {
-            GameObject enemyUI = content.GetChild(i).gameObject;
-            TMP_Text text = enemyUI.GetComponentInChildren<TMP_Text>();
-            Image image = enemyUI.GetComponentInChildren<Image>(true);
-            Transform tierParent = enemyUI.transform.GetChild(2);
 
-            bool hasEnemy = i < enemies.Count;
+            enemyTexts[i].text = $"{enemies[i].unitName}\n{enemies[i].level}";
+            
+            Transform tierParent = tierParents[i];
 
-            text.text = $"{enemies[i].unitName}\n{enemies[i].level}";
 
             for (int j = 0; j < tierParent.childCount; j++)
             {
@@ -53,10 +73,7 @@ public class SeenEnemyListUI : MonoBehaviour
     {
         for (int i = 0; i < enemies.Count && i < content.childCount; i++)
         {
-            GameObject enemyUI = content.GetChild(i).gameObject;
-
-            Image image = enemyUI.GetComponentInChildren<Image>(true);
-
+            Image image = enemyImages[i];
             if (image == null)
             {
                 continue;
@@ -75,9 +92,8 @@ public class SeenEnemyListUI : MonoBehaviour
                         image.sprite = sprite;
                     }
                 },
-                () =>
-                {
-                });
+                () =>{}
+                );
         }
     }
 }
