@@ -12,6 +12,7 @@ namespace BattleK.Scripts.Editor
     {
         private FamilyName _familyName = FamilyName.Astra;
         private bool _isUsingSpumName;
+        private bool _isRecruit;
         private string _unitName = "New Unit";
         private Sprite _unitImage;
         private GameObject _spumPrefab;
@@ -61,6 +62,7 @@ namespace BattleK.Scripts.Editor
             _isUsingSpumName = EditorGUILayout.Toggle("스펌 프리팹 이름 사용", _isUsingSpumName);
             _unitName = EditorGUILayout.TextField("유닛 이름", _unitName);
             _familyName = (FamilyName)EditorGUILayout.EnumPopup(new GUIContent("가문명"), _familyName);
+            _isRecruit = EditorGUILayout.Toggle("훈련병 여부", _isRecruit);
 
             EditorGUILayout.Space();
             _unitClass = (UnitClass)EditorGUILayout.EnumPopup(new GUIContent("유닛 직업"), _unitClass);
@@ -87,7 +89,6 @@ namespace BattleK.Scripts.Editor
             EditorGUILayout.Space();
             EditorGUILayout.LabelField("프리팹 설정", EditorStyles.boldLabel);
             _spumPrefab = (GameObject)EditorGUILayout.ObjectField(new GUIContent("SPUM Prefab"), _spumPrefab, typeof(GameObject), false);
-            _hpBar = (GameObject)EditorGUILayout.ObjectField(new GUIContent("HP Bar"), _hpBar, typeof(GameObject), false);
 
             EditorGUILayout.Space(10);
             EditorGUILayout.LabelField("직업 공통 스킬 (참고용, 자동)", EditorStyles.boldLabel);
@@ -107,7 +108,7 @@ namespace BattleK.Scripts.Editor
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.Space(10);
-            using (new EditorGUI.DisabledScope(_currentClassDefinition == null))
+            using (new EditorGUI.DisabledScope(!_currentClassDefinition))
             {
                 if (GUILayout.Button("유닛 생성", GUILayout.Height(35)))
                 {
@@ -121,7 +122,7 @@ namespace BattleK.Scripts.Editor
 
         private bool ValidateInputs()
         {
-            if (string.IsNullOrWhiteSpace(_unitName))
+            if (!_isUsingSpumName && string.IsNullOrWhiteSpace(_unitName))
             {
                 EditorUtility.DisplayDialog("입력 오류", "unitName을 지정하세요. {가문명}_{unitName}", "확인");
                 return false;
@@ -131,26 +132,22 @@ namespace BattleK.Scripts.Editor
                 EditorUtility.DisplayDialog("입력 오류", "SPUM Prefab을 지정하세요.", "확인");
                 return false;
             }
-            if (_currentClassDefinition == null)
+            if (!_currentClassDefinition)
             {
                 EditorUtility.DisplayDialog("입력 오류", "선택한 직업에 대한 ClassDefinitionSO가 없습니다.", "확인");
                 return false;
             }
-            if (_currentClassDefinition.NormalAttackData == null)
-            {
-                EditorUtility.DisplayDialog("입력 오류", "선택한 직업의 ClassDefinitionSO에 NormalAttackData가 지정되어 있지 않습니다.", "확인");
-                return false;
-            }
-            return true;
+
+            if (_currentClassDefinition.NormalAttackData) return true;
+            EditorUtility.DisplayDialog("입력 오류", "선택한 직업의 ClassDefinitionSO에 NormalAttackData가 지정되어 있지 않습니다.", "확인");
+            return false;
         }
 
         private void LoadClassDefinition(UnitClass unitClass)
         {
-            _currentClassDefinition = _classDefinitionDatabase != null
-                ? _classDefinitionDatabase.GetDefinition(unitClass)
-                : null;
-
-            _classSkills = _currentClassDefinition?.CommonSkillPool != null
+            _currentClassDefinition = _classDefinitionDatabase ? _classDefinitionDatabase.GetDefinition(unitClass) : null;
+            _hpBar = _classDefinitionDatabase.hpBar;
+            _classSkills = _currentClassDefinition?.CommonSkillPool
                 ? new List<ClassSkillPoolSO.SkillRef>(_currentClassDefinition.CommonSkillPool.skills)
                 : new List<ClassSkillPoolSO.SkillRef>();
         }
@@ -161,6 +158,7 @@ namespace BattleK.Scripts.Editor
                 familyName: _familyName,
                 characterName: _unitName,
                 isUsingSPUMName: _isUsingSpumName,
+                isRecruit: _isRecruit,
                 classDefinition: _currentClassDefinition,
                 unitImage: _unitImage,
                 spumPrefab: _spumPrefab,
