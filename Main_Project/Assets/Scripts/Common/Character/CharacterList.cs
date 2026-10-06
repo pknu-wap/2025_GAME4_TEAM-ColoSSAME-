@@ -5,11 +5,19 @@ using BattleK.Scripts.Data.Stat;
 using BattleK.Scripts.Manager;
 using UnityEngine;
 
-namespace Colosseum.HealingCenter
+namespace Colosseum.Character
 {
-    public class HealingCharacterList : MonoBehaviour
+    public enum CharacterSortMode
     {
-        [SerializeField] private List<HealingCharacterItem> characterSlots;
+        Default,
+        InjurySeverity,
+        Rarity,
+        Level
+    }
+
+    public class CharacterList : MonoBehaviour
+    {
+        [SerializeField] private List<CharacterItem> characterSlots;
 
         public MonoBehaviour CoroutineHost { get; set; }
 
@@ -17,6 +25,7 @@ namespace Colosseum.HealingCenter
         private readonly List<(Unit Unit, CharacterData Data)> _ownedUnits = new();
 
         private string _selectedUnitId;
+        private CharacterSortMode _sortMode = CharacterSortMode.Default;
 
         public event Action<Unit> OnCharacterSelected;
 
@@ -34,7 +43,7 @@ namespace Colosseum.HealingCenter
             {
                 if (slotIndex >= characterSlots.Count)
                 {
-                    Debug.LogWarning("[HealingCharacterList] \uc2ac\ub86f \uac1c\uc218\uac00 \ubd80\uc871\ud569\ub2c8\ub2e4. \uc778\uc2a4\ud399\ud130\uc5d0\uc11c \uc2ac\ub86f\uc744 \ucd94\uac00\ud558\uc138\uc694.");
+                    Debug.LogWarning("[CharacterList] \uc2ac\ub86f \uac1c\uc218\uac00 \ubd80\uc871\ud569\ub2c8\ub2e4. \uc778\uc2a4\ud399\ud130\uc5d0\uc11c \uc2ac\ub86f\uc744 \ucd94\uac00\ud558\uc138\uc694.");
                     break;
                 }
 
@@ -50,9 +59,9 @@ namespace Colosseum.HealingCenter
             }
         }
 
-        public void RefreshHighlightOnly()
+        private void RefreshHighlightOnly()
         {
-            foreach (HealingCharacterItem slot in characterSlots)
+            foreach (CharacterItem slot in characterSlots)
             {
                 if (slot.gameObject.activeSelf)
                 {
@@ -61,10 +70,9 @@ namespace Colosseum.HealingCenter
             }
         }
 
-        // \ud798 \ud6c4 \ud574\ub2f9 \uc720\ub2db \uc2ac\ub86f\uc758 \ubd80\uc0c1 \ud14d\uc2a4\ud2b8\ub9cc \uac31\uc2e0 (\uc804\uccb4 Refresh \ubcf4\ub2e4 \uac00\ubcbc\uc74c)
         public void RefreshSelectedSlotStatus()
         {
-            foreach (HealingCharacterItem slot in characterSlots)
+            foreach (CharacterItem slot in characterSlots)
             {
                 if (slot.gameObject.activeSelf && slot.UnitId == _selectedUnitId)
                 {
@@ -72,6 +80,19 @@ namespace Colosseum.HealingCenter
                     break;
                 }
             }
+        }
+
+        public void SortByDefault() => SetSortMode(CharacterSortMode.Default);
+        public void SortByInjurySeverity() => SetSortMode(CharacterSortMode.InjurySeverity);
+        public void SortByRarity() => SetSortMode(CharacterSortMode.Rarity);
+        public void SortByLevel() => SetSortMode(CharacterSortMode.Level);
+
+        private void SetSortMode(CharacterSortMode mode)
+        {
+            if (_sortMode == mode) return;
+
+            _sortMode = mode;
+            Refresh();
         }
 
         public void Select(Unit unit)
@@ -112,6 +133,52 @@ namespace Colosseum.HealingCenter
                     _ownedUnits.Add((unit, data));
                 }
             }
+
+            SortOwnedUnits();
+        }
+
+        private void SortOwnedUnits()
+        {
+            if (_sortMode == CharacterSortMode.Default)
+            {
+                return;
+            }
+
+            _ownedUnits.Sort(GetComparer());
+        }
+
+        private Comparison<(Unit Unit, CharacterData Data)> GetComparer() => _sortMode switch
+        {
+            CharacterSortMode.Rarity => CompareByRarity,
+            CharacterSortMode.Level => CompareByLevel,
+            _ => CompareByInjurySeverity
+        };
+
+        private static int CompareByInjurySeverity((Unit Unit, CharacterData Data) a, (Unit Unit, CharacterData Data) b)
+        {
+            int result = ((int)b.Unit.currentInjury).CompareTo((int)a.Unit.currentInjury);
+            if (result != 0) return result;
+
+            result = b.Unit.Tier.CompareTo(a.Unit.Tier);
+            return result != 0 ? result : b.Unit.Level.CompareTo(a.Unit.Level);
+        }
+
+        private static int CompareByRarity((Unit Unit, CharacterData Data) a, (Unit Unit, CharacterData Data) b)
+        {
+            int result = b.Unit.Tier.CompareTo(a.Unit.Tier);
+            if (result != 0) return result;
+
+            result = ((int)b.Unit.currentInjury).CompareTo((int)a.Unit.currentInjury);
+            return result != 0 ? result : b.Unit.Level.CompareTo(a.Unit.Level);
+        }
+
+        private static int CompareByLevel((Unit Unit, CharacterData Data) a, (Unit Unit, CharacterData Data) b)
+        {
+            int result = b.Unit.Level.CompareTo(a.Unit.Level);
+            if (result != 0) return result;
+
+            result = ((int)b.Unit.currentInjury).CompareTo((int)a.Unit.currentInjury);
+            return result != 0 ? result : b.Unit.Tier.CompareTo(a.Unit.Tier);
         }
     }
 }

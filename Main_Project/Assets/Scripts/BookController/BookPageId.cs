@@ -16,5 +16,8 @@ namespace BattleK.UI.Book
         Storage, 
         Shop,
         Bar,
+
+        TeamSkill,
+        TeamItem,
     }
 }
