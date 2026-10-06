@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using BattleK.Scripts.Data.ClassInfo;
 using UnityEngine;
 
@@ -14,8 +15,11 @@ namespace BattleK.Scripts.CharacterCreator
             public ClassDefinitionSO Definition;
         }
 
+        [Header("HPBar")]
+        public GameObject hpBar;
+        
+        [Header("Definitions")]
         public List<Entry> definitions = new();
-
         private Dictionary<UnitClass, ClassDefinitionSO> _cache;
 
         public ClassDefinitionSO GetDefinition(UnitClass unitClass)
@@ -28,10 +32,9 @@ namespace BattleK.Scripts.CharacterCreator
         {
             if (_cache != null) return;
             _cache = new Dictionary<UnitClass, ClassDefinitionSO>();
-            foreach (var entry in definitions)
+            foreach (var entry in definitions.Where(entry => entry?.Definition))
             {
-                if (entry?.Definition == null) continue;
-                _cache.TryAdd(entry.UnitClass, entry.Definition);
+                if (entry != null) _cache.TryAdd(entry.UnitClass, entry.Definition);
             }
         }
     }

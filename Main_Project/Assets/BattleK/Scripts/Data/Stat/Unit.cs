@@ -5,6 +5,8 @@ namespace BattleK.Scripts.Data.Stat
 {
     public class Unit
     {
+        public const int NoEquippedItemId = -1;
+
         public string Id;
         public string UnitName;
         public int Tier;
@@ -19,7 +21,7 @@ namespace BattleK.Scripts.Data.Stat
         public List<UnitSkill> EquippedSkills = new();
         public List<UnitSkill> OwnedSkills = new();
         
-        public int equippedItemId;
+        public int equippedItemId = NoEquippedItemId;
         
         public Unit(string id, int tier, string unitName, UnitClass unitClass)
         {

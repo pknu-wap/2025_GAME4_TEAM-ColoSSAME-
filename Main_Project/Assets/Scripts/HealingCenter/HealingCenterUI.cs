@@ -1,13 +1,14 @@
 using System.Collections;
 using BattleK.Scripts.Data.Stat;
+using Colosseum.Character;
 using UnityEngine;
 
 namespace Colosseum.HealingCenter
 {
     public class HealingCenterUI : MonoBehaviour
     {
-        [SerializeField] private HealingCharacterList characterList;
-        [SerializeField] private HealingCharacterDetail characterDetail;
+        [SerializeField] private CharacterList characterList;
+        [SerializeField] private CharacterDetail characterDetail;
         [SerializeField] private TextToastUI toastUI;
 
         private void Awake()
