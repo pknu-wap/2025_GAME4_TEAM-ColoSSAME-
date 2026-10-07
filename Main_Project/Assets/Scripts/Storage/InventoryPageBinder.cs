@@ -24,10 +24,18 @@ public class InventoryPageBinder : MonoBehaviour
     public void SetEmpty()
     {
         if (categoryLabelText != null) categoryLabelText.text = "";
+        EnsureSlots();
         foreach (var slot in slots) slot.Clear();
     }
     private void Awake()
     {
+        EnsureSlots();
+    }
+
+    // 페이지가 꺼진 채로 SetCategory가 먼저 불리면 Awake가 아직 안 돌았으므로 여기서 슬롯을 모은다
+    private void EnsureSlots()
+    {
+        if (slots != null) return;
         slots = new List<InventoryItemSlot>();
 
         for (int i = 0; i < slotsParent.childCount; i++)
@@ -68,6 +76,7 @@ public class InventoryPageBinder : MonoBehaviour
             itemDatabase,
             category);
 
+        EnsureSlots();
         foreach (var slot in slots)
         {
             slot.Clear();
