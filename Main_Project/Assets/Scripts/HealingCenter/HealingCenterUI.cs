@@ -1,5 +1,6 @@
 using System.Collections;
 using BattleK.Scripts.Data.Stat;
+using BattleK.UI.Book;
 using Colosseum.Character;
 using UnityEngine;
 
@@ -10,9 +11,15 @@ namespace Colosseum.HealingCenter
         [SerializeField] private CharacterList characterList;
         [SerializeField] private CharacterDetail characterDetail;
         [SerializeField] private TextToastUI toastUI;
+        [SerializeField] private BookPage page;
 
         private void Awake()
         {
+            if (page == null)
+                page = GetComponent<BookPage>();
+            if (page != null)
+                page.Opened += HandlePageOpened;
+
             characterList.CoroutineHost = this;
             characterDetail.CoroutineHost = this;
 
@@ -22,11 +29,19 @@ namespace Colosseum.HealingCenter
 
         private void OnDestroy()
         {
+            if (page != null)
+                page.Opened -= HandlePageOpened;
+
             characterList.OnCharacterSelected -= characterDetail.ShowCharacter;
             characterDetail.OnHealRequested -= HandleHealRequested;
         }
 
         private void OnEnable()
+        {
+            StartCoroutine(RefreshNextFrame());
+        }
+
+        private void HandlePageOpened()
         {
             StartCoroutine(RefreshNextFrame());
         }

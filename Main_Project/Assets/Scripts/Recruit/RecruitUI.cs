@@ -4,11 +4,13 @@ using UnityEngine.UI;
 using TMPro;
 using BattleK.Scripts.Data;
 using BattleK.Scripts.Manager;
+using BattleK.UI.Book;
 
 public class RecruitUI : MonoBehaviour
 {
     private const int FiveStarRarity = 5;
     private const int FourStarRarity = 4;
+    private BookPageController pageController;
     [Header("ContentObject")]
     [SerializeField] private GameObject content;
     
@@ -98,7 +100,16 @@ public class RecruitUI : MonoBehaviour
     
     private void OnBackButtonClicked()
     {
-        content.SetActive(false);
+        if (pageController == null)
+            pageController = GetComponentInParent<BookPageController>();
+
+        if (pageController != null)
+        {
+            pageController.GoBack();
+            return;
+        }
+
+        if (content != null) content.SetActive(false);
     }
 
     private void ShowIdleState()
