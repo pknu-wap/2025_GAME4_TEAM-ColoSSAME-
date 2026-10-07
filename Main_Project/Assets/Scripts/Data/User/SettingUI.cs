@@ -24,8 +24,9 @@ public class SettingsUI : MonoBehaviour
 
     private void Start()
     {
-        mainButton.SetActive(
-            SceneManager.GetActiveScene().name != "MainMenu");
+        // 메인메뉴용 설정창처럼 메인화면 버튼이 없는 경우도 있음
+        if (mainButton != null)
+            mainButton.SetActive(SceneManager.GetActiveScene().name != "MainMenu");
 
         var settings = SettingsManager.Instance;
         if (settings == null)
