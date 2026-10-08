@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CategoryButton : MonoBehaviour
+public class CategoryBtn : MonoBehaviour
 {
     [Header("이 버튼이 담당하는 카테고리")]
     public ItemCategory category;
@@ -24,6 +24,12 @@ public class CategoryButton : MonoBehaviour
 
     private void OnClickButton()
     {
+        if (storeUIManager == null)
+        {
+            Debug.LogWarning("[CategoryBtn] StoreUIManager가 연결되어 있지 않습니다.");
+            return;
+        }
+
         storeUIManager.SelectCategory(category);
     }
 }

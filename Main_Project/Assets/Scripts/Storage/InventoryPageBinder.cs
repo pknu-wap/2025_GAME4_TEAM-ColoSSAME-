@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+// 슬롯 표시 전용 뷰. 어떤 페이지를 보여줄지는 BookSpreadController가 결정한다.
 public class InventoryPageBinder : MonoBehaviour
 {
     [Header("Item DB")] public ItemDatabase itemDatabase;
@@ -12,76 +13,57 @@ public class InventoryPageBinder : MonoBehaviour
     private List<InventoryItemSlot> slots;
     [Header("페이지 상단 카테고리 이름 표시")]
     public Text categoryLabelText;
-    public ItemCategory category { get; private set; }
-    
-    public void SetCategory(ItemCategory newCategory)
+
+    // Awake 실행 순서(비활성 content)에 의존하지 않도록 처음 필요할 때 수집한다.
+    private List<InventoryItemSlot> Slots
     {
-        category = newCategory;
-        if (categoryLabelText != null)
-            categoryLabelText.text = ItemCategoryDisplay.GetName(newCategory);
-        Refresh();
+        get
+        {
+            if (slots != null) return slots;
+
+            slots = new List<InventoryItemSlot>();
+
+            if (slotsParent == null)
+            {
+                Debug.LogError("InventoryPageBinder: slotsParent가 연결되어 있지 않습니다.", this);
+                return slots;
+            }
+
+            for (int i = 0; i < slotsParent.childCount; i++)
+            {
+                var slot = slotsParent.GetChild(i).GetComponent<InventoryItemSlot>();
+                if (slot != null)
+                {
+                    slots.Add(slot);
+                }
+                else
+                {
+                    Debug.LogError($"BookPageBinder: {slotsParent.GetChild(i).name}에 InventoryItemSlot이 없습니다.");
+                }
+            }
+
+            return slots;
+        }
     }
+
+    public int SlotCount => Slots.Count;
+
+    public void ShowPage(string label, IReadOnlyList<InventorySlotData> items)
+    {
+        if (categoryLabelText != null) categoryLabelText.text = label;
+
+        var currentSlots = Slots;
+        foreach (var slot in currentSlots) slot.Clear();
+
+        for (int i = 0; i < items.Count && i < currentSlots.Count; i++)
+        {
+            currentSlots[i].Set(items[i].Item, items[i].Count);
+        }
+    }
+
     public void SetEmpty()
     {
         if (categoryLabelText != null) categoryLabelText.text = "";
-        foreach (var slot in slots) slot.Clear();
-    }
-    private void Awake()
-    {
-        slots = new List<InventoryItemSlot>();
-
-        for (int i = 0; i < slotsParent.childCount; i++)
-        {
-            var slot = slotsParent.GetChild(i).GetComponent<InventoryItemSlot>();
-            if (slot != null)
-            {
-                slots.Add(slot);
-            }
-            else
-            {
-                Debug.LogError($"BookPageBinder: {slotsParent.GetChild(i).name}에 InventoryItemSlot이 없습니다.");
-            }
-        }
-    }
-
-    private void OnEnable()
-    {
-        Refresh();
-    }
-
-    public void Refresh()
-    {
-        if (UserManager.Instance == null || UserManager.Instance.user == null)
-        {
-            Debug.LogError("UserManager or user is null");
-            return;
-        }
-
-        if (itemDatabase == null)
-        {
-            Debug.LogError("itemDatabase is null");
-            return;
-        }
-
-        var items = InventoryQueryService.GetItemsByCategory(
-            UserManager.Instance.user.inventory,
-            itemDatabase,
-            category);
-
-        foreach (var slot in slots)
-        {
-            slot.Clear();
-        }
-
-        for (int i = 0; i < items.Count; i++)
-        {
-            if (i >= slots.Count)
-            {
-                Debug.LogWarning($"InventoryPageBinder({category}): 슬롯이 부족합니다. {items.Count}개 중 {slots.Count}개만 표시됨.");
-                break;
-            }
-
-            slots[i].Set(items[i].Item, items[i].Count);
-        }
+        foreach (var slot in Slots) slot.Clear();
     }
 }

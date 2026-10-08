@@ -18,6 +18,7 @@ public class RecruitUI : MonoBehaviour
     [SerializeField] private RecruitManager recruitManager;
     [SerializeField] private Button recruitButton;
     [SerializeField] private Button backButton;
+    [SerializeField] private TextToastUI toastUI;
 
     [Header("화면 상태 전환용 오브젝트")]
     [SerializeField] private GameObject idlePrompt;
@@ -39,6 +40,7 @@ public class RecruitUI : MonoBehaviour
     [SerializeField] private float revealFadeDuration;
 
     private Coroutine revealRoutine;
+    private bool isRevealing;
 
     [Header("뽑기 비용")]
     [SerializeField] private int recruitCost;
@@ -60,7 +62,20 @@ public class RecruitUI : MonoBehaviour
 
     private void OnEnable()
     {
+        if (UserManager.Instance != null)
+        {
+            UserManager.Instance.OnMoneyChanged += HandleMoneyChanged;
+        }
+
         ShowIdleState();
+    }
+
+    private void OnDisable()
+    {
+        if (UserManager.Instance != null)
+        {
+            UserManager.Instance.OnMoneyChanged -= HandleMoneyChanged;
+        }
     }
 
     private void OnDestroy()
@@ -86,16 +101,63 @@ public class RecruitUI : MonoBehaviour
             return;
         }
 
-        if (UserManager.Instance.SpendGold(recruitCost))
+        RecruitResult result = recruitManager.Recruit(recruitCost);
+
+        if (result.Status != RecruitStatus.Success)
         {
-            RecruitResult result = recruitManager.Recruit();
-            DisplayResult(result);
-            ShowResultState();
+            ShowFailureMessage(result.Status);
+            RefreshRecruitButton();
+            return;
+        }
+
+        DisplayResult(result);
+        ShowResultState();
+    }
+
+    private void ShowFailureMessage(RecruitStatus status)
+    {
+        string message;
+
+        switch (status)
+        {
+            case RecruitStatus.NotEnoughGold:
+                message = "골드가 부족합니다";
+                break;
+            case RecruitStatus.NoCandidates:
+                message = "뽑기 대상이 없습니다";
+                break;
+            default:
+                message = "뽑기 설정이 올바르지 않습니다";
+                break;
+        }
+
+        if (toastUI != null)
+        {
+            toastUI.Show(message, 1.5f);
         }
         else
         {
-            // TODO: 돈 부족 안내 Text 표시
+            Debug.Log($"[RecruitUI] {message}");
         }
+    }
+
+    private void HandleMoneyChanged(int money)
+    {
+        RefreshRecruitButton();
+    }
+
+    private void RefreshRecruitButton()
+    {
+        if (recruitButton == null)
+        {
+            return;
+        }
+
+        bool hasGold = UserManager.Instance != null
+            && UserManager.Instance.user != null
+            && UserManager.Instance.user.money >= recruitCost;
+
+        recruitButton.interactable = hasGold && !isRevealing;
     }
     
     private void OnBackButtonClicked()
@@ -124,10 +186,9 @@ public class RecruitUI : MonoBehaviour
             resultGroup.SetActive(false);
         }
 
-        if (recruitButton != null)
-        {
-            recruitButton.interactable = true;
-        }
+        isRevealing = false;
+        revealRoutine = null;
+        RefreshRecruitButton();
     }
 
     private void ShowResultState()
@@ -142,24 +203,11 @@ public class RecruitUI : MonoBehaviour
             resultGroup.SetActive(true);
         }
 
-        if (recruitButton != null)
-        {
-            recruitButton.interactable = false;
-        }
+        RefreshRecruitButton();
     }
     
     private void DisplayResult(RecruitResult result)
     {
-        if (result == null)
-        {
-            if (resultText != null)
-            {
-                resultText.text = "뽑기 대상이 없습니다.";
-            }
-
-            return;
-        }
-
         if (resultText != null)
         {
             if (result.IsDuplicate)
@@ -235,6 +283,7 @@ public class RecruitUI : MonoBehaviour
             StopCoroutine(revealRoutine);
         }
 
+        isRevealing = true;
         revealRoutine = StartCoroutine(FadeInRoutine());
     }
 
@@ -271,6 +320,8 @@ public class RecruitUI : MonoBehaviour
         }
 
         revealRoutine = null;
+        isRevealing = false;
+        RefreshRecruitButton();
     }
 
     private void DisplayCharacterPortrait(CharacterData characterData)
