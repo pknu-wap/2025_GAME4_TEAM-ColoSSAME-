@@ -13,6 +13,7 @@ namespace BattleK.Scripts.Editor
         private FamilyName _familyName = FamilyName.Astra;
         private bool _isUsingSpumName;
         private bool _isRecruit;
+        private bool _includeNormalAttack;
         private string _unitName = "New Unit";
         private Sprite _unitImage;
         private GameObject _spumPrefab;
@@ -63,6 +64,7 @@ namespace BattleK.Scripts.Editor
             _unitName = EditorGUILayout.TextField("유닛 이름", _unitName);
             _familyName = (FamilyName)EditorGUILayout.EnumPopup(new GUIContent("가문명"), _familyName);
             _isRecruit = EditorGUILayout.Toggle("훈련병 여부", _isRecruit);
+            _includeNormalAttack = EditorGUILayout.Toggle("일반 공격 연결", _includeNormalAttack);
 
             EditorGUILayout.Space();
             _unitClass = (UnitClass)EditorGUILayout.EnumPopup(new GUIContent("유닛 직업"), _unitClass);
@@ -77,9 +79,13 @@ namespace BattleK.Scripts.Editor
             {
                 EditorGUILayout.HelpBox("이 직업에 대한 ClassDefinitionSO가 등록되어 있지 않습니다. ClassDefinitionDatabase에 추가하세요.", MessageType.Warning);
             }
-            else if (_currentClassDefinition.NormalAttackData == null)
+            else if (_includeNormalAttack && _currentClassDefinition.NormalAttackData == null)
             {
                 EditorGUILayout.HelpBox("이 직업의 ClassDefinitionSO에 NormalAttackData(일반 공격 스킬 애셋)가 지정되어 있지 않습니다.", MessageType.Warning);
+            }
+            else if (!_includeNormalAttack)
+            {
+                EditorGUILayout.HelpBox("일반 공격을 연결하지 않고 유닛을 생성합니다.", MessageType.Info);
             }
 
             EditorGUILayout.Space();
@@ -138,7 +144,13 @@ namespace BattleK.Scripts.Editor
                 return false;
             }
 
-            if (_currentClassDefinition.NormalAttackData) return true;
+            if (!_hpBar)
+            {
+                EditorUtility.DisplayDialog("입력 오류", "ClassDefinitionDatabase에 HPBar를 지정하세요.", "확인");
+                return false;
+            }
+
+            if (!_includeNormalAttack || _currentClassDefinition.NormalAttackData) return true;
             EditorUtility.DisplayDialog("입력 오류", "선택한 직업의 ClassDefinitionSO에 NormalAttackData가 지정되어 있지 않습니다.", "확인");
             return false;
         }
@@ -146,7 +158,7 @@ namespace BattleK.Scripts.Editor
         private void LoadClassDefinition(UnitClass unitClass)
         {
             _currentClassDefinition = _classDefinitionDatabase ? _classDefinitionDatabase.GetDefinition(unitClass) : null;
-            _hpBar = _classDefinitionDatabase.hpBar;
+            _hpBar = _classDefinitionDatabase ? _classDefinitionDatabase.hpBar : null;
             _classSkills = _currentClassDefinition?.CommonSkillPool
                 ? new List<ClassSkillPoolSO.SkillRef>(_currentClassDefinition.CommonSkillPool.skills)
                 : new List<ClassSkillPoolSO.SkillRef>();
@@ -162,7 +174,8 @@ namespace BattleK.Scripts.Editor
                 classDefinition: _currentClassDefinition,
                 unitImage: _unitImage,
                 spumPrefab: _spumPrefab,
-                hpBarPrefab: _hpBar
+                hpBarPrefab: _hpBar,
+                includeNormalAttack: _includeNormalAttack
             );
 
             if (!created) return;
