@@ -2,11 +2,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using BattleK.Scripts.Data;
 using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Data.Stat;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.ResourceManagement.ResourceLocations;
+using BattleK.Scripts.Manager;
 using TMPro;
 
 public class FighterNameBinder : MonoBehaviour
@@ -32,8 +31,7 @@ public class FighterNameBinder : MonoBehaviour
     public string nameTextObjectName = "Text (Legacy)";
     public string portraitImageObjectName = "playerImage";
 
-    private List<AsyncOperationHandle<Sprite>> loadedHandles = new List<AsyncOperationHandle<Sprite>>();
-
+    private readonly AddressableAssetLoader<Sprite> portraitLoader = new AddressableAssetLoader<Sprite>();
     private IEnumerator Start()
     {
         yield return null;
@@ -119,11 +117,9 @@ public class FighterNameBinder : MonoBehaviour
                     portraitImage.sprite  = null;
                     portraitImage.enabled = false;
                     
-                    string portraitAddress = GetPortraitAddress(unit.Id);
-                    Debug.Log($"[Portrait Load Try] unitId={unit.Id}, address={portraitAddress}");
+                    Debug.Log($"[Portrait Load Try] unitId={unit.Id}");
 
-                    yield return StartCoroutine(LoadUnitPortrait(portraitAddress, portraitImage));
-                }
+                    yield return StartCoroutine(LoadUnitPortrait(unit.Id, portraitImage));                }
                 else
                 {
                     Debug.LogWarning($"[{slot.name}]에서 playerImage를 찾지 못했거나 unitId가 비어있습니다.");
@@ -150,11 +146,6 @@ public class FighterNameBinder : MonoBehaviour
         Debug.Log(" FighterNameBinder 세팅 완료");
     }
 
-    private string GetPortraitAddress(string unitId)
-    {
-        return $"Portrait/{unitId}";
-    }
-
     private Text FindNameText(Transform slot)
     {
         Transform textTr = slot.Find(nameTextObjectName);
@@ -169,59 +160,31 @@ public class FighterNameBinder : MonoBehaviour
         return imgTr.GetComponent<Image>();
     }
 
-    private IEnumerator LoadUnitPortrait(string addressKey, Image targetImage)
+    private IEnumerator LoadUnitPortrait(string unitId, Image targetImage)
     {
-        // ← 로드 시작 전 비활성화
-        if (targetImage != null)
-            targetImage.enabled = false;
-        
-        AsyncOperationHandle<IList<IResourceLocation>> locHandle =
-            Addressables.LoadResourceLocationsAsync(addressKey, typeof(Sprite));
-
-        yield return locHandle;
-
-        if (locHandle.Status != AsyncOperationStatus.Succeeded ||
-            locHandle.Result == null ||
-            locHandle.Result.Count == 0)
-        {
-            Debug.LogError($" Addressables key를 찾지 못했습니다: {addressKey}");
-
-            if (targetImage != null)
-            {
-                targetImage.sprite  = null;
-                targetImage.enabled = false;
-            }
-
-            Addressables.Release(locHandle);
+        if (targetImage == null)
             yield break;
-        }
 
-        AsyncOperationHandle<Sprite> handle = Addressables.LoadAssetAsync<Sprite>(addressKey);
-        loadedHandles.Add(handle);
+        targetImage.sprite = null;
+        targetImage.enabled = false;
 
-        yield return handle;
-
-        if (handle.Status == AsyncOperationStatus.Succeeded && handle.Result != null)
-        {
-            if (targetImage != null)
-            {
-                targetImage.sprite         = handle.Result;
-                targetImage.enabled        = true;  // ← 로드 완료 후 활성화
-                targetImage.preserveAspect = true;
-            }
-        }
-        else
-        {
-            Debug.LogError($" Addressables Sprite 로드 실패: {addressKey}");
-
-            if (targetImage != null)
-            {
-                targetImage.sprite  = null;
-                targetImage.enabled = false;
-            }
-        }
-
-        Addressables.Release(locHandle);
+        yield return StartCoroutine(
+            portraitLoader.LoadAsync(
+                AddressableAssetType.Character,
+                unitId,
+                sprite =>
+                {
+                    targetImage.sprite = sprite;
+                    targetImage.enabled = true;
+                    targetImage.preserveAspect = true;
+                },
+                () =>
+                {
+                    targetImage.sprite = null;
+                    targetImage.enabled = false;
+                }
+            )
+        );
     }
 
     private void UpdateSlotActive(List<Unit> myUnits)
@@ -248,23 +211,8 @@ public class FighterNameBinder : MonoBehaviour
         {
             Transform slot = fighterListParent.GetChild(i);
             Image portraitImage = FindPortraitImage(slot);
-            
-            string portraitAddress = GetPortraitAddress(myUnits[i].Id);
-
-            yield return StartCoroutine(
-                LoadUnitPortrait(portraitAddress, portraitImage)
-            );
+        
+            yield return StartCoroutine(LoadUnitPortrait(myUnits[i].Id, portraitImage));
         }
-    }
-
-    private void OnDestroy()
-    {
-        foreach (var handle in loadedHandles)
-        {
-            if (handle.IsValid())
-                Addressables.Release(handle);
-        }
-
-        loadedHandles.Clear();
     }
 }
