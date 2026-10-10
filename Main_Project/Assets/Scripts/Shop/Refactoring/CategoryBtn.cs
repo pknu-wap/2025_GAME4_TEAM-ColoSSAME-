@@ -24,12 +24,6 @@ public class CategoryBtn : MonoBehaviour
 
     private void OnClickButton()
     {
-        if (storeUIManager == null)
-        {
-            Debug.LogWarning("[CategoryBtn] StoreUIManager가 연결되어 있지 않습니다.");
-            return;
-        }
-
         storeUIManager.SelectCategory(category);
     }
 }

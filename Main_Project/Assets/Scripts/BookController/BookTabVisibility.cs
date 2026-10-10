@@ -14,20 +14,8 @@ namespace BattleK.UI.Book
         [Tooltip("숨길 탭 오브젝트. BackButtonAnchor처럼 계속 보여야 하는 오브젝트는 넣지 않는다.")]
         [SerializeField] private GameObject[] tabs;
 
-        private void Awake()
-        {
-            if (pageController == null)
-                pageController = GetComponentInParent<BookPageController>();
-        }
-
         private void OnEnable()
         {
-            if (pageController == null)
-            {
-                Debug.LogError("[BookTabVisibility] pageController가 연결되지 않았습니다.", this);
-                return;
-            }
-
             pageController.OnPageChanged += HandlePageChanged;
             pageController.OnPageClosing += HandlePageClosing;
             ApplyVisibility(!ShouldHide(pageController.CurrentPage));
@@ -35,7 +23,6 @@ namespace BattleK.UI.Book
 
         private void OnDisable()
         {
-            if (pageController == null) return;
             pageController.OnPageChanged -= HandlePageChanged;
             pageController.OnPageClosing -= HandlePageClosing;
         }
@@ -53,16 +40,14 @@ namespace BattleK.UI.Book
 
         private bool ShouldHide(BookPageId pageId)
         {
-            return hideOnPages != null && Array.IndexOf(hideOnPages, pageId) >= 0;
+            return Array.IndexOf(hideOnPages, pageId) >= 0;
         }
 
         private void ApplyVisibility(bool visible)
         {
-            if (tabs == null) return;
-
             foreach (GameObject tab in tabs)
             {
-                if (tab != null) tab.SetActive(visible);
+                tab.SetActive(visible);
             }
         }
     }

@@ -11,13 +11,12 @@ namespace Colosseum.HealingCenter
         [SerializeField] private CharacterList characterList;
         [SerializeField] private CharacterDetail characterDetail;
         [SerializeField] private TextToastUI toastUI;
-        [SerializeField] private BookPage page;
+        private BookPage page;
 
         private void Awake()
         {
-            if (page == null)
-                page = GetComponent<BookPage>();
-            if (page != null)
+            // BookPage가 없는 독립 치유소 화면은 OnEnable에서만 갱신한다.
+            if (TryGetComponent(out page))
                 page.Opened += HandlePageOpened;
 
             characterList.CoroutineHost = this;
