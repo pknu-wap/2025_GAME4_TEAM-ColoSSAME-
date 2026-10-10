@@ -18,8 +18,15 @@ public class RecruitManager : MonoBehaviour
 
     private float ThreeStarRateValue => 100f - fiveStarRate - fourStarRate;
     
-    public RecruitResult Recruit()
+    // 성공이 확정된 경우에만 골드를 차감한다. cost는 호출 측(RecruitUI)이 전달한다.
+    public RecruitResult Recruit(int cost)
     {
+        if (UserManager.Instance == null || UserManager.Instance.user == null)
+        {
+            Debug.LogWarning("[RecruitManager] UserManager가 준비되지 않았습니다.");
+            return RecruitResult.Fail(RecruitStatus.Misconfigured);
+        }
+
         int determinedRarity = DetermineRarity();
 
         List<CharacterData> recruitableCharacters = GetRecruitableCharacters();
@@ -27,12 +34,24 @@ public class RecruitManager : MonoBehaviour
         if (recruitableCharacters.Count == 0)
         {
             Debug.LogWarning("[RecruitManager] 뽑기 대상이 없습니다.");
-            return null;
+            return RecruitResult.Fail(RecruitStatus.NoCandidates);
         }
 
         CharacterData selectedCharacter = SelectRandomCharacter(recruitableCharacters);
 
         bool isDuplicate = IsCharacterOwned(selectedCharacter);
+
+        if (isDuplicate && duplicateRewardItem == null)
+        {
+            Debug.LogWarning("[RecruitManager] duplicateRewardItem(ItemData)이 연결되어 있지 않습니다.");
+            return RecruitResult.Fail(RecruitStatus.Misconfigured);
+        }
+
+        if (!UserManager.Instance.SpendGold(cost))
+        {
+            return RecruitResult.Fail(RecruitStatus.NotEnoughGold);
+        }
+
         RecruitResult result = BuildResult(selectedCharacter, determinedRarity, isDuplicate);
         ApplyResultToUser(result);
 
@@ -57,7 +76,7 @@ public class RecruitManager : MonoBehaviour
     }
     private List<CharacterData> GetRecruitableCharacters()
     {
-        string currentFamilyId = GetCurrentFamilyId();
+        string currentFamilyId = FamilyUtility.GetCurrentFamilyId();
 
         if (string.IsNullOrEmpty(currentFamilyId))
         {
@@ -73,27 +92,6 @@ public class RecruitManager : MonoBehaviour
 
         return familyUnits;
     }
-    private string GetCurrentFamilyId()
-    {
-        string selectedUnitId = UserManager.Instance.user.myUnits[0].Id;
-
-        if (string.IsNullOrEmpty(selectedUnitId))
-        {
-            Debug.LogWarning("[RecruitManager] 선택된 유닛(selectedUnitId)이 없습니다.");
-            return null;
-        }
-
-        CharacterData selectedCharacterData = UnitDataManager.Instance.GetCharacterData(selectedUnitId);
-
-        if (selectedCharacterData == null)
-        {
-            Debug.LogWarning($"[RecruitManager] 선택된 유닛의 데이터를 찾을 수 없습니다: {selectedUnitId}");
-            return null;
-        }
-
-        return selectedCharacterData.Family_ID;
-    }
-
     private CharacterData SelectRandomCharacter(List<CharacterData> candidates)
     {
         int index = Random.Range(0, candidates.Count);
@@ -116,13 +114,7 @@ public class RecruitManager : MonoBehaviour
     {
         if (result.IsDuplicate)
         {
-            if (result.RewardItem == null)
-            {
-                Debug.LogWarning("[RecruitManager] duplicateRewardItem(ItemData)이 연결되어 있지 않습니다.");
-                return;
-            }
-
-            UserManager.Instance.AddItem(result.RewardItem.itemName, result.RewardStoneAmount);
+            UserManager.Instance.AddItem(result.RewardItem.id.ToString(),result.RewardStoneAmount);
         }
         else
         {

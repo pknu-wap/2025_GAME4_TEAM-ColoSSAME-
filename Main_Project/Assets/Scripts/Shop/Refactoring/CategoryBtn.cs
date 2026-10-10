@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CategoryButton : MonoBehaviour
+public class CategoryBtn : MonoBehaviour
 {
     [Header("이 버튼이 담당하는 카테고리")]
     public ItemCategory category;
