@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 118a914a25676ed4eb83b53cf6f25c75, type: 3}
+  m_Name: Skirmisher_NormalAttack
+  m_EditorClassIdentifier: 
+  TargetType: 0
+  ExecutionCondition:
+  - rid: 1001
+  SkillName: SKM_NormalAttack
+  InternalPriority: 0
+  SkillLevel: 1
+  Icon: {fileID: 0}
+  Description: "Skirmisher normal attack. Attack damage x1. Range: 5 (ClassDefinitionSO)."
+  SkillPrefab: {fileID: 683778774867215298, guid: 0bc5398bb27deee41af7ee0418f0f057, type: 3}
+  SkillPrefabScale: 1
+  FlipSkillPrefabByOwnerFacing: 0
+  FollowSkillPrefab: 0
+  SkillPrefabSpawnCount: 1
+  SkillPrefabSpawnInterval: 0
+  WindupPrefab: {fileID: 0}
+  WindupSpawnAt: 0
+  WindupPrefabScale: 1
+  FlipWindupPrefabByOwnerFacing: 0
+  FadeWindupPrefab: 1
+  WindupFadeInTime: 0.15
+  WindupFadeOutTime: 0.15
+  Cooldown: 0
+  SkillArea: {x: 10, y: 10}
+  MaxHitTargets: 1
+  OwnerFrontDistance: 0.5
+  SpawnAt: 2
+  WindupTime: 0.2
+  ActiveTime: 3
+  RecoveryTime: 0.1
+  SkillLogics:
+  - rid: 1002
+  AnimationIndex: 2
+  references:
+    version: 2
+    RefIds:
+    - rid: 1001
+      type: {class: NearestTargetLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic, asm: Assembly-CSharp}
+      data: 
+    - rid: 1002
+      type: {class: NormalAttackDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
+      data:
+        DamageMultiplier: 1

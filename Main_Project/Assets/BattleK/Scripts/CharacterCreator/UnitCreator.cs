@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
 using BattleK.Scripts.Data;
@@ -22,7 +23,8 @@ namespace BattleK.Scripts.CharacterCreator
             ClassDefinitionSO classDefinition,
             Sprite unitImage,
             GameObject spumPrefab,
-            GameObject hpBarPrefab)
+            GameObject hpBarPrefab,
+            bool includeNormalAttack = true)
         {
             if (classDefinition == null)
             {
@@ -47,6 +49,7 @@ namespace BattleK.Scripts.CharacterCreator
             var hpBar = InstantiatePrefab(hpBarPrefab, parent.transform, "HP Bar");
 
             ConfigureCore(parent, classDefinition, visual, hpBar, unitImage);
+            if (!includeNormalAttack) parent.GetComponent<StaticAICore>().NormalAttack = null;
             if (isUsingSPUMName)
             {
                 unitFullName = spumPrefab.gameObject.name;
@@ -147,3 +150,4 @@ namespace BattleK.Scripts.CharacterCreator
         }
     }
 }
+#endif

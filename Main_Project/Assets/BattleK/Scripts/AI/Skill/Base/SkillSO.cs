@@ -133,7 +133,7 @@ namespace BattleK.Scripts.AI.Skill.Base
             return instance;
         }
         
-        public IEnumerator ExecuteSkillRoutine(StaticAICore owner, Transform target)
+        public IEnumerator ExecuteSkillRoutine(StaticAICore owner, Transform target, bool waitForActiveTime = true)
         {
             GameObject windupInstance = null;
             List<SpriteFadeTarget> windupFadeTargets = null;
@@ -177,11 +177,11 @@ namespace BattleK.Scripts.AI.Skill.Base
                 Destroy(windupInstance);
             }
 
-            yield return SpawnSkillPrefabsRoutine(owner, target);
+            yield return SpawnSkillPrefabsRoutine(owner, target, waitForActiveTime);
             yield return new WaitForSeconds(RecoveryTime);
         }
 
-        private IEnumerator SpawnSkillPrefabsRoutine(StaticAICore owner, Transform target)
+        private IEnumerator SpawnSkillPrefabsRoutine(StaticAICore owner, Transform target, bool waitForActiveTime)
         {
             var skillInstances = new List<GameObject>();
             var activeTime = GetSkillActiveTime();
@@ -201,6 +201,9 @@ namespace BattleK.Scripts.AI.Skill.Base
                     yield return WaitForSkillPrefabSpawnInterval(spawnInterval, skillInstances, owner, target);
                 }
             }
+
+            // The effect/projectile keeps its own lifetime even when a basic attack finishes earlier.
+            if (!waitForActiveTime) yield break;
 
             if (FollowSkillPrefab && skillInstances.Count > 0)
             {

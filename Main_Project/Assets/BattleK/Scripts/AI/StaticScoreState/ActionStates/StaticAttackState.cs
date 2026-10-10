@@ -22,6 +22,7 @@ namespace BattleK.Scripts.AI.StaticScoreState.ActionStates
 
         public bool CanExecute()
         {
+            if (!_attackData) return false;
             if (_isAttacking) return true;
 
             if (!_ai.Target || !_ai.Target.gameObject.activeInHierarchy) return false;
@@ -42,7 +43,7 @@ namespace BattleK.Scripts.AI.StaticScoreState.ActionStates
 
         public IEnumerator Execute()
         {
-            yield return _attackData.ExecuteSkillRoutine(_ai, _ai.Target);
+            yield return _attackData.ExecuteSkillRoutine(_ai, _ai.Target, waitForActiveTime: false);
 
             _ai.SetAttackCooldown();
             _isAttacking = false;
