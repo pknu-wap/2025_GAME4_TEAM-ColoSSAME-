@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
 using BattleK.Scripts.Data;
@@ -147,3 +148,4 @@ namespace BattleK.Scripts.CharacterCreator
         }
     }
 }
+#endif

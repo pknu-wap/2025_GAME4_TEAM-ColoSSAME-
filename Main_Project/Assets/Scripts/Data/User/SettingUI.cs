@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -10,43 +13,85 @@ public class SettingsUI : MonoBehaviour
     [SerializeField] private Slider ingameSlider;
     [SerializeField] private GameObject mainButton;
 
+    [Header("화면 (비어 있으면 무시)")]
+    [SerializeField] private TMP_Dropdown resolutionDropdown;
+    [SerializeField] private TMP_Dropdown screenModeDropdown;
+
+    private static readonly FullScreenMode[] ScreenModes = { FullScreenMode.FullScreenWindow, FullScreenMode.Windowed };
+    private static readonly string[] ScreenModeNames = { "전체화면", "창 모드" };
+
+    private bool initialized;
+
     private void Start()
     {
-        masterSlider.onValueChanged.AddListener(
-            SettingsManager.Instance.SetMasterVolume);
+        // 메인메뉴용 설정창처럼 메인화면 버튼이 없는 경우도 있음
+        if (mainButton != null)
+            mainButton.SetActive(SceneManager.GetActiveScene().name != "MainMenu");
 
-        bgmSlider.onValueChanged.AddListener(
-            SettingsManager.Instance.SetBGMVolume);
+        var settings = SettingsManager.Instance;
+        if (settings == null)
+        {
+            return;
+        }
 
-        sfxSlider.onValueChanged.AddListener(
-            SettingsManager.Instance.SetSFXVolume);
+        masterSlider.onValueChanged.AddListener(settings.SetMasterVolume);
+        bgmSlider.onValueChanged.AddListener(settings.SetBGMVolume);
+        sfxSlider.onValueChanged.AddListener(settings.SetSFXVolume);
+        ingameSlider.onValueChanged.AddListener(settings.SetIngameVolume);
 
-        ingameSlider.onValueChanged.AddListener(
-            SettingsManager.Instance.SetIngameVolume);
+        SetupDisplayDropdowns(settings);
 
-        RefreshSliders();
-        
-        mainButton.SetActive(
-        SceneManager.GetActiveScene().name != "MainMenu");
+        initialized = true;
+        RefreshUI();
     }
 
     private void OnEnable()
     {
-        RefreshSliders();
+        if (initialized) RefreshUI();
     }
 
-    private void RefreshSliders()
+    private void SetupDisplayDropdowns(SettingsManager settings)
     {
-        masterSlider.SetValueWithoutNotify(
-            SettingsManager.Instance.MasterVolume);
+        if (resolutionDropdown != null)
+        {
+            var labels = new List<string>();
+            foreach (var r in settings.AvailableResolutions)
+                labels.Add($"{r.x} × {r.y}");
 
-        bgmSlider.SetValueWithoutNotify(
-            SettingsManager.Instance.BGMVolume);
+            resolutionDropdown.ClearOptions();
+            resolutionDropdown.AddOptions(labels);
+            resolutionDropdown.onValueChanged.AddListener(
+                i => settings.SetResolution(settings.AvailableResolutions[i]));
+        }
 
-        sfxSlider.SetValueWithoutNotify(
-            SettingsManager.Instance.SFXVolume);
+        if (screenModeDropdown != null)
+        {
+            screenModeDropdown.ClearOptions();
+            screenModeDropdown.AddOptions(new List<string>(ScreenModeNames));
+            screenModeDropdown.onValueChanged.AddListener(
+                i => settings.SetScreenMode(ScreenModes[i]));
+        }
+    }
 
-        ingameSlider.SetValueWithoutNotify(
-            SettingsManager.Instance.IngameVolume);
+    private void RefreshUI()
+    {
+        var settings = SettingsManager.Instance;
+        if (settings == null) return;
+
+        masterSlider.SetValueWithoutNotify(settings.MasterVolume);
+        bgmSlider.SetValueWithoutNotify(settings.BGMVolume);
+        sfxSlider.SetValueWithoutNotify(settings.SFXVolume);
+        ingameSlider.SetValueWithoutNotify(settings.IngameVolume);
+
+        if (resolutionDropdown != null)
+        {
+            int index = -1;
+            for (int i = 0; i < settings.AvailableResolutions.Count; i++)
+                if (settings.AvailableResolutions[i] == settings.Resolution) { index = i; break; }
+            resolutionDropdown.SetValueWithoutNotify(Mathf.Max(0, index));
+        }
+
+        if (screenModeDropdown != null)
+            screenModeDropdown.SetValueWithoutNotify(Mathf.Max(0, Array.IndexOf(ScreenModes, settings.ScreenMode)));
     }
 }
