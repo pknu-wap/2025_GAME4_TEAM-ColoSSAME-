@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace BattleK.UI.Book
@@ -7,6 +8,9 @@ namespace BattleK.UI.Book
         [SerializeField] private BookPageController pageController;
         [SerializeField] private BookPageId pageId;
         [SerializeField] private GameObject content;
+
+        public event Action Opened;
+        public event Action Closed;
 
         private void Awake()
         {
@@ -44,9 +48,15 @@ namespace BattleK.UI.Book
             ApplyState(isThisPage);
 
             if (isThisPage)
+            {
                 OnPageOpened();
+                Opened?.Invoke();
+            }
             else if (previousPage == pageId)
+            {
                 OnPageClosed();
+                Closed?.Invoke();
+            }
         }
 
         private void ApplyState(bool active)
