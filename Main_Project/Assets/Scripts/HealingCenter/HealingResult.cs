@@ -27,11 +27,11 @@ namespace Colosseum.HealingCenter
             switch (ResultType)
             {
                 case HealingResultType.Success:
-                    return "치유가 완료되었습니다.";
+                    return Loc.Get("heal_done");
                 case HealingResultType.NotInjured:
-                    return "치유가 필요하지 않습니다.";
+                    return Loc.Get("heal_not_needed");
                 case HealingResultType.NotEnoughMoney:
-                    return "골드가 부족합니다.";
+                    return Loc.Get("heal_no_gold");
             }
             return "";
         }

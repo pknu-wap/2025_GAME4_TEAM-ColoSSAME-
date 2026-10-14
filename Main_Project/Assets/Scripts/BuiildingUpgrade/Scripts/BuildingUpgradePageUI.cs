@@ -48,6 +48,7 @@ public class BuildingUpgradePageUI : MonoBehaviour
 
     private void OnEnable()
     {
+        Loc.Changed += RefreshAll;
         if (upgradeManager != null)
         {
             upgradeManager.OnBuildingUpgraded -= OnBuildingUpgraded;
@@ -65,6 +66,7 @@ public class BuildingUpgradePageUI : MonoBehaviour
 
     private void OnDisable()
     {
+        Loc.Changed -= RefreshAll;
         if (upgradeManager != null)
             upgradeManager.OnBuildingUpgraded -= OnBuildingUpgraded;
     }
@@ -147,6 +149,9 @@ public class BuildingUpgradePageUI : MonoBehaviour
     {
         RefreshLeftList();
         RefreshDetail();
+
+        var upgradeLabel = upgradeButton != null ? upgradeButton.GetComponentInChildren<Text>(true) : null;
+        if (upgradeLabel != null) upgradeLabel.text = Loc.Get("building_upgrade");
     }
 
     private void RefreshLeftList()
@@ -182,23 +187,23 @@ public class BuildingUpgradePageUI : MonoBehaviour
         int curLv = upgradeManager.GetCurrentLevel(selectedType);
         float curDiscount = upgradeManager.GetCurrentDiscountRate(selectedType);
 
-        if (curLevelText != null) curLevelText.text = $"현재 레벨 : Lv {curLv}";
-        if (curEffectText != null) curEffectText.text = $"현재 효과 : 할인 {(curDiscount * 100f):0}%";
+        if (curLevelText != null) curLevelText.text = Loc.Get("building_cur_level", curLv);
+        if (curEffectText != null) curEffectText.text = Loc.Get("building_cur_effect", (curDiscount * 100f).ToString("0"));
 
         // 다음
         if (upgradeManager.TryGetNextUpgradeInfo(selectedType, out int nextLv, out int cost, out float nextDiscount))
         {
-            if (nextLevelText != null) nextLevelText.text = $"다음 레벨 : Lv {nextLv}";
-            if (nextEffectText != null) nextEffectText.text = $"다음 효과 : 할인 {(nextDiscount * 100f):0}%";
-            if (costText != null) costText.text = $"비용 : {cost}";
+            if (nextLevelText != null) nextLevelText.text = Loc.Get("building_next_level", nextLv);
+            if (nextEffectText != null) nextEffectText.text = Loc.Get("building_next_effect", (nextDiscount * 100f).ToString("0"));
+            if (costText != null) costText.text = Loc.Get("cost", cost);
 
             if (upgradeButton != null) upgradeButton.interactable = true;
         }
         else
         {
-            if (nextLevelText != null) nextLevelText.text = "다음 레벨 : MAX";
-            if (nextEffectText != null) nextEffectText.text = "다음 효과 : -";
-            if (costText != null) costText.text = "비용 : -";
+            if (nextLevelText != null) nextLevelText.text = Loc.Get("building_next_level_max");
+            if (nextEffectText != null) nextEffectText.text = Loc.Get("building_next_effect_none");
+            if (costText != null) costText.text = Loc.Get("cost_none");
 
             if (upgradeButton != null) upgradeButton.interactable = false;
         }
@@ -222,8 +227,8 @@ public class BuildingUpgradePageUI : MonoBehaviour
     {
         switch (t)
         {
-            case BuildingType.Shop: return "상점";
-            case BuildingType.Training: return "훈련소";
+            case BuildingType.Shop: return Loc.Get("building_shop");
+            case BuildingType.Training: return Loc.Get("building_training");
             default: return t.ToString();
         }
     }

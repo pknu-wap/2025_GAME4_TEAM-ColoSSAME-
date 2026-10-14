@@ -75,7 +75,7 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
         }
 
         if (selectedNameText != null)
-            selectedNameText.text = found.UnitName;
+            selectedNameText.text = Loc.UnitName(found.Id, found.UnitName);
 
         if (selectedPortraitImage != null)
         {
@@ -105,7 +105,7 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
 
         if (expCostText != null)
         {
-            expCostText.text = $"레벨업 비용 {cost}골드";
+            expCostText.text = Loc.Get("levelup_cost", cost);
         }
 
         Debug.Log($" UI 갱신: {found.Id} / Lv {found.Level} / Exp {found.EXP} / 비용: {cost}G");

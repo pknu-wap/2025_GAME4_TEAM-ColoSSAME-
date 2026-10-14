@@ -78,6 +78,8 @@ namespace TeamManage
 
         private void Subscribe(bool on)
         {
+            Loc.Changed -= HandleLanguageChanged;
+            if (on) Loc.Changed += HandleLanguageChanged;
             if (Controller == null) return;
 
             Controller.EquipmentChanged -= HandleEquipmentChanged;
@@ -89,6 +91,11 @@ namespace TeamManage
         }
 
         private void HandleEquipmentChanged(Unit unit)
+        {
+            if (isOpen) Refresh(true);
+        }
+
+        private void HandleLanguageChanged()
         {
             if (isOpen) Refresh(true);
         }
@@ -132,7 +139,7 @@ namespace TeamManage
                 ? itemDatabase.GetById(unit.equippedItemId)
                 : null;
 
-            if (equipped != null) equippedItemSlot.SetContent(equipped.icon, equipped.description,equipped.id.ToString());
+            if (equipped != null) equippedItemSlot.SetContent(equipped.icon, Loc.ItemDescription(equipped),equipped.id.ToString());
             else equippedItemSlot.Clear();
         }
 

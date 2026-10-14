@@ -23,9 +23,26 @@ public class TeamDetailViewer : MonoBehaviour
     private GameObject _selectedCharacterObject;
     private readonly List<AsyncOperationHandle<Sprite>> _portraitHandles = new();
 
+    private List<CharacterData> shownCharacters;
+    private CharacterData shownCharacter;
+    private string shownFamilyName;
+
     private void Start()
     {
         this.characterDetailsPanel.SetActive(false);
+        Loc.Changed += RefreshTexts;
+    }
+
+    private void OnDestroy() => Loc.Changed -= RefreshTexts;
+
+    private void RefreshTexts()
+    {
+        if (shownCharacters == null || shownCharacters.Count == 0) return;
+        this.familyNameText.text = Loc.FamilyName(shownCharacters[0].Family_ID, shownFamilyName);
+        for (int i = 0; i < shownCharacters.Count && i < this.characterName.Count; i++)
+            this.characterName[i].text = Loc.UnitName(shownCharacters[i].Unit_ID, shownCharacters[i].Unit_Name);
+        if (shownCharacter != null)
+            this.characterExplanationText.text = Loc.UnitDescription(shownCharacter.Unit_ID, shownCharacter.Description);
     }
 
     public void ShowDetails(string familyName)
@@ -56,7 +73,9 @@ public class TeamDetailViewer : MonoBehaviour
                     this.characterButtons[0].gameObject);
             });
 
-        this.familyNameText.text = familyName;
+        shownCharacters = characters;
+        shownFamilyName = familyName;
+        this.familyNameText.text = Loc.FamilyName(characters[0].Family_ID, familyName);
         
         // 가문 공통 이미지 (Resources)
         string attributePath = $"TeamAttributes/{familyName}attribute";
@@ -102,7 +121,7 @@ public class TeamDetailViewer : MonoBehaviour
 
             this._portraitHandles.Add(handle);
 
-            this.characterName[i].text = character.Unit_Name;
+            this.characterName[i].text = Loc.UnitName(character.Unit_ID, character.Unit_Name);
 
             int buttonIndex = i;
             this.characterButtons[i].onClick.RemoveAllListeners();
@@ -172,6 +191,7 @@ public class TeamDetailViewer : MonoBehaviour
             this._selectedCharacterObject = clickedCardObject;
         }
 
-        this.characterExplanationText.text = character.Description;
+        shownCharacter = character;
+        this.characterExplanationText.text = Loc.UnitDescription(character.Unit_ID, character.Description);
     }
 }

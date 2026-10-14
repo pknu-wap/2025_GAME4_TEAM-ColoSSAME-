@@ -35,7 +35,7 @@ namespace TeamManage
             iconImage.sprite = data.Item.icon;
             iconImage.enabled = data.Item.icon != null;
 
-            nameText.text = data.Item.itemName;
+            nameText.text = Loc.ItemName(data.Item);
             countText.text = $"x {data.AvailableCount}/{data.OwnedCount}";
 
             equippedMark.SetActive(data.EquippedByCurrentUnit);

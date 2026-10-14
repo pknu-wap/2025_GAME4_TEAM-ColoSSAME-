@@ -24,10 +24,10 @@ public class InventoryItemSlot : MonoBehaviour, ISlotView<InventorySlotData>
             iconImage.enabled = (data.icon != null);
         }
 
-        if (nameText != null) nameText.text = data.itemName;
+        if (nameText != null) nameText.text = Loc.ItemName(data);
 
         if (countText != null) countText.text = $"x {count}";
-        else if (nameText != null) nameText.text = $"{data.itemName} x {count}";
+        else if (nameText != null) nameText.text = $"{Loc.ItemName(data)} x {count}";
     }
     
     public void Clear()

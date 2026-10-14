@@ -19,6 +19,7 @@ public class UserUIManager : MonoBehaviour
             userManager = UserManager.Instance;
         
         UserManager.Instance.OnMoneyChanged += SetUserUI;
+        Loc.Changed += UpdateAllUI;
         
         UpdateAllUI();
 
@@ -32,13 +33,14 @@ public class UserUIManager : MonoBehaviour
     public void SetUserUI(int money)
     {
         name.text = userManager.user.userName;
-        level.text = "레벨: " + userManager.user.level;
-        userMoney.text = "돈: " + userManager.user.money;
+        level.text = Loc.Get("user_level", userManager.user.level);
+        userMoney.text = Loc.Get("user_money", userManager.user.money);
 
     }
     
     private void OnDestroy()
     {
+        Loc.Changed -= UpdateAllUI;
         if (UserManager.Instance != null)
             UserManager.Instance.OnMoneyChanged -= SetUserUI;
     }

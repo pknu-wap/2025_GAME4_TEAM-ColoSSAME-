@@ -51,7 +51,7 @@ namespace BattleK.Scripts.UI
             _baseAttackDamage = info.Stat.AttackDamage;
             _baseDefense = info.Stat.Defense;
 
-            if (NameText) NameText.text = info.UnitName;
+            if (NameText) NameText.text = Loc.UnitName(info.UnitId, info.UnitName);
             if (TierText) TierText.text = info.Tier.ToString();
             if (LevelText) LevelText.text = info.Level.ToString();
             if (CharacterImage) CharacterImage.sprite = info.CharacterImage;

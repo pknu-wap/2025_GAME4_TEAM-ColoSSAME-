@@ -24,6 +24,7 @@ public class StorePageUI : MonoBehaviour
 
     private void OnEnable()
     {
+        Loc.Changed += RefreshUI;
         RefreshUI();
 
         //  Buy 버튼 이벤트 연결
@@ -50,6 +51,7 @@ public class StorePageUI : MonoBehaviour
 
     private void OnDisable()
     {
+        Loc.Changed -= RefreshUI;
         if (upgradeManager != null)
             upgradeManager.OnBuildingUpgraded -= HandleBuildingUpgraded;
 
@@ -95,8 +97,8 @@ public class StorePageUI : MonoBehaviour
         }
 
         // 이름/설명
-        if (nameText != null) nameText.text = currentData.itemName;
-        if (descriptionText != null) descriptionText.text = currentData.description;
+        if (nameText != null) nameText.text = Loc.ItemName(currentData);
+        if (descriptionText != null) descriptionText.text = Loc.ItemDescription(currentData);
 
         //  할인 적용된 최종 가격 계산 + 표시
         cachedFinalPrice = currentData.price;

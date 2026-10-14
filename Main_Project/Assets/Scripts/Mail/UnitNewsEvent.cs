@@ -17,6 +17,7 @@ public class UnitNewsEvent
     public int teamId;
     public string teamName;
     public string unitName;
+    public string unitId;
     public UnitNewsType type;
     public int amount;         // 레벨 상승량 / 등급
     public string detail;      // 스킬 이름 등
@@ -40,6 +41,7 @@ public static class UnitNewsRecorder
             teamId = team.id,
             teamName = team.name,
             unitName = unit.UnitName,
+            unitId = unit.Id,
             type = type,
             amount = amount,
             detail = detail,

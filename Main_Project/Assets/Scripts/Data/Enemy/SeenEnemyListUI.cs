@@ -23,8 +23,11 @@ public class SeenEnemyListUI : MonoBehaviour
     private readonly AddressableAssetLoader<Sprite> portraitLoader 
         = new AddressableAssetLoader<Sprite>();
 
+    private Team shownTeam;
+
     private void Awake()
     {
+        Loc.Changed += HandleLanguageChanged;
         int count = content.childCount;
 
         enemyTexts = new TMP_Text[count];
@@ -44,10 +47,18 @@ public class SeenEnemyListUI : MonoBehaviour
         }
     }    
 
+    private void OnDestroy() => Loc.Changed -= HandleLanguageChanged;
+
+    private void HandleLanguageChanged()
+    {
+        if (shownTeam != null && isActiveAndEnabled) ShowTeam(shownTeam);
+    }
+
     public void ShowTeam(Team team)
     {
         if (team == null)
             return;
+        shownTeam = team;
         
         Team playerTeam = LeagueManager.Instance.league.teams.Find(
             t => t.id == LeagueManager.Instance.league.settings.playerTeamId);
@@ -82,7 +93,7 @@ public class SeenEnemyListUI : MonoBehaviour
             enemyImages[i].gameObject.SetActive(true);
             emptyUIs[i].SetActive(false);
 
-            enemyTexts[i].text = $"Lv.{enemies[i].level}.{enemies[i].unitName}";
+            enemyTexts[i].text = $"Lv.{enemies[i].level}.{Loc.UnitName(enemies[i].unitId, enemies[i].unitName)}";
             
 
             int tierIndex = enemies[i].Tier - 1;
@@ -121,7 +132,7 @@ public class SeenEnemyListUI : MonoBehaviour
             enemyImages[i].gameObject.SetActive(true);
             emptyUIs[i].SetActive(false);
 
-            enemyTexts[i].text = $"Lv{units[i].Level}.{units[i].UnitName}";
+            enemyTexts[i].text = $"Lv{units[i].Level}.{Loc.UnitName(units[i].Id, units[i].UnitName)}";
 
             int tierIndex = units[i].Tier - 1;
 

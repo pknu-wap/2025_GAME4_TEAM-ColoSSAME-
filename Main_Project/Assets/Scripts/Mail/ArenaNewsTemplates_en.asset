@@ -1,0 +1,165 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bf6a7cb92592694aa1f04bf3a300642, type: 3}
+  m_Name: ArenaNewsTemplates_en
+  m_EditorClassIdentifier: 
+  leagueNews:
+  - type: 0
+    score: 30
+    templates:
+    - "{winner} and {loser} split the points in a draw"
+    - "{winner} vs {loser} ends in a hard-fought draw"
+  - type: 1
+    score: 100
+    templates:
+    - "{winner} on a {streak}-win rampage, and no one can stop them"
+    - "{winner} rule the league with {streak} straight wins"
+  - type: 2
+    score: 100
+    templates:
+    - "{winner} beat {loser} to take sole first place"
+    - "{winner} rise to the top of the league with a win"
+  - type: 3
+    score: 100
+    templates:
+    - "Last-place {winner} stun leaders {loser}"
+    - "{winner} pull off a huge upset against {loser}"
+  - type: 4
+    score: 80
+    templates:
+    - "{winner} charge ahead with 5 straight wins"
+    - "{winner} complete a 5-win streak"
+    - "{winner} keep rising with 5 wins in a row"
+  - type: 5
+    score: 80
+    templates:
+    - "{loser} sink into a 5-game losing streak"
+    - "{loser} lose 5 straight and need a turnaround"
+    - "{loser}'s slump deepens with 5 losses in a row"
+  - type: 6
+    score: 80
+    templates:
+    - "{winner} snap a {streak}-game skid and strike back"
+    - "{winner} end their losing streak and eye a comeback"
+    - "{winner} finally break the chain of defeats"
+  - type: 7
+    score: 80
+    templates:
+    - "{loser}'s {streak}-win run comes to an end"
+    - "{loser}'s streak is over, tripped up by {winner}"
+    - "{winner} end {loser}'s winning streak"
+  - type: 8
+    score: 60
+    templates:
+    - "{winner} build momentum with {streak} straight wins"
+    - "{winner} win again for {streak} in a row"
+    - "{winner} keep the winning streak alive"
+  - type: 9
+    score: 60
+    templates:
+    - "{loser} lose {streak} straight and are in trouble"
+    - "{loser}'s losing streak won't stop"
+    - "{loser} can't escape a {streak}-game slump"
+  - type: 10
+    score: 60
+    templates:
+    - "{winner} claim their first win of the season"
+    - "{winner} smile again with their first victory"
+    - "{winner} finally take their first win of the season"
+  - type: 11
+    score: 60
+    templates:
+    - "{loser} suffer their first defeat of the season"
+    - "{loser}'s unbeaten run is stopped by {winner}"
+    - "{loser} fall for the first time as their unbeaten record ends"
+  - type: 12
+    score: 40
+    templates:
+    - "{winner} beat {loser} to add points"
+    - "{winner} earn a valuable win over {loser}"
+  openingLines:
+  - "The Colosseum League finally begins"
+  - "Ten houses clash for the throne"
+  - "House Caelus tipped as this season's favorite"
+  - "Will House Ignis's new strategy work this season?"
+  - "House Nox emerges as a quiet contender"
+  - "House Flora aims for an upset with healing tactics"
+  - "Can House Lumen's iron defense hold up again this season?"
+  - "House Astra: if the prophecy holds, the title is in the bag"
+  - "The guardians of House Terra enter the arena"
+  - "House Mors shakes the league with the power of wraiths"
+  repeatPenalty: 30
+  rumors:
+  - type: 1
+    score: 80
+    templates:
+    - "Word is {team}'s {unit} is using a technique never seen before"
+    - "Someone saw {unit} moving strangely at the training grounds"
+    - "\"{unit} is hiding a new trick, they say\", overheard at the tavern"
+  - type: 2
+    score: 70
+    templates:
+    - "{team} bring a new face, {unit}, into the barracks"
+    - "{team}'s newcomer {unit}: no one has seen them fight yet"
+    - "Rumor has it a stranger named {unit} comes and goes from {team}'s barracks"
+  - type: 0
+    score: 50
+    templates:
+    - "Word is {team}'s {unit} stays at the training grounds after dark"
+    - "Talk around {team} says {unit} moves sharper than ever"
+    - "\"{unit} seems like a different person lately\", heard near the barracks"
+  noRumorLines:
+  - "The arena is quiet. Not a whisper to be heard"
+  - "No gossip for days. Everyone is just waiting for the next match"
+  - "A dry day for rumors. The calm before the storm?"
+  nextOpponentBonus: 30
+  opinions:
+  - mood: 0
+    templates:
+    - "Ahead of the opening, {team}'s name is on everyone's lips at the market"
+    - "\"{team}? They say this year will be different\", heard at the tavern"
+    - "The crowd still seems unsure about {team}"
+  - mood: 1
+    templates:
+    - "With {streak} straight wins, the stands chant {team}'s name"
+    - "\"Bet on {team} and you'll win\", say the gamblers"
+    - "Veteran fans stay cautious: \"{streak} wins means nothing if you get careless\""
+  - mood: 2
+    templates:
+    - "Boos rain down from the stands after {streak} straight losses"
+    - "\"Only a fool bets on {team}\", the gamblers sneer"
+    - "Rumor says {team}'s patrons are starting to turn away"
+  - mood: 3
+    templates:
+    - "The crowd chants {team}'s name. Such is the weight of the top spot"
+    - "\"Staying on top is harder than getting there\", says an old spectator"
+    - "{team}'s patrons have been all smiles lately"
+  - mood: 4
+    templates:
+    - "The crowd looked pleased with {team}'s match today"
+    - "\"Rank {rank}? They can climb higher\", the citizens hope"
+    - "A win, but the stands gave only a lukewarm response"
+  - mood: 5
+    templates:
+    - "Last-place {team}, and even the stands are slowly emptying"
+    - "\"Nowhere to go but up\", an old man's bitter comfort"
+    - "Word is {team}'s patrons are cutting their support"
+  - mood: 6
+    templates:
+    - "The crowd fell silent for a while after {team}'s defeat"
+    - "\"One loss isn't the end\", say the citizens awaiting the next match"
+    - "At the tavern, a heated debate over {team}'s tactics has already begun"
+  - mood: 7
+    templates:
+    - "The stands buzz over the draw: \"That was a game to win\""
+    - "\"A point is better than nothing\", {team} fans console themselves"
+    - "Word is only the gamblers who bet on a draw were smiling"

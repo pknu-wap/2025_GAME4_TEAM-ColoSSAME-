@@ -73,9 +73,22 @@ public class LeagueUIManager : MonoBehaviour
 
     void OnEnable()
     {
+        Loc.Changed += OnLanguageChanged;
         if (leagueManager == null) return;
 
         UpdateAllUI();
+    }
+
+    void OnDisable() => Loc.Changed -= OnLanguageChanged;
+
+    private void OnLanguageChanged()
+    {
+        if (leagueManager == null) return;
+        UpdateNextMatchUI();
+        UpdateRankingUI();
+        ShowMyTeamNextMatch();
+        UpdateRoundInfoUI();
+        UpdateLeagueTierUI();
     }
 
 
@@ -94,15 +107,15 @@ public class LeagueUIManager : MonoBehaviour
         int currentRound = GetCurrentRoundNumber();
         if (currentRound == 1)
         {
-            currentRoundInfoText.text = $"시작 라운드";
+            currentRoundInfoText.text = Loc.Get("league_round_start");
         }
         else
         {
             
-            currentRoundInfoText.text = $"{currentRound - 1} 라운드";
+            currentRoundInfoText.text = Loc.Get("league_round", currentRound - 1);
         }
 
-        nextRoundInfoText.text = $"{currentRound} 라운드";
+        nextRoundInfoText.text = Loc.Get("league_round", currentRound);
     }
 
     
@@ -130,10 +143,10 @@ public class LeagueUIManager : MonoBehaviour
                 teamBImages[i].gameObject.SetActive(true);
 
                 teamAImages[i].sprite = GetTeamSprite(teamA.id);
-                teamAInfoTexts[i].text = $"{teamA.name}\n{teamA.rank}등";
+                teamAInfoTexts[i].text = Loc.Get("team_with_rank", Loc.TeamName(teamA), teamA.rank);
 
                 teamBImages[i].sprite = GetTeamSprite(teamB.id);
-                teamBInfoTexts[i].text = $"{teamB.name}\n{teamB.rank}등";
+                teamBInfoTexts[i].text = Loc.Get("team_with_rank", Loc.TeamName(teamB), teamB.rank);
             }
             else
             {
@@ -154,7 +167,7 @@ public class LeagueUIManager : MonoBehaviour
             Team team = sortedTeams[i];
 
             // 순위 + 팀 이름 통합 표시
-            teamNameTexts[i].text = $"{team.rank}등 {team.name}";
+            teamNameTexts[i].text = Loc.Get("rank_team", team.rank, Loc.TeamName(team));
             teamImages[i].sprite = GetTeamSprite(team.id);
             playedTexts[i].text = team.played.ToString();
             winTexts[i].text = team.win.ToString();
@@ -260,18 +273,18 @@ public class LeagueUIManager : MonoBehaviour
         // 내 팀
         nextMatchMyTeamImage.sprite = GetTeamSprite(myTeam.id);
         MyTeamImage.sprite = GetTeamSprite(myTeam.id);
-        MyTeamText.text = $"{myTeam.name}";
-        nextMatchMyTeamText.text = $"{myTeam.name}\n{myTeam.rank}등";
+        MyTeamText.text = Loc.TeamName(myTeam);
+        nextMatchMyTeamText.text = Loc.Get("team_with_rank", Loc.TeamName(myTeam), myTeam.rank);
 
         // 상대 팀
         nextMatchOpponentImage.sprite = GetTeamSprite(opponentTeam.id);
-        nextMatchOpponentText.text = $"{opponentTeam.name}\n{opponentTeam.rank}등";
+        nextMatchOpponentText.text = Loc.Get("team_with_rank", Loc.TeamName(opponentTeam), opponentTeam.rank);
     }
 
     void UpdateLeagueTierUI()
     {
         int tier = leagueManager.league.settings.tier;
-        string tierName = leagueManager.league.settings.tierName;
+        string tierName = leagueManager.GetTierName(tier);
         
         leagueTierText.text = $"★{tier} {tierName}";
     }

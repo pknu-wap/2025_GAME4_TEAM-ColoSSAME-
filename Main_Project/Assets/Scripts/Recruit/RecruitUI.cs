@@ -121,13 +121,13 @@ public class RecruitUI : MonoBehaviour
         switch (status)
         {
             case RecruitStatus.NotEnoughGold:
-                message = "골드가 부족합니다";
+                message = Loc.Get("recruit_no_gold");
                 break;
             case RecruitStatus.NoCandidates:
-                message = "뽑기 대상이 없습니다";
+                message = Loc.Get("recruit_no_candidates");
                 break;
             default:
-                message = "뽑기 설정이 올바르지 않습니다";
+                message = Loc.Get("recruit_invalid");
                 break;
         }
 
@@ -212,12 +212,12 @@ public class RecruitUI : MonoBehaviour
         {
             if (result.IsDuplicate)
             {
-                string itemLabel = result.RewardItem != null ? result.RewardItem.itemName : "보상";
-                resultText.text = $"중복!\n{itemLabel} {result.RewardStoneAmount}개 지급";
+                string itemLabel = result.RewardItem != null ? Loc.ItemName(result.RewardItem) : Loc.Get("recruit_reward");
+                resultText.text = Loc.Get("recruit_duplicate", itemLabel, result.RewardStoneAmount);
             }
             else
             {
-                resultText.text = $"{GetRarityLabel(result.AcquiredRarity)}\n검투사 {result.Character.Unit_Name} 획득!";
+                resultText.text = Loc.Get("recruit_acquired", GetRarityLabel(result.AcquiredRarity), Loc.UnitName(result.Character.Unit_ID, result.Character.Unit_Name));
             }
         }
 
@@ -244,22 +244,22 @@ public class RecruitUI : MonoBehaviour
 
         if (statAttackText != null)
         {
-            statAttackText.SetText($"공격력 : {stats.ATK}");
+            statAttackText.SetText(Loc.Get("stat_atk", stats.ATK));
         }
 
         if (statDefenseText != null)
         {
-            statDefenseText.SetText($"방어력 : {stats.DEF}");
+            statDefenseText.SetText(Loc.Get("stat_def", stats.DEF));
         }
 
         if (statAGIText != null)
         {
-            statAGIText.SetText($"민첩성 : {stats.AGI}");
+            statAGIText.SetText(Loc.Get("stat_agi", stats.AGI));
         }
 
         if (statHealthText != null)
         {
-            statHealthText.SetText($"체력 : {stats.HP}");
+            statHealthText.SetText(Loc.Get("stat_hp", stats.HP));
         }
     }
 
@@ -349,11 +349,11 @@ public class RecruitUI : MonoBehaviour
         switch (rarity)
         {
             case FiveStarRarity:
-                return "5성";
+                return Loc.Get("rarity_5");
             case FourStarRarity:
-                return "4성";
+                return Loc.Get("rarity_4");
             default:
-                return "3성";
+                return Loc.Get("rarity_3");
         }
     }
 }

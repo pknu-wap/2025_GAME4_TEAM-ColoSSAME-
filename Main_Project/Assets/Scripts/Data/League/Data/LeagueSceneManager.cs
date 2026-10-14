@@ -38,17 +38,31 @@ public class LeagueSceneManager : MonoBehaviour
             t.id == (myMatch.teamAId == myTeam.id ? myMatch.teamBId : myMatch.teamAId));
 
         UpdateUI();
+        Loc.Changed += HandleLanguageChanged;
+    }
+
+    void OnDestroy() => Loc.Changed -= HandleLanguageChanged;
+
+    private int shownWinnerId;
+
+    private void HandleLanguageChanged()
+    {
+        if (myTeam == null || opponentTeam == null) return;
+        roundText.text = Loc.Get("match_round", currentRound.roundNumber);
+        myTeamText.text = Loc.TeamName(myTeam);
+        enemyTeamText.text = Loc.TeamName(opponentTeam);
+        if (resultPanel.activeSelf) ShowResultUI(shownWinnerId);
     }
 
     void UpdateUI()
     {
-        roundText.text = $"{currentRound.roundNumber}라운드";
+        roundText.text = Loc.Get("match_round", currentRound.roundNumber);
 
         myTeamImage.sprite = leagueManager.GetTeamSprite(myTeam.id);
-        myTeamText.text = myTeam.name;
+        myTeamText.text = Loc.TeamName(myTeam);
 
         enemyTeamImage.sprite = leagueManager.GetTeamSprite(opponentTeam.id);
-        enemyTeamText.text = opponentTeam.name;
+        enemyTeamText.text = Loc.TeamName(opponentTeam);
 
         resultPanel.SetActive(false);
     }
@@ -95,15 +109,16 @@ public class LeagueSceneManager : MonoBehaviour
 
     void ShowResultUI(int winnerId)
     {
-        resultRoundText.text = $"{currentRound.roundNumber}라운드 결과";
+        shownWinnerId = winnerId;
+        resultRoundText.text = Loc.Get("match_round_result", currentRound.roundNumber);
 
         resultPanel.SetActive(true);
         resultMyTeamImage.sprite = leagueManager.GetTeamSprite(myTeam.id);
-        resultMyTeamText.text = myTeam.name;
-        resultMyTeamResult.text = winnerId == 0 ? "무" : (winnerId == myTeam.id ? "승" : "패");
+        resultMyTeamText.text = Loc.TeamName(myTeam);
+        resultMyTeamResult.text = winnerId == 0 ? Loc.Get("result_draw") : (winnerId == myTeam.id ? Loc.Get("result_win") : Loc.Get("result_lose"));
         resultEnemyTeamImage.sprite = leagueManager.GetTeamSprite(opponentTeam.id);
-        resultEnemyTeamText.text = opponentTeam.name;
-        resultEnemyTeamResult.text = winnerId == 0 ? "무" : (winnerId == opponentTeam.id ? "승" : "패");
+        resultEnemyTeamText.text = Loc.TeamName(opponentTeam);
+        resultEnemyTeamResult.text = winnerId == 0 ? Loc.Get("result_draw") : (winnerId == opponentTeam.id ? Loc.Get("result_win") : Loc.Get("result_lose"));
 
     }
 }

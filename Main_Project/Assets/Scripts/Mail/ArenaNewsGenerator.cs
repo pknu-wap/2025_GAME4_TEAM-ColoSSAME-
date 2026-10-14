@@ -241,7 +241,7 @@ public class ArenaNewsGenerator
 
     private string Fill(string t, Team winner, Team loser, int streak)
     {
-        string wn = winner?.name ?? "", ln = loser?.name ?? "";
+        string wn = Loc.TeamName(winner), ln = Loc.TeamName(loser);
         return t
             .Replace("{winnerEul}", wn == "" ? "" : wn + KoreanParticle.Get(wn, Particle.EulReul))
             .Replace("{loserEul}", ln == "" ? "" : ln + KoreanParticle.Get(ln, Particle.EulReul))
@@ -254,20 +254,26 @@ public class ArenaNewsGenerator
 
     private string FillRumor(string t, UnitNewsEvent e)
     {
-        string un = e.unitName ?? "";
+        string un = Loc.UnitName(e.unitId, e.unitName ?? "");
         return t
             .Replace("{unitEul}", un == "" ? "" : un + KoreanParticle.Get(un, Particle.EulReul))
             .Replace("{unit}", un)
-            .Replace("{team}", e.teamName ?? "")
+            .Replace("{team}", TeamNameById(e.teamId, e.teamName))
             .Replace("{detail}", e.detail ?? "");
     }
 
     private string FillOpinion(string t, Team me, int streak)
     {
         return t
-            .Replace("{team}", me?.name ?? "우리 팀")
+            .Replace("{team}", me != null ? Loc.TeamName(me) : Loc.Get("news_our_team"))
             .Replace("{rank}", (me?.rank ?? 0).ToString())
             .Replace("{streak}", streak.ToString());
+    }
+
+    private static string TeamNameById(int teamId, string fallback)
+    {
+        var team = LeagueManager.Instance != null ? LeagueManager.Instance.league?.teams?.Find(t => t.id == teamId) : null;
+        return team != null ? Loc.TeamName(team) : fallback ?? "";
     }
 
     private string Pick(IReadOnlyList<string> lines)

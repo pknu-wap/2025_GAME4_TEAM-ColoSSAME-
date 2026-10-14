@@ -38,7 +38,10 @@ public class Carousel : MonoBehaviour
         numCards = cards.Count;
         UpdateCards(instant: true);   // 카드 먼저 (설명 쪽이 실패해도 배치는 되도록), 첫 배치는 즉시
         UpdateExplanation();
+        Loc.Changed += UpdateExplanation;
     }
+
+    void OnDestroy() => Loc.Changed -= UpdateExplanation;
 
     public void Rotate(int dir) // dir: -1 (왼쪽), +1 (오른쪽)
     {
@@ -128,8 +131,8 @@ public class Carousel : MonoBehaviour
     {
         Team myTeam = leagueManager.league.teams.Find(t => t.id == currentIndex+1);
         teamImages.sprite = GetTeamSprite(myTeam.id);
-        teamName.text = myTeam.name;
-        teamText.text =  myTeam.explanation;
+        teamName.text = Loc.TeamName(myTeam);
+        teamText.text = Loc.TeamDescription(myTeam);
     }
 
     // ✓ 버튼: 되돌릴 수 없는 선택이라 확인부터 받는다
@@ -142,7 +145,7 @@ public class Carousel : MonoBehaviour
         }
 
         Team team = leagueManager.league.teams.Find(t => t.id == currentIndex + 1);
-        confirmPopup.Show($"{team.name} 가문으로 시작할까요?\n시작하면 가문을 바꿀 수 없습니다.", ConfirmTeamSelect);
+        confirmPopup.Show(Loc.Get("teamselect_confirm", Loc.TeamName(team)), ConfirmTeamSelect);
     }
 
     private void ConfirmTeamSelect()

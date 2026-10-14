@@ -89,13 +89,87 @@ public class RandomText : MonoBehaviour
         "나는 모든 준비를 마쳤습니다. 이제 당신의 차례입니다."
     };
 
+    private string[] namesEn = {
+        "Marcus Julius",
+        "Gaius Cassius",
+        "Lucius Cornelius",
+        "Titus Flamininus",
+        "Servilius Priscus",
+        "Aurelius Bassus",
+        "Decimus Brutus",
+        "Gaius Antonius"
+    };
+
+    private string[] infosEn = {
+        "I hold the sword of justice. Any deal with me must leave your honor unstained.",
+        "Gods, bless this negotiation! Let me hear your offer.",
+        "My terms, as Lucius, are clear. Do not let your feelings lead.",
+        "House Flamininus values tradition. Are you one who understands that?",
+        "Priscus follows principle over profit. Make your case.",
+        "Speak only the truth. I can sense a hidden blade in words.",
+        "Brutus sees opportunity. I wonder if your offer can move me.",
+        "Gold or power alone won't win my interest. What have you prepared?"
+    };
+
+    string[] stage1ChoicesEn = {
+        "I have heard much of your reputation. Let us begin in peace.",
+        "It is only proper that I greet you first. Will you hear me out?",
+        "Let me make the first offer. Please, hear me without pressure.",
+        "I believe we can find a path that benefits us both.",
+        "I won't get straight to the point. Opening our minds comes first.",
+        "The information I have might interest you."
+    };
+
+    string[] stage2ChoicesEn = {
+        "This offer fully considers your position as well.",
+        "There is room to adjust the terms, but only with mutual respect.",
+        "I value trust. This could be our first step.",
+        "I want to be clear about where I can yield and what I must keep.",
+        "If you accept this offer, you will gain a great deal too.",
+        "Negotiation comes down to timing. Isn't now the time?",
+        "This is the moment. There is no reason to hesitate.",
+        "This offer will open new opportunities for you as well.",
+        "Through this offer, we can shape the future together."
+    };
+
+    string[] stage3ChoicesEn = {
+        "If you don't decide now, this chance will never come again.",
+        "Now is the time to confirm each other's final intentions.",
+        "Let me show you the last card I hold.",
+        "If this offer is not accepted, I will have no choice but to withdraw.",
+        "We must all be ready to accept the outcome.",
+        "Your choice will decide the future. Choose carefully.",
+        "This opportunity is a one-of-a-kind choice for both sides.",
+        "There is nothing left to hide or delay. This is the moment of decision.",
+        "Your decision will change the fate of us all.",
+        "This negotiation is not a mere deal but an expression of trust.",
+        "Now is the time to show it with actions, not words.",
+        "My offer is simple but powerful. Will you accept it?",
+        "This choice will be an honorable path for you.",
+        "We have already shared much. Let us reach a conclusion.",
+        "My terms are the best I can offer. I will not back down further.",
+        "I await your answer. Right now.",
+        "If you don't decide, everything may become meaningless.",
+        "I have only one card left. Don't miss this moment.",
+        "Miss this moment, and everything returns to nothing.",
+        "Choose carefully. This is your last chance.",
+        "This decision is a chance to prove your leadership.",
+        "We now stand at a very important crossroads.",
+        "These terms offer unprecedented benefits.",
+        "We have reached our last chance to understand each other.",
+        "The decision is yours, but the outcome belongs to us all.",
+        "The choice you make now will be remembered for a long time.",
+        "I have made all my preparations. Now it is your turn."
+    };
+
     public void SetIndex(int index)
     {
-        nameText.text = names[index];
-        infoText.text = infos[index];
+        bool ko = Loc.IsKorean;
+        nameText.text = (ko ? names : namesEn)[index];
+        infoText.text = (ko ? infos : infosEn)[index];
 
-        AssignRandomTexts(stage1Buttons, stage1Choices);
-        AssignRandomTexts(stage2Buttons, stage2Choices);
+        AssignRandomTexts(stage1Buttons, ko ? stage1Choices : stage1ChoicesEn);
+        AssignRandomTexts(stage2Buttons, ko ? stage2Choices : stage2ChoicesEn);
 
         stage3Buttons.Clear();
         foreach (Transform parent in finalStageParents)
@@ -105,7 +179,7 @@ public class RandomText : MonoBehaviour
             stage3Buttons.AddRange(found);
         }
 
-        AssignRandomTexts(stage3Buttons.ToArray(), stage3Choices);
+        AssignRandomTexts(stage3Buttons.ToArray(), ko ? stage3Choices : stage3ChoicesEn);
         AssignHoverEffect(stage1Buttons);
         AssignHoverEffect(stage2Buttons);
         AssignHoverEffect(stage3Buttons.ToArray());

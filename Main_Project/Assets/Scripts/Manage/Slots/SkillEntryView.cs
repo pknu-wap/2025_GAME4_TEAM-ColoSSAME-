@@ -38,9 +38,9 @@ namespace TeamManage
             iconImage.enabled = icon != null;
 
             tierText.text = SkillCatalog.GetTierLabel(data.Tier);
-            nameText.text = $"이름 : {data.DisplayName}";
+            nameText.text = Loc.Get("skill_name", data.DisplayName);
             string description = data.Skill != null ? data.Skill.Description : string.Empty;
-            effectText.text = $"효과 : {description}";
+            effectText.text = Loc.Get("skill_effect", description);
 
             equippedMark.SetActive(data.Equipped);
         }

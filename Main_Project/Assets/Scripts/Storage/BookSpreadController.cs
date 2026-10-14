@@ -27,11 +27,13 @@ public class BookSpreadController : MonoBehaviour
     {
         bookPage = GetComponentInParent<BookPage>();
         if (bookPage != null) bookPage.Opened += HandlePageOpened;
+        Loc.Changed += HandlePageOpened;
     }
 
     private void OnDestroy()
     {
         if (bookPage != null) bookPage.Opened -= HandlePageOpened;
+        Loc.Changed -= HandlePageOpened;
     }
 
     private void Start()
