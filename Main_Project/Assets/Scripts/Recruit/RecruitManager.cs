@@ -40,8 +40,9 @@ public class RecruitManager : MonoBehaviour
         CharacterData selectedCharacter = SelectRandomCharacter(recruitableCharacters);
 
         bool isDuplicate = IsCharacterOwned(selectedCharacter);
+        bool requiresReplacement = !isDuplicate && IsOwnedUnitsFull();
 
-        if (isDuplicate && duplicateRewardItem == null)
+        if ((isDuplicate || requiresReplacement) && duplicateRewardItem == null)
         {
             Debug.LogWarning("[RecruitManager] duplicateRewardItem(ItemData)이 연결되어 있지 않습니다.");
             return RecruitResult.Fail(RecruitStatus.Misconfigured);
@@ -52,10 +53,64 @@ public class RecruitManager : MonoBehaviour
             return RecruitResult.Fail(RecruitStatus.NotEnoughGold);
         }
 
+        if (requiresReplacement)
+        {
+            return RecruitResult.PendingReplacement(selectedCharacter, determinedRarity, duplicateRewardItem, duplicateRewardStone);
+        }
+
         RecruitResult result = BuildResult(selectedCharacter, determinedRarity, isDuplicate);
         ApplyResultToUser(result);
 
         return result;
+    }
+
+    public bool ConfirmReplacement(RecruitResult pending, string replacedUnitId)
+    {
+        if (!IsValidPending(pending) || string.IsNullOrEmpty(replacedUnitId))
+        {
+            Debug.LogWarning("[RecruitManager] 교체 요청이 올바르지 않습니다.");
+            return false;
+        }
+
+        if (IsCharacterOwned(pending.Character))
+        {
+            Debug.LogWarning($"[RecruitManager] 이미 보유한 유닛이라 교체할 수 없습니다: {pending.Character.Unit_ID}");
+            return false;
+        }
+
+        return UserManager.Instance.ReplaceUnit(replacedUnitId, CreateUnit(pending));
+    }
+
+    public void CancelReplacement(RecruitResult pending)
+    {
+        if (!IsValidPending(pending))
+        {
+            Debug.LogWarning("[RecruitManager] 취소할 교체 요청이 올바르지 않습니다.");
+            return;
+        }
+
+        if (pending.RewardItem == null)
+        {
+            Debug.LogWarning("[RecruitManager] 교체 취소 보상(ItemData)이 없습니다.");
+            return;
+        }
+
+        UserManager.Instance.AddItem(pending.RewardItem.id.ToString(), pending.RewardStoneAmount);
+    }
+
+    private bool IsValidPending(RecruitResult pending)
+    {
+        return pending != null
+            && pending.RequiresReplacement
+            && pending.Character != null
+            && UserManager.Instance != null
+            && UserManager.Instance.user != null;
+    }
+
+    private bool IsOwnedUnitsFull()
+    {
+        List<Unit> myUnits = UserManager.Instance.user.myUnits;
+        return myUnits != null && myUnits.Count >= UserManager.MaxOwnedUnits;
     }
     
     private int DetermineRarity()
@@ -118,13 +173,16 @@ public class RecruitManager : MonoBehaviour
         }
         else
         {
-            Unit newUnit = new Unit(
-                result.Character.Unit_ID,
-                result.AcquiredRarity,
-                result.Character.Unit_Name,
-                result.Character.Class);
-
-            UserManager.Instance.AddUnit(newUnit);
+            UserManager.Instance.AddUnit(CreateUnit(result));
         }
+    }
+
+    private static Unit CreateUnit(RecruitResult result)
+    {
+        return new Unit(
+            result.Character.Unit_ID,
+            result.AcquiredRarity,
+            result.Character.Unit_Name,
+            result.Character.Class);
     }
 }

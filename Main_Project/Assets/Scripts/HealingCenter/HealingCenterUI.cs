@@ -75,7 +75,7 @@ namespace Colosseum.HealingCenter
                 }
                 return;
             }
-            characterList.RefreshSelectedSlotStatus();
+            characterList.Refresh();
             characterDetail.Refresh();
         }
     }

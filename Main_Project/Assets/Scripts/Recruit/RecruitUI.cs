@@ -20,6 +20,9 @@ public class RecruitUI : MonoBehaviour
     [SerializeField] private Button backButton;
     [SerializeField] private TextToastUI toastUI;
 
+    [Header("보유 한도 초과 시 교체 팝업")]
+    [SerializeField] private RecruitReplaceUI replaceUI;
+
     [Header("화면 상태 전환용 오브젝트")]
     [SerializeField] private GameObject idlePrompt;
     [SerializeField] private GameObject resultGroup;
@@ -41,6 +44,7 @@ public class RecruitUI : MonoBehaviour
 
     private Coroutine revealRoutine;
     private bool isRevealing;
+    private RecruitResult pendingReplacement;
 
     [Header("뽑기 비용")]
     [SerializeField] private int recruitCost;
@@ -68,6 +72,21 @@ public class RecruitUI : MonoBehaviour
         }
 
         ShowIdleState();
+
+        if (replaceUI != null)
+        {
+            StartCoroutine(HideReplaceUINextFrame());
+        }
+    }
+
+    private IEnumerator HideReplaceUINextFrame()
+    {
+        yield return null;
+
+        if (pendingReplacement == null && replaceUI != null)
+        {
+            replaceUI.Hide();
+        }
     }
 
     private void OnDisable()
@@ -75,6 +94,23 @@ public class RecruitUI : MonoBehaviour
         if (UserManager.Instance != null)
         {
             UserManager.Instance.OnMoneyChanged -= HandleMoneyChanged;
+        }
+
+        if (pendingReplacement != null)
+        {
+            RecruitResult pending = pendingReplacement;
+            pendingReplacement = null;
+
+            if (recruitManager != null)
+            {
+                recruitManager.CancelReplacement(pending);
+            }
+
+            if (replaceUI != null)
+            {
+                if (replaceUI.transform.IsChildOf(transform)) replaceUI.Release();
+                else replaceUI.Hide();
+            }
         }
     }
 
@@ -101,6 +137,11 @@ public class RecruitUI : MonoBehaviour
             return;
         }
 
+        if (pendingReplacement != null)
+        {
+            return;
+        }
+
         RecruitResult result = recruitManager.Recruit(recruitCost);
 
         if (result.Status != RecruitStatus.Success)
@@ -110,8 +151,69 @@ public class RecruitUI : MonoBehaviour
             return;
         }
 
+        if (result.RequiresReplacement)
+        {
+            BeginReplacement(result);
+            return;
+        }
+
+        ShowRecruitResult(result);
+    }
+
+    private void ShowRecruitResult(RecruitResult result)
+    {
         DisplayResult(result);
         ShowResultState();
+    }
+
+    private void BeginReplacement(RecruitResult pending)
+    {
+        if (replaceUI == null)
+        {
+            Debug.LogWarning("[RecruitUI] RecruitReplaceUI가 연결되어 있지 않아 중복 보상으로 처리합니다.");
+            recruitManager.CancelReplacement(pending);
+            ShowRecruitResult(pending.AsDuplicateReward());
+            return;
+        }
+
+        pendingReplacement = pending;
+        RefreshRecruitButton();
+        replaceUI.Show(pending.Character, HandleReplaceConfirmed, HandleReplaceCanceled);
+    }
+
+    private void HandleReplaceConfirmed(string replacedUnitId)
+    {
+        RecruitResult pending = pendingReplacement;
+        pendingReplacement = null;
+
+        if (pending == null)
+        {
+            return;
+        }
+
+        if (recruitManager.ConfirmReplacement(pending, replacedUnitId))
+        {
+            ShowRecruitResult(pending.AsAcquired());
+            return;
+        }
+
+        Debug.LogWarning("[RecruitUI] 유닛 교체에 실패해 중복 보상으로 처리합니다.");
+        recruitManager.CancelReplacement(pending);
+        ShowRecruitResult(pending.AsDuplicateReward());
+    }
+
+    private void HandleReplaceCanceled()
+    {
+        RecruitResult pending = pendingReplacement;
+        pendingReplacement = null;
+
+        if (pending == null)
+        {
+            return;
+        }
+
+        recruitManager.CancelReplacement(pending);
+        ShowRecruitResult(pending.AsDuplicateReward());
     }
 
     private void ShowFailureMessage(RecruitStatus status)
@@ -157,7 +259,7 @@ public class RecruitUI : MonoBehaviour
             && UserManager.Instance.user != null
             && UserManager.Instance.user.money >= recruitCost;
 
-        recruitButton.interactable = hasGold && !isRevealing;
+        recruitButton.interactable = hasGold && !isRevealing && pendingReplacement == null;
     }
     
     private void OnBackButtonClicked()

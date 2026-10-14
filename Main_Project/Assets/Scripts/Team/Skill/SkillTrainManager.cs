@@ -24,9 +24,18 @@ public class SkillTrainManager : MonoBehaviour
     {
         ClearUI();
 
+        currentUnit = null;
+        skillMap = null;
+
+        if (UserManager.Instance == null)
+            yield break;
+
         string unitId = UserManager.Instance.selectedUnitId;
 
         currentUnit = UserManager.Instance.GetMyUnitById(unitId);
+
+        if (currentUnit == null)
+            yield break;
 
         BuildSkillMap();
 
@@ -79,6 +88,9 @@ public class SkillTrainManager : MonoBehaviour
 
     private UnitSkill GetSelectedSkill(int index)
     {
+        if (currentUnit == null || skillMap == null)
+            return null;
+
         if (currentUnit.EquippedSkills == null || index >= currentUnit.EquippedSkills.Count)
             return null;
 
@@ -107,6 +119,9 @@ public class SkillTrainManager : MonoBehaviour
 
     private void ChangeSkill(int rarity, int slotIndex)
     {
+        if (currentUnit == null || randomSkillGrantA == null || skillSelectUI == null)
+            return;
+
         if (currentUnit.Tier < rarity)
             return;
 

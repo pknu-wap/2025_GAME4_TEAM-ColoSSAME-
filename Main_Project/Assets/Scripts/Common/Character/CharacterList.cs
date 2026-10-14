@@ -26,6 +26,7 @@ namespace Colosseum.Character
 
         private string _selectedUnitId;
         private CharacterSortMode _sortMode = CharacterSortMode.Default;
+        private bool _sortDescending = true;
 
         public event Action<Unit> OnCharacterSelected;
 
@@ -70,16 +71,10 @@ namespace Colosseum.Character
             }
         }
 
-        public void RefreshSelectedSlotStatus()
+        public void ClearSelection()
         {
-            foreach (CharacterItem slot in characterSlots)
-            {
-                if (slot.gameObject.activeSelf && slot.UnitId == _selectedUnitId)
-                {
-                    slot.RefreshStatus();
-                    break;
-                }
-            }
+            _selectedUnitId = null;
+            RefreshHighlightOnly();
         }
 
         public void SortByDefault() => SetSortMode(CharacterSortMode.Default);
@@ -89,9 +84,17 @@ namespace Colosseum.Character
 
         private void SetSortMode(CharacterSortMode mode)
         {
-            if (_sortMode == mode) return;
+            if (_sortMode == mode)
+            {
+                if (mode == CharacterSortMode.Default) return;
+                _sortDescending = !_sortDescending;
+            }
+            else
+            {
+                _sortMode = mode;
+                _sortDescending = true;
+            }
 
-            _sortMode = mode;
             Refresh();
         }
 
@@ -144,7 +147,8 @@ namespace Colosseum.Character
                 return;
             }
 
-            _ownedUnits.Sort(GetComparer());
+            Comparison<(Unit Unit, CharacterData Data)> comparer = GetComparer();
+            _ownedUnits.Sort(_sortDescending ? comparer : (a, b) => comparer(b, a));
         }
 
         private Comparison<(Unit Unit, CharacterData Data)> GetComparer() => _sortMode switch

@@ -38,6 +38,7 @@ namespace Colosseum.Character
         private readonly AddressableAssetLoader<Sprite> _portraitLoader = new();
 
         private Unit _currentUnit;
+        private int _portraitRequestVersion;
 
         public event Action<Unit> OnHealRequested;
 
@@ -70,6 +71,7 @@ namespace Colosseum.Character
             SetText(agilityText, string.Empty);
             SetText(defenseText, string.Empty);
             SetText(baseHealthText, string.Empty);
+            _portraitRequestVersion++;
             if (portraitImage != null) portraitImage.sprite = null;
             if (healButton != null) healButton.interactable = false;
         }
@@ -93,12 +95,22 @@ namespace Colosseum.Character
             RefreshHealingInfo();
             RefreshStats(characterData);
 
+            int requestVersion = ++_portraitRequestVersion;
+            if (portraitImage != null) portraitImage.sprite = null;
+
             MonoBehaviour host = CoroutineHost != null ? CoroutineHost : this;
             host.StartCoroutine(CharacterInfoProvider.LoadPortraitAsync(
                 _portraitLoader,
                 characterData,
-                sprite => portraitImage.sprite = sprite,
-                () => Debug.LogWarning($"[CharacterDetail] \ud3ec\ud2b8\ub808\uc774\ud2b8 \ub85c\ub4dc \uc2e4\ud328: {characterData.Unit_ID}")
+                sprite =>
+                {
+                    if (requestVersion == _portraitRequestVersion && portraitImage != null) portraitImage.sprite = sprite;
+                },
+                () =>
+                {
+                    if (requestVersion == _portraitRequestVersion && portraitImage != null) portraitImage.sprite = null;
+                    Debug.LogWarning($"[CharacterDetail] \ud3ec\ud2b8\ub808\uc774\ud2b8 \ub85c\ub4dc \uc2e4\ud328: {characterData.Unit_ID}");
+                }
             ));
         }
 

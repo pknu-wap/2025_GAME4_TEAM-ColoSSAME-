@@ -19,6 +19,7 @@ namespace Colosseum.Character
 
         private Unit _unit;
         private Action<Unit> _onSelected;
+        private int _portraitRequestVersion;
 
         public string UnitId => _unit?.Id;
 
@@ -43,6 +44,7 @@ namespace Colosseum.Character
         public void Hide()
         {
             _unit = null;
+            _portraitRequestVersion++;
             gameObject.SetActive(false);
         }
 
@@ -54,20 +56,24 @@ namespace Colosseum.Character
             }
         }
 
-        public void RefreshStatus()
-        {
-            if (_unit == null || statusText == null) return;
-            statusText.SetText(InjuryStatusLocalization.GetDisplayName(_unit.currentInjury));
-        }
-
         private void LoadPortrait(CharacterData data, AddressableAssetLoader<Sprite> portraitLoader, MonoBehaviour coroutineHost)
         {
+            int requestVersion = ++_portraitRequestVersion;
+            portraitImage.sprite = null;
+
             MonoBehaviour host = coroutineHost != null ? coroutineHost : this;
             host.StartCoroutine(CharacterInfoProvider.LoadPortraitAsync(
                 portraitLoader,
                 data,
-                sprite => portraitImage.sprite = sprite,
-                () => Debug.LogWarning($"[CharacterItem] \ud3ec\ud2b8\ub808\uc774\ud2b8 \ub85c\ub4dc \uc2e4\ud328: {data?.Unit_ID}")
+                sprite =>
+                {
+                    if (requestVersion == _portraitRequestVersion) portraitImage.sprite = sprite;
+                },
+                () =>
+                {
+                    if (requestVersion == _portraitRequestVersion) portraitImage.sprite = null;
+                    Debug.LogWarning($"[CharacterItem] \ud3ec\ud2b8\ub808\uc774\ud2b8 \ub85c\ub4dc \uc2e4\ud328: {data?.Unit_ID}");
+                }
             ));
         }
 

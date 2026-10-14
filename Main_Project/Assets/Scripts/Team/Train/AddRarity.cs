@@ -99,7 +99,13 @@ public class AddRarity : MonoBehaviour
 
     public void RaritySuccessUp()
     {
-         Unit unit = UserManager.Instance.GetMyUnitById(UserManager.Instance.selectedUnitId);
+        if (UserManager.Instance == null)
+            return;
+
+        Unit unit = UserManager.Instance.GetMyUnitById(UserManager.Instance.selectedUnitId);
+
+        if (unit == null)
+            return;
 
         if (GetSuccessRate(unit) >= 100f)
             return;
@@ -121,6 +127,9 @@ public class AddRarity : MonoBehaviour
             return;
 
         Unit unit = UserManager.Instance.GetMyUnitById(unitId);
+
+        if (unit == null)
+            return;
 
         if ((unit.Tier >= 5) || (unit.Level < unit.Tier * 10))
             return;
