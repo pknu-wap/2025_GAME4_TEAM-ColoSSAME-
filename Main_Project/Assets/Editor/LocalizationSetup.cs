@@ -30,30 +30,6 @@ public static class LocalizationSetup
     };
     const string MainMenuScene = "Assets/Scenes/MainMenu.unity";
 
-    // 한국어는 UI에 적힌 글자와 같아야 연결됨
-    static readonly (string key, string ko, string en)[] Entries =
-    {
-        ("common_settings",          "설정",       "Settings"),
-        ("settings_language",        "언어",       "Language"),
-        ("settings_screenmode",      "화면 모드",  "Display Mode"),
-        ("settings_resolution",      "해상도",     "Resolution"),
-        ("settings_master",          "마스터",     "Master"),
-        ("settings_bgm",             "BGM",        "Music"),
-        ("settings_sfx",             "효과음",     "SFX"),
-        ("settings_ingame",          "인게임",     "In-game"),
-        ("settings_back",            "돌아가기",   "Back"),
-        ("settings_mainmenu",        "메인화면",   "Main Menu"),
-        ("alert_mainmenu_question",  "정말 메인화면으로 돌아가시겠습니까?", "Return to the main menu?"),
-        ("alert_continue",           "계속하기",   "Continue"),
-        ("alert_tomain",             "메인으로",   "Main Menu"),
-        ("screenmode_fullscreen",    "전체화면",   "Fullscreen"),
-        ("screenmode_windowed",      "창 모드",    "Windowed"),
-        ("menu_newgame",             "새 게임 시작", "New Game"),
-        ("menu_load",                "불러오기",   "Load Game"),
-        ("menu_quit",                "끝내기",     "Quit"),
-        ("loading_cleaning",         "방 청소중 ...", "Cleaning up ..."),
-    };
-
     [MenuItem("Tools/언어/처음 설정 (한 번만)", priority = 100)]
     static void FirstSetup()
     {
@@ -106,16 +82,8 @@ public static class LocalizationSetup
         if (collection == null)
             collection = LocalizationEditorSettings.CreateStringTableCollection(TableName, Root + "/Tables");
 
-        int added = 0;
-        foreach (var (key, koText, enText) in Entries)
-        {
-            if (collection.SharedData.GetEntry(key) == null) { collection.SharedData.AddKey(key); added++; }
-            SetIfEmpty(collection, "ko", key, koText);
-            SetIfEmpty(collection, "en", key, enText);
-        }
-        EditorUtility.SetDirty(collection.SharedData);
         AssetDatabase.SaveAssets();
-        Debug.Log($"[LocalizationSetup] 문구 표 '{TableName}' 준비 완료 (새 키 {added}개, 전체 {collection.SharedData.Entries.Count}개)");
+        Debug.Log($"[LocalizationSetup] 문구 표 '{TableName}' 준비 완료 (키 {collection.SharedData.Entries.Count}개)");
     }
 
     static Locale GetOrCreateLocale(string code)
@@ -130,15 +98,6 @@ public static class LocalizationSetup
         AssetDatabase.CreateAsset(locale, $"{Root}/Locales/{locale.name}.asset");
         LocalizationEditorSettings.AddLocale(locale);
         return locale;
-    }
-
-    static void SetIfEmpty(StringTableCollection collection, string code, string key, string value)
-    {
-        if (collection.GetTable(code) is not StringTable table) return;
-        var entry = table.GetEntry(key);
-        if (entry == null) table.AddEntry(key, value);
-        else if (string.IsNullOrEmpty(entry.Value)) entry.Value = value;
-        EditorUtility.SetDirty(table);
     }
 
     public static void ApplyToUI()
@@ -221,7 +180,7 @@ public static class LocalizationSetup
 
     static int LocalizeTexts(GameObject root, bool skipPrefabInstances = false)
     {
-        var byKorean = Entries.ToDictionary(e => e.ko, e => e.key);
+        var byKorean = KoreanToKey();
         int count = 0;
 
         foreach (var text in root.GetComponentsInChildren<TMP_Text>(true))
@@ -265,6 +224,20 @@ public static class LocalizationSetup
 
     public static bool InDropdown(Component c) =>
         c.GetComponentInParent<TMP_Dropdown>(true) != null || c.GetComponentInParent<Dropdown>(true) != null;
+
+    // 문구 표의 한국어 → 키 (같은 문구가 여러 키면 먼저 나온 키)
+    static Dictionary<string, string> KoreanToKey()
+    {
+        var map = new Dictionary<string, string>();
+        var collection = LocalizationEditorSettings.GetStringTableCollection(TableName);
+        if (collection == null || collection.GetTable("ko") is not StringTable ko) return map;
+        foreach (var entry in collection.SharedData.Entries)
+        {
+            var value = ko.GetEntry(entry.Id)?.Value;
+            if (!string.IsNullOrEmpty(value) && !map.ContainsKey(value.Trim())) map[value.Trim()] = entry.Key;
+        }
+        return map;
+    }
 
     static Transform FindChild(Transform t, string name)
     {

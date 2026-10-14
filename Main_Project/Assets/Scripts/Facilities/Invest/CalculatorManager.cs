@@ -54,7 +54,7 @@ public class CalculatorManager : MonoBehaviour
             } // first, second 정수에 '0'은 들어가지 않으므로 그냥 나눈다.
         }
 
-        resultText.text = Loc.Get("invest_result", result);
+        resultText.text = result +"를 획득했습니다.";
         Debug.Log("결과 : " + result);
         
         isFirstSet = false;
