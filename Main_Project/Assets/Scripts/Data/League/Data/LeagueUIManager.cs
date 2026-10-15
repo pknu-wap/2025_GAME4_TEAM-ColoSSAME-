@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
@@ -89,6 +90,7 @@ public class LeagueUIManager : MonoBehaviour
         ShowMyTeamNextMatch();
         UpdateRoundInfoUI();
         UpdateLeagueTierUI();
+        UpdateMyRecordUI();
     }
 
 
@@ -97,8 +99,9 @@ public class LeagueUIManager : MonoBehaviour
         UpdateNextMatchUI();
         UpdateRankingUI();
         ShowMyTeamNextMatch();
-        UpdateRoundInfoUI(); 
+        UpdateRoundInfoUI();
         UpdateLeagueTierUI();
+        UpdateMyRecordUI();
         CheckLeagueEnd();
     }
 
@@ -279,6 +282,47 @@ public class LeagueUIManager : MonoBehaviour
         // 상대 팀
         nextMatchOpponentImage.sprite = GetTeamSprite(opponentTeam.id);
         nextMatchOpponentText.text = Loc.Get("team_with_rank", Loc.TeamName(opponentTeam), opponentTeam.rank);
+    }
+
+    [Header("내 팀 전적 UI")]
+    public TMP_Text myRecordText;
+    [SerializeField] private int recentMatchCount = 5;
+
+    private void UpdateMyRecordUI()
+    {
+        if (myRecordText == null) return;
+
+        int playerTeamId = leagueManager.league.settings.playerTeamId;
+        Team myTeam = leagueManager.league.teams.Find(t => t.id == playerTeamId);
+        if (myTeam == null) return;
+
+        if (myTeam.played == 0)
+        {
+            myRecordText.text = Loc.Get("home_record_none");
+            return;
+        }
+
+        string record = myTeam.draw > 0
+            ? Loc.Get("home_record_draw", myTeam.win, myTeam.draw, myTeam.lose)
+            : Loc.Get("home_record", myTeam.win, myTeam.lose);
+        int winRate = Mathf.RoundToInt(100f * myTeam.win / myTeam.played);
+
+        // 최근 경기 결과를 오래된 순으로
+        var recent = new List<string>();
+        for (int roundNumber = myTeam.played; roundNumber >= 1 && recent.Count < recentMatchCount; roundNumber--)
+        {
+            Round round = leagueManager.league.schedule.Find(r => r.roundNumber == roundNumber);
+            LeagueMatch match = round?.matches.Find(m => m.teamAId == playerTeamId || m.teamBId == playerTeamId);
+            if (match?.result == null) continue;
+
+            int mine = match.teamAId == playerTeamId ? match.result.scoreA : match.result.scoreB;
+            int theirs = match.teamAId == playerTeamId ? match.result.scoreB : match.result.scoreA;
+            if (mine > theirs) recent.Insert(0, $"<color=#2F6B2F>{Loc.Get("home_recent_win")}</color>");
+            else if (mine < theirs) recent.Insert(0, $"<color=#A3302A>{Loc.Get("home_recent_lose")}</color>");
+            else recent.Insert(0, $"<color=#6B5B45>{Loc.Get("home_recent_draw")}</color>");
+        }
+
+        myRecordText.text = $"<size=150%>{record}</size>\n{Loc.Get("home_winrate", winRate)}\n{string.Join(" ", recent)}";
     }
 
     void UpdateLeagueTierUI()

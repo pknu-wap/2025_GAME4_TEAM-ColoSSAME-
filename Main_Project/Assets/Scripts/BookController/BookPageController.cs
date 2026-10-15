@@ -132,6 +132,18 @@ namespace BattleK.UI.Book
             return TryGetEntry(pageId, out PageEntry entry) && entry.parent != BookPageId.None;
         }
 
+        // page가 ancestor 자신이거나 그 아래 페이지인지
+        public bool IsInside(BookPageId page, BookPageId ancestor)
+        {
+            while (page != BookPageId.None)
+            {
+                if (page == ancestor) return true;
+                if (!TryGetEntry(page, out PageEntry entry) || entry.parent == page) return false;
+                page = entry.parent;
+            }
+            return false;
+        }
+
         private bool IsForwardTransition(BookPageId from, BookPageId to)
         {
             TryGetEntry(from, out PageEntry fromEntry);
