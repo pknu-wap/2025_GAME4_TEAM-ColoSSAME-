@@ -86,7 +86,7 @@ namespace Colosseum.Character
             CharacterData characterData = CharacterInfoProvider.GetCharacterData(_currentUnit.Id);
             if (characterData == null)
             {
-                Debug.LogWarning($"[CharacterDetail] \uce90\ub9ad\ud130 \ub370\uc774\ud130\ub97c \ucc3e\uc744 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4: {_currentUnit.Id}");
+                Debug.LogWarning($"[CharacterDetail] 캐릭터 데이터를 찾을 수 없습니다: {_currentUnit.Id}");
                 Clear();
                 return;
             }
@@ -109,7 +109,7 @@ namespace Colosseum.Character
                 () =>
                 {
                     if (requestVersion == _portraitRequestVersion && portraitImage != null) portraitImage.sprite = null;
-                    Debug.LogWarning($"[CharacterDetail] \ud3ec\ud2b8\ub808\uc774\ud2b8 \ub85c\ub4dc \uc2e4\ud328: {characterData.Unit_ID}");
+                    Debug.LogWarning($"[CharacterDetail] 포트레이트 로드 실패: {characterData.Unit_ID}");
                 }
             ));
         }
@@ -150,7 +150,7 @@ namespace Colosseum.Character
         {
             if (_currentUnit == null)
             {
-                Debug.LogWarning("[CharacterDetail] \uc120\ud0dd\ub41c \uce90\ub9ad\ud130\uac00 \uc5c6\uc2b5\ub2c8\ub2e4.");
+                Debug.LogWarning("[CharacterDetail] 선택된 캐릭터가 없습니다.");
                 return;
             }
 

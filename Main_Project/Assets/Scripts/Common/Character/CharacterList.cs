@@ -44,7 +44,7 @@ namespace Colosseum.Character
             {
                 if (slotIndex >= characterSlots.Count)
                 {
-                    Debug.LogWarning("[CharacterList] \uc2ac\ub86f \uac1c\uc218\uac00 \ubd80\uc871\ud569\ub2c8\ub2e4. \uc778\uc2a4\ud399\ud130\uc5d0\uc11c \uc2ac\ub86f\uc744 \ucd94\uac00\ud558\uc138\uc694.");
+                    Debug.LogWarning("[CharacterList] 슬롯 개수가 부족합니다. 인스펙터에서 슬롯을 추가하세요.");
                     break;
                 }
 
@@ -84,15 +84,17 @@ namespace Colosseum.Character
 
         private void SetSortMode(CharacterSortMode mode)
         {
-            if (_sortMode == mode)
+            switch (mode == _sortMode, mode)
             {
-                if (mode == CharacterSortMode.Default) return;
-                _sortDescending = !_sortDescending;
-            }
-            else
-            {
-                _sortMode = mode;
-                _sortDescending = true;
+                case (true, CharacterSortMode.Default):
+                    return;
+                case (true, _):
+                    _sortDescending = !_sortDescending;
+                    break;
+                default:
+                    _sortMode = mode;
+                    _sortDescending = true;
+                    break;
             }
 
             Refresh();
@@ -117,10 +119,6 @@ namespace Colosseum.Character
             _ownedUnits.Clear();
 
             string currentFamilyId = FamilyUtility.GetCurrentFamilyId();
-            if (string.IsNullOrEmpty(currentFamilyId))
-            {
-                return;
-            }
 
             List<Unit> myUnits = UserManager.Instance.user.myUnits;
             if (myUnits == null)

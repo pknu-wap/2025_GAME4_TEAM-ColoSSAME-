@@ -137,16 +137,9 @@ public class FighterNameBinder : MonoBehaviour
             data.unitId    = unit.Id;
             data.unitClass = unit.UnitClass;
 
-            if (portraitImage != null && !string.IsNullOrEmpty(unit.Id))
-            {
-                Debug.Log($"[Portrait Load Try] unitId={unit.Id}");
+            Debug.Log($"[Portrait Load Try] unitId={unit.Id}");
 
-                yield return StartCoroutine(LoadUnitPortrait(unit.Id, portraitImage));
-            }
-            else
-            {
-                Debug.LogWarning($"[{slot.name}]에서 playerImage를 찾지 못했거나 unitId가 비어있습니다.");
-            }
+            yield return StartCoroutine(LoadUnitPortrait(unit.Id, portraitImage));
         }
         else
         {
@@ -215,24 +208,11 @@ public class FighterNameBinder : MonoBehaviour
     
     public void RefreshTrainingUI()
     {
-        if (UserManager.Instance == null || UserManager.Instance.user == null || UserManager.Instance.user.myUnits == null)
-        {
-            Debug.LogWarning("UserManager 또는 myUnits가 준비되지 않아 훈련 UI를 갱신할 수 없습니다.");
-            return;
-        }
-
-        if (fighterListParent == null)
-        {
-            Debug.LogError("fighterListParent가 비어있습니다.");
-            return;
-        }
-
         List<Unit> myUnits = UserManager.Instance.user.myUnits;
 
         if (refreshRoutine != null) StopCoroutine(refreshRoutine);
         refreshRoutine = StartCoroutine(BindSlots(myUnits));
 
-        if (getExpButton != null)
-            getExpButton.RefreshSelectedUnitUI();
+        getExpButton.RefreshSelectedUnitUI();
     }
 }

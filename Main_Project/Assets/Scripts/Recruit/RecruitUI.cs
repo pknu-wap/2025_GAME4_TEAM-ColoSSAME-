@@ -83,7 +83,7 @@ public class RecruitUI : MonoBehaviour
     {
         yield return null;
 
-        if (pendingReplacement == null && replaceUI != null)
+        if (pendingReplacement == null)
         {
             replaceUI.Hide();
         }
@@ -101,16 +101,10 @@ public class RecruitUI : MonoBehaviour
             RecruitResult pending = pendingReplacement;
             pendingReplacement = null;
 
-            if (recruitManager != null)
-            {
-                recruitManager.CancelReplacement(pending);
-            }
+            recruitManager.CancelReplacement(pending);
 
-            if (replaceUI != null)
-            {
-                if (replaceUI.transform.IsChildOf(transform)) replaceUI.Release();
-                else replaceUI.Hide();
-            }
+            if (replaceUI.transform.IsChildOf(transform)) replaceUI.Release();
+            else replaceUI.Hide();
         }
     }
 

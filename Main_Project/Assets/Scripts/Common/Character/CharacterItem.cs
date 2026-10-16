@@ -72,7 +72,7 @@ namespace Colosseum.Character
                 () =>
                 {
                     if (requestVersion == _portraitRequestVersion) portraitImage.sprite = null;
-                    Debug.LogWarning($"[CharacterItem] \ud3ec\ud2b8\ub808\uc774\ud2b8 \ub85c\ub4dc \uc2e4\ud328: {data?.Unit_ID}");
+                    Debug.LogWarning($"[CharacterItem] 포트레이트 로드 실패: {data?.Unit_ID}");
                 }
             ));
         }

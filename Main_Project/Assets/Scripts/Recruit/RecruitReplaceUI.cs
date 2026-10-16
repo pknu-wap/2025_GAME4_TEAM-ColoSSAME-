@@ -26,33 +26,15 @@ public class RecruitReplaceUI : MonoBehaviour
 
     private void Awake()
     {
-        if (confirmButton != null)
-        {
-            confirmButton.onClick.AddListener(OnConfirmButtonClicked);
-        }
-
-        if (cancelButton != null)
-        {
-            cancelButton.onClick.AddListener(OnCancelButtonClicked);
-        }
+        confirmButton.onClick.AddListener(OnConfirmButtonClicked);
+        cancelButton.onClick.AddListener(OnCancelButtonClicked);
     }
 
     private void OnDestroy()
     {
-        if (confirmButton != null)
-        {
-            confirmButton.onClick.RemoveListener(OnConfirmButtonClicked);
-        }
-
-        if (cancelButton != null)
-        {
-            cancelButton.onClick.RemoveListener(OnCancelButtonClicked);
-        }
-
-        if (characterList != null)
-        {
-            characterList.OnCharacterSelected -= HandleCharacterSelected;
-        }
+        confirmButton.onClick.RemoveListener(OnConfirmButtonClicked);
+        cancelButton.onClick.RemoveListener(OnCancelButtonClicked);
+        characterList.OnCharacterSelected -= HandleCharacterSelected;
     }
 
     public void Show(CharacterData incoming, Action<string> onConfirm, Action onCancel)
@@ -63,23 +45,13 @@ public class RecruitReplaceUI : MonoBehaviour
 
         Root.SetActive(true);
 
-        if (characterList != null)
-        {
-            characterList.OnCharacterSelected -= HandleCharacterSelected;
-            characterList.OnCharacterSelected += HandleCharacterSelected;
-            characterList.CoroutineHost = this;
-            characterList.ClearSelection();
-            characterList.Refresh();
-        }
-        else
-        {
-            Debug.LogWarning("[RecruitReplaceUI] CharacterList가 연결되어 있지 않습니다.");
-        }
+        characterList.OnCharacterSelected -= HandleCharacterSelected;
+        characterList.OnCharacterSelected += HandleCharacterSelected;
+        characterList.CoroutineHost = this;
+        characterList.ClearSelection();
+        characterList.Refresh();
 
-        if (confirmButton != null)
-        {
-            confirmButton.interactable = false;
-        }
+        confirmButton.interactable = false;
 
         if (messageText != null)
         {
@@ -100,25 +72,15 @@ public class RecruitReplaceUI : MonoBehaviour
         onCancel = null;
         selectedUnitId = null;
 
-        if (confirmButton != null)
-        {
-            confirmButton.interactable = false;
-        }
-
-        if (characterList != null)
-        {
-            characterList.OnCharacterSelected -= HandleCharacterSelected;
-        }
+        confirmButton.interactable = false;
+        characterList.OnCharacterSelected -= HandleCharacterSelected;
     }
 
     private void HandleCharacterSelected(Unit unit)
     {
         selectedUnitId = unit?.Id;
 
-        if (confirmButton != null)
-        {
-            confirmButton.interactable = !string.IsNullOrEmpty(selectedUnitId);
-        }
+        confirmButton.interactable = !string.IsNullOrEmpty(selectedUnitId);
     }
 
     private void OnConfirmButtonClicked()

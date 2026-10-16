@@ -78,7 +78,8 @@ public class RecruitManager : MonoBehaviour
             return false;
         }
 
-        return UserManager.Instance.ReplaceUnit(replacedUnitId, CreateUnit(pending));
+        UserManager.Instance.ReplaceUnit(replacedUnitId, CreateUnit(pending));
+        return true;
     }
 
     public void CancelReplacement(RecruitResult pending)

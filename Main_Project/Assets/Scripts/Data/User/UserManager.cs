@@ -214,27 +214,9 @@ public class UserManager : MonoBehaviour
         SaveUser();
     }
 
-    public bool ReplaceUnit(string oldUnitId, Unit newUnit)
+    public void ReplaceUnit(string oldUnitId, Unit newUnit)
     {
-        if (user == null || user.myUnits == null || newUnit == null || string.IsNullOrEmpty(oldUnitId))
-        {
-            Debug.LogWarning($"ReplaceUnit 실패: 잘못된 요청 (oldUnitId={oldUnitId})");
-            return false;
-        }
-
-        int index = user.myUnits.FindIndex(u => u != null && u.Id == oldUnitId);
-        if (index < 0)
-        {
-            Debug.LogWarning($"ReplaceUnit 실패: 유닛을 찾지 못함 (oldUnitId={oldUnitId})");
-            return false;
-        }
-
-        if (newUnit.Id != oldUnitId && GetMyUnitById(newUnit.Id) != null)
-        {
-            Debug.LogWarning($"ReplaceUnit 실패: 이미 보유한 유닛 (newUnitId={newUnit.Id})");
-            return false;
-        }
-
+        int index = user.myUnits.FindIndex(u => u.Id == oldUnitId);
         user.myUnits[index] = newUnit;
 
         if (selectedUnitId == oldUnitId)
@@ -242,7 +224,6 @@ public class UserManager : MonoBehaviour
 
         Debug.Log($"유닛 교체: {oldUnitId} -> {newUnit.Id}");
         SaveUser();
-        return true;
     }
     
     public void AddInitialUnitsByFamily(string familyId)
