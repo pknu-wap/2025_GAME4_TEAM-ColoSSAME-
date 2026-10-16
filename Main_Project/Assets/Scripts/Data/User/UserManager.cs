@@ -14,6 +14,8 @@ public class UserManager : MonoBehaviour
 {
     public static UserManager Instance { get; private set; }
 
+    public const int MaxOwnedUnits = 9;
+
     public User user;
 
     private string savePath;
@@ -209,6 +211,18 @@ public class UserManager : MonoBehaviour
     {
         user.myUnits.Add(newUnit);
         Debug.Log($"새로운 유닛 영입: {newUnit.Id}");
+        SaveUser();
+    }
+
+    public void ReplaceUnit(string oldUnitId, Unit newUnit)
+    {
+        int index = user.myUnits.FindIndex(u => u.Id == oldUnitId);
+        user.myUnits[index] = newUnit;
+
+        if (selectedUnitId == oldUnitId)
+            selectedUnitId = null;
+
+        Debug.Log($"유닛 교체: {oldUnitId} -> {newUnit.Id}");
         SaveUser();
     }
     

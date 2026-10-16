@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
-public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
+public class FighterSlotShowStats : MonoBehaviour, IPointerDownHandler
 {
     [Header("슬롯 데이터(유닛 ID)")]
     public FighterSlotData slotData;
@@ -24,10 +24,13 @@ public class FighterSlotShowStats : MonoBehaviour, IPointerClickHandler
     [HideInInspector] public BuildingUpgradeManager buildingUpgradeManager;
     private int GetDiscountedTrainingCost(int baseCost)
     {
-        return buildingUpgradeManager.GetDiscountedTrainingCost(baseCost);
+        if (buildingUpgradeManager != null)
+            return buildingUpgradeManager.GetDiscountedTrainingCost(baseCost);
+
+        return baseCost;
     }
 
-    public void OnPointerClick(PointerEventData eventData)
+    public void OnPointerDown(PointerEventData eventData)
     {
         if (UserManager.Instance == null || UserManager.Instance.user == null)
         {
