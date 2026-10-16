@@ -4,13 +4,13 @@ public static class ItemCategoryDisplay
 {
     private static readonly Dictionary<ItemCategory, string> Names = new Dictionary<ItemCategory, string>
     {
-        { ItemCategory.Potion, "물약" },
-        { ItemCategory.Material, "강화석" },
-        { ItemCategory.Accessory, "악세서리" },
-        { ItemCategory.Etc, "기타" }
+        { ItemCategory.Potion, "item_category_potion" },
+        { ItemCategory.Material, "item_category_material" },
+        { ItemCategory.Accessory, "item_category_accessory" },
+        { ItemCategory.Etc, "item_category_etc" }
         
     };
     
     public static string GetName(ItemCategory category) =>
-        Names.TryGetValue(category, out var name) ? name : category.ToString();
+        Names.TryGetValue(category, out var key) ? Loc.Get(key) : category.ToString();
 }

@@ -67,14 +67,14 @@ public class ShopController : MonoBehaviour
         bool paid = UserManager.Instance.SpendGold(finalPrice);
         if (!paid)
         {
-            toastUI?.Show("돈이 부족합니다", 1f);
+            toastUI?.Show(Loc.Get("shop_no_money"), 1f);
             return false;
         }
 
         // 인벤 추가
         UserManager.Instance.AddItem(itemId.ToString(), 1);
 
-        toastUI?.Show("구매 완료!", 1f);
+        toastUI?.Show(Loc.Get("shop_purchased"), 1f);
         return true;
     }
 
@@ -105,7 +105,7 @@ public class ShopController : MonoBehaviour
         //  1) 비용 차감(할인 적용 금지: gachaCost 그대로)
         if (!UserManager.Instance.SpendGold(gachaCost))
         {
-            toastUI?.Show("돈이 부족합니다", 1f);
+            toastUI?.Show(Loc.Get("shop_no_money"), 1f);
             return false;
         }
 
@@ -123,15 +123,15 @@ public class ShopController : MonoBehaviour
             UserManager.Instance.AddItem(result.itemId.ToString(), result.itemCount);
 
             ItemData data = itemDatabase.GetById(result.itemId);
-            string itemName = (data != null) ? data.itemName : $"Item({result.itemId})";
+            string itemName = (data != null) ? Loc.ItemName(data) : $"Item({result.itemId})";
 
-            toastUI?.Show($"획득: {itemName} x{result.itemCount}", 1f);
+            toastUI?.Show(Loc.Get("shop_got_item", itemName, result.itemCount), 1f);
             return true;
         }
         else
         {
             UserManager.Instance.AddGold(result.goldAmount);
-            toastUI?.Show($"획득: 골드 +{result.goldAmount}", 1f);
+            toastUI?.Show(Loc.Get("shop_got_gold", result.goldAmount), 1f);
             return true;
         }
     }

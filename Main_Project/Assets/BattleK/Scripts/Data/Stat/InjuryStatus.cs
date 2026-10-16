@@ -13,13 +13,13 @@ namespace BattleK.Scripts.Data.Stat
     {
         private static readonly Dictionary<InjuryStatus, string> displayNames = new()
         {
-            { InjuryStatus.Healthy, "건강함" },
-            { InjuryStatus.Injury, "부상" },
-            { InjuryStatus.FatalInjury, "치명상" }
+            { InjuryStatus.Healthy, "injury_healthy" },
+            { InjuryStatus.Injury, "injury_injured" },
+            { InjuryStatus.FatalInjury, "injury_fatal" }
         };
 
         public static string GetDisplayName(InjuryStatus status) =>
-            displayNames.TryGetValue(status, out var name) ? name : status.ToString();
+            displayNames.TryGetValue(status, out var key) ? Loc.Get(key) : status.ToString();
     }
 
     public static class Heal

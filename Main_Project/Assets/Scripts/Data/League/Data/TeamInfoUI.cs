@@ -19,13 +19,24 @@ public class TeamInfoUI : MonoBehaviour
     [SerializeField] 
     private GameObject teamInfoPanel;
 
+    private Team shownTeam;
+
+    private void Awake() => Loc.Changed += HandleLanguageChanged;
+    private void OnDestroy() => Loc.Changed -= HandleLanguageChanged;
+
+    private void HandleLanguageChanged()
+    {
+        if (shownTeam != null) SetTeam(shownTeam);
+    }
+
     public void SetTeam(Team team)
     {
+        shownTeam = team;
         teamNameText.text =
-            $"{team.rank}등 {team.name}";
+            Loc.Get("rank_team", team.rank, Loc.TeamName(team));
 
         recordText.text =
-            $"{team.win}승 {team.draw}무 {team.lose}패";
+            Loc.Get("team_record", team.win, team.draw, team.lose);
 
         string path =
             $"TeamImages/team_{team.id}";

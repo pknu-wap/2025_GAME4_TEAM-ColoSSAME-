@@ -21,6 +21,7 @@ public class StoreItemUI : MonoBehaviour, ISlotView<ItemData>
 
     private void OnEnable()
     {
+        Loc.Changed += RefreshUI;
         if (buyButton != null)
         {
             buyButton.onClick.RemoveListener(OnClickBuy);
@@ -42,6 +43,7 @@ public class StoreItemUI : MonoBehaviour, ISlotView<ItemData>
 
     private void OnDisable()
     {
+        Loc.Changed -= RefreshUI;
         if (upgradeManager != null)
             upgradeManager.OnBuildingUpgraded -= HandleBuildingUpgraded;
 
@@ -92,11 +94,11 @@ public class StoreItemUI : MonoBehaviour, ISlotView<ItemData>
 
         // 이름
         if (nameText != null)
-            nameText.text = currentData.itemName;
+            nameText.text = Loc.ItemName(currentData);
 
         // 설명
         if (descriptionText != null)
-            descriptionText.text = currentData.description;
+            descriptionText.text = Loc.ItemDescription(currentData);
 
         // 할인 가격 계산
         cachedFinalPrice = currentData.price;

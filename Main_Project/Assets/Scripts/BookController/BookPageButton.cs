@@ -9,7 +9,13 @@ namespace BattleK.UI.Book
         [SerializeField] private BookPageController pageController;
         [SerializeField] private BookPageId pageId;
 
+        [Header("책갈피 탭이면 선택 안 됐을 때 어둡게")]
+        [SerializeField] private bool dimWhenUnselected;
+        [SerializeField] private Color dimColor = new Color(0.6f, 0.6f, 0.6f, 1f);
+
         private Button button;
+        private Graphic[] graphics;
+        private Color[] baseColors;
 
         private void Awake()
         {
@@ -18,6 +24,26 @@ namespace BattleK.UI.Book
 
             button = GetComponent<Button>();
             button.onClick.AddListener(HandleClick);
+
+            if (dimWhenUnselected)
+            {
+                graphics = GetComponentsInChildren<Graphic>(true);
+                baseColors = new Color[graphics.Length];
+                for (int i = 0; i < graphics.Length; i++) baseColors[i] = graphics[i].color;
+            }
+        }
+
+        private void OnEnable()
+        {
+            if (!dimWhenUnselected || pageController == null) return;
+            pageController.OnPageChanged += HandlePageChanged;
+            ApplyHighlight(pageController.CurrentPage);
+        }
+
+        private void OnDisable()
+        {
+            if (!dimWhenUnselected || pageController == null) return;
+            pageController.OnPageChanged -= HandlePageChanged;
         }
 
         private void OnDestroy()
@@ -34,6 +60,15 @@ namespace BattleK.UI.Book
             }
 
             pageController.OpenPage(pageId);
+        }
+
+        private void HandlePageChanged(BookPageId newPage, BookPageId previousPage) => ApplyHighlight(newPage);
+
+        private void ApplyHighlight(BookPageId currentPage)
+        {
+            bool selected = pageController.IsInside(currentPage, pageId);
+            for (int i = 0; i < graphics.Length; i++)
+                graphics[i].color = selected ? baseColors[i] : baseColors[i] * dimColor;
         }
     }
 }

@@ -33,8 +33,11 @@ namespace TeamManage
 
         private void OnEnable()
         {
+            Loc.Changed += characterList.Refresh;
             StartCoroutine(RefreshNextFrame());
         }
+
+        private void OnDisable() => Loc.Changed -= characterList.Refresh;
 
         private IEnumerator RefreshNextFrame()
         {

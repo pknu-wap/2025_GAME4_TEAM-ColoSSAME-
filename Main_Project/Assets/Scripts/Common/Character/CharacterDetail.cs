@@ -45,12 +45,19 @@ namespace Colosseum.Character
         private void Awake()
         {
             if (healButton != null) healButton.onClick.AddListener(HandleHealClicked);
+            Loc.Changed += HandleLanguageChanged;
         }
 
         private void OnDestroy()
         {
             if (healButton != null) healButton.onClick.RemoveListener(HandleHealClicked);
+            Loc.Changed -= HandleLanguageChanged;
             _portraitLoader.ReleaseAll();
+        }
+
+        private void HandleLanguageChanged()
+        {
+            if (isActiveAndEnabled) Refresh();
         }
 
         public void ShowCharacter(Unit unit)
@@ -91,7 +98,7 @@ namespace Colosseum.Character
                 return;
             }
 
-            SetText(nameText, $"{characterData.Unit_Name}");
+            SetText(nameText, Loc.UnitName(characterData.Unit_ID, characterData.Unit_Name));
             RefreshHealingInfo();
             RefreshStats(characterData);
 
@@ -120,10 +127,10 @@ namespace Colosseum.Character
             if (HealingService.Instance == null) return;
 
             bool isInjured = HealingService.Instance.IsInjured(_currentUnit);
-            SetText(injuryStatusText, $"상태 : {HealingService.Instance.GetInjuryStatusText(_currentUnit)}");
+            SetText(injuryStatusText, Loc.Get("character_status", HealingService.Instance.GetInjuryStatusText(_currentUnit)));
 
             int cost = HealingService.Instance.GetHealingCost(_currentUnit);
-            SetText(healingCostText, isInjured ? $"비용 : {cost} G" : "비용 : -");
+            SetText(healingCostText, isInjured ? Loc.Get("cost_gold", cost) : Loc.Get("cost_none"));
 
             bool hasEnoughGold = HealingService.Instance.HasEnoughGold(_currentUnit);
             if (healButton != null) healButton.interactable = isInjured && hasEnoughGold;
@@ -135,10 +142,10 @@ namespace Colosseum.Character
             Stat_Distribution stats = characterData.Stat_Distribution;
             if (stats == null) return;
 
-            SetText(attackText, $"공격력 : {stats.ATK}");
-            SetText(agilityText, $"민첩 : {stats.AGI}");
-            SetText(defenseText, $"방어력 : {stats.DEF}");
-            SetText(baseHealthText, $"체력 : {stats.HP}");
+            SetText(attackText, Loc.Get("stat_atk", stats.ATK));
+            SetText(agilityText, Loc.Get("stat_agi_short", stats.AGI));
+            SetText(defenseText, Loc.Get("stat_def", stats.DEF));
+            SetText(baseHealthText, Loc.Get("stat_hp", stats.HP));
         }
 
         private static void SetText(TMP_Text target, string value)

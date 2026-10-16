@@ -38,9 +38,9 @@ namespace TeamManage
         {
             return tier switch
             {
-                SkillTier.Tier3 => "티어 3",
-                SkillTier.Tier2 => "티어 2",
-                SkillTier.Ultimate => "궁극기",
+                SkillTier.Tier3 => Loc.Get("skill_tier3"),
+                SkillTier.Tier2 => Loc.Get("skill_tier2"),
+                SkillTier.Ultimate => Loc.Get("skill_ultimate"),
                 SkillTier.Unknown => string.Empty,
                 _ => string.Empty
             };

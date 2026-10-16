@@ -21,6 +21,7 @@ public class RecruitReplaceUI : MonoBehaviour
     private Action<string> onConfirm;
     private Action onCancel;
     private string selectedUnitId;
+    private CharacterData incoming;
 
     private GameObject Root => root != null ? root : gameObject;
 
@@ -28,6 +29,7 @@ public class RecruitReplaceUI : MonoBehaviour
     {
         confirmButton.onClick.AddListener(OnConfirmButtonClicked);
         cancelButton.onClick.AddListener(OnCancelButtonClicked);
+        Loc.Changed += RefreshMessage;
     }
 
     private void OnDestroy()
@@ -35,12 +37,14 @@ public class RecruitReplaceUI : MonoBehaviour
         confirmButton.onClick.RemoveListener(OnConfirmButtonClicked);
         cancelButton.onClick.RemoveListener(OnCancelButtonClicked);
         characterList.OnCharacterSelected -= HandleCharacterSelected;
+        Loc.Changed -= RefreshMessage;
     }
 
     public void Show(CharacterData incoming, Action<string> onConfirm, Action onCancel)
     {
         this.onConfirm = onConfirm;
         this.onCancel = onCancel;
+        this.incoming = incoming;
         selectedUnitId = null;
 
         Root.SetActive(true);
@@ -53,11 +57,16 @@ public class RecruitReplaceUI : MonoBehaviour
 
         confirmButton.interactable = false;
 
-        if (messageText != null)
-        {
-            string unitName = incoming != null ? incoming.Unit_Name : "검투사";
-            messageText.SetText($"{unitName} 영입: 교체할 검투사를 선택하세요. 교체된 검투사의 레벨·스킬·등급은 사라집니다");
-        }
+        RefreshMessage();
+    }
+
+    private void RefreshMessage()
+    {
+        if (messageText == null) return;
+        string unitName = incoming != null
+            ? Loc.UnitName(incoming.Unit_ID, incoming.Unit_Name)
+            : Loc.Get("recruitreplace_default_name");
+        messageText.SetText(Loc.Get("recruitreplace_message", unitName));
     }
 
     public void Hide()

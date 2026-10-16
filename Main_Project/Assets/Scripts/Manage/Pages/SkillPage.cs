@@ -66,6 +66,8 @@ namespace TeamManage
 
         private void Subscribe(bool on)
         {
+            Loc.Changed -= HandleLanguageChanged;
+            if (on) Loc.Changed += HandleLanguageChanged;
             if (Controller == null) return;
 
             Controller.EquipmentChanged -= HandleEquipmentChanged;
@@ -77,6 +79,11 @@ namespace TeamManage
         }
 
         private void HandleEquipmentChanged(Unit unit)
+        {
+            if (isOpen) Refresh();
+        }
+
+        private void HandleLanguageChanged()
         {
             if (isOpen) Refresh();
         }

@@ -21,6 +21,7 @@ public class GachaPageUI : MonoBehaviour
 
     private void OnEnable()
     {
+        Loc.Changed += RefreshLeftUI;
         BindButton();
         RefreshLeftUI();
         ClearRightUI();
@@ -28,6 +29,7 @@ public class GachaPageUI : MonoBehaviour
 
     private void OnDisable()
     {
+        Loc.Changed -= RefreshLeftUI;
         if (leftBuyButton != null)
             leftBuyButton.onClick.RemoveListener(OnClickRoll);
     }
@@ -47,13 +49,13 @@ public class GachaPageUI : MonoBehaviour
     private void RefreshLeftUI()
     {
         if (leftNameText != null)
-            leftNameText.text = "랜덤뽑기";
+            leftNameText.text = Loc.Get("gacha_title");
 
         if (leftPriceText != null)
             leftPriceText.text = "100G";
         
         if (leftDescText != null)
-            leftDescText.text = "무작위 아이템 또는 골드를 획득합니다.";
+            leftDescText.text = Loc.Get("gacha_desc");
 
         if (leftPriceText != null && ShopController.Instance != null)
             leftPriceText.text = ShopController.Instance.gachaCost.ToString();
@@ -130,7 +132,7 @@ public class GachaPageUI : MonoBehaviour
 
             if (rightNameText != null)
                 rightNameText.text = data != null
-                    ? data.itemName
+                    ? Loc.ItemName(data)
                     : $"Item({result.itemId})";
 
             if (rightPriceText != null)
@@ -138,8 +140,8 @@ public class GachaPageUI : MonoBehaviour
 
             if (rightDescText != null)
                 rightDescText.text = data != null
-                    ? data.description
-                    : "획득한 아이템입니다.";
+                    ? Loc.ItemDescription(data)
+                    : Loc.Get("gacha_item_desc");
         }
         else
         {
@@ -157,13 +159,13 @@ public class GachaPageUI : MonoBehaviour
             }
 
             if (rightNameText != null)
-                rightNameText.text = "골드";
+                rightNameText.text = Loc.Get("gold");
 
             if (rightPriceText != null)
                 rightPriceText.text = $"+{result.goldAmount}";
 
             if (rightDescText != null)
-                rightDescText.text = "획득한 골드입니다.";
+                rightDescText.text = Loc.Get("gacha_gold_desc");
         }
     }
 }

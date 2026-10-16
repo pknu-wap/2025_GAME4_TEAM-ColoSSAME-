@@ -55,7 +55,7 @@ public class GetExpButton : MonoBehaviour
         {
             int baseCost = UnitCostCalculator.CalculateGoldCost(unit.Level);
             int discountedCost = GetDiscountedTrainingCost(baseCost);
-            expCostText.text = $"레벨업 비용 {discountedCost}골드";
+            expCostText.text = Loc.Get("levelup_cost", discountedCost);
         }
     }
 

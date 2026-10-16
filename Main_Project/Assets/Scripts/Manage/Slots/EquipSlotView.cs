@@ -10,7 +10,6 @@ namespace TeamManage
         [SerializeField] private Image iconImage;
         [SerializeField] private TMP_Text itemDesc;
         [SerializeField] private Button button;
-        [SerializeField] private string emptyText = "장착된 아이템이 없습니다";
 
         public string Key { get; private set; }
         public bool IsEmpty => string.IsNullOrEmpty(Key);
@@ -52,7 +51,7 @@ namespace TeamManage
                 iconImage.sprite = null;
                 iconImage.enabled = false;
             }
-            if (itemDesc != null) itemDesc.text = emptyText;
+            if (itemDesc != null) itemDesc.text = Loc.Get("equip_empty");
         }
 
         private void HandleClicked()

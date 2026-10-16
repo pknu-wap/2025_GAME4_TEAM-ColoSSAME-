@@ -132,7 +132,7 @@ public class FighterNameBinder : MonoBehaviour
         if (unit != null)
         {
             if (nameText != null)
-                nameText.text = unit.UnitName;
+                nameText.text = Loc.UnitName(unit.Id, unit.UnitName);
 
             data.unitId    = unit.Id;
             data.unitClass = unit.UnitClass;
@@ -155,6 +155,26 @@ public class FighterNameBinder : MonoBehaviour
                 portraitImage.enabled = false;
             }
         }
+    }
+
+    private void OnEnable() => Loc.Changed += RefreshNames;
+    private void OnDisable() => Loc.Changed -= RefreshNames;
+
+    private void RefreshNames()
+    {
+        if (fighterListParent == null || UserManager.Instance == null || UserManager.Instance.user == null) return;
+        var myUnits = UserManager.Instance.user.myUnits;
+        if (myUnits == null) return;
+
+        for (int i = 0; i < fighterListParent.childCount && i < myUnits.Count; i++)
+        {
+            Text nameText = FindNameText(fighterListParent.GetChild(i));
+            Unit unit = myUnits[i];
+            if (nameText != null && unit != null) nameText.text = Loc.UnitName(unit.Id, unit.UnitName);
+        }
+
+        Unit selected = myUnits.Find(u => u != null && u.Id == UserManager.Instance.selectedUnitId);
+        if (selectedNameText != null && selected != null) selectedNameText.text = Loc.UnitName(selected.Id, selected.UnitName);
     }
 
     private Text FindNameText(Transform slot)

@@ -28,6 +28,14 @@ public class AddRarity : MonoBehaviour
     private void Start()
     {
         RefreshSelectedUnitUI();
+        Loc.Changed += HandleLanguageChanged;
+    }
+
+    private void OnDestroy() => Loc.Changed -= HandleLanguageChanged;
+
+    private void HandleLanguageChanged()
+    {
+        if (isActiveAndEnabled) RefreshSelectedUnitUI();
     }
 
     public void RefreshSelectedUnitUI()
@@ -94,7 +102,7 @@ public class AddRarity : MonoBehaviour
         if (successRateText == null)
             return;
 
-        successRateText.text = $"성공 확률 : {GetSuccessRate(unit):0}%\n실패(유지) 확률 : {100 - GetSuccessRate(unit):0}%";
+        successRateText.text = Loc.Get("train_success_rate", GetSuccessRate(unit).ToString("0"), (100 - GetSuccessRate(unit)).ToString("0"));
     }
 
     public void RaritySuccessUp()

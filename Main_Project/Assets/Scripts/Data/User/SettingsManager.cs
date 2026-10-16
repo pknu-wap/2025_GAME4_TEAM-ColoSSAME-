@@ -1,8 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.Localization.Settings;
 
 public class SettingsManager : MonoBehaviour
 {
@@ -32,6 +34,8 @@ public class SettingsManager : MonoBehaviour
     private Vector2Int resolution;
     private FullScreenMode screenMode = FullScreenMode.FullScreenWindow;
 
+    private string languageCode;
+
     private string SettingsPath => Path.Combine(Application.persistentDataPath, SettingsFileName);
 
     [Serializable]
@@ -45,6 +49,8 @@ public class SettingsManager : MonoBehaviour
         public int screenWidth;  
         public int screenHeight;
         public int screenMode;
+
+        public string language;
     }
 
     private void Awake()
@@ -59,11 +65,33 @@ public class SettingsManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         BuildAvailableResolutions();
-        resolution = availableResolutions[availableResolutions.Count - 1];   
+        resolution = availableResolutions[availableResolutions.Count - 1];
+        languageCode = Application.systemLanguage == SystemLanguage.Korean ? "ko" : "en";
 
         LoadSettings();
         ApplyAllVolumes();
         ApplyDisplay();
+        StartCoroutine(ApplyLanguage());
+    }
+
+    public string LanguageCode => languageCode;
+
+    public void SetLanguage(string code)
+    {
+        if (string.IsNullOrEmpty(code) || code == languageCode) return;
+
+        languageCode = code;
+        StartCoroutine(ApplyLanguage());
+        SaveSettings();
+    }
+
+    private IEnumerator ApplyLanguage()
+    {
+        yield return LocalizationSettings.InitializationOperation;
+
+        var locale = LocalizationSettings.AvailableLocales.GetLocale(languageCode);
+        if (locale != null && LocalizationSettings.SelectedLocale != locale)
+            LocalizationSettings.SelectedLocale = locale;
     }
 
     public float MasterVolume => masterVolume;
@@ -79,6 +107,7 @@ public class SettingsManager : MonoBehaviour
     {
         if (!availableResolutions.Contains(value)) return;
 
+        SyncScreenMode();
         resolution = value;
         ApplyDisplay();
         SaveSettings();
@@ -88,6 +117,20 @@ public class SettingsManager : MonoBehaviour
     {
         screenMode = IsSupportedMode(value) ? value : FullScreenMode.FullScreenWindow;
         ApplyDisplay();
+        SaveSettings();
+    }
+
+    // Alt+Enter로 바뀐 화면 모드 반영
+    public void SyncScreenMode()
+    {
+        if (Application.isEditor) return;
+
+        var actual = Screen.fullScreenMode is FullScreenMode.Windowed or FullScreenMode.MaximizedWindow
+            ? FullScreenMode.Windowed
+            : FullScreenMode.FullScreenWindow;
+        if (actual == screenMode) return;
+
+        screenMode = actual;
         SaveSettings();
     }
 
@@ -144,7 +187,6 @@ public class SettingsManager : MonoBehaviour
         ApplyIngameVolume();
         SaveSettings();
     }
-
 
     private void ApplyAllVolumes()
     {
@@ -217,6 +259,9 @@ public class SettingsManager : MonoBehaviour
                 if (IsSupportedMode(savedMode))
                     screenMode = savedMode;
             }
+
+            if (!string.IsNullOrEmpty(data.language))
+                languageCode = data.language;
         }
         catch (Exception e)
         {
@@ -234,7 +279,8 @@ public class SettingsManager : MonoBehaviour
             ingameVolume = ingameVolume,
             screenWidth = resolution.x,
             screenHeight = resolution.y,
-            screenMode = (int)screenMode
+            screenMode = (int)screenMode,
+            language = languageCode
         };
 
         string json = JsonUtility.ToJson(data, true);

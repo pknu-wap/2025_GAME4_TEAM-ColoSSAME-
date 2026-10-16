@@ -36,7 +36,13 @@ public class PredictionUI : MonoBehaviour
 
     private void Awake() => manager = new PredictionManager(baseReward, maxOdds);
 
-    private void OnEnable() => Refresh();
+    private void OnEnable()
+    {
+        Loc.Changed += Refresh;
+        Refresh();
+    }
+
+    private void OnDisable() => Loc.Changed -= Refresh;
 
     public void Refresh()
     {
@@ -53,24 +59,24 @@ public class PredictionUI : MonoBehaviour
 
         // 팀 정보
         teamAImage.sprite = LeagueManager.Instance.GetTeamSprite(teamA.id);
-        teamAName.text = teamA.name;
-        teamARank.text = $"{teamA.rank}등";
+        teamAName.text = Loc.TeamName(teamA);
+        teamARank.text = Loc.Get("rank_n", teamA.rank);
         teamBImage.sprite = LeagueManager.Instance.GetTeamSprite(teamB.id);
-        teamBName.text = teamB.name;
-        teamBRank.text = $"{teamB.rank}등";
+        teamBName.text = Loc.TeamName(teamB);
+        teamBRank.text = Loc.Get("rank_n", teamB.rank);
 
         // 배당
         var (oddsA, oddsB) = manager.GetOdds(current);
-        teamAOddsName.text = teamA.name;
+        teamAOddsName.text = Loc.TeamName(teamA);
         teamAOdds.text = oddsA.ToString("0.00");
-        teamBOddsName.text = teamB.name;
+        teamBOddsName.text = Loc.TeamName(teamB);
         teamBOdds.text = oddsB.ToString("0.00");
 
         // 버튼 연결 
         buttonA.onClick.RemoveAllListeners();
         buttonB.onClick.RemoveAllListeners();
-        buttonAText.text = $"{teamA.name} 승";
-        buttonBText.text = $"{teamB.name} 승";
+        buttonAText.text = Loc.Get("prediction_win_button", Loc.TeamName(teamA));
+        buttonBText.text = Loc.Get("prediction_win_button", Loc.TeamName(teamB));
         buttonA.onClick.AddListener(() => OnPredict(current.teamAId));
         buttonB.onClick.AddListener(() => OnPredict(current.teamBId));
 
@@ -94,11 +100,11 @@ public class PredictionUI : MonoBehaviour
         if (resultMsg != null)
             statusText.text = resultMsg;                          // 방금 정산 결과
         else if (!predicted)
-            statusText.text = "예측할 팀을 선택하세요";
+            statusText.text = Loc.Get("prediction_pick");
         else
         {
             var picked = league.teams.Find(t => t.id == current.pickedTeamId);
-            statusText.text = $"예측: {picked.name} 승 (적중 시 +{manager.RewardStored(current)})";
+            statusText.text = Loc.Get("prediction_picked", Loc.TeamName(picked), manager.RewardStored(current));
         }
     }
 }

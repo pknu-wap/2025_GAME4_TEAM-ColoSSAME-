@@ -100,9 +100,9 @@ public class PredictionManager
             {
                 int reward = RewardStored(p);
                 UserManager.Instance.AddGold(reward);
-                msg = $"예측 적중! +{reward}";
+                msg = Loc.Get("prediction_hit", reward);
             }
-            else msg = "예측 실패...";
+            else msg = Loc.Get("prediction_miss");
             p.resolved = true;
             changed = true;
         }

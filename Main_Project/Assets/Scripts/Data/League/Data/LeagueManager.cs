@@ -414,13 +414,13 @@ public class LeagueManager : MonoBehaviour
     {
         switch (tier)
         {
-            case 1: return "입문 리그";
-            case 2: return "도전자 리그";
-            case 3: return "검투사 리그";
-            case 4: return "챔피언 리그";
-            case 5: return "지배자 리그";
-            case 6: return "불멸자 리그";
-            default: return "알 수 없는 리그";
+            case 1: return Loc.Get("league_tier_1");
+            case 2: return Loc.Get("league_tier_2");
+            case 3: return Loc.Get("league_tier_3");
+            case 4: return Loc.Get("league_tier_4");
+            case 5: return Loc.Get("league_tier_5");
+            case 6: return Loc.Get("league_tier_6");
+            default: return Loc.Get("league_tier_unknown");
         }
     }
     
