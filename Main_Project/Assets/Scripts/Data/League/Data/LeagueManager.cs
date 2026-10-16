@@ -33,6 +33,10 @@ public class LeagueManager : MonoBehaviour
             if (league != null)
             {
                 Debug.Log("기존 리그 데이터 로드 완료");
+
+                // 상대 정보 없이 저장된 리그(다음 리그 시작 직후 저장)를 바로잡는다
+                if (league.currentEnemyTeamId <= 0 && !IsLeagueFinished())
+                    RefreshCurrentMatchInfo();
             }
             else
             {
@@ -362,6 +366,10 @@ public class LeagueManager : MonoBehaviour
 
         league.settings.tier = nextTier;
         league.settings.tierName = GetTierName(nextTier);
+
+        // 새 리그는 상대 정보가 비어 있어서(-1) 첫 경기 전투에서 적이 안 불러와진다
+        CalculateRanking();
+        RefreshCurrentMatchInfo();
 
         saveManager.SaveLeague(league);
 
