@@ -26,6 +26,7 @@ namespace Colosseum.Character
 
         private string _selectedUnitId;
         private CharacterSortMode _sortMode = CharacterSortMode.Default;
+        private bool _sortDescending = true;
 
         public event Action<Unit> OnCharacterSelected;
 
@@ -43,7 +44,7 @@ namespace Colosseum.Character
             {
                 if (slotIndex >= characterSlots.Count)
                 {
-                    Debug.LogWarning("[CharacterList] \uc2ac\ub86f \uac1c\uc218\uac00 \ubd80\uc871\ud569\ub2c8\ub2e4. \uc778\uc2a4\ud399\ud130\uc5d0\uc11c \uc2ac\ub86f\uc744 \ucd94\uac00\ud558\uc138\uc694.");
+                    Debug.LogWarning("[CharacterList] 슬롯 개수가 부족합니다. 인스펙터에서 슬롯을 추가하세요.");
                     break;
                 }
 
@@ -70,16 +71,10 @@ namespace Colosseum.Character
             }
         }
 
-        public void RefreshSelectedSlotStatus()
+        public void ClearSelection()
         {
-            foreach (CharacterItem slot in characterSlots)
-            {
-                if (slot.gameObject.activeSelf && slot.UnitId == _selectedUnitId)
-                {
-                    slot.RefreshStatus();
-                    break;
-                }
-            }
+            _selectedUnitId = null;
+            RefreshHighlightOnly();
         }
 
         public void SortByDefault() => SetSortMode(CharacterSortMode.Default);
@@ -89,9 +84,19 @@ namespace Colosseum.Character
 
         private void SetSortMode(CharacterSortMode mode)
         {
-            if (_sortMode == mode) return;
+            switch (mode == _sortMode, mode)
+            {
+                case (true, CharacterSortMode.Default):
+                    return;
+                case (true, _):
+                    _sortDescending = !_sortDescending;
+                    break;
+                default:
+                    _sortMode = mode;
+                    _sortDescending = true;
+                    break;
+            }
 
-            _sortMode = mode;
             Refresh();
         }
 
@@ -114,10 +119,6 @@ namespace Colosseum.Character
             _ownedUnits.Clear();
 
             string currentFamilyId = FamilyUtility.GetCurrentFamilyId();
-            if (string.IsNullOrEmpty(currentFamilyId))
-            {
-                return;
-            }
 
             List<Unit> myUnits = UserManager.Instance.user.myUnits;
             if (myUnits == null)
@@ -144,7 +145,8 @@ namespace Colosseum.Character
                 return;
             }
 
-            _ownedUnits.Sort(GetComparer());
+            Comparison<(Unit Unit, CharacterData Data)> comparer = GetComparer();
+            _ownedUnits.Sort(_sortDescending ? comparer : (a, b) => comparer(b, a));
         }
 
         private Comparison<(Unit Unit, CharacterData Data)> GetComparer() => _sortMode switch

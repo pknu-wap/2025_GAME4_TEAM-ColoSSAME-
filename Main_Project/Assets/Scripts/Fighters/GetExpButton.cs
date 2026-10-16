@@ -93,7 +93,7 @@ public class GetExpButton : MonoBehaviour
         int baseCost = UnitCostCalculator.CalculateGoldCost(unit.Level);
         int requiredGold = GetDiscountedTrainingCost(baseCost);
 
-        bool goldSuccess = UserManager.Instance.user.SpendGold(requiredGold);
+        bool goldSuccess = UserManager.Instance.SpendGold(requiredGold);
         if (!goldSuccess)
         {
             Debug.LogWarning($" 골드 부족으로 EXP 획득 실패. 필요 골드: {requiredGold}");

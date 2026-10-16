@@ -32,6 +32,7 @@ public class FighterNameBinder : MonoBehaviour
     public string portraitImageObjectName = "playerImage";
 
     private readonly AddressableAssetLoader<Sprite> portraitLoader = new AddressableAssetLoader<Sprite>();
+    private Coroutine refreshRoutine;
     private IEnumerator Start()
     {
         yield return null;
@@ -80,70 +81,80 @@ public class FighterNameBinder : MonoBehaviour
             Debug.LogWarning("GetExpButton 참조가 비어있습니다.");
         }
 
-        for (int i = 0; i < fighterListParent.childCount; i++)
+        yield return BindSlots(myUnits);
+
+        Debug.Log(" FighterNameBinder 세팅 완료");
+    }
+
+    private IEnumerator BindSlots(List<Unit> myUnits)
+    {
+        int childCount = fighterListParent.childCount;
+        int boundCount = Mathf.Min(myUnits.Count, childCount);
+
+        if (myUnits.Count > childCount)
         {
-            Transform slot = fighterListParent.GetChild(i);
+            Debug.LogWarning($"fighter 슬롯이 부족합니다. 유닛 {myUnits.Count}명 / 슬롯 {childCount}개");
+        }
 
-            Text nameText = FindNameText(slot);
-            Image portraitImage = FindPortraitImage(slot);
+        for (int i = 0; i < boundCount; i++)
+        {
+            yield return BindSlot(fighterListParent.GetChild(i), myUnits[i]);
+        }
 
-            FighterSlotData data = slot.GetComponent<FighterSlotData>();
-            if (data == null) data = slot.gameObject.AddComponent<FighterSlotData>();
-
-            FighterSlotShowStats show = slot.GetComponent<FighterSlotShowStats>();
-            if (show == null) show = slot.gameObject.AddComponent<FighterSlotShowStats>();
-
-            show.slotData              = data;
-            show.curLevelText          = curLevelText;
-            show.curExpText            = curExpText;
-            show.expSlider             = expSlider;
-            show.selectedNameText      = selectedNameText;
-            show.selectedPortraitImage = selectedPortraitImage;
-            show.expCostText           = expCostText;
-            show.buildingUpgradeManager = buildingUpgradeManager;
-
-            if (i < myUnits.Count && myUnits[i] != null)
-            {
-                Unit unit = myUnits[i];
-
-                if (nameText != null)
-                    nameText.text = unit.UnitName;
-
-                data.unitId    = unit.Id;
-                data.unitClass = unit.UnitClass;
-
-                if (portraitImage != null && !string.IsNullOrEmpty(unit.Id))
-                {
-                    portraitImage.sprite  = null;
-                    portraitImage.enabled = false;
-                    
-                    Debug.Log($"[Portrait Load Try] unitId={unit.Id}");
-
-                    yield return StartCoroutine(LoadUnitPortrait(unit.Id, portraitImage));                }
-                else
-                {
-                    Debug.LogWarning($"[{slot.name}]에서 playerImage를 찾지 못했거나 unitId가 비어있습니다.");
-                }
-            }
-            else
-            {
-                if (nameText != null)
-                    nameText.text = "";
-
-                data.unitId    = "";
-                data.unitClass = UnitClass.None;
-
-                if (portraitImage != null)
-                {
-                    portraitImage.sprite  = null;
-                    portraitImage.enabled = false;
-                }
-            }
+        for (int i = boundCount; i < childCount; i++)
+        {
+            yield return BindSlot(fighterListParent.GetChild(i), null);
         }
 
         UpdateSlotActive(myUnits);
+    }
 
-        Debug.Log(" FighterNameBinder 세팅 완료");
+    private IEnumerator BindSlot(Transform slot, Unit unit)
+    {
+        Text nameText = FindNameText(slot);
+        Image portraitImage = FindPortraitImage(slot);
+
+        FighterSlotData data = slot.GetComponent<FighterSlotData>();
+        if (data == null) data = slot.gameObject.AddComponent<FighterSlotData>();
+
+        FighterSlotShowStats show = slot.GetComponent<FighterSlotShowStats>();
+        if (show == null) show = slot.gameObject.AddComponent<FighterSlotShowStats>();
+
+        show.slotData              = data;
+        show.curLevelText          = curLevelText;
+        show.curExpText            = curExpText;
+        show.expSlider             = expSlider;
+        show.selectedNameText      = selectedNameText;
+        show.selectedPortraitImage = selectedPortraitImage;
+        show.expCostText           = expCostText;
+        show.buildingUpgradeManager = buildingUpgradeManager;
+
+        if (unit != null)
+        {
+            if (nameText != null)
+                nameText.text = unit.UnitName;
+
+            data.unitId    = unit.Id;
+            data.unitClass = unit.UnitClass;
+
+            Debug.Log($"[Portrait Load Try] unitId={unit.Id}");
+
+            yield return StartCoroutine(LoadUnitPortrait(unit.Id, portraitImage));
+        }
+        else
+        {
+            if (nameText != null)
+                nameText.text = "";
+
+            data.unitId    = "";
+            data.unitClass = UnitClass.None;
+
+            if (portraitImage != null)
+            {
+                portraitImage.sprite  = null;
+                portraitImage.enabled = false;
+            }
+        }
     }
 
     private Text FindNameText(Transform slot)
@@ -199,20 +210,9 @@ public class FighterNameBinder : MonoBehaviour
     {
         List<Unit> myUnits = UserManager.Instance.user.myUnits;
 
-        UpdateSlotActive(myUnits);
-        StartCoroutine(RefreshPortraits(myUnits));
+        if (refreshRoutine != null) StopCoroutine(refreshRoutine);
+        refreshRoutine = StartCoroutine(BindSlots(myUnits));
 
         getExpButton.RefreshSelectedUnitUI();
-    }
-
-    private IEnumerator RefreshPortraits(List<Unit> myUnits)
-    {
-        for (int i = 0; i < myUnits.Count; i++)
-        {
-            Transform slot = fighterListParent.GetChild(i);
-            Image portraitImage = FindPortraitImage(slot);
-        
-            yield return StartCoroutine(LoadUnitPortrait(myUnits[i].Id, portraitImage));
-        }
     }
 }
