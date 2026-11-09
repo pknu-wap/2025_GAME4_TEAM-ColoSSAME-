@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using BattleK.Scripts.AI.AIState.StaticVerStates;
 using BattleK.Scripts.AI.CCState;
 using BattleK.Scripts.AI.Skill.Base;
 using BattleK.Scripts.AI.StaticScoreState;
@@ -62,6 +63,13 @@ namespace BattleK.Scripts.AI
 
         [Header("Runtime Info")]
         public Transform Target;
+        
+        [Header("Battle Statistics")]
+        [SerializeField] private long _totalDamageDealt;
+        [SerializeField] private long _totalDamageTaken;
+
+        public long TotalDamageDealt => _totalDamageDealt;
+        public long TotalDamageTaken => _totalDamageTaken;
 
         [Header("Targeting")]
         public List<UnitClass> TargetClass;
@@ -121,6 +129,12 @@ namespace BattleK.Scripts.AI
             _enemySaveManager = enemySaveManager;
             _league = league;
         }
+        
+        public void ResetBattleStatistics()
+        {
+            _totalDamageDealt = 0;
+            _totalDamageTaken = 0;
+        }
 
         private void Awake()
         {
@@ -165,6 +179,7 @@ namespace BattleK.Scripts.AI
 
         public void Initialize()
         {
+            ResetBattleStatistics();
             IsInitialized = true;
             OnStatChanged?.Invoke();
         }
@@ -523,14 +538,11 @@ namespace BattleK.Scripts.AI
             }
         }
 
-        public void OnTakeDamage(int damage, bool isPenetrating = false)
+        public void OnTakeDamage(int damage, bool isPenetrating = false, StaticAICore attacker = null)
         {
-            if (IsDead || runtimeStat.CurrentHP == 0) return;
-            if (IsInvincible)
-            {
-                return;
-            }
-
+            if (IsDead || runtimeStat.CurrentHP <= 0 || damage <= 0) return;
+            if (AiManager && AiManager.IsAlreadyDone) return;
+            if (IsInvincible) return;
             var randomVal = Random.Range(0f, 100f);
             if (randomVal < CurrentEvasionRate)
             {
@@ -538,7 +550,13 @@ namespace BattleK.Scripts.AI
                 return;
             }
             var realDamage = isPenetrating ? damage : (int)Mathf.Max(1, damage * (float)(100.0 / (100 + CurrentDefense)));
-            runtimeStat.CurrentHP -= realDamage;
+            var actualDamage = Mathf.Clamp(realDamage, 0, runtimeStat.CurrentHP);
+            runtimeStat.CurrentHP -= actualDamage;
+            _totalDamageTaken += actualDamage;
+            if (attacker)
+            {
+                attacker._totalDamageDealt += actualDamage;
+            }
             HPBar.UpdateHPBar();
             if (runtimeStat.CurrentHP <= 0)
             {
@@ -546,7 +564,10 @@ namespace BattleK.Scripts.AI
                 OnDead();
                 return;
             }
-            if (OverrideMachine.CurrentState == null) OverrideMachine.ChangeState(new StaticHitState(this));
+            if (OverrideMachine.CurrentState == null)
+            {
+                OverrideMachine.ChangeState(new StaticHitState(this));
+            }
             OnStatChanged?.Invoke();
         }
 
@@ -571,6 +592,7 @@ namespace BattleK.Scripts.AI
 
         public void OnDead(DeathReason reason = DeathReason.Combat)
         {
+            if (IsDead) return;
             switch (reason)
             {
                 case DeathReason.Combat:
@@ -578,16 +600,18 @@ namespace BattleK.Scripts.AI
                     AiManager.UnregisterUnit(this);
                     if (runtimeStat.InjuryLevel <= InjuryStatus.FatalInjury)
                         ++runtimeStat.InjuryLevel;
-                    AiManager.IsWinner();
                     break;
+
                 case DeathReason.System:
                     AiManager.UnregisterUnit(this);
                     break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(reason), reason, null);
             }
             PersistUnitState();
             OverrideMachine.ChangeState(new StaticDeathState(this));
+            if (reason == DeathReason.Combat)
+            {
+                AiManager.IsWinner();
+            }
         }
 
         private void RegisterActionStates()
@@ -605,23 +629,27 @@ namespace BattleK.Scripts.AI
 
         private void PersistUnitState()
         {
-            var IsPlayerUnit = AiManager != null && gameObject.layer == AiManager.PlayerLayer;
-            if (IsPlayerUnit) PersistPlayerUnit();
+            var isPlayerUnit = AiManager && gameObject.layer == AiManager.PlayerLayer;
+
+            if (AiManager)
+            {
+                AiManager.RecordUnitDamage(unitId: GetInstanceID(), unitName: name, isPlayer: isPlayerUnit, damageDealt: TotalDamageDealt);
+            }
+
+            if (isPlayerUnit) PersistPlayerUnit();
             else PersistEnemyUnit();
         }
 
         private void PersistPlayerUnit()
         {
-            if (_unitLoadManager == null || _userSaveManager == null) return;
+            if (!_unitLoadManager || !_userSaveManager) return;
 
             var user = _unitLoadManager.LoadedUser;
-            var unitData = user?.myUnits?.Find(u =>
-                string.Equals(u.Id?.Trim(), runtimeStat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
+            var unitData = user?.myUnits?.Find(u => string.Equals(u.Id?.Trim(), runtimeStat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
 
             if (unitData == null) return;
 
             runtimeStat.SaveTo(unitData);
-
             _userSaveManager.SaveUser(user);
         }
 
@@ -645,13 +673,11 @@ namespace BattleK.Scripts.AI
                 };
 
             }
-            var unitData = team?.units?.Find(u =>
+            var unitData = team.units?.Find(u =>
                 string.Equals(u.Id?.Trim(), runtimeStat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
             Debug.Log($"[EnemySave] unitData={(unitData == null ? "NULL" : unitData.Id)}");
             if (unitData == null) return;
-
             
-
             _enemySaveManager.RecordSeenEnemyTeam(team);
 
             runtimeStat.SaveTo(unitData);
