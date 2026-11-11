@@ -1,7 +1,8 @@
 using System.Collections;
+using BattleK.Scripts.AI.StaticScoreState;
 using UnityEngine;
 
-namespace BattleK.Scripts.AI.StaticScoreState.StaticVerStates
+namespace BattleK.Scripts.AI.AIState.StaticVerStates
 {
     public class StaticDeathState : IStaticScoreState
     {

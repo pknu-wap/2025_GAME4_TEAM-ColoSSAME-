@@ -1,22 +1,23 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using BattleK.Scripts.Data.Stat;
+using BattleK.Scripts.Data.Type;
 using UnityEngine;
 
-[System.Serializable]
+[Serializable]
 public class User
 {
     public string userName;
     public int level = 1;
     public float exp = 0;
     public int money = 100;
-    public Dictionary<string, int> inventory; 
-    
+
+    public Dictionary<string, int> inventory;
     public List<Unit> myUnits;
-    
-    public List<BuildingLevelSave> buildingLevels = new List<BuildingLevelSave>();
-    
+
+    public List<BuildingLevelSave> buildingLevels = new();
+    public List<FormationPresetData> formationPresets = new();
+
     [Serializable]
     public class BuildingLevelSave
     {
@@ -24,37 +25,36 @@ public class User
         public int level;
     }
 
-    public User() {}
+    public User()
+    {
+    }
+
     public User(string nickname)
     {
-        this.userName = nickname;
+        userName = nickname;
         level = 1;
         exp = 0;
         money = 0;
         inventory = new Dictionary<string, int>();
     }
-    
-    // 골드 추가
+
     public void AddGold(int amount)
     {
         money += amount;
         if (money < 0) money = 0;
-        Debug.Log($" 골드 +{amount}, 총 골드: {money}");
+        Debug.Log($"골드 +{amount}, 총 골드: {money}");
     }
 
-    // 골드 차감
     public bool SpendGold(int amount)
     {
         if (money >= amount)
         {
             money -= amount;
-            Debug.Log($" 골드 -{amount}, 남은 골드: {money}");
+            Debug.Log($"골드 -{amount}, 남은 골드: {money}");
             return true;
         }
-        else
-        {
-            Debug.LogWarning($" 골드 부족: {money} / {amount}");
-            return false;
-        }
+
+        Debug.LogWarning($"골드 부족: {money} / {amount}");
+        return false;
     }
 }

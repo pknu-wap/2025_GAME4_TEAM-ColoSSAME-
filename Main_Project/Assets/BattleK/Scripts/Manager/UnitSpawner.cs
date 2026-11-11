@@ -15,13 +15,14 @@ namespace BattleK.Scripts.Manager
         private readonly UnitPresentationSetup _presentation;
         private readonly UnitMover _mover;
         private readonly AI_Manager _aiManager;
-        private readonly StatCorrectionTable _correctionTable;
-        private readonly ClassBaseStatTable _classBaseStatTable;
         private readonly string _playerLayerName;
         private readonly string _enemyLayerName;
+        private int _pending;
+        private int _failedCount;
+        private bool _batchActive;
 
         public event Action OnAllSpawnsComplete;
-        private int _pending;
+        public event Action<int> OnBatchFailed;
 
         public UnitSpawner(
             AddressableUnitLoader loader,
@@ -37,54 +38,72 @@ namespace BattleK.Scripts.Manager
             _presentation = presentation;
             _mover = mover;
             _aiManager = aiManager;
-            _correctionTable = correctionTable;
-            _classBaseStatTable = classBaseStatTable;
             _playerLayerName = playerLayerName;
             _enemyLayerName = enemyLayerName;
         }
 
-        public IEnumerator Spawn(UnitSpawnRequest req, AssetReferenceGameObject assetRef, Transform root, Action<GameObject> onSpawned)
+        public void BeginBatch(int count)
         {
-            GameObject spawnedInstance = null;
-
-            yield return _loader.LoadOrGetAsync(req.logicalKey, assetRef, root, instance =>
-            {
-                spawnedInstance = instance;
-                if (instance == null) return;
-
-                var aiCore = instance.GetComponent<StaticAICore>();
-                if (aiCore != null)
-                {
-                    var targetLayerName = req.isPlayer ? _enemyLayerName : _playerLayerName;
-                    aiCore.TargetLayer = LayerMask.GetMask(targetLayerName);
-                }
-                _presentation.Apply(instance, req);
-            });
-
-            if (spawnedInstance == null) yield break;
-
-            yield return _mover.MoveTo(spawnedInstance.transform, req.startPos, req.endPos, req.duration);
-
-            onSpawned?.Invoke(spawnedInstance);
-
-            var core = spawnedInstance.GetComponent<StaticAICore>();
-            if (req.isPlayer) _aiManager.playerUnits.Add(core);
-            else _aiManager.enemyUnits.Add(core);
-
-            _pending--;
-            if (_pending <= 0) OnAllSpawnsComplete?.Invoke();
+            _pending = count;
+            _failedCount = 0;
+            _batchActive = true;
         }
 
-        private void ApplyStatsOrFallback(StaticAICore aiCore, UnitSpawnRequest req)
+        public IEnumerator Spawn(UnitSpawnRequest req, AssetReferenceGameObject assetRef, Transform root, Action<GameObject> onSpawned)
         {
-            var baseStat = UnitBaseStatProvider.Get(req.logicalKey, req.isPlayer);
-            if (baseStat != null)
+            if (!_batchActive) yield break;
+            var succeeded = false;
+            try
             {
-                StatCalculator.ApplyTo(aiCore.runtimeStat, baseStat, _correctionTable, _classBaseStatTable);
-                return;
+                GameObject spawnedInstance = null;
+                yield return _loader.LoadOrGetAsync(req.logicalKey, assetRef, root, instance =>
+                {
+                    spawnedInstance = instance;
+                });
+                if (!spawnedInstance) yield break;
+                if (!spawnedInstance.TryGetComponent<StaticAICore>(out var core))
+                {
+                    spawnedInstance.SetActive(false);
+                    yield break;
+                }
+                var targetLayerName = req.isPlayer ? _enemyLayerName : _playerLayerName;
+                core.TargetLayer = LayerMask.GetMask(targetLayerName);
+                _presentation.Apply(spawnedInstance, req);
+                yield return _mover.MoveTo(spawnedInstance.transform, req.startPos, req.endPos, req.duration);
+                if (!spawnedInstance || !core) yield break;
+                RegisterUnit(core, req.isPlayer);
+                onSpawned?.Invoke(spawnedInstance);
+                succeeded = true;
+            }
+            finally
+            {
+                CompleteRequest(succeeded);
             }
         }
 
-        public void BeginBatch(int count) => _pending = count;
+        private void RegisterUnit(StaticAICore core, bool isPlayer)
+        {
+            if (isPlayer)
+            {
+                if (!_aiManager.playerUnits.Contains(core)) _aiManager.playerUnits.Add(core);
+                return;
+            }
+            if (!_aiManager.enemyUnits.Contains(core)) _aiManager.enemyUnits.Add(core);
+        }
+
+        private void CompleteRequest(bool succeeded)
+        {
+            if (!_batchActive) return;
+            if (!succeeded) _failedCount++;
+            _pending--;
+            if (_pending > 0) return;
+            _batchActive = false;
+            if (_failedCount > 0)
+            {
+                OnBatchFailed?.Invoke(_failedCount);
+                return;
+            }
+            OnAllSpawnsComplete?.Invoke();
+        }
     }
 }
