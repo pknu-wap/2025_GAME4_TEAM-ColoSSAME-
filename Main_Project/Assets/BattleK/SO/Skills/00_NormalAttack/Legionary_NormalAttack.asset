@@ -43,7 +43,7 @@ MonoBehaviour:
   ActiveTime: 0.6
   RecoveryTime: 0
   SkillLogics:
-  - rid: 3712507981647839235
+  - rid: 8930349226388619382
   AnimationIndex: 0
   references:
     version: 2
@@ -51,17 +51,29 @@ MonoBehaviour:
     - rid: 3712507981647839234
       type: {class: NearestTargetLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic, asm: Assembly-CSharp}
       data: 
-    - rid: 3712507981647839235
-      type: {class: SwordDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
+    - rid: 8930349226388619382
+      type: {class: DealDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
       data:
-        _damageMultiplier: 1
-        _flatBonusDamage: 0
-        _hitCCData:
-          StatusName: 
-          StatusType: 0
-          duration: 0
-          vfxPrefab: {fileID: 0}
-          animName: 0
-          Actions: []
-          tickInterval: 0.5
-          speedMultiplier: 1
+        _spec:
+          Formula:
+            rid: 8930349226388619383
+          Type: 0
+          Flags: 0
+          MinDamage: 0
+          Profile: {fileID: 0}
+        _checkTargetLayer: 1
+    - rid: 8930349226388619383
+      type: {class: SumFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Terms:
+        - rid: 8930349226388619384
+        - rid: 8930349226388619385
+    - rid: 8930349226388619384
+      type: {class: OwnerAttackFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Multiplier: 1
+        UseBaseAttack: 1
+    - rid: 8930349226388619385
+      type: {class: FlatValueFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Value: 0

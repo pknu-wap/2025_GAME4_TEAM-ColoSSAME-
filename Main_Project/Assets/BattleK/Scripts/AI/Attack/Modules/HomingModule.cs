@@ -12,8 +12,13 @@ namespace BattleK.Scripts.AI.Attack.Modules
         [SerializeField] private int _maxDetectCount = 10;
 
         private Transform _target;
-        private Collider2D[] results;
+        private Collider2D[] _results;
         public int Priority => _priority;
+        
+        private void Awake()
+        {
+            _results = new Collider2D[Mathf.Max(1, _maxDetectCount)];
+        }
 
         private void OnEnable()
         {
@@ -29,23 +34,23 @@ namespace BattleK.Scripts.AI.Attack.Modules
             }
 
             var toTarget = ((Vector2)_target.position - (Vector2)self.position).normalized;
-            direction = Vector3.RotateTowards(direction,
-                    toTarget,
-                    _turnSpeedDegPerSec * Mathf.Deg2Rad * deltaTime,
-                    0f)
-                .normalized;
+            direction = Vector3.RotateTowards(direction, toTarget, _turnSpeedDegPerSec * Mathf.Deg2Rad * deltaTime, 0f).normalized;
         }
 
         private Transform FindNearestTarget(Vector2 origin)
         {
-            var count = Physics2D.OverlapCircleNonAlloc(origin, _detectRadius, results, _targetLayer);
+            var count = Physics2D.OverlapCircleNonAlloc(origin, _detectRadius, _results, _targetLayer);
             if (count == 0) return null;
+
             Transform nearest = null;
             var best = float.MaxValue;
-            foreach (var hit in results)
+            for (var i = 0; i < count; i++)
             {
+                var hit = _results[i];
+                if (!hit) continue;
+
                 var dist = ((Vector2)hit.transform.position - origin).sqrMagnitude;
-                if (!(dist < best)) continue;
+                if (dist >= best) continue;
                 best = dist;
                 nearest = hit.transform;
             }

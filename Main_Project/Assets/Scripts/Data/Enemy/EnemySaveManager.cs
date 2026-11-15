@@ -97,7 +97,7 @@ public class EnemySaveManager
 
     public void RecordSeenEnemyTeam(EnemyTeam team)
     {
-        if (team == null || team.units == null) return;
+        if (team?.units == null) return;
 
         var teamData = _seenEnemyTeams.Find(
             t => t.teamFid == team.fid);

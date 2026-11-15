@@ -17,6 +17,9 @@ MonoBehaviour:
   - rid: 2659283927866277892
   SkillName: GLD_T3_2_S
   InternalPriority: 200
+  SkillLevel: 1
+  Icon: {fileID: 0}
+  Description: 
   SkillPrefab: {fileID: 7496547674212387651, guid: 94ab87ed6bf2c4f28b5624068881bc4e, type: 3}
   SkillPrefabScale: 1
   FlipSkillPrefabByOwnerFacing: 0
@@ -39,25 +42,37 @@ MonoBehaviour:
   ActiveTime: 0.5
   RecoveryTime: 0
   SkillLogics:
-  - rid: 2659283679358746626
+  - rid: 8930349226388619392
   AnimationIndex: 1
   references:
     version: 2
     RefIds:
-    - rid: 2659283679358746626
-      type: {class: SwordDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
-      data:
-        _damageMultiplier: 2
-        _flatBonusDamage: 50
-        _hitCCData:
-          StatusName: 
-          StatusType: 0
-          duration: 0
-          vfxPrefab: {fileID: 0}
-          animName: 0
-          Actions: []
-          tickInterval: 0.5
-          speedMultiplier: 1
     - rid: 2659283927866277892
       type: {class: NearestTargetLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic, asm: Assembly-CSharp}
       data: 
+    - rid: 8930349226388619392
+      type: {class: DealDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
+      data:
+        _spec:
+          Formula:
+            rid: 8930349226388619393
+          Type: 0
+          Flags: 0
+          MinDamage: 0
+          Profile: {fileID: 0}
+        _checkTargetLayer: 1
+    - rid: 8930349226388619393
+      type: {class: SumFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Terms:
+        - rid: 8930349226388619394
+        - rid: 8930349226388619395
+    - rid: 8930349226388619394
+      type: {class: OwnerAttackFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Multiplier: 2
+        UseBaseAttack: 1
+    - rid: 8930349226388619395
+      type: {class: FlatValueFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Value: 50

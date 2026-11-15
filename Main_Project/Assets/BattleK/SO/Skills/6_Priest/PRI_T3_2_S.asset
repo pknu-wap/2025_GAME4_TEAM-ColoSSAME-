@@ -17,6 +17,9 @@ MonoBehaviour:
   - rid: 8656211662439972867
   SkillName: PRI_T3_2_S
   InternalPriority: 100
+  SkillLevel: 1
+  Icon: {fileID: 0}
+  Description: 
   SkillPrefab: {fileID: 8210055283162171992, guid: f808a006a7e0a1443838649eefcd10f4, type: 3}
   SkillPrefabScale: 1
   FlipSkillPrefabByOwnerFacing: 0
@@ -39,22 +42,27 @@ MonoBehaviour:
   ActiveTime: 0.3
   RecoveryTime: 0
   SkillLogics:
-  - rid: 8656211662439972870
+  - rid: 8930349226388619458
   AnimationIndex: 0
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 8656211662439972867
       type: {class: HighHealthTargetLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic, asm: Assembly-CSharp}
       data: 
-    - rid: 8656211662439972870
-      type: {class: DotDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
+    - rid: 8930349226388619458
+      type: {class: DealDotDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
       data:
-        UseMaxHpScaling: 1
-        BaseDamage: 0
-        SkillPointRatio: 0
-        BaseRatio: 0.02
-        HpSkillPointRatio: 0.001
-        TickInterval: 0.5
-        Duration: 3
-        IsPenetrating: 0
+        _spec:
+          Formula:
+            rid: -2
+          Type: 0
+          Flags: 0
+          MinDamage: 0
+          Profile: {fileID: 0}
+        _tickInterval: 1
+        _duration: 3
+        _visualType: 1
+        _stackPolicy: 0

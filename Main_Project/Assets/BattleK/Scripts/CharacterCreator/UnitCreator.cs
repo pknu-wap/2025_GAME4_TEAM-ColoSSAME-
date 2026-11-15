@@ -25,7 +25,7 @@ namespace BattleK.Scripts.CharacterCreator
             GameObject spumPrefab,
             GameObject hpBarPrefab)
         {
-            if (classDefinition == null)
+            if (!classDefinition)
             {
                 Debug.LogError("[UnitCreator] ClassDefinitionSO가 지정되지 않았습니다.");
                 return null;

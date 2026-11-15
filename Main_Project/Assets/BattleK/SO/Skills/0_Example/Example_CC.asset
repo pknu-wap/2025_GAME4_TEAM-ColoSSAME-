@@ -16,25 +16,44 @@ MonoBehaviour:
   ExecutionCondition: []
   SkillName: 
   InternalPriority: 0
+  SkillLevel: 1
+  Icon: {fileID: 0}
+  Description: 
   SkillPrefab: {fileID: 0}
+  SkillPrefabScale: 1
+  FlipSkillPrefabByOwnerFacing: 0
+  FollowSkillPrefab: 0
+  SkillPrefabSpawnCount: 1
+  SkillPrefabSpawnInterval: 0
+  WindupPrefab: {fileID: 0}
+  WindupSpawnAt: 0
+  WindupPrefabScale: 1
+  FlipWindupPrefabByOwnerFacing: 0
+  FadeWindupPrefab: 1
+  WindupFadeInTime: 0.15
+  WindupFadeOutTime: 0.15
   Cooldown: 0
   SkillArea: {x: 0, y: 0}
+  MaxHitTargets: 0
+  OwnerFrontDistance: 1
   SpawnAt: 0
   WindupTime: 0
   ActiveTime: 0
   RecoveryTime: 0
   SkillLogics:
-  - rid: 5257176843558322176
+  - rid: 8930349226388619454
   AnimationIndex: 0
   references:
     version: 2
     RefIds:
-    - rid: 5257176843558322176
-      type: {class: ApplyCC, ns: BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic, asm: Assembly-CSharp}
+    - rid: 8930349226388619454
+      type: {class: ApplyStatusLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic, asm: Assembly-CSharp}
       data:
-        StatusType: 0
-        BasicStatMultiplier: 0
-        SkillPointStatMultiplier: 0
-        Duration: 2
-        IsHardCC: 0
-        AnimState: 4
+        _spec:
+          DisplayName: None
+          Tags: 2
+          Duration: 2
+          StackPolicy: 0
+          Visual: 0
+          HardCcAnim: 4
+          Modifiers: []

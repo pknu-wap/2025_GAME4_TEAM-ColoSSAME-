@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
 using BattleK.Scripts.HP;
+using BattleK.Scripts.Combat.Damage;
 using UnityEngine;
 
 namespace BattleK.Scripts.Manager
@@ -17,26 +18,30 @@ namespace BattleK.Scripts.Manager
 
         [Header("Lists")]
         public List<StaticAICore> playerUnits = new();
-        public List<StaticAICore> enemyUnits  = new();
+        public List<StaticAICore> enemyUnits = new();
 
-        public bool IsAlreadyDone = false;
+        public bool IsAlreadyDone;
+        [Tooltip("true면 승패 판정과 씬 전환을 하지 않는다 (스킬 테스트 씬용). 피해와 사망은 정상 처리된다.")]
+        public bool SuppressResultFlow;
 
         [Header("Layer Settings")]
         public string playerLayerName = "Player";
-        public string enemyLayerName  = "Enemy";
+        public string enemyLayerName = "Enemy";
         public bool forceLayerBySide = true;
 
         [Header("매니저")]
         [SerializeField] private LeagueSceneManager _leagueSceneManager;
         [SerializeField] private UnitLoadManager _unitLoadManager;
         [SerializeField] private UserSaveManager _userSaveManager;
-        //[SerializeField] private EnemySaveManager _enemySaveManager;
         [SerializeField] private League _league;
         [SerializeField] private HPManager _hpManager;
 
         public int PlayerLayer { get; private set; } = -1;
         public int EnemyLayer { get; private set; } = -1;
         public HPManager HPManager => _hpManager;
+        public CombatContext Combat { get; private set; }
+
+        private readonly Dictionary<int, (string Name, bool IsPlayer, long DamageDealt)> _damageResults = new();
 
         private void Awake()
         {
@@ -45,8 +50,30 @@ namespace BattleK.Scripts.Manager
                 Destroy(gameObject);
                 return;
             }
+
             Instance = this;
             ResolveLayers();
+
+            Combat = new CombatContext(DefaultDamageStages.Create());
+            Combat.Events.Damaged += OnDamaged;
+            Combat.Events.Killed += OnKilled;
+        }
+
+        private void OnDestroy()
+        {
+            if (Combat == null) return;
+            Combat.Events.Damaged -= OnDamaged;
+            Combat.Events.Killed -= OnKilled;
+        }
+
+        private static void OnDamaged(DamageResult result)
+        {
+            if (result.Target) result.Target.Reaction.Handle(result);
+        }
+
+        private static void OnKilled(DamageResult result)
+        {
+            if (result.Target) result.Target.HandleKilled();
         }
 
         private void OnEnable()
@@ -62,15 +89,22 @@ namespace BattleK.Scripts.Manager
             {
                 unit.transform.SetParent(unitPool[sideIndex]);
             }
-
+            unit.AiManager = this;
             var go = unit.gameObject;
+
             if (forceLayerBySide)
             {
-                var targetLayer = (sideIndex == 0) ? PlayerLayer : EnemyLayer;
+                var targetLayer = sideIndex == 0
+                    ? PlayerLayer
+                    : EnemyLayer;
+
                 AssignLayer(go, targetLayer);
             }
 
-            var enemyLayerMaskIndex = (sideIndex == 0) ? EnemyLayer : PlayerLayer;
+            var enemyLayerMaskIndex = sideIndex == 0
+                ? EnemyLayer
+                : PlayerLayer;
+
             unit.TargetLayer = 1 << enemyLayerMaskIndex;
 
             unit.InjectSaveDependencies(
@@ -81,11 +115,13 @@ namespace BattleK.Scripts.Manager
 
             if (sideIndex == 0)
             {
-                if (!playerUnits.Contains(unit)) playerUnits.Add(unit);
+                if (!playerUnits.Contains(unit))
+                    playerUnits.Add(unit);
             }
             else
             {
-                if (!enemyUnits.Contains(unit)) enemyUnits.Add(unit);
+                if (!enemyUnits.Contains(unit))
+                    enemyUnits.Add(unit);
             }
 
             _hpManager?.setUnits();
@@ -93,53 +129,85 @@ namespace BattleK.Scripts.Manager
 
         public void UnregisterUnit(StaticAICore unit)
         {
-            if (playerUnits.Contains(unit)) playerUnits.Remove(unit);
-            if (enemyUnits.Contains(unit)) enemyUnits.Remove(unit);
+            playerUnits.Remove(unit);
+            enemyUnits.Remove(unit);
+        }
+
+        public void LogDamageResults()
+        {
+            Debug.Log("========== 전투 피해량 ==========");
+            foreach (var record in Combat.Recorder.Records.Values)
+            {
+                var team = record.Layer == PlayerLayer ? "아군" : "적군";
+                Debug.Log($"[{team}] {record.Name} | 입힌 피해량: {record.DamageDealt:N0} | 받은 피해량: {record.DamageTaken:N0} | 처치: {record.Kills} 회복량: {record.HealDone}");
+            }
+            Debug.Log("=================================");
         }
 
         private void ResolveLayers()
         {
             PlayerLayer = LayerMask.NameToLayer(playerLayerName);
-            EnemyLayer  = LayerMask.NameToLayer(enemyLayerName);
+            EnemyLayer = LayerMask.NameToLayer(enemyLayerName);
 
-            if (PlayerLayer == -1) Debug.LogError($"Layer '{playerLayerName}' 가 없습니다! Project Settings 확인 필요.");
-            if (EnemyLayer == -1) Debug.LogError($"Layer '{enemyLayerName}' 가 없습니다! Project Settings 확인 필요.");
+            if (PlayerLayer == -1)
+            {
+                Debug.LogError(
+                    $"Layer '{playerLayerName}' 가 없습니다! " +
+                    "Project Settings 확인 필요.");
+            }
+
+            if (EnemyLayer == -1)
+            {
+                Debug.LogError(
+                    $"Layer '{enemyLayerName}' 가 없습니다! " +
+                    "Project Settings 확인 필요.");
+            }
         }
 
         private void AssignLayer(GameObject go, int layerIndex)
         {
             if (layerIndex < 0) return;
+
             SetLayerRecursively(go.transform, layerIndex);
         }
 
         private void SetLayerRecursively(Transform t, int layerIndex)
         {
             t.gameObject.layer = layerIndex;
-            foreach (Transform c in t)
-                SetLayerRecursively(c, layerIndex);
+
+            foreach (Transform child in t)
+            {
+                SetLayerRecursively(child, layerIndex);
+            }
         }
 
         public void IsWinner()
         {
-            switch (playerUnits.Count)
-            {
-                case >= 1 when enemyUnits.Count >= 1:
-                    return;
-                case < 1 when enemyUnits.Count >= 1:
-                    _leagueSceneManager.OnClickLose();
-                    Debug.Log("패배");
-                    break;
-                case >= 1 when enemyUnits.Count < 1:
-                    _leagueSceneManager.OnClickWin();
-                    Debug.Log("승리");
-                    break;
-                case < 1 when enemyUnits.Count < 1:
-                    _leagueSceneManager.OnClickDraw();
-                    Debug.Log("무승부");
-                    break;
-            }
+            if (IsAlreadyDone) return;
+            if (SuppressResultFlow) return;
+
+            if (playerUnits.Count > 0 && enemyUnits.Count > 0) return;
+            var hasPlayers = playerUnits.Count > 0;
+            var hasEnemies = enemyUnits.Count > 0;
+
             IsAlreadyDone = true;
             KillAll();
+            LogDamageResults();
+            switch (hasPlayers)
+            {
+                case true when !hasEnemies:
+                    Debug.Log("승리");
+                    _leagueSceneManager.OnClickWin();
+                    break;
+                case false when hasEnemies:
+                    Debug.Log("패배");
+                    _leagueSceneManager.OnClickLose();
+                    break;
+                default:
+                    Debug.Log("무승부");
+                    _leagueSceneManager.OnClickDraw();
+                    break;
+            }
         }
 
         public void KillAll()
@@ -152,7 +220,8 @@ namespace BattleK.Scripts.Manager
         {
             for (var i = playerUnits.Count - 1; i >= 0; i--)
             {
-                playerUnits[i].OnDead(StaticAICore.DeathReason.System);
+                playerUnits[i].OnDead(
+                    StaticAICore.DeathReason.System);
             }
         }
 
@@ -160,7 +229,8 @@ namespace BattleK.Scripts.Manager
         {
             for (var i = enemyUnits.Count - 1; i >= 0; i--)
             {
-                enemyUnits[i].OnDead(StaticAICore.DeathReason.System);
+                enemyUnits[i].OnDead(
+                    StaticAICore.DeathReason.System);
             }
         }
     }
