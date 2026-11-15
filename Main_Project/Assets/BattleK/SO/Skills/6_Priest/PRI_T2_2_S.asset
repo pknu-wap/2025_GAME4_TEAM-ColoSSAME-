@@ -17,6 +17,9 @@ MonoBehaviour:
   - rid: -2
   SkillName: PRI_T2_2_S
   InternalPriority: 200
+  SkillLevel: 1
+  Icon: {fileID: 0}
+  Description: 
   SkillPrefab: {fileID: 7811286522542150306, guid: d3e2d8ee1010750499f310ec81666163, type: 3}
   SkillPrefabScale: 1
   FlipSkillPrefabByOwnerFacing: 0
@@ -39,19 +42,21 @@ MonoBehaviour:
   ActiveTime: 1
   RecoveryTime: 0
   SkillLogics:
-  - rid: 8656211642990723072
+  - rid: 8930349226388619448
   AnimationIndex: 0
   references:
     version: 2
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 8656211642990723072
-      type: {class: ApplyCC, ns: BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic, asm: Assembly-CSharp}
+    - rid: 8930349226388619448
+      type: {class: ApplyStatusLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic, asm: Assembly-CSharp}
       data:
-        StatusType: 0
-        BasicStatMultiplier: 0
-        SkillPointStatMultiplier: 0
-        Duration: 2
-        IsHardCC: 1
-        AnimState: 4
+        _spec:
+          DisplayName: None
+          Tags: 6
+          Duration: 2
+          StackPolicy: 0
+          Visual: 0
+          HardCcAnim: 4
+          Modifiers: []

@@ -1,6 +1,6 @@
 using System.Collections;
 
-namespace BattleK.Scripts.AI.StaticScoreState
+namespace BattleK.Scripts.AI.AIState
 {
     public interface IStaticScoreState
     {

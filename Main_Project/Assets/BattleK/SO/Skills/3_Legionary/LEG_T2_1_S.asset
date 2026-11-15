@@ -17,6 +17,9 @@ MonoBehaviour:
   - rid: 7300100000000000001
   SkillName: LEG_T2_1_S
   InternalPriority: 400
+  SkillLevel: 1
+  Icon: {fileID: 0}
+  Description: 
   SkillPrefab: {fileID: 139818928996539569, guid: 252f221e67644876b407e848e03f0302, type: 3}
   SkillPrefabScale: 1
   FlipSkillPrefabByOwnerFacing: 0
@@ -39,7 +42,7 @@ MonoBehaviour:
   ActiveTime: 0.7
   RecoveryTime: 0
   SkillLogics:
-  - rid: 7300100000000000002
+  - rid: 8930349226388619453
   AnimationIndex: 0
   references:
     version: 2
@@ -47,12 +50,14 @@ MonoBehaviour:
     - rid: 7300100000000000001
       type: {class: NearestTargetLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic, asm: Assembly-CSharp}
       data: 
-    - rid: 7300100000000000002
-      type: {class: ApplyCC, ns: BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic, asm: Assembly-CSharp}
+    - rid: 8930349226388619453
+      type: {class: ApplyStatusLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic, asm: Assembly-CSharp}
       data:
-        StatusType: 0
-        BasicStatMultiplier: 1
-        SkillPointStatMultiplier: 0
-        Duration: 2
-        IsHardCC: 1
-        AnimState: 4
+        _spec:
+          DisplayName: None
+          Tags: 6
+          Duration: 2
+          StackPolicy: 0
+          Visual: 0
+          HardCcAnim: 4
+          Modifiers: []

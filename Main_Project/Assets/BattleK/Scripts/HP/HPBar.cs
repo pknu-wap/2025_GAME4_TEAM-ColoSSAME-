@@ -1,5 +1,5 @@
-using System;
 using BattleK.Scripts.AI;
+using BattleK.Scripts.Combat;
 using UnityEngine;
 using UnityEngine.UI;
 using Quaternion = UnityEngine.Quaternion;
@@ -19,6 +19,7 @@ namespace BattleK.Scripts.HP
         [SerializeField] private Canvas hpsCanvas;
 
         private Vector3 _originalScale;
+        private UnitHealth _health;
 
         private void Awake()
         {
@@ -36,8 +37,7 @@ namespace BattleK.Scripts.HP
 
             if (shieldFillImage) shieldFillImage.fillAmount = 0f;
 
-            if (OwnerAi && OwnerAi.runtimeStat.MaxHP > 0)
-                hpSlider.value = Mathf.Clamp01((float)OwnerAi.runtimeStat.CurrentHP / OwnerAi.runtimeStat.MaxHP);
+            if (OwnerAi) UpdateHPBar();
         }
 
         private void LateUpdate()
@@ -55,13 +55,6 @@ namespace BattleK.Scripts.HP
             hpsCanvas.transform.localPosition = new Vector3(0, -0.4f, 0);
         }
 
-        public void UpdateHPBar()
-        {
-            if (!hpSlider || !OwnerAi) return;
-            var v = (OwnerAi.runtimeStat.MaxHP <= 0) ? 0f : Mathf.Clamp01((float)OwnerAi.runtimeStat.CurrentHP / OwnerAi.runtimeStat.MaxHP);
-            hpSlider.value = v;
-        }
-
         public void UpdateShieldBar(int currentShield, int maxHp)
         {
             if (!shieldFillImage || maxHp <= 0) return;
@@ -76,6 +69,52 @@ namespace BattleK.Scripts.HP
         public void SetShieldColor(Color color)
         {
             if (shieldFillImage) shieldFillImage.color = color;
+        }
+        
+        public void Bind(StaticAICore core)
+        {
+            Unsubscribe();
+            OwnerAi = core;
+            _health = core ? core.Health : null;
+
+            if (!isActiveAndEnabled) return;
+            Subscribe();
+            UpdateHPBar();
+        }
+
+        private void OnEnable()
+        {
+            if (_health == null && OwnerAi) _health = OwnerAi.Health;
+            Subscribe();
+            UpdateHPBar();
+        }
+
+        private void OnDisable()
+        {
+            Unsubscribe();
+        }
+
+        private void Subscribe()
+        {
+            if (_health == null) return;
+            _health.Changed -= OnHealthChanged;
+            _health.Changed += OnHealthChanged;
+        }
+
+        private void Unsubscribe()
+        {
+            if (_health != null) _health.Changed -= OnHealthChanged;
+        }
+
+        private void OnHealthChanged(UnitHealth health)
+        {
+            UpdateHPBar();
+        }
+
+        public void UpdateHPBar()
+        {
+            if (!hpSlider || !OwnerAi) return;
+            hpSlider.value = OwnerAi.Health.Ratio;
         }
     }
 }

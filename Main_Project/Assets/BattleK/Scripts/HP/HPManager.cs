@@ -76,7 +76,6 @@ namespace BattleK.Scripts.HP
         private void RefreshUnit(StaticAICore unit, bool isAlly)
         {
             if (!unit.HPBar) return;
-
             unit.HPBar.UpdateHPBar();
             unit.HPBar.SetFillColor(ResolveColor(unit, isAlly));
             unit.HPBar.SetShieldColor(shieldColor);
@@ -85,14 +84,11 @@ namespace BattleK.Scripts.HP
         private Color ResolveColor(StaticAICore unit, bool isAlly)
         {
             var baseColor = isAlly ? allyDefaultColor : enemyDefaultColor;
-
             StatusColorEntry? best = null;
-            foreach (var entry in statusColors)
+            foreach (var entry in statusColors.Where(entry => unit.HasVisualStatus(entry.Type)).Where(entry => best == null || entry.Priority > best.Value.Priority))
             {
-                if (!unit.HasVisualStatus(entry.Type)) continue;
-                if (best == null || entry.Priority > best.Value.Priority) best = entry;
+                best = entry;
             }
-
             return best?.Color ?? baseColor;
         }
     }

@@ -17,6 +17,9 @@ MonoBehaviour:
   - rid: 5257176787301433344
   SkillName: ASN_U_S
   InternalPriority: 300
+  SkillLevel: 1
+  Icon: {fileID: 0}
+  Description: 
   SkillPrefab: {fileID: 6433028759829344782, guid: 1ad96d57b9f409643bfdf9c6ded0be19, type: 3}
   SkillPrefabScale: 1
   FlipSkillPrefabByOwnerFacing: 0
@@ -39,7 +42,7 @@ MonoBehaviour:
   ActiveTime: 0.5
   RecoveryTime: 0
   SkillLogics:
-  - rid: 5257176787301433345
+  - rid: 8930349226388619362
   AnimationIndex: 0
   references:
     version: 2
@@ -48,8 +51,28 @@ MonoBehaviour:
       type: {class: ClassTargetLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic, asm: Assembly-CSharp}
       data:
         TargetClasses: 010000000200000006000000
-    - rid: 5257176787301433345
-      type: {class: HealthPerDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
+    - rid: 8930349226388619362
+      type: {class: DealDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
       data:
-        BaseDamageRatio: 0.35
-        SkillPointBonusRatio: 0.02
+        _spec:
+          Formula:
+            rid: 8930349226388619363
+          Type: 0
+          Flags: 1
+          MinDamage: 0
+          Profile: {fileID: 0}
+        _checkTargetLayer: 1
+    - rid: 8930349226388619363
+      type: {class: SumFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Terms:
+        - rid: 8930349226388619364
+        - rid: 8930349226388619365
+    - rid: 8930349226388619364
+      type: {class: TargetMaxHpFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Ratio: 0.35
+    - rid: 8930349226388619365
+      type: {class: OwnerSkillPointFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Ratio: 0.02

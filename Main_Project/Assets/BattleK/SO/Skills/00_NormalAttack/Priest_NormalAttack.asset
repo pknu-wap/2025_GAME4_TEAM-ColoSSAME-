@@ -15,11 +15,12 @@ MonoBehaviour:
   TargetType: 0
   ExecutionCondition:
   - rid: 3712507981647839240
-  SkillName: 사제 평타
+  SkillName: "\uC0AC\uC81C \uD3C9\uD0C0"
   InternalPriority: 0
   SkillLevel: 1
   Icon: {fileID: 0}
-  Description: 공격력의 100% 피해를 주는 기본 공격.
+  Description: "\uACF5\uACA9\uB825\uC758 100% \uD53C\uD574\uB97C \uC8FC\uB294 \uAE30\uBCF8
+    \uACF5\uACA9."
   SkillPrefab: {fileID: 1733313606229639246, guid: 653a0bfdc2755f14b875f9f2803f04bf, type: 3}
   SkillPrefabScale: 1
   FlipSkillPrefabByOwnerFacing: 0
@@ -42,7 +43,7 @@ MonoBehaviour:
   ActiveTime: 0.65
   RecoveryTime: 0
   SkillLogics:
-  - rid: 3712507981647839241
+  - rid: 8930349226388619370
   AnimationIndex: 4
   references:
     version: 2
@@ -50,17 +51,29 @@ MonoBehaviour:
     - rid: 3712507981647839240
       type: {class: NearestTargetLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic, asm: Assembly-CSharp}
       data: 
-    - rid: 3712507981647839241
-      type: {class: SwordDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
+    - rid: 8930349226388619370
+      type: {class: DealDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
       data:
-        _damageMultiplier: 1
-        _flatBonusDamage: 0
-        _hitCCData:
-          StatusName: 
-          StatusType: 0
-          duration: 0
-          vfxPrefab: {fileID: 0}
-          animName: 0
-          Actions: []
-          tickInterval: 0.5
-          speedMultiplier: 1
+        _spec:
+          Formula:
+            rid: 8930349226388619371
+          Type: 1
+          Flags: 0
+          MinDamage: 0
+          Profile: {fileID: 0}
+        _checkTargetLayer: 1
+    - rid: 8930349226388619371
+      type: {class: SumFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Terms:
+        - rid: 8930349226388619372
+        - rid: 8930349226388619373
+    - rid: 8930349226388619372
+      type: {class: OwnerAttackFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Multiplier: 1
+        UseBaseAttack: 1
+    - rid: 8930349226388619373
+      type: {class: FlatValueFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Value: 0

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace BattleK.Scripts.AI.StaticScoreState
+namespace BattleK.Scripts.AI.AIState
 {
     public class StaticStateMachine
     {

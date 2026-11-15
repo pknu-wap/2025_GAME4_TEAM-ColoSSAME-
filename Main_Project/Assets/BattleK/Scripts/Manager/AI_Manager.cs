@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using BattleK.Scripts.AI;
 using BattleK.Scripts.HP;
+using BattleK.Scripts.Combat.Damage;
 using UnityEngine;
 
 namespace BattleK.Scripts.Manager
@@ -19,7 +20,9 @@ namespace BattleK.Scripts.Manager
         public List<StaticAICore> playerUnits = new();
         public List<StaticAICore> enemyUnits = new();
 
-        public bool IsAlreadyDone = false;
+        public bool IsAlreadyDone;
+        [Tooltip("true면 승패 판정과 씬 전환을 하지 않는다 (스킬 테스트 씬용). 피해와 사망은 정상 처리된다.")]
+        public bool SuppressResultFlow;
 
         [Header("Layer Settings")]
         public string playerLayerName = "Player";
@@ -36,16 +39,9 @@ namespace BattleK.Scripts.Manager
         public int PlayerLayer { get; private set; } = -1;
         public int EnemyLayer { get; private set; } = -1;
         public HPManager HPManager => _hpManager;
+        public CombatContext Combat { get; private set; }
 
-        private readonly Dictionary<
-            int,
-            (string Name, bool IsPlayer, long DamageDealt)>
-            _damageResults = new();
-
-        public IReadOnlyDictionary<
-            int,
-            (string Name, bool IsPlayer, long DamageDealt)>
-            BattleDamageResults => _damageResults;
+        private readonly Dictionary<int, (string Name, bool IsPlayer, long DamageDealt)> _damageResults = new();
 
         private void Awake()
         {
@@ -57,6 +53,27 @@ namespace BattleK.Scripts.Manager
 
             Instance = this;
             ResolveLayers();
+
+            Combat = new CombatContext(DefaultDamageStages.Create());
+            Combat.Events.Damaged += OnDamaged;
+            Combat.Events.Killed += OnKilled;
+        }
+
+        private void OnDestroy()
+        {
+            if (Combat == null) return;
+            Combat.Events.Damaged -= OnDamaged;
+            Combat.Events.Killed -= OnKilled;
+        }
+
+        private static void OnDamaged(DamageResult result)
+        {
+            if (result.Target) result.Target.Reaction.Handle(result);
+        }
+
+        private static void OnKilled(DamageResult result)
+        {
+            if (result.Target) result.Target.HandleKilled();
         }
 
         private void OnEnable()
@@ -116,32 +133,15 @@ namespace BattleK.Scripts.Manager
             enemyUnits.Remove(unit);
         }
 
-        public void RecordUnitDamage(
-            int unitId,
-            string unitName,
-            bool isPlayer,
-            long damageDealt)
-        {
-            _damageResults[unitId] = (
-                Name: unitName,
-                IsPlayer: isPlayer,
-                DamageDealt: damageDealt);
-        }
-
         public void LogDamageResults()
         {
             Debug.Log("========== 전투 피해량 ==========");
-            foreach (var result in _damageResults.Values)
+            foreach (var record in Combat.Recorder.Records.Values)
             {
-                string team = result.IsPlayer ? "아군" : "적군";
-                Debug.Log($"[{team}] {result.Name} | " + $"입힌 피해량: {result.DamageDealt:N0}");
+                var team = record.Layer == PlayerLayer ? "아군" : "적군";
+                Debug.Log($"[{team}] {record.Name} | 입힌 피해량: {record.DamageDealt:N0} | 받은 피해량: {record.DamageTaken:N0} | 처치: {record.Kills} 회복량: {record.HealDone}");
             }
             Debug.Log("=================================");
-        }
-        public void ResetBattleResults()
-        {
-            _damageResults.Clear();
-            IsAlreadyDone = false;
         }
 
         private void ResolveLayers()
@@ -184,6 +184,7 @@ namespace BattleK.Scripts.Manager
         public void IsWinner()
         {
             if (IsAlreadyDone) return;
+            if (SuppressResultFlow) return;
 
             if (playerUnits.Count > 0 && enemyUnits.Count > 0) return;
             var hasPlayers = playerUnits.Count > 0;

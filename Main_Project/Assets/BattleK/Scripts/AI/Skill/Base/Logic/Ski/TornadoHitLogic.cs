@@ -1,8 +1,7 @@
-using BattleK.Scripts.AI;
-using Shop.Item.Runner.Battle.Core;
 using UnityEngine;
+using BattleK.Scripts.Combat.Damage;
 
-namespace BattleK.Scripts.AI.Skill.Base.Projectile
+namespace BattleK.Scripts.AI.Skill.Base.Logic.Ski
 {
     public class TornadoHitLogic : MonoBehaviour
     {
@@ -13,6 +12,7 @@ namespace BattleK.Scripts.AI.Skill.Base.Projectile
         [SerializeField] private float _knockbackPower = 3f;
 
         private StaticAICore _owner;
+        private static readonly IDamageSourceProfile Profile = new SimpleDamageSourceProfile("Skill.Tornado", "Skill");
 
         public void Init(StaticAICore owner)
         {
@@ -38,8 +38,7 @@ namespace BattleK.Scripts.AI.Skill.Base.Projectile
             {
                 return;
             }
-            // 데미지
-            target.OnTakeDamage(this._damage, this._owner, false);
+            target.ReceiveDamage(Profile.CreateRequest(this._owner, target, this._damage));
 
             // 넉백
             if (target.TryGetComponent(out Rigidbody2D rb))

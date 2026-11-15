@@ -1,7 +1,6 @@
 using System.Collections;
-using UnityEngine;
 
-namespace BattleK.Scripts.AI.StaticScoreState.StaticVerStates
+namespace BattleK.Scripts.AI.AIState.StaticVerStates
 {
     public class StaticCCState : IStaticScoreState
     {

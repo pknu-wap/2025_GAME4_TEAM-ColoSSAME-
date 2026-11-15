@@ -17,6 +17,9 @@ MonoBehaviour:
   - rid: 8120591666736791555
   SkillName: MAG_T2_1_S
   InternalPriority: 0
+  SkillLevel: 1
+  Icon: {fileID: 0}
+  Description: 
   SkillPrefab: {fileID: 3002014828463148282, guid: 7cfea1b276bc9084dbe7ea26342f840b, type: 3}
   SkillPrefabScale: 0.5
   FlipSkillPrefabByOwnerFacing: 0
@@ -39,7 +42,7 @@ MonoBehaviour:
   ActiveTime: 3
   RecoveryTime: 3
   SkillLogics:
-  - rid: 8120591666736791556
+  - rid: 8930349226388619284
   AnimationIndex: 0
   references:
     version: 2
@@ -47,14 +50,31 @@ MonoBehaviour:
     - rid: 8120591666736791555
       type: {class: NearestTargetLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic, asm: Assembly-CSharp}
       data: 
-    - rid: 8120591666736791556
-      type: {class: DotDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
+    - rid: 8930349226388619284
+      type: {class: DealDotDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
       data:
-        UseMaxHpScaling: 0
-        BaseDamage: 0.4
-        SkillPointRatio: 0.03
-        BaseRatio: 0
-        HpSkillPointRatio: 0
-        TickInterval: 1
-        Duration: 20
-        IsPenetrating: 1
+        _spec:
+          Formula:
+            rid: 8930349226388619285
+          Type: 0
+          Flags: 1
+          MinDamage: 0
+          Profile: {fileID: 0}
+        _tickInterval: 1
+        _duration: 20
+        _visualType: 1
+        _stackPolicy: 0
+    - rid: 8930349226388619285
+      type: {class: SumFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Terms:
+        - rid: 8930349226388619286
+        - rid: 8930349226388619287
+    - rid: 8930349226388619286
+      type: {class: FlatValueFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Value: 0.4
+    - rid: 8930349226388619287
+      type: {class: OwnerSkillPointFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Ratio: 0.03

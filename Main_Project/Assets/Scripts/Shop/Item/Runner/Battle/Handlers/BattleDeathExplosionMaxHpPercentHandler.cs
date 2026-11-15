@@ -1,34 +1,37 @@
 using BattleK.Scripts.AI;
-using Shop.Item;
-using Shop.Item.Runner.Battle.Core;
+using BattleK.Scripts.Combat.Damage;
 using UnityEngine;
 
-internal sealed class BattleDeathExplosionMaxHpPercentHandler : IBattleItemEffectHandler
+namespace Shop.Item.Runner.Battle.Handlers
 {
-    public ItemEffectKind EffectKind => ItemEffectKind.DeathExplosionMaxHpPercent;
-
-    public void Execute(BattleItemEffectRuntime runtime, BattleItemEffectContext context)
+    internal sealed class BattleDeathExplosionMaxHpPercentHandler : IBattleItemEffectHandler
     {
-        if (runtime.Effect.effectKind != EffectKind) return;
-        if (!BattleItemEffectRules.CanTrigger(runtime)) return;
+        public ItemEffectKind EffectKind => ItemEffectKind.DeathExplosionMaxHpPercent;
+        private static readonly IDamageSourceProfile Profile = new SimpleDamageSourceProfile("Item.DeathExplosion", "Item", DamageDelivery.Direct, DamageFlags.NoProc);
 
-        StaticAICore owner = runtime.Owner;
-        if (!owner || owner.runtimeStat == null) return;
-
-        float percent = BattleItemEffectRules.ResolvePercent(runtime.Effect);
-        int damage = Mathf.RoundToInt(owner.runtimeStat.MaxHP * percent);
-        if (damage <= 0) return;
-
-        foreach (StaticAICore target in context.TargetResolver.GetTargets(owner, ItemEffectTarget.Enemies))
+        public void Execute(BattleItemEffectRuntime runtime, BattleItemEffectContext context)
         {
-            if (!target || target.IsDead || target.runtimeStat == null) continue;
-            if (runtime.Effect.radius > 0f &&
-                Vector2.Distance(owner.transform.position, target.transform.position) > runtime.Effect.radius)
-                continue;
+            if (runtime.Effect.effectKind != EffectKind) return;
+            if (!BattleItemEffectRules.CanTrigger(runtime)) return;
 
-            target.OnTakeDamage(damage, owner, true);
+            StaticAICore owner = runtime.Owner;
+            if (!owner || owner.runtimeStat == null) return;
+
+            float percent = BattleItemEffectRules.ResolvePercent(runtime.Effect);
+            int damage = Mathf.RoundToInt(owner.runtimeStat.MaxHP * percent);
+            if (damage <= 0) return;
+
+            foreach (StaticAICore target in context.TargetResolver.GetTargets(owner, ItemEffectTarget.Enemies))
+            {
+                if (!target || target.IsDead || target.runtimeStat == null) continue;
+                if (runtime.Effect.radius > 0f &&
+                    Vector2.Distance(owner.transform.position, target.transform.position) > runtime.Effect.radius)
+                    continue;
+
+                target.ReceiveDamage(Profile.CreateRequest(owner, target, damage, extraFlags: DamageFlags.IgnoreDefense, origin: runtime.Effect));
+            }
+
+            runtime.TriggerCount++;
         }
-
-        runtime.TriggerCount++;
     }
 }

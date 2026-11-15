@@ -17,6 +17,9 @@ MonoBehaviour:
   - rid: 8120591666736791553
   SkillName: MAG_U_S
   InternalPriority: 300
+  SkillLevel: 1
+  Icon: {fileID: 0}
+  Description: 
   SkillPrefab: {fileID: 7869734260704298035, guid: df8ada94c7672014f84334838fccdb57, type: 3}
   SkillPrefabScale: 1
   FlipSkillPrefabByOwnerFacing: 0
@@ -39,26 +42,76 @@ MonoBehaviour:
   ActiveTime: 1
   RecoveryTime: 0
   SkillLogics:
-  - rid: 8120591666736791552
-  - rid: 8120591666736791554
+  - rid: 8930349226388619449
+  - rid: 8930349226388619412
   AnimationIndex: 0
   references:
     version: 2
     RefIds:
-    - rid: 8120591666736791552
-      type: {class: ApplyCC, ns: BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic, asm: Assembly-CSharp}
-      data:
-        StatusType: 5
-        BasicStatMultiplier: 0
-        SkillPointStatMultiplier: 0
-        Duration: 2
-        IsHardCC: 0
-        AnimState: 4
     - rid: 8120591666736791553
       type: {class: NearestTargetLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic, asm: Assembly-CSharp}
       data: 
-    - rid: 8120591666736791554
-      type: {class: SPMultipleDamage, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
+    - rid: 8930349226388619412
+      type: {class: DealDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
       data:
-        SkillPointRatio: 0.23
-        basicBonusPoint: 2.65
+        _spec:
+          Formula:
+            rid: 8930349226388619413
+          Type: 0
+          Flags: 1
+          MinDamage: 0
+          Profile: {fileID: 0}
+        _checkTargetLayer: 1
+    - rid: 8930349226388619413
+      type: {class: ProductFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Factors:
+        - rid: 8930349226388619414
+        - rid: 8930349226388619415
+    - rid: 8930349226388619414
+      type: {class: OwnerAttackFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Multiplier: 1
+        UseBaseAttack: 0
+    - rid: 8930349226388619415
+      type: {class: SumFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Terms:
+        - rid: 8930349226388619416
+        - rid: 8930349226388619417
+    - rid: 8930349226388619416
+      type: {class: FlatValueFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Value: 2.65
+    - rid: 8930349226388619417
+      type: {class: OwnerSkillPointFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Ratio: 0.23
+    - rid: 8930349226388619449
+      type: {class: ApplyStatusLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic, asm: Assembly-CSharp}
+      data:
+        _spec:
+          DisplayName: MoveSpeedMultiplier
+          Tags: 2
+          Duration: 2
+          StackPolicy: 0
+          Visual: 0
+          HardCcAnim: 4
+          Modifiers:
+          - Stat: 5
+            Delta:
+              rid: 8930349226388619450
+    - rid: 8930349226388619450
+      type: {class: SumFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Terms:
+        - rid: 8930349226388619451
+        - rid: 8930349226388619452
+    - rid: 8930349226388619451
+      type: {class: FlatValueFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Value: 0
+    - rid: 8930349226388619452
+      type: {class: OwnerSkillPointFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Ratio: 0

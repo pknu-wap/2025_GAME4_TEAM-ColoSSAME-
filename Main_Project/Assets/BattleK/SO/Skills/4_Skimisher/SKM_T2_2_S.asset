@@ -16,6 +16,9 @@ MonoBehaviour:
   ExecutionCondition: []
   SkillName: SKM_T2_2_S
   InternalPriority: 200
+  SkillLevel: 1
+  Icon: {fileID: 0}
+  Description: 
   SkillPrefab: {fileID: 3297036654887846894, guid: 7fd1a167ada6424dbaf4d85385b5c9ee, type: 3}
   SkillPrefabScale: 1
   FlipSkillPrefabByOwnerFacing: 0
@@ -38,17 +41,36 @@ MonoBehaviour:
   ActiveTime: 0.3
   RecoveryTime: 0.2
   SkillLogics:
-  - rid: 8875517687370350595
+  - rid: 8930349226388619436
   AnimationIndex: 0
   references:
     version: 2
     RefIds:
-    - rid: 8875517687370350595
-      type: {class: ApplyCC, ns: BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic, asm: Assembly-CSharp}
+    - rid: 8930349226388619436
+      type: {class: ApplyStatusLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic, asm: Assembly-CSharp}
       data:
-        StatusType: 3
-        BasicStatMultiplier: 1.1
-        SkillPointStatMultiplier: 0.01
-        Duration: 5
-        IsHardCC: 0
-        AnimState: 4
+        _spec:
+          DisplayName: AttackSpeedMultiplier
+          Tags: 2
+          Duration: 5
+          StackPolicy: 0
+          Visual: 0
+          HardCcAnim: 4
+          Modifiers:
+          - Stat: 3
+            Delta:
+              rid: 8930349226388619437
+    - rid: 8930349226388619437
+      type: {class: SumFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Terms:
+        - rid: 8930349226388619438
+        - rid: 8930349226388619439
+    - rid: 8930349226388619438
+      type: {class: FlatValueFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Value: 0
+    - rid: 8930349226388619439
+      type: {class: OwnerSkillPointFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Ratio: 0

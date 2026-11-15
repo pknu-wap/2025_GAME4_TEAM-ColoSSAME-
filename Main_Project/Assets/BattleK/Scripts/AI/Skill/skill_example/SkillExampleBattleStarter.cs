@@ -88,7 +88,7 @@ namespace BattleK.Scripts.AI.Skill.SkillExample
 
             if (_disableWinLoseFlowForSkillTest)
             {
-                _autoBattle.IsAlreadyDone = true;
+                _autoBattle.SuppressResultFlow = true;
             }
 
             _autoBattle.playerUnits.Clear();

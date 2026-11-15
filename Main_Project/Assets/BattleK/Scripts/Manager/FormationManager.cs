@@ -136,7 +136,7 @@ namespace BattleK.Scripts.Manager
             {
                 return strategy.BuildLocalPositions(request) ?? Array.Empty<Vector3>();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return Array.Empty<Vector3>();
             }
