@@ -16,6 +16,9 @@ MonoBehaviour:
   ExecutionCondition: []
   SkillName: LEG_U_S
   InternalPriority: 500
+  SkillLevel: 1
+  Icon: {fileID: 0}
+  Description: 
   SkillPrefab: {fileID: 1063918882999393564, guid: 9b0326e5080f4cbe9f0e244c3154402d, type: 3}
   SkillPrefabScale: 0.3
   FlipSkillPrefabByOwnerFacing: 0
@@ -38,17 +41,37 @@ MonoBehaviour:
   ActiveTime: 2
   RecoveryTime: 0
   SkillLogics:
-  - rid: 7310200000000000001
+  - rid: 8930349226388619444
   AnimationIndex: 0
   references:
     version: 2
     RefIds:
-    - rid: 7310200000000000001
-      type: {class: ApplyCC, ns: BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic, asm: Assembly-CSharp}
+    - rid: 8930349226388619444
+      type: {class: ApplyStatusLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic, asm: Assembly-CSharp}
       data:
-        StatusType: 7
-        BasicStatMultiplier: 1
-        SkillPointStatMultiplier: 0
-        Duration: 2
-        IsHardCC: 0
-        AnimState: 4
+        _spec:
+          Flags: 1
+          DisplayName: Invincible
+          Tags: 2
+          Duration: 2
+          StackPolicy: 0
+          Visual: 0
+          HardCcAnim: 4
+          Modifiers:
+          - Stat: 7
+            Delta:
+              rid: 8930349226388619445
+    - rid: 8930349226388619445
+      type: {class: SumFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Terms:
+        - rid: 8930349226388619446
+        - rid: 8930349226388619447
+    - rid: 8930349226388619446
+      type: {class: FlatValueFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Value: 0
+    - rid: 8930349226388619447
+      type: {class: OwnerSkillPointFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Ratio: 0

@@ -17,6 +17,9 @@ MonoBehaviour:
   - rid: 8875517687370350593
   SkillName: SKM_T2_1_S
   InternalPriority: 1000
+  SkillLevel: 1
+  Icon: {fileID: 0}
+  Description: 
   SkillPrefab: {fileID: 7610000000000000001, guid: 80a5fddae0c04d53842a5c81e6a18704, type: 3}
   SkillPrefabScale: 1
   FlipSkillPrefabByOwnerFacing: 0
@@ -39,7 +42,7 @@ MonoBehaviour:
   ActiveTime: 1.2
   RecoveryTime: 0.4
   SkillLogics:
-  - rid: 8875517687370350594
+  - rid: 8930349226388619310
   AnimationIndex: 0
   references:
     version: 2
@@ -47,9 +50,49 @@ MonoBehaviour:
     - rid: 8875517687370350593
       type: {class: NearestTargetLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic, asm: Assembly-CSharp}
       data: 
-    - rid: 8875517687370350594
-      type: {class: DfMultipleDamage, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
+    - rid: 8930349226388619310
+      type: {class: DealDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
       data:
-        SkillPointRatio: 0.12
-        BaseMultiplier: 1.56
-        DefenseRatio: 0.2
+        _spec:
+          Formula:
+            rid: 8930349226388619311
+          Type: 0
+          Flags: 1
+          MinDamage: 1
+          Profile: {fileID: 0}
+        _checkTargetLayer: 1
+    - rid: 8930349226388619311
+      type: {class: SumFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Terms:
+        - rid: 8930349226388619312
+        - rid: 8930349226388619313
+    - rid: 8930349226388619312
+      type: {class: ProductFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Factors:
+        - rid: 8930349226388619314
+        - rid: 8930349226388619315
+    - rid: 8930349226388619313
+      type: {class: TargetDefenseFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Ratio: -0.2
+    - rid: 8930349226388619314
+      type: {class: OwnerAttackFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Multiplier: 1
+        UseBaseAttack: 0
+    - rid: 8930349226388619315
+      type: {class: SumFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Terms:
+        - rid: 8930349226388619316
+        - rid: 8930349226388619317
+    - rid: 8930349226388619316
+      type: {class: FlatValueFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Value: 1.56
+    - rid: 8930349226388619317
+      type: {class: OwnerSkillPointFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Ratio: 0.12

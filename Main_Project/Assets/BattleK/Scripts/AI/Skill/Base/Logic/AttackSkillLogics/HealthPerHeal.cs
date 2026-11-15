@@ -1,7 +1,7 @@
 using BattleK.Scripts.AI.Skill.Base.Logic.LogicBase;
 using UnityEngine;
 
-namespace BattleK.Scripts.AI.Skill.Base.Logic.HealSkillLogics
+namespace BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics
 {
     public class HealthPerHealLogic : ISkillLogic
     {
@@ -11,16 +11,9 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.HealSkillLogics
         public void Execute(StaticAICore owner, StaticAICore target)
         {
             if (!target) return;
-
-            if (target.gameObject.layer != owner.gameObject.layer)
-                return;
-
-            int healAmount = Mathf.RoundToInt(
-                target.runtimeStat.MaxHP * (BaseHealRatio + SkillPointBonusRatio * owner.runtimeStat.SkillPoint)
-            );
-
-            target.OnHeal(healAmount);
-            UnityEngine.Debug.Log($"[Heal] {target.name}에게 {healAmount} 회복!");
+            if (target.gameObject.layer != owner.gameObject.layer) return;
+            var healAmount = Mathf.RoundToInt(target.runtimeStat.MaxHP * (BaseHealRatio + SkillPointBonusRatio * owner.runtimeStat.SkillPoint));
+            target.OnHeal(healAmount, owner);
         }
     }
 }

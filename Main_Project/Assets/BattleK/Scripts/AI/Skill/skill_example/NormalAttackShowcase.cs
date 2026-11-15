@@ -68,7 +68,7 @@ namespace BattleK.Scripts.AI.Skill.SkillExample
         {
             try
             {
-                _battleManager.IsAlreadyDone = true;
+                _battleManager.SuppressResultFlow = true;
                 foreach (var entry in _normalAttacks) StopAutomaticAi(entry.Attacker);
                 StopAutomaticAi(_target);
                 _actorsRoot.SetActive(true);

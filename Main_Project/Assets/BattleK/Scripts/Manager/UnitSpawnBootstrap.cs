@@ -5,6 +5,7 @@ using BattleK.Scripts.Data.Stat;
 using BattleK.Scripts.Data.Type;
 using BattleK.Scripts.HP;
 using BattleK.Scripts.Manager.Strategy.Runtime;
+using BattleK.Scripts.Manager.Strategy.Runtime.PlayerStrategy;
 using BattleK.Scripts.UI;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -59,77 +60,144 @@ namespace BattleK.Scripts.Manager
         [Header("적 자동 배치")]
         public bool EnemyUseFactionStrategy = true;
         public List<EnemyFactionConfig> EnemyFaction = new();
-
         private AddressableUnitLoader _loader;
         private UnitMover _mover;
         private UnitPresentationSetup _presentation;
         private UnitSpawner _spawner;
         private SpawnCompletionCoordinator _coordinator;
         private BattleFormationRequestBuilder _requestBuilder;
+        private FormationAsset _enemyFormationOverride;
+        private bool _battleStarted;
 
         private void Awake()
+        {
+            InitializeSpawnServices();
+            InitializeRequestBuilder();
+            if (_startBattleButton)
+            {
+                _startBattleButton.onClick.AddListener(OnClickStartBattle);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (_startBattleButton)
+            {
+                _startBattleButton.onClick.RemoveListener(OnClickStartBattle);
+            }
+            _coordinator?.Dispose();
+            _loader?.ReleaseAll();
+        }
+
+        public void SetEnemyFormationOverride(FormationAsset asset)
+        {
+            _enemyFormationOverride = asset;
+            _requestBuilder?.SetEnemyFormationOverride(asset);
+        }
+
+        private void InitializeSpawnServices()
         {
             _loader = new AddressableUnitLoader();
             _mover = new UnitMover();
             _presentation = new UnitPresentationSetup(playerLayerName, enemyLayerName);
             _spawner = new UnitSpawner(_loader, _presentation, _mover, aiManager, correctionTable, classBaseStatTable, playerLayerName, enemyLayerName);
             _coordinator = new SpawnCompletionCoordinator(_spawner, hpManager, statWindowManager, calculateManager, statAdaptManager, this);
-
-            _requestBuilder = new BattleFormationRequestBuilder(
-                formationManager, _addressBooks,
-                PlayerUiScale, EnemyUiScale, PlayerOffset, EnemyOffset,
-                PlayerAnimConfig, EnemyAnimConfig);
-
-            if (_startBattleButton)
-            {
-                _startBattleButton.onClick.RemoveAllListeners();
-                _startBattleButton.onClick.AddListener(OnClickStartBattle);
-            }
-
-            _playerBookIndex = LeagueManager.Instance.league.settings.playerTeamId - 1;
-            _enemyBookIndex = LeagueManager.Instance.league.currentEnemyTeamId - 1;
         }
 
-        private void OnDestroy()
+        private void InitializeRequestBuilder()
         {
-            _coordinator.Dispose();
-            _loader.ReleaseAll();
+            _requestBuilder = new BattleFormationRequestBuilder(
+                formationManager,
+                _addressBooks,
+                PlayerUiScale,
+                EnemyUiScale,
+                PlayerOffset,
+                EnemyOffset,
+                PlayerAnimConfig,
+                EnemyAnimConfig);
+            _requestBuilder.SetEnemyFormationOverride(_enemyFormationOverride);
         }
-
-        public void SetEnemyFormationOverride(FormationAsset asset) => _requestBuilder.SetEnemyFormationOverride(asset);
 
         private void OnClickStartBattle()
         {
-            if (_startBattleButton) _startBattleButton.interactable = false;
-
-            if (_uiRootToDisable) _uiRootToDisable.SetActive(false);
-            if (_playerUnitsRoot) foreach (Transform t in _playerUnitsRoot) t.gameObject.SetActive(false);
-            if (_enemyUnitsRoot) foreach (Transform t in _enemyUnitsRoot) t.gameObject.SetActive(false);
-
+            if (_battleStarted) return;
+            if (!ValidateBattleSetup()) return;
+            if (!TryUpdateTeamIndices()) return;
+            if (EnemyUseFactionStrategy && !ValidateEnemyFaction()) return;
             var requests = new List<UnitSpawnRequest>();
             var assetRefs = new List<AssetReferenceGameObject>();
-
             _requestBuilder.BuildPlayerRequests(_playerSlots, _playerBookIndex, requests, assetRefs);
-
-            if (EnemyUseFactionStrategy && EnemyFaction[_enemyBookIndex])
+            if (requests.Count == 0) return;
+            if (EnemyUseFactionStrategy)
             {
+                if (EnemySaveManager.Instance == null) return;
                 var allowedEnemyIds = GetCurrentEnemyRosterIds();
+                var playerRequestCount = requests.Count;
                 _requestBuilder.BuildEnemyRequests(_enemyBookIndex, EnemyFaction, _playerUnitsRoot, _enemyUnitsRoot, requests, assetRefs, allowedEnemyIds);
+                if (requests.Count == playerRequestCount) return;
             }
+            _battleStarted = true;
+            PrepareBattlePresentation();
+            SpawnUnits(requests, assetRefs);
+        }
 
+        private bool ValidateBattleSetup()
+        {
+            if (_requestBuilder == null || _spawner == null) return false;
+            if (!formationManager) return false;
+            if (_playerSlots == null || _playerSlots.Length == 0) return false;
+            return _playerUnitsRoot && (!EnemyUseFactionStrategy || _enemyUnitsRoot);
+        }
+
+        private bool TryUpdateTeamIndices()
+        {
+            var leagueManager = LeagueManager.Instance;
+            if (!leagueManager || leagueManager.league == null) return false;
+            _playerBookIndex = leagueManager.league.settings.playerTeamId - 1;
+            _enemyBookIndex = leagueManager.league.currentEnemyTeamId - 1;
+            return _addressBooks != null && _playerBookIndex >= 0 && _playerBookIndex < _addressBooks.Count;
+        }
+
+        private bool ValidateEnemyFaction()
+        {
+            if (EnemyFaction == null || _enemyBookIndex < 0 || _enemyBookIndex >= EnemyFaction.Count) return false;
+            return EnemyFaction[_enemyBookIndex];
+        }
+
+        private void PrepareBattlePresentation()
+        {
+            if (_startBattleButton) _startBattleButton.interactable = false;
+            if (_uiRootToDisable) _uiRootToDisable.SetActive(false);
+
+            DisableChildren(_playerUnitsRoot);
+            DisableChildren(_enemyUnitsRoot);
+        }
+
+        private void DisableChildren(Transform root)
+        {
+            if (!root) return;
+            foreach (Transform child in root)
+            {
+                child.gameObject.SetActive(false);
+            }
+        }
+
+        private void SpawnUnits(List<UnitSpawnRequest> requests, List<AssetReferenceGameObject> assetRefs)
+        {
             _spawner.BeginBatch(requests.Count);
             for (var i = 0; i < requests.Count; i++)
             {
-                var req = requests[i];
-                var root = req.isPlayer ? _playerUnitsRoot : _enemyUnitsRoot;
-                StartCoroutine(_spawner.Spawn(req, assetRefs[i], root, null));
+                var request = requests[i];
+                var root = request.isPlayer ? _playerUnitsRoot : _enemyUnitsRoot;
+                StartCoroutine(_spawner.Spawn(request, assetRefs[i], root, null));
             }
         }
+
         private List<string> GetCurrentEnemyRosterIds()
         {
             var teamId = LeagueManager.Instance.league.currentEnemyTeamId;
             var team = EnemySaveManager.Instance.GetTeam(teamId);
-            return team?.units?.Select(u => u.Id).ToList() ?? new List<string>();
+            return team?.units?.Select(unit => unit.Id).ToList() ?? new List<string>();
         }
     }
 }

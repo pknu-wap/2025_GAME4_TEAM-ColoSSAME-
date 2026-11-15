@@ -17,6 +17,9 @@ MonoBehaviour:
   - rid: 8656211642990723075
   SkillName: PRI_U_S
   InternalPriority: 300
+  SkillLevel: 1
+  Icon: {fileID: 0}
+  Description: 
   SkillPrefab: {fileID: 5315446581541654924, guid: edd9f42c11ebfdd4ab1a3aeeaef4c3d6, type: 3}
   SkillPrefabScale: 1
   FlipSkillPrefabByOwnerFacing: 0
@@ -39,16 +42,16 @@ MonoBehaviour:
   ActiveTime: 3.5
   RecoveryTime: 0
   SkillLogics:
-  - rid: 8656211642990723074
+  - rid: 8930349226388619456
   AnimationIndex: 0
   references:
     version: 2
     RefIds:
-    - rid: 8656211642990723074
-      type: {class: HealthPerHealLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.HealSkillLogics, asm: Assembly-CSharp}
-      data:
-        BaseHealRatio: 10
-        SkillPointBonusRatio: 0.01
     - rid: 8656211642990723075
       type: {class: AlwaysTrueLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic, asm: Assembly-CSharp}
       data: 
+    - rid: 8930349226388619456
+      type: {class: HealthPerHealLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
+      data:
+        BaseHealRatio: 0.25
+        SkillPointBonusRatio: 0.01

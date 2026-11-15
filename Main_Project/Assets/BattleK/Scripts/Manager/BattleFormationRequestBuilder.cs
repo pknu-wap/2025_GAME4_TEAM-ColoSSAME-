@@ -3,6 +3,7 @@ using System.Linq;
 using BattleK.Scripts.Data;
 using BattleK.Scripts.Data.Type;
 using BattleK.Scripts.Manager.Strategy.Runtime;
+using BattleK.Scripts.Manager.Strategy.Runtime.PlayerStrategy;
 using BattleK.Scripts.UI;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -26,9 +27,12 @@ namespace BattleK.Scripts.Manager
         public BattleFormationRequestBuilder(
             FormationManager formationManager,
             List<CharacterAddressBook> addressBooks,
-            float playerUiScale, float enemyUiScale,
-            Vector3 playerOffset, Vector3 enemyOffset,
-            FormationAnimConfig playerAnimConfig, FormationAnimConfig enemyAnimConfig)
+            float playerUiScale,
+            float enemyUiScale,
+            Vector3 playerOffset,
+            Vector3 enemyOffset,
+            FormationAnimConfig playerAnimConfig,
+            FormationAnimConfig enemyAnimConfig)
         {
             _formationManager = formationManager;
             _addressBooks = addressBooks;
@@ -40,94 +44,103 @@ namespace BattleK.Scripts.Manager
             _enemyAnimConfig = enemyAnimConfig;
         }
 
-        public void SetEnemyFormationOverride(FormationAsset asset) => _enemyFormationOverride = asset;
-
-        public void BuildPlayerRequests(Slot[] playerSlots, int playerBookIndex,
-            List<UnitSpawnRequest> requests, List<AssetReferenceGameObject> assetRefs)
+        public void SetEnemyFormationOverride(FormationAsset asset)
         {
-            var positions = _formationManager.CalculatePlayerPositions(playerSlots, _playerUiScale, _playerOffset);
-            _lastPlayerPositions = positions;
+            _enemyFormationOverride = asset;
+        }
+
+        public void BuildPlayerRequests(Slot[] playerSlots, int playerBookIndex, List<UnitSpawnRequest> requests, List<AssetReferenceGameObject> assetRefs)
+        {
+            _lastPlayerPositions.Clear();
+            if (!_formationManager || playerSlots == null) return;
+
+            var book = GetBookOrNull(playerBookIndex);
+            if (!book) return;
+
+            var validSlots = GetValidPlayerSlots(playerSlots);
+            if (validSlots.Count == 0) return;
+
+            var positions = _formationManager.CalculatePlayerPositions(validSlots.ToArray(), _playerUiScale, _playerOffset);
             if (positions.Count == 0) return;
 
+            _lastPlayerPositions = positions;
+
             var center = GetCenter(positions);
-            var startPosBase = _playerAnimConfig.useAnim ? _playerAnimConfig.startCenter : center;
-            var endPosBase = _playerAnimConfig.useAnim ? _playerAnimConfig.endCenter : center;
+            var startCenter = _playerAnimConfig.useAnim ? _playerAnimConfig.startCenter : center;
+            var endCenter = _playerAnimConfig.useAnim ? _playerAnimConfig.endCenter : center;
             var duration = _playerAnimConfig.useAnim ? _playerAnimConfig.travelTime : 0f;
-            var book = GetBookOrNull(playerBookIndex);
 
-            var posIndex = 0;
-            foreach (var slot in playerSlots)
+            for (var i = 0; i < validSlots.Count; i++)
             {
-                if (!slot.IsOccupied) continue;
-                if (posIndex >= positions.Count) break;
-
-                var key = slot.Occupant.GetComponent<CharacterID>().characterKey;
-                var offset = positions[posIndex++] - center;
+                var slot = validSlots[i];
+                var occupant = slot.Occupant;
+                var offset = positions[i] - center;
 
                 TryAdd(new UnitSpawnRequest
                 {
-                    logicalKey = key,
-                    startPos = startPosBase + offset,
-                    endPos = endPosBase + offset,
+                    logicalKey = occupant.UnitKey,
+                    startPos = startCenter + offset,
+                    endPos = endCenter + offset,
                     faceLeft = true,
                     duration = duration,
                     isPlayer = true,
                     sourceSlot = slot,
-                    sourceOccupant = slot.Occupant
+                    sourceOccupant = occupant
                 }, book, requests, assetRefs);
             }
         }
-
-        /// <summary>
-        /// 적 팀 스폰 요청을 만듭니다.
-        /// allowedEnemyIds를 넘기면 EnemyFactionConfig.PickRosterKeys가 저장 로스터에 존재하는 유닛만
-        /// 후보로 허용하도록 교차 검증하여, 저장 데이터에 없는 유닛이 소환되는 것을 방지합니다.
-        /// </summary>
-        public void BuildEnemyRequests(int enemyBookIndex, List<EnemyFactionConfig> enemyFaction,
-            Transform playerRoot, Transform enemyRoot,
-            List<UnitSpawnRequest> requests, List<AssetReferenceGameObject> assetRefs,
+        public void BuildEnemyRequests(
+            int enemyBookIndex,
+            List<EnemyFactionConfig> enemyFaction,
+            Transform playerRoot,
+            Transform enemyRoot,
+            List<UnitSpawnRequest> requests,
+            List<AssetReferenceGameObject> assetRefs,
             IReadOnlyCollection<string> allowedEnemyIds = null)
         {
+            if (!_formationManager) return;
+            if (enemyFaction == null || enemyBookIndex < 0 || enemyBookIndex >= enemyFaction.Count) return;
+
             var factionConfig = enemyFaction[enemyBookIndex];
+            if (!factionConfig) return;
+
             var keys = factionConfig.PickRosterKeys(allowedEnemyIds);
             if (keys == null || keys.Count == 0) return;
+
+            var book = factionConfig.addressBookOverride ? factionConfig.addressBookOverride : GetBookOrNull(enemyBookIndex);
+            if (!book)
+            {
+                Debug.LogWarning($"[BattleFormationRequestBuilder] 적 AddressBook을 찾을 수 없습니다. Index: {enemyBookIndex}");
+                return;
+            }
 
             List<Vector3> positions;
             if (_enemyFormationOverride)
             {
-                positions = _formationManager.CalculatePositionsFromAsset(
-                    _enemyFormationOverride, _enemyUiScale, _enemyOffset, _enemyAnimConfig.endCenter);
+                positions = _formationManager.CalculatePositionsFromAsset(_enemyFormationOverride, _enemyUiScale, _enemyOffset, _enemyAnimConfig.endCenter);
             }
             else
             {
-                var playerPosInEnemySpace = new List<Vector3>();
-                if (enemyRoot && playerRoot)
-                {
-                    playerPosInEnemySpace.AddRange(_lastPlayerPositions
-                        .Select(pLocal => playerRoot.TransformPoint(pLocal))
-                        .Select(world => enemyRoot.InverseTransformPoint(world)));
-                }
-
-                positions = _formationManager.CalculateEnemyPositions(
-                    factionConfig, keys.Count, playerPosInEnemySpace,
-                    _enemyUiScale, _enemyOffset, _enemyAnimConfig.endCenter);
+                var playerPositionsInEnemySpace = BuildPlayerPositionsInEnemySpace(playerRoot, enemyRoot);
+                positions = _formationManager.CalculateEnemyPositions(factionConfig, keys.Count, playerPositionsInEnemySpace, _enemyUiScale, _enemyOffset, _enemyAnimConfig.endCenter);
             }
 
-            if (positions == null) return;
+            if (positions == null || positions.Count == 0) return;
 
-            var centerEnd = _enemyAnimConfig.endCenter;
-            var centerStart = _enemyAnimConfig.useAnim ? _enemyAnimConfig.startCenter : centerEnd;
+            var endCenter = _enemyAnimConfig.endCenter;
+            var startCenter = _enemyAnimConfig.useAnim ? _enemyAnimConfig.startCenter : endCenter;
             var duration = _enemyAnimConfig.useAnim ? _enemyAnimConfig.travelTime : 0f;
-            var book = factionConfig.addressBookOverride ? factionConfig.addressBookOverride : GetBookOrNull(enemyBookIndex);
+            var count = Mathf.Min(keys.Count, positions.Count);
 
-            for (var i = 0; i < Mathf.Min(keys.Count, positions.Count); i++)
+            for (var i = 0; i < count; i++)
             {
-                var offset = positions[i] - centerEnd;
+                var offset = positions[i] - endCenter;
+
                 TryAdd(new UnitSpawnRequest
                 {
                     logicalKey = keys[i],
-                    startPos = centerStart + offset,
-                    endPos = centerEnd + offset,
+                    startPos = startCenter + offset,
+                    endPos = endCenter + offset,
                     faceLeft = false,
                     duration = duration,
                     isPlayer = false
@@ -135,18 +148,38 @@ namespace BattleK.Scripts.Manager
             }
         }
 
-        private void TryAdd(UnitSpawnRequest req, CharacterAddressBook book,
-            List<UnitSpawnRequest> requests, List<AssetReferenceGameObject> assetRefs)
+        private List<Slot> GetValidPlayerSlots(Slot[] playerSlots)
         {
-            if (!book || !book.TryGet(req.logicalKey, out var ar)) return;
-            requests.Add(req);
-            assetRefs.Add(ar);
+            return playerSlots.Where(slot => slot && slot.Occupant).Where(slot => !string.IsNullOrWhiteSpace(slot.Occupant.UnitKey)).ToList();
         }
 
-        private CharacterAddressBook GetBookOrNull(int idx) =>
-            (idx >= 0 && idx < _addressBooks.Count) ? _addressBooks[idx] : null;
+        private List<Vector3> BuildPlayerPositionsInEnemySpace(Transform playerRoot, Transform enemyRoot)
+        {
+            var result = new List<Vector3>();
+            if (!playerRoot || !enemyRoot) return result;
+            result.AddRange(_lastPlayerPositions.Select(localPosition => playerRoot.TransformPoint(localPosition)).Select(worldPosition => enemyRoot.InverseTransformPoint(worldPosition)));
+            return result;
+        }
 
-        private Vector3 GetCenter(List<Vector3> list) =>
-            list.Aggregate(Vector3.zero, (a, b) => a + b) / list.Count;
+        private void TryAdd(UnitSpawnRequest request, CharacterAddressBook book, List<UnitSpawnRequest> requests, List<AssetReferenceGameObject> assetRefs)
+        {
+            if (!book) return;
+            if (string.IsNullOrWhiteSpace(request.logicalKey)) return;
+            if (!book.TryGet(request.logicalKey, out var assetReference)) return;
+            requests.Add(request);
+            assetRefs.Add(assetReference);
+        }
+
+        private CharacterAddressBook GetBookOrNull(int index)
+        {
+            if (_addressBooks == null || index < 0 || index >= _addressBooks.Count) return null;
+            return _addressBooks[index];
+        }
+
+        private Vector3 GetCenter(List<Vector3> positions)
+        {
+            if (positions == null || positions.Count == 0) return Vector3.zero;
+            return positions.Aggregate(Vector3.zero, (sum, position) => sum + position) / positions.Count;
+        }
     }
 }

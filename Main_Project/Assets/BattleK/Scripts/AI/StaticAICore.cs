@@ -1,21 +1,26 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using BattleK.Scripts.AI.AIState;
+using BattleK.Scripts.AI.AIState.StaticVerStates;
 using BattleK.Scripts.AI.CCState;
 using BattleK.Scripts.AI.Skill.Base;
-using BattleK.Scripts.AI.StaticScoreState;
 using BattleK.Scripts.AI.StaticScoreState.ActionStates;
-using BattleK.Scripts.AI.StaticScoreState.StaticVerStates;
 using BattleK.Scripts.AI.StaticScoreState.Targeting;
 using BattleK.Scripts.Data.ClassInfo;
 using BattleK.Scripts.Data.Stat;
 using BattleK.Scripts.Data.Type.AIDataType.CC;
 using BattleK.Scripts.HP;
 using BattleK.Scripts.Manager;
+using BattleK.Scripts.Combat;
+using BattleK.Scripts.Combat.Damage;
+using BattleK.Scripts.Combat.Revive;
+using BattleK.Scripts.Combat.Status;
+using BattleK.Scripts.Manager.Battle;
 using Pathfinding;
 using UnityEngine;
 using UnityEngine.Serialization;
-using Random = UnityEngine.Random;
 
 namespace BattleK.Scripts.AI
 {
@@ -47,18 +52,50 @@ namespace BattleK.Scripts.AI
         private EnemySaveManager _enemySaveManager;
         private League _league;
 
+        private static readonly IDamageSourceProfile LegacyProfile = new SimpleDamageSourceProfile("Legacy");
+
+        public CombatContext Combat => AiManager ? AiManager.Combat : null;
+        private StatusEffectManager _statusEffects;
+        public StatusEffectManager StatusEffects => _statusEffects ? _statusEffects : _statusEffects = GetComponent<StatusEffectManager>();
+        private UnitHealth _health;
+        public UnitHealth Health => _health ??= CreateHealth();
+
+        private UnitStats _stats;
+        public UnitStats Stats => _stats ??= CreateStats();
+
+        private HitReaction _reaction;
+        public HitReaction Reaction => _reaction ??= new HitReaction(this);
+
+        private UnitHealth CreateHealth()
+        {
+            var health = new UnitHealth(this);
+            health.Changed += _ => OnStatChanged?.Invoke();
+            return health;
+        }
+
+        private UnitStats CreateStats()
+        {
+            var stats = new UnitStats(this);
+            stats.Changed += OnStatsChanged;
+            return stats;
+        }
+
         [FormerlySerializedAs("Stat")] [Header("Stats")]
         public UnitRuntimeStat runtimeStat;
         public SkillSO NormalAttack;
         public List<SkillSO> ResolvedSkills = new();
-        public float CurrentMoveSpeed { get; private set; }
-        public int CurrentAttackDamage { get; private set; }
-        public int CurrentDefense { get; private set; }
-        public int CurrentSkillPoint { get; private set; }
-        public float CurrentEvasionRate { get; private set; }
-        public float CurrentAttackSpeed { get; private set; }
-        public float CurrentAttackDelay { get; private set; }
-        public int CurrentMaxHp { get; private set; }
+
+        public float CurrentMoveSpeed => Stats.MoveSpeed;
+        public int CurrentAttackDamage => Stats.AttackDamage;
+        public int CurrentDefense => Stats.Defense;
+        public int CurrentSkillPoint => Stats.SkillPoint;
+        public float CurrentEvasionRate => Stats.EvasionRate;
+        public float CurrentAttackSpeed => Stats.AttackSpeed;
+        public float CurrentAttackDelay => Stats.AttackDelay;
+        public int CurrentMaxHp => Stats.MaxHp;
+
+        public long TotalDamageDealt => Combat != null ? Combat.Recorder.GetDealt(this) : 0;
+        public long TotalDamageTaken => Combat != null ? Combat.Recorder.GetTaken(this) : 0;
 
         [Header("Runtime Info")]
         public Transform Target;
@@ -74,11 +111,13 @@ namespace BattleK.Scripts.AI
         [SerializeField] private float _reviveHpRatio = 0.3f;
         [Tooltip("부활 시 표시할 시각 상태 (없으면 Normal)")]
         [SerializeField] private StatusVisualType _reviveVisualType = StatusVisualType.Normal;
-        public bool HasReviveCharge { get; private set; }
+        private ReviveController _revive;
+        public ReviveController Revive => _revive ??= new ReviveController(this);
+        public bool HasReviveCharge => Revive.Count > 0;
 
         private StaticAICore _targetCore;
         public bool IsDead => OverrideMachine.CurrentState is StaticDeathState;
-        public bool IsInvincible => HasStatus(StatusType.Invincible);
+        public bool IsInvincible => StatusEffects && StatusEffects.HasFlag(UnitStatusFlags.Invincible);
         public event Action OnStatChanged;
 
         [HideInInspector] public float LastRetreatFinishTime;
@@ -86,9 +125,6 @@ namespace BattleK.Scripts.AI
         private float _lastDecisionTime;
 
         private readonly List<IStaticActionState> _actionCandidates = new();
-        private readonly Dictionary<StatusType, Dictionary<object, StatModifierEntry>> _modifiers = new();
-        private readonly Dictionary<FlatStatusType, Dictionary<object, StatModifierEntry>> _flatModifiers = new();
-
         private readonly HashSet<StatusVisualType> _activeVisualStatuses = new();
 
         public bool IsAttackReady => _attackTimer <= 0f;
@@ -100,16 +136,16 @@ namespace BattleK.Scripts.AI
             if (active) _activeVisualStatuses.Add(type);
             else _activeVisualStatuses.Remove(type);
 
-            if (AiManager == null || AiManager.HPManager == null) return;
+            if (!AiManager || !AiManager.HPManager) return;
             var isAlly = gameObject.layer == AiManager.PlayerLayer;
             AiManager.HPManager.NotifyStatusChanged(this, isAlly);
         }
-        
+
         public async Task PrepareAsync()
         {
             ResolvedSkills = await runtimeStat.ResolveEquippedSkillsAsync();
         }
-        
+
         public void InjectSaveDependencies(
             UnitLoadManager unitLoadManager,
             UserSaveManager userSaveManager,
@@ -122,6 +158,11 @@ namespace BattleK.Scripts.AI
             _league = league;
         }
 
+        public void ResetBattleStatistics()
+        {
+            Combat?.Recorder.ResetUnit(this);
+        }
+
         private void Awake()
         {
             OverrideMachine = new StaticStateMachine(this);
@@ -131,6 +172,7 @@ namespace BattleK.Scripts.AI
             _league = LeagueManager.Instance.league;
 
             RegisterActionStates();
+            if (HPBar) HPBar.Bind(this);
         }
 
         private void Start()
@@ -165,6 +207,7 @@ namespace BattleK.Scripts.AI
 
         public void Initialize()
         {
+            ResetBattleStatistics();
             IsInitialized = true;
             OnStatChanged?.Invoke();
         }
@@ -212,236 +255,52 @@ namespace BattleK.Scripts.AI
 
         public void SetInitialStats()
         {
-            CurrentAttackDamage = runtimeStat.AttackDamage;
-            CurrentDefense = runtimeStat.Defense;
-            CurrentEvasionRate = runtimeStat.EvasionRate;
-            CurrentMoveSpeed = runtimeStat.MoveSpeed;
-            CurrentSkillPoint = runtimeStat.SkillPoint;
-            CurrentAttackSpeed = runtimeStat.AttackSpeed;
-            CurrentAttackDelay = runtimeStat.AttackDelay;
-            CurrentMaxHp = runtimeStat.MaxHP;
-            _modifiers.Clear();
-            _flatModifiers.Clear();
+            Stats.ResetFromBase();
             ClearAllVisualStatuses();
-            RecalculateAllFromModifiers();
+
+            Health.Initialize(Stats.MaxHp, runtimeStat.CurrentHP);
+            ApplyStatSideEffects();
         }
 
-        public void ClearAllVisualStatuses()
+        private void OnStatsChanged()
         {
-            if (_activeVisualStatuses.Count == 0) return;
-            _activeVisualStatuses.Clear();
-
-            var isAlly = AiManager != null && gameObject.layer == AiManager.PlayerLayer;
-            if (AiManager != null && AiManager.HPManager != null)
-                AiManager.HPManager.NotifyStatusChanged(this, isAlly);
+            ApplyStatSideEffects();
+            var newMax = Stats.MaxHp;
+            if (newMax == Health.Max)
+            {
+                OnStatChanged?.Invoke();
+                return;
+            }
+            Health.SetMax(newMax);
         }
 
-        public void GrantRevive()
+        private void ApplyStatSideEffects()
         {
-            HasReviveCharge = true;
+            if (AiPath) AiPath.maxSpeed = Stats.MoveSpeed;
+
+            var delay = Stats.AttackDelay;
+            if (delay > 0f && _attackTimer > delay) _attackTimer = delay;
         }
 
-        private bool TryRevive()
-        {
-            if (!HasReviveCharge) return false;
-
-            HasReviveCharge = false;
-            runtimeStat.CurrentHP = Mathf.Max(1, (int)(runtimeStat.MaxHP * _reviveHpRatio));
-            HPBar.UpdateHPBar();
-
-            if (_reviveVisualType != StatusVisualType.Normal)
-                SetVisualStatus(_reviveVisualType, true);
-
-            Debug.Log($"{name} 부활! HP {runtimeStat.CurrentHP}/{runtimeStat.MaxHP}");
-            return true;
-        }
-        
         public void SetStatMultiplier(StatusType type, object source, StatSourceCategory category, string label, float delta)
-        {
-            if (!_modifiers.ContainsKey(type)) _modifiers[type] = new Dictionary<object, StatModifierEntry>();
-            _modifiers[type][source] = new StatModifierEntry(source, category, label, delta);
-            UpdateFinalStat(type);
-            OnStatChanged?.Invoke();
-        }
+            => Stats.SetMultiplier(type, source, category, label, delta);
 
         public void RemoveStatMultiplier(StatusType type, object source)
-        {
-            if (!_modifiers.TryGetValue(type, out var sourceDict)) return;
-            sourceDict.Remove(source);
-            UpdateFinalStat(type);
-            OnStatChanged?.Invoke();
-        }
+            => Stats.RemoveMultiplier(type, source);
+
         public void SetFlatModifier(FlatStatusType type, object source, StatSourceCategory category, string label, float amount)
-        {
-            if (!_flatModifiers.ContainsKey(type)) _flatModifiers[type] = new Dictionary<object, StatModifierEntry>();
-            _flatModifiers[type][source] = new StatModifierEntry(source, category, label, amount);
-            UpdateFlatStat(type);
-            OnStatChanged?.Invoke();
-        }
+            => Stats.SetFlat(type, source, category, label, amount);
 
         public void RemoveFlatModifier(FlatStatusType type, object source)
-        {
-            if (!_flatModifiers.TryGetValue(type, out var sourceDict)) return;
-            sourceDict.Remove(source);
-            UpdateFlatStat(type);
-            OnStatChanged?.Invoke();
-        }
+            => Stats.RemoveFlat(type, source);
 
-        private float GetFlatSum(FlatStatusType type)
-        {
-            var sum = 0f;
-            if (_flatModifiers.TryGetValue(type, out var sourceDict))
-            {
-                foreach (var entry in sourceDict.Values) sum += entry.Delta;
-            }
-            return sum;
-        }
+        public bool HasDebuff() => StatusEffects && StatusEffects.HasTag(StatusTags.Debuff);
 
-        private void UpdateFlatStat(FlatStatusType type)
-        {
-            switch (type)
-            {
-                case FlatStatusType.MaxHpFlat:
-                case FlatStatusType.MaxHpPercent:
-                    RecalculateMaxHp();
-                    break;
-                case FlatStatusType.AttackDamageFlat:
-                    CurrentAttackDamage = (int)(runtimeStat.AttackDamage + GetFlatSum(FlatStatusType.AttackDamageFlat));
-                    UpdateFinalStat(StatusType.AttackDamageMultiplier);
-                    break;
-                case FlatStatusType.DefenseFlat:
-                    CurrentDefense = (int)(runtimeStat.Defense + GetFlatSum(FlatStatusType.DefenseFlat));
-                    UpdateFinalStat(StatusType.DefenseMultiplier);
-                    break;
-                case FlatStatusType.EvasionRateFlat:
-                    CurrentEvasionRate = runtimeStat.EvasionRate + GetFlatSum(FlatStatusType.EvasionRateFlat);
-                    UpdateFinalStat(StatusType.EvasionRateMultiplier);
-                    break;
-                case FlatStatusType.AttackSpeedFlat:
-                    CurrentAttackSpeed = runtimeStat.AttackSpeed + GetFlatSum(FlatStatusType.AttackSpeedFlat);
-                    UpdateFinalStat(StatusType.AttackSpeedMultiplier);
-                    break;
-            }
-        }
-        
-        private void RecalculateMaxHp()
-        {
-            var previousMax = CurrentMaxHp > 0 ? CurrentMaxHp : runtimeStat.MaxHP;
-
-            var flatSum = GetFlatSum(FlatStatusType.MaxHpFlat);
-            var percentSum = GetFlatSum(FlatStatusType.MaxHpPercent);
-
-            var newMax = Mathf.Max(1, Mathf.RoundToInt((runtimeStat.MaxHP + flatSum) * (1f + percentSum)));
-            var diff = newMax - previousMax;
-
-            CurrentMaxHp = newMax;
-            runtimeStat.MaxHP = newMax;
-            runtimeStat.CurrentHP = Mathf.Clamp(runtimeStat.CurrentHP + diff, 1, newMax);
-
-            if (HPBar) HPBar.UpdateHPBar();
-        }
-
-        private void RecalculateAllFromModifiers()
-        {
-            foreach (FlatStatusType type in Enum.GetValues(typeof(FlatStatusType)))
-                UpdateFlatStat(type);
-
-            foreach (StatusType type in Enum.GetValues(typeof(StatusType)))
-                UpdateFinalStat(type);
-        }
-
-        public bool HasDebuff()
-        {
-            foreach (var type in _modifiers)
-            {
-                foreach (var entry in type.Value.Values)
-                {
-                    if (entry.Delta < 0f)
-                        return true;
-                }
-            }
-            foreach (var type in _flatModifiers)
-            {
-                foreach (var entry in type.Value.Values)
-                {
-                    if (entry.Delta < 0f)
-                        return true;
-                }
-            }
-            return false;
-        }
-
-        public bool HasStatus(StatusType type)
-        {
-            return _modifiers.TryGetValue(type, out var sourceDict) && sourceDict.Count > 0;
-        }
+        public bool HasStatus(StatusType type) => Stats.Has(type);
 
         public void RemoveAllDebuffs()
         {
-            var types = new List<StatusType>(_modifiers.Keys);
-
-            foreach (var type in types)
-            {
-                var sources = new List<object>(_modifiers[type].Keys);
-
-                foreach (var src in sources)
-                {
-                    if (_modifiers[type][src].Delta < 0f)
-                    {
-                        RemoveStatMultiplier(type, src);
-                    }
-                }
-            }
-        }
-
-        private void UpdateFinalStat(StatusType type)
-        {
-            var totalDelta = 0f;
-
-            if (_modifiers.TryGetValue(type, out var sourceDict))
-            {
-                foreach (var entry in sourceDict.Values)
-                {
-                    totalDelta += entry.Delta;
-                }
-            }
-            var finalMul = Mathf.Max(0f, 1f + totalDelta);
-            switch (type)
-            {
-                case StatusType.MoveSpeedMultiplier:
-                    CurrentMoveSpeed = runtimeStat.MoveSpeed * finalMul;
-                    AiPath.maxSpeed = CurrentMoveSpeed;
-                    break;
-                case StatusType.AttackDamageMultiplier:
-                    CurrentAttackDamage = (int)((runtimeStat.AttackDamage + GetFlatSum(FlatStatusType.AttackDamageFlat)) * finalMul);
-                    break;
-                case StatusType.DefenseMultiplier:
-                    CurrentDefense = (int)((runtimeStat.Defense + GetFlatSum(FlatStatusType.DefenseFlat)) * finalMul);
-                    break;
-                case StatusType.SkillPointMultiplier:
-                    CurrentSkillPoint = (int)(runtimeStat.SkillPoint * finalMul);
-                    break;
-                case StatusType.EvasionRateMultiplier:
-                    CurrentEvasionRate = (runtimeStat.EvasionRate + GetFlatSum(FlatStatusType.EvasionRateFlat)) * finalMul;
-                    break;
-                case StatusType.AttackSpeedMultiplier:
-                    ApplyAttackSpeedMultiplier(finalMul);
-                    break;
-                case StatusType.Invincible:
-                    break;
-            }
-        }
-
-        private void ApplyAttackSpeedMultiplier(float finalMul)
-        {
-            finalMul = Mathf.Max(0.01f, finalMul);
-            CurrentAttackSpeed = (runtimeStat.AttackSpeed + GetFlatSum(FlatStatusType.AttackSpeedFlat)) * finalMul;
-            CurrentAttackDelay = runtimeStat.AttackDelay / finalMul;
-
-            if (_attackTimer > CurrentAttackDelay)
-            {
-                _attackTimer = CurrentAttackDelay;
-            }
+            if (StatusEffects) StatusEffects.RemoveByTag(StatusTags.Debuff, StatusTags.HardCC);
         }
 
         public void ResetMoveSpeed()
@@ -450,51 +309,26 @@ namespace BattleK.Scripts.AI
         }
 
         public StatBreakdown GetBreakdown(StatusType type, float baseValue)
-        {
-            var contributions = new List<(string, float)>();
-            var totalDelta = 0f;
-
-            if (_modifiers.TryGetValue(type, out var sourceDict))
-            {
-                foreach (var entry in sourceDict.Values)
-                {
-                    if (entry.Delta == 0f) continue;
-                    contributions.Add((entry.Label, baseValue * entry.Delta));
-                    totalDelta += entry.Delta;
-                }
-            }
-
-            var finalValue = baseValue * Mathf.Max(0f, 1f + totalDelta);
-            return new StatBreakdown(baseValue, contributions, finalValue);
-        }
+            => Stats.GetBreakdown(type, baseValue);
 
         public StatBreakdown GetFlatBreakdown(FlatStatusType type, float baseValue)
-        {
-            var contributions = new List<(string, float)>();
-            var totalDelta = 0f;
+            => Stats.GetFlatBreakdown(type, baseValue);
 
-            if (_flatModifiers.TryGetValue(type, out var sourceDict))
-            {
-                foreach (var entry in sourceDict.Values)
-                {
-                    if (entry.Delta == 0f) continue;
-                    contributions.Add((entry.Label, entry.Delta));
-                    totalDelta += entry.Delta;
-                }
-            }
-
-            return new StatBreakdown(baseValue, contributions, baseValue + totalDelta);
-        }
-        
         public (float Base, float Total, float Delta) GetDisplayValue(FlatStatusType flatType, StatusType multiplierType, float baseValue)
+            => Stats.GetDisplayValue(flatType, multiplierType, baseValue);
+
+        public void ClearAllVisualStatuses()
         {
-            var flatBreakdown = GetFlatBreakdown(flatType, baseValue);
-            var afterFlat = flatBreakdown.FinalValue;
+            if (_activeVisualStatuses.Count == 0) return;
+            _activeVisualStatuses.Clear();
 
-            var multiplierBreakdown = GetBreakdown(multiplierType, afterFlat);
-            var total = multiplierBreakdown.FinalValue;
+            var isAlly = AiManager && gameObject.layer == AiManager.PlayerLayer;
+            if (AiManager && AiManager.HPManager) AiManager.HPManager.NotifyStatusChanged(this, isAlly);
+        }
 
-            return (baseValue, total, total - baseValue);
+        public void GrantRevive()
+        {
+            Revive.Add(new ChargeReviveProvider(_reviveHpRatio, _reviveVisualType));
         }
 
         public void PlayAnimation(PlayerState animState, int animIndex = 0)
@@ -508,10 +342,8 @@ namespace BattleK.Scripts.AI
             IStaticActionState bestAction = null;
             var highestPriority = int.MinValue;
 
-            foreach (var action in _actionCandidates)
+            foreach (var action in _actionCandidates.Where(action => action.CanExecute()).Where(action => action.Priority > highestPriority))
             {
-                if (!action.CanExecute()) continue;
-                if (action.Priority <= highestPriority) continue;
                 highestPriority = action.Priority;
                 bestAction = action;
             }
@@ -523,38 +355,34 @@ namespace BattleK.Scripts.AI
             }
         }
 
-        public void OnTakeDamage(int damage, bool isPenetrating = false)
+        public void OnTakeDamage(int damage, bool isPenetrating = false, StaticAICore attacker = null)
         {
-            if (IsDead || runtimeStat.CurrentHP == 0) return;
-            if (IsInvincible)
-            {
-                return;
-            }
-
-            var randomVal = Random.Range(0f, 100f);
-            if (randomVal < CurrentEvasionRate)
-            {
-                Debug.Log($"{name} is evaded");
-                return;
-            }
-            var realDamage = isPenetrating ? damage : (int)Mathf.Max(1, damage * (float)(100.0 / (100 + CurrentDefense)));
-            runtimeStat.CurrentHP -= realDamage;
-            HPBar.UpdateHPBar();
-            if (runtimeStat.CurrentHP <= 0)
-            {
-                if (TryRevive()) return;
-                OnDead();
-                return;
-            }
-            if (OverrideMachine.CurrentState == null) OverrideMachine.ChangeState(new StaticHitState(this));
-            OnStatChanged?.Invoke();
+            ReceiveDamage(LegacyProfile.CreateRequest(
+                attacker, this, damage,
+                DamageType.Physical,
+                isPenetrating ? DamageFlags.IgnoreDefense : DamageFlags.None));
         }
 
-        public void OnHeal(int amount)
+        public void ReceiveDamage(in DamageRequest request)
         {
-            runtimeStat.CurrentHP = Mathf.Min(runtimeStat.CurrentHP + amount, runtimeStat.MaxHP);
-            HPBar.UpdateHPBar();
-            OnStatChanged?.Invoke();
+            var combat = Combat;
+            if (combat == null) return;
+
+            combat.Damage.Deal(request);
+        }
+
+        public void HandleKilled()
+        {
+            OnDead();
+        }
+
+        public void OnHeal(int amount, StaticAICore healer = null)
+        {
+            var missing = Mathf.Max(0, CurrentMaxHp - runtimeStat.CurrentHP);
+            var effective = Mathf.Min(amount, missing);
+
+            Health.Increase(amount);
+            Combat?.Recorder.RecordHeal(healer, this, effective);
         }
 
         public void EnterCCState(PlayerState state)
@@ -571,6 +399,7 @@ namespace BattleK.Scripts.AI
 
         public void OnDead(DeathReason reason = DeathReason.Combat)
         {
+            if (IsDead) return;
             switch (reason)
             {
                 case DeathReason.Combat:
@@ -578,16 +407,19 @@ namespace BattleK.Scripts.AI
                     AiManager.UnregisterUnit(this);
                     if (runtimeStat.InjuryLevel <= InjuryStatus.FatalInjury)
                         ++runtimeStat.InjuryLevel;
-                    AiManager.IsWinner();
                     break;
+
                 case DeathReason.System:
                     AiManager.UnregisterUnit(this);
                     break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(reason), reason, null);
             }
             PersistUnitState();
+            if (StatusEffects) StatusEffects.ClearAll();
             OverrideMachine.ChangeState(new StaticDeathState(this));
+            if (reason == DeathReason.Combat)
+            {
+                AiManager.IsWinner();
+            }
         }
 
         private void RegisterActionStates()
@@ -605,23 +437,21 @@ namespace BattleK.Scripts.AI
 
         private void PersistUnitState()
         {
-            var IsPlayerUnit = AiManager != null && gameObject.layer == AiManager.PlayerLayer;
-            if (IsPlayerUnit) PersistPlayerUnit();
+            var isPlayerUnit = AiManager && gameObject.layer == AiManager.PlayerLayer;
+            if (isPlayerUnit) PersistPlayerUnit();
             else PersistEnemyUnit();
         }
 
         private void PersistPlayerUnit()
         {
-            if (_unitLoadManager == null || _userSaveManager == null) return;
+            if (!_unitLoadManager || !_userSaveManager) return;
 
             var user = _unitLoadManager.LoadedUser;
-            var unitData = user?.myUnits?.Find(u =>
-                string.Equals(u.Id?.Trim(), runtimeStat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
+            var unitData = user?.myUnits?.Find(u => string.Equals(u.Id?.Trim(), runtimeStat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
 
             if (unitData == null) return;
 
             runtimeStat.SaveTo(unitData);
-
             _userSaveManager.SaveUser(user);
         }
 
@@ -630,41 +460,22 @@ namespace BattleK.Scripts.AI
             if (_enemySaveManager == null || _league == null) return;
             var team = _enemySaveManager.GetTeam(_league.currentEnemyTeamId);
 
-            Debug.Log($"[EnemySave] Stat.Name={runtimeStat.Name}");
-
-            foreach (var unit in team.units)
+            foreach (var seenEnemy in team.units.Select(unit => new SeenEnemyData
+                     {
+                         unitId = unit.Id,
+                         unitName = unit.UnitName,
+                         teamFid = team.fid,
+                         teamName = team.name
+                     }))
             {
-                Debug.Log($"[EnemySave] unitName={unit.Id}");
-
-                var seenEnemy = new SeenEnemyData
-                {
-                    unitId = unit.Id,
-                    unitName = unit.UnitName,
-                    teamFid = team.fid,
-                    teamName = team.name
-                };
-
             }
-            var unitData = team?.units?.Find(u =>
+            var unitData = team.units?.Find(u =>
                 string.Equals(u.Id?.Trim(), runtimeStat.Name?.Trim(), StringComparison.OrdinalIgnoreCase));
-            Debug.Log($"[EnemySave] unitData={(unitData == null ? "NULL" : unitData.Id)}");
             if (unitData == null) return;
-
-            
 
             _enemySaveManager.RecordSeenEnemyTeam(team);
 
             runtimeStat.SaveTo(unitData);
         }
-
-#if UNITY_EDITOR
-        private void OnDrawGizmosSelected()
-        {
-            if (runtimeStat == null) return;
-
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(transform.position, runtimeStat.SightRange);
-        }
-#endif
     }
 }

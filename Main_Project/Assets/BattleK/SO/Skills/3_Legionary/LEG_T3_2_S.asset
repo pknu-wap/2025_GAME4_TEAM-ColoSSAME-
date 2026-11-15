@@ -17,6 +17,9 @@ MonoBehaviour:
   - rid: 7300200000000000002
   SkillName: LEG_T3_2_S
   InternalPriority: 300
+  SkillLevel: 1
+  Icon: {fileID: 0}
+  Description: 
   SkillPrefab: {fileID: 3391895794129409543, guid: a9863ffb20bb45a6b32e52ce5e0afbff, type: 3}
   SkillPrefabScale: 0.7
   FlipSkillPrefabByOwnerFacing: 0
@@ -39,25 +42,37 @@ MonoBehaviour:
   ActiveTime: 0.4
   RecoveryTime: 0
   SkillLogics:
-  - rid: 7300200000000000001
+  - rid: 8930349226388619300
   AnimationIndex: 0
   references:
     version: 2
     RefIds:
-    - rid: 7300200000000000001
-      type: {class: SwordDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
-      data:
-        _damageMultiplier: 1
-        _flatBonusDamage: 0
-        _hitCCData:
-          StatusName: 
-          StatusType: 0
-          duration: 0
-          vfxPrefab: {fileID: 0}
-          animName: 0
-          Actions: []
-          tickInterval: 0.5
-          speedMultiplier: 1
     - rid: 7300200000000000002
       type: {class: NearestTargetLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.VerdictLogic, asm: Assembly-CSharp}
       data: 
+    - rid: 8930349226388619300
+      type: {class: DealDamageLogic, ns: BattleK.Scripts.AI.Skill.Base.Logic.AttackSkillLogics, asm: Assembly-CSharp}
+      data:
+        _spec:
+          Formula:
+            rid: 8930349226388619301
+          Type: 0
+          Flags: 0
+          MinDamage: 0
+          Profile: {fileID: 0}
+        _checkTargetLayer: 1
+    - rid: 8930349226388619301
+      type: {class: SumFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Terms:
+        - rid: 8930349226388619302
+        - rid: 8930349226388619303
+    - rid: 8930349226388619302
+      type: {class: OwnerAttackFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Multiplier: 1
+        UseBaseAttack: 1
+    - rid: 8930349226388619303
+      type: {class: FlatValueFormula, ns: BattleK.Scripts.Combat.Damage.Formulas, asm: Assembly-CSharp}
+      data:
+        Value: 0
