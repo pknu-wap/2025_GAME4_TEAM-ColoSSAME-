@@ -39,6 +39,12 @@ public class PixelFxImpact : MonoBehaviour
         var head = point ? Vector3.Dot(point.position - transform.position, fwd) : 0f;
         var pos = transform.position + fwd * (head + depth) + Vector3.up * height;
 
+        Spawn(effect, pos, scale, dir, sortingOrder, lifetime, fade);
+    }
+
+    // 한 번 재생하는 이펙트 생성 (dir -1이면 좌우 반전, lifetime 0이면 이펙트 길이대로)
+    public static GameObject Spawn(GameObject effect, Vector3 pos, float scale, float dir, int sortingOrder, float lifetime, float fade)
+    {
         var fx = Instantiate(effect, pos, Quaternion.identity);
         fx.transform.localScale = new Vector3(scale * dir, scale, 1f);
         foreach (var sr in fx.GetComponentsInChildren<SpriteRenderer>()) sr.sortingOrder = sortingOrder;
@@ -48,5 +54,6 @@ public class PixelFxImpact : MonoBehaviour
             if (lifetime > 0f) auto.lifetime = lifetime;
             auto.fade = fade;
         }
+        return fx;
     }
 }
