@@ -8,6 +8,54 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 6485850469839484838, guid: 9bb22c90a86012f489f45360d629bfa5, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6485850469839484839, guid: 9bb22c90a86012f489f45360d629bfa5, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6485850469839484839, guid: 9bb22c90a86012f489f45360d629bfa5, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6485850469839484839, guid: 9bb22c90a86012f489f45360d629bfa5, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6485850469975952356, guid: 9bb22c90a86012f489f45360d629bfa5, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6485850469975952356, guid: 9bb22c90a86012f489f45360d629bfa5, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6485850469975952356, guid: 9bb22c90a86012f489f45360d629bfa5, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6485850469975952359, guid: 9bb22c90a86012f489f45360d629bfa5, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6485850470685058104, guid: 9bb22c90a86012f489f45360d629bfa5, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6485850470685058104, guid: 9bb22c90a86012f489f45360d629bfa5, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6485850470685058104, guid: 9bb22c90a86012f489f45360d629bfa5, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6485850470685058107, guid: 9bb22c90a86012f489f45360d629bfa5, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6485850471131452632, guid: 9bb22c90a86012f489f45360d629bfa5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -52,6 +100,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Assasin_NormalAttack
       objectReference: {fileID: 0}
+    - target: {fileID: 6485850471131452634, guid: 9bb22c90a86012f489f45360d629bfa5, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6485850471131452634, guid: 9bb22c90a86012f489f45360d629bfa5, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6485850471131452635, guid: 9bb22c90a86012f489f45360d629bfa5, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -59,6 +119,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6485850471131452633, guid: 9bb22c90a86012f489f45360d629bfa5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4968069570305590433}
+    - targetCorrespondingSourceObject: {fileID: 6485850471131452633, guid: 9bb22c90a86012f489f45360d629bfa5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8331507963110023075}
   m_SourcePrefab: {fileID: 100100000, guid: 9bb22c90a86012f489f45360d629bfa5, type: 3}
 --- !u!1 &6798961297257562970 stripped
 GameObject:
@@ -77,3 +140,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57697020ecd435b4ebe36b7930b22d39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &8331507963110023075
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6798961297257562970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf7138c6872ce3d4cb74a99fbc1877fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effects:
+  - effect: {fileID: 8729991694364364762, guid: cf4dcabb9d77f2e4a9b4a06eec0a2e6b, type: 3}
+    fromOwner: 1
+    offset: {x: 0.02, y: -0.36}
+    scale: 0.45
+    delay: 0
+    lifetime: 0.5
+    fade: 0.15
+    speed: 1.6
+    sortingOrder: 60
+    maxTilt: -1
+  hits:
+  - time: 0.037499998
+    flash: 0.06
+    freeze: 0.05
+    push: 0.0175
+  - time: 0.099999994
+    flash: 0.06
+    freeze: 0.14
+    push: 0.035
+  flashMaterial: {fileID: 2100000, guid: 8bb6440ce2007174d8ad01c7a8a11515, type: 2}
+  maxTilt: 45

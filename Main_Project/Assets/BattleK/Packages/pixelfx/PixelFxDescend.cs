@@ -2,7 +2,8 @@ using System.Reflection;
 using BattleK.Scripts.AI.Skill.Base.Logic.LogicBase;
 using UnityEngine;
 
-// 투사체 그림을 시작 높이(또는 쏜 유닛의 손)에서 대상 발밑까지 일직선으로 날림 (판정은 발밑 선 그대로)
+// 투사체 그림을 시작 높이(또는 쏜 유닛의 손)에서 대상 발밑 쪽 높이까지 일직선으로 날림
+// 높이는 화면 위쪽 기준이라 대각선, 위아래로 쏴도 손에서 나와 상대 몸에 맞음 (판정은 발밑 선 그대로)
 public class PixelFxDescend : MonoBehaviour
 {
     public Transform visual;
@@ -27,14 +28,23 @@ public class PixelFxDescend : MonoBehaviour
     private static readonly FieldInfo TargetField =
         typeof(LogicProcessor).GetField("_targetTransform", BindingFlags.NonPublic | BindingFlags.Instance);
 
-    private LogicProcessor _logic;
-    private Vector3 _start, _from, _to; // _from, _to는 그림의 로컬 위치
-    private float _endX = float.NaN;
-    private Vector3 _baseScale;
-    private float _age;
-    private float _length = -1f, _angle;
+    // 타격 이펙트가 쓰는 값: 발밑 선 위의 그림 머리 위치와 날아가는 방향 (월드)
+    public Vector3 Ground { get; private set; }
+    public Vector2 Direction { get; private set; }
+    public bool Tracking { get; private set; }
 
-    private void OnEnable() => _length = -1f; // 풀에서 다시 나올 때 초기화
+    private LogicProcessor _logic;
+    private Vector3 _start, _ground0, _ground1;
+    private float _height0, _height1;
+    private float _forward = float.NaN; // 프리팹에 정해진 앞쪽 거리 (월드)
+    private Vector3 _baseScale;
+    private float _length = -1f, _age;
+
+    private void OnEnable() // 풀에서 다시 나올 때 초기화
+    {
+        _length = -1f;
+        Tracking = false;
+    }
 
     private void LateUpdate()
     {
@@ -42,8 +52,18 @@ public class PixelFxDescend : MonoBehaviour
         if (_length < 0f) Measure();
 
         var t = _length > 0f ? Mathf.Clamp01(Vector2.Distance(_start, transform.position) / _length) : 0f;
-        visual.localPosition = Vector3.Lerp(_from, _to, t);
-        visual.localRotation = Quaternion.Euler(0f, 0f, _angle); // 좌우 반전은 루트 스케일이 처리
+        Ground = _length > 0f
+            ? Vector3.Lerp(_ground0, _ground1, t)
+            : transform.position + (Vector3)(Direction * _forward); // 대상이 없으면 루트를 따라감
+        var p = Ground + Vector3.up * Mathf.Lerp(_height0, _height1, t);
+        visual.position = new Vector3(p.x, p.y, visual.position.z);
+
+        // 그림 머리를 출발점에서 도착점까지의 선 방향으로 (루트의 회전, 좌우 반전 안에서)
+        var path = _length > 0f
+            ? (_ground1 + Vector3.up * _height1) - (_ground0 + Vector3.up * _height0)
+            : (Vector3)Direction;
+        var local = transform.InverseTransformVector(path);
+        visual.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(local.y, local.x) * Mathf.Rad2Deg);
 
         _age += Time.deltaTime;
         var grow = growTime > 0f ? Mathf.Clamp01(_age / growTime) : 1f;
@@ -53,28 +73,17 @@ public class PixelFxDescend : MonoBehaviour
     private void Measure()
     {
         if (!_logic) _logic = GetComponent<LogicProcessor>();
-        if (float.IsNaN(_endX))
+        if (float.IsNaN(_forward))
         {
-            _endX = visual.localPosition.x; // 프리팹에 정해진 앞쪽 거리
+            _forward = visual.localPosition.x * Mathf.Abs(transform.lossyScale.x);
             _baseScale = visual.localScale;
         }
         _age = 0f;
-
-        var sx = Mathf.Max(0.0001f, Mathf.Abs(transform.lossyScale.x));
-        var sy = Mathf.Max(0.0001f, Mathf.Abs(transform.lossyScale.y));
-        var z = visual.localPosition.z;
         _start = transform.position;
-        _to = new Vector3(_endX, endHeight / sy, z);
 
-        var hand = fromHand ? FindHand(Read<Component>(OwnerField)) : null;
-        _from = hand ? transform.InverseTransformPoint(hand.position) : new Vector3(_endX, startHeight / sy, z);
-        _from.z = z;
-
-        if (castEffect)
-        {
-            var dir = transform.lossyScale.x < 0f ? -1f : 1f;
-            PixelFxImpact.Spawn(castEffect, transform.TransformPoint(_from), castScale, dir, castSortingOrder, castLifetime, castFade);
-        }
+        // 날아가는 방향: 루트 +x (왼쪽이면 x 스케일 반전)
+        var flip = transform.lossyScale.x < 0f ? -1f : 1f;
+        Direction = ((Vector2)transform.right * flip).normalized;
 
         // 실제 판정 크기로 맞는 순간까지 날아갈 거리
         var target = Read<Transform>(TargetField);
@@ -83,8 +92,26 @@ public class PixelFxDescend : MonoBehaviour
                 - (Front(GetComponent<Collider2D>()) + Radius(target.GetComponent<Collider2D>()) + arriveEarly))
             : 0f;
 
-        var dx = _length / sx + _to.x - _from.x;
-        _angle = _length > 0f ? Mathf.Atan2(_to.y - _from.y, dx) * Mathf.Rad2Deg : 0f;
+        _ground0 = _start + (Vector3)(Direction * _forward);
+        _ground1 = _start + (Vector3)(Direction * (_length + _forward));
+        _height0 = startHeight;
+        _height1 = endHeight;
+
+        var hand = fromHand ? FindHand(Read<Component>(OwnerField)) : null;
+        if (hand)
+        {
+            _height0 = hand.position.y - _start.y;
+            _ground0 = new Vector3(hand.position.x, _start.y, _start.z);
+        }
+
+        Ground = _ground0;
+        Tracking = true;
+
+        if (castEffect)
+        {
+            var dir = Direction.x < 0f ? -1f : 1f;
+            PixelFxImpact.Spawn(castEffect, _ground0 + Vector3.up * _height0, castScale, dir, castSortingOrder, castLifetime, castFade);
+        }
     }
 
     private T Read<T>(FieldInfo field) where T : class =>

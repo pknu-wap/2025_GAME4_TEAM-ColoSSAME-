@@ -32,6 +32,9 @@ namespace BattleK.Test
         [SerializeField] private StaticAICore _ally;
         [SerializeField] private List<SkillSO> _exampleSkills = new();
 
+        [Header("캐릭터 (비어 있으면 에디터에서 Family/*/UnitRoot_Prefabs를 자동으로 읽음)")]
+        [SerializeField] private List<GameObject> _characters = new();
+
         [Header("기본값")]
         [SerializeField] private Vector2 _casterPosition = new(-2f, 0f);
         [SerializeField] private int _testHp = 99999;
@@ -47,6 +50,7 @@ namespace BattleK.Test
         private int _skillIndex;
         private int _enemyCount = 1;
         private float _distance = 2f;
+        private float _angle; // 적 방향 (0 오른쪽, 양수 위, 음수 아래)
         private bool _fitRange = true;
         private bool _repeat;
         private float _interval = 1.5f;
@@ -66,6 +70,16 @@ namespace BattleK.Test
         private int _hits;
         private float _firstHit = -1f;
         private readonly Dictionary<SkillSO, SkillSO> _backups = new();
+
+        // 캐릭터 바꾸기: 한 번 만든 유닛은 다시 고를 때 재사용
+        private string[] _families = Array.Empty<string>();
+        private int _familyIndex;
+        private int _characterIndex;
+        private bool _swapping;
+        private Vector2 _controlScroll;
+        private readonly Dictionary<GameObject, StaticAICore> _spawnedCasters = new();
+        private readonly Dictionary<GameObject, List<StaticAICore>> _spawnedEnemies = new();
+        private List<StaticAICore> _defaultEnemies = new();
 
         private Caster Current => _casters.Count > 0 ? _casters[_casterIndex] : null;
         private StaticAICore CurrentActor => Current?.Actor;
@@ -101,6 +115,8 @@ namespace BattleK.Test
             _manager.Combat.Events.Damaged += OnDamaged;
             Backup();
             ClearLog();
+            _defaultEnemies = new List<StaticAICore>(_enemies);
+            LoadCharacters();
             _ready = true;
             SelectCaster(0);
         }
@@ -187,7 +203,7 @@ namespace BattleK.Test
                 e.gameObject.SetActive(on);
                 if (!on) continue;
                 var o = EnemyOffsets[Mathf.Min(i, EnemyOffsets.Length - 1)];
-                Place(e, origin + new Vector3(_distance + o.x, o.y));
+                Place(e, origin + Quaternion.Euler(0f, 0f, _angle) * new Vector3(_distance + o.x, o.y));
                 e.LookAt(origin);
             }
 
@@ -211,7 +227,139 @@ namespace BattleK.Test
             if (!cam) return;
             cam.orthographicSize = _cameraSize;
             var p = cam.transform.position;
-            cam.transform.position = new Vector3(_casterPosition.x + _distance * 0.5f, _casterPosition.y + 0.3f, p.z);
+            var mid = (Vector3)_casterPosition + Quaternion.Euler(0f, 0f, _angle) * new Vector3(_distance * 0.5f, 0f);
+            cam.transform.position = new Vector3(mid.x, mid.y + 0.3f, p.z);
+        }
+
+        // ---------- 캐릭터 바꾸기 ----------
+
+        private void LoadCharacters()
+        {
+#if UNITY_EDITOR
+            if (_characters.Count == 0)
+                _characters = UnityEditor.AssetDatabase.FindAssets("t:Prefab", new[] { "Assets/BattleK/Family" })
+                    .Select(UnityEditor.AssetDatabase.GUIDToAssetPath)
+                    .Where(p => p.Contains("/UnitRoot_Prefabs/"))
+                    .OrderBy(p => p)
+                    .Select(UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>)
+                    .Where(g => g && g.GetComponent<StaticAICore>())
+                    .ToList();
+#endif
+            _characters.RemoveAll(c => !c);
+            _families = _characters.Select(Family).Distinct().ToArray();
+        }
+
+        private static string Family(GameObject prefab) => prefab.name.Split('_')[0];
+
+        private List<GameObject> FamilyCharacters() =>
+            _families.Length == 0 ? new List<GameObject>()
+                : _characters.Where(c => Family(c) == _families[_familyIndex]).ToList();
+
+        private static string CharacterLabel(GameObject prefab)
+        {
+            var family = Family(prefab);
+            var name = prefab.name.StartsWith(family + "_") ? prefab.name.Substring(family.Length + 1) : prefab.name;
+            var core = prefab.GetComponent<StaticAICore>();
+            return core && core.runtimeStat != null ? $"{name} ({core.runtimeStat.UnitClass})" : name;
+        }
+
+        private StaticAICore Spawn(GameObject prefab, string unitName)
+        {
+            var parent = _actorsRoot ? _actorsRoot.transform : null;
+            var go = Instantiate(prefab, (Vector3)_casterPosition + Vector3.down * 10f, Quaternion.identity, parent);
+            go.name = unitName;
+            var unit = go.GetComponent<StaticAICore>();
+            if (unit) return unit;
+            Destroy(go);
+            return null;
+        }
+
+        // 같은 직업 칸의 시전자를 바꿈 (없는 직업이면 칸을 새로 만듦)
+        private IEnumerator SwapCaster(GameObject prefab)
+        {
+            _swapping = true;
+            StopCast();
+            if (!_spawnedCasters.TryGetValue(prefab, out var unit) || !unit)
+            {
+                unit = Spawn(prefab, prefab.name);
+                if (!unit) { _status = $"{prefab.name}: StaticAICore 없음"; _swapping = false; yield break; }
+                yield return null; // 유닛 Start에서 AiManager가 연결될 때까지
+                Prepare(unit, 0, false);
+                _spawnedCasters[prefab] = unit;
+            }
+
+            var unitClass = unit.runtimeStat.UnitClass;
+            var index = _casters.FindIndex(c => c.UnitClass == unitClass);
+            if (index < 0)
+            {
+                _casters.Add(new Caster { UnitClass = unitClass, Actor = unit, NormalAttack = unit.NormalAttack });
+                index = _casters.Count - 1;
+            }
+            else
+            {
+                var slot = _casters[index];
+                if (slot.Actor && slot.Actor != unit) slot.Actor.gameObject.SetActive(false);
+                slot.Actor = unit;
+                if (unit.NormalAttack) slot.NormalAttack = unit.NormalAttack;
+            }
+            BackupOne(_casters[index].NormalAttack);
+
+            _swapping = false;
+            _status = $"시전자: {prefab.name}";
+            SelectCaster(index);
+        }
+
+        // 적 허수아비 전체를 이 캐릭터로 바꿈
+        private IEnumerator SwapEnemies(GameObject prefab)
+        {
+            _swapping = true;
+            StopCast();
+            if (!_spawnedEnemies.TryGetValue(prefab, out var set))
+            {
+                set = new List<StaticAICore>();
+                for (var i = 0; i < Mathf.Max(1, _defaultEnemies.Count); i++)
+                {
+                    var unit = Spawn(prefab, $"적 {i + 1} ({prefab.name})");
+                    if (!unit) { _status = $"{prefab.name}: StaticAICore 없음"; _swapping = false; yield break; }
+                    set.Add(unit);
+                }
+                yield return null;
+                foreach (var unit in set) Prepare(unit, 1, true);
+                _spawnedEnemies[prefab] = set;
+            }
+            UseEnemies(set);
+            _swapping = false;
+            _status = $"적: {prefab.name}";
+        }
+
+        private void UseEnemies(List<StaticAICore> set)
+        {
+            foreach (var old in _enemies)
+                if (old && !set.Contains(old)) old.gameObject.SetActive(false);
+            _enemies = new List<StaticAICore>(set);
+            Layout();
+        }
+
+        private void DrawCharacters()
+        {
+            if (_characters.Count == 0) return;
+            GUILayout.Label("캐릭터 바꾸기");
+            var family = GUILayout.SelectionGrid(_familyIndex, _families, 5);
+            if (family != _familyIndex) { _familyIndex = family; _characterIndex = 0; }
+
+            var list = FamilyCharacters();
+            if (list.Count == 0) return;
+            _characterIndex = Mathf.Clamp(_characterIndex, 0, list.Count - 1);
+            _characterIndex = GUILayout.SelectionGrid(_characterIndex, list.Select(CharacterLabel).ToArray(), 2);
+
+            GUI.enabled = !_swapping;
+            GUILayout.BeginHorizontal();
+            var picked = list[_characterIndex];
+            if (GUILayout.Button("시전자로")) StartCoroutine(SwapCaster(picked));
+            if (GUILayout.Button("적으로")) StartCoroutine(SwapEnemies(picked));
+            if (GUILayout.Button("적 원래대로")) UseEnemies(_defaultEnemies);
+            GUILayout.EndHorizontal();
+            GUI.enabled = true;
         }
 
         // ---------- 스킬 ----------
@@ -406,8 +554,10 @@ namespace BattleK.Test
 
             HandleKeys();
 
-            GUILayout.BeginArea(new Rect(8, 8, 330, height - 16), GUI.skin.box);
+            GUILayout.BeginArea(new Rect(8, 8, 460, height - 16), GUI.skin.box);
+            _controlScroll = GUILayout.BeginScrollView(_controlScroll);
             DrawControls();
+            GUILayout.EndScrollView();
             GUILayout.EndArea();
 
             GUILayout.BeginArea(new Rect(width - 438, 8, 430, Mathf.Min(height - 16, 520)), GUI.skin.box);
@@ -441,6 +591,10 @@ namespace BattleK.Test
             var names = _casters.Select(c => c.UnitClass.ToString()).ToArray();
             var picked = GUILayout.SelectionGrid(_casterIndex, names, 3);
             if (picked != _casterIndex) SelectCaster(picked);
+            if (CurrentActor) GUILayout.Label($"지금 시전자: {CurrentActor.name}");
+
+            GUILayout.Space(4);
+            DrawCharacters();
 
             GUILayout.Label("스킬");
             var skills = SkillList();
@@ -471,11 +625,19 @@ namespace BattleK.Test
             var distance = GUILayout.HorizontalSlider(_distance, 0.5f, 8f);
             if (!Mathf.Approximately(distance, _distance)) fit = false; // 직접 움직이면 자동 맞춤 끔
             if (fit && !_fitRange) distance = FitDistance();
-            if (count != _enemyCount || fit != _fitRange || !Mathf.Approximately(distance, _distance))
+            GUILayout.BeginHorizontal();
+            GUILayout.Label($"적 방향 {_angle:0}°", GUILayout.Width(90));
+            var angle = Mathf.Round(GUILayout.HorizontalSlider(_angle, -90f, 90f) / 5f) * 5f;
+            if (GUILayout.Button("-45", GUILayout.Width(40))) angle = -45f;
+            if (GUILayout.Button("0", GUILayout.Width(30))) angle = 0f;
+            if (GUILayout.Button("45", GUILayout.Width(40))) angle = 45f;
+            GUILayout.EndHorizontal();
+            if (count != _enemyCount || fit != _fitRange || !Mathf.Approximately(distance, _distance) || !Mathf.Approximately(angle, _angle))
             {
                 _enemyCount = count;
                 _fitRange = fit;
                 _distance = distance;
+                _angle = angle;
                 Layout();
             }
             if (_distance > Range + 0.1f)

@@ -1,9 +1,12 @@
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using BattleK.Scripts.AI.Attack;
 using BattleK.Scripts.AI.Skill.Base;
 using UnityEditor;
 using UnityEngine;
 
-// 마법사, 척후병 평타 투사체 그림을 pixelfx 이펙트로 교체
+// 직업별 평타 그림을 pixelfx 이펙트로 교체 (원거리: 투사체, 근접: 상대 위치 베기)
 public static class PixelFxProjectileSetup
 {
     private const string AttackDir = "Assets/BattleK/Prefabs/StaticAttack/NormalAttack";
@@ -40,17 +43,22 @@ public static class PixelFxProjectileSetup
         public float ImpactScale, ImpactLifetime, ImpactFade;
         public float ImpactDepth = 0.1f; // 사라지는 순간 머리 위치에서 몸 안쪽으로
         public float ImpactHeight;       // 이펙트 기준점 높이 (그림이 기준점보다 위에 있으면 낮게)
+        public float HitPush = 0.025f;   // 맞은 상대가 밀리는 거리 (근접 찌르기, 베기는 0.035)
     }
+
+    // 원거리 맞는 반응: 근접보다 짧게 멈춤
+    private const float RangedFreeze = 0.08f;
 
     private static readonly Projectile Fireball = new()
     {
         Prefab = "Magician_NormalAttack", Skill = "Magician_NormalAttack", Fx = "fireball",
         Scale = 0.6f, Speed = 6f,
         Windup = 0.22f, // 0_Attack_Magic 0.42초 중 손 내미는 순간
-        Height = 0.3f, Forward = 0.3f, EndHeight = 0.05f, // 가슴 높이에서 상대 발밑으로
+        Height = 0.2f, Forward = 0.3f, EndHeight = 0.05f, // 배 높이에서 상대 발밑으로
         Cast = "small-explosion", CastScale = 0.1f, CastLifetime = 0.25f, CastFade = 0.1f, // 손앞에서 작게 퍽
         Impact = "small-explosion", ImpactScale = 0.25f, ImpactLifetime = 0.9f, ImpactFade = 0.3f, // 뒤쪽 연기는 잘라냄
         ImpactHeight = -0.2f, // 불덩이가 기준점보다 약 0.35 위에 그려짐 -> 중심이 발밑 근처
+        HitPush = 0.035f, // 폭발이라 근접만큼
     };
 
     private static readonly Projectile Arrow = new()
@@ -66,26 +74,185 @@ public static class PixelFxProjectileSetup
         ImpactHeight = 0f, // 불꽃이 기준점보다 약 0.24 위 = 몸통
     };
 
-    [MenuItem("Tools/pixelfx/평타 투사체 교체 (마법사, 척후병)")]
+    // 사제: plasma-shot을 금색 팔레트로 뽑은 holy-shot (머리가 기준점, 위아래 가운데)
+    private static readonly Projectile Holy = new()
+    {
+        Prefab = "Priest_NormalAttack", Skill = "Priest_NormalAttack", Fx = "holy-shot",
+        Scale = 0.38f, Speed = 6f, // 길이 약 0.85 (꼬리 포함)
+        Windup = 0.22f, // 마법사와 같은 0_Attack_Magic
+        Height = 0.2f, Forward = 0.3f, EndHeight = 0.12f, // 배 높이에서 몸통 아래쪽으로
+        GrowTime = 0.15f,
+        Impact = "holy-hit", ImpactScale = 0.27f, ImpactLifetime = 0.6f, ImpactFade = 0.25f, // zap-hit 금색, 번개 매듭이 기준점
+        ImpactHeight = 0.2f,
+    };
+
+    // 근접: 상대 위치에 나오는 순간 베기 (값은 월드, X는 상대 쪽 방향)
+    // 베기는 시전자 기준으로 그림 중심이 몸 앞 약 0.45(무기 끝)
+    // 맞는 반응(번쩍, 밀림, 멈춤)은 시트 JSON의 act.hits 값을 그대로 씀 (pixelfx 근접 공통 방식)
+    private class StrikeFx
+    {
+        public string Fx;
+        public bool FromOwner; // 시전자 기준 (베기는 무기 쪽에)
+        public float Scale, X, Y, Lifetime, Fade, Speed = 1f;
+        public float Delay = 0f; // 늦게 띄울 때
+        public float MaxTilt = -1f; // 0 이상이면 이 각도까지만 기울임
+    }
+
+    private class Strike
+    {
+        public string Prefab, Skill;
+        public float Windup; // 공격 모션에서 무기가 내려오는 순간
+        public int AnimationIndex = -1; // 0 이상이면 평타 모션도 바꿈 (유닛 프리팹 AttackIndex와 맞출 것)
+        public StrikeFx[] Effects;
+    }
+
+    // 맞는 반응: pixelfx push(허수아비 흔들림 세기) 1당 밀리는 거리 (월드), 번쩍이는 시간
+    private const float PushPerUnit = 0.0125f;
+    private const float FlashTime = 0.06f;
+
+    // 0_Attack_Normal, ShotSwordAttack_1 둘 다 0.17초에서 0.25초 사이에 휘두름
+    private const float MeleeWindup = 0.17f;
+
+    private static readonly Strike[] Strikes =
+    {
+        new()
+        {
+            Prefab = "Gladiator_NormalAttack", Skill = "Gladiator_NormalAttack", Windup = MeleeWindup,
+            Effects = new[]
+            {
+                new StrikeFx { Fx = "sword-slash", FromOwner = true, Scale = 0.35f, X = 0.3f, Y = -0.26f, Lifetime = 0.45f, Fade = 0.2f },
+            },
+        },
+        new()
+        {
+            Prefab = "Legionary_NormalAttack", Skill = "Legionary_NormalAttack", Windup = MeleeWindup,
+            AnimationIndex = 7, // ShotSwordAttack_1: 짧게 앞으로 찌르는 모션
+            Effects = new[]
+            {
+                // 창 찌르기: 모션대로 바라보는 쪽 수평으로 (상대가 위아래로 어긋나도 기울이지 않음)
+                new StrikeFx { Fx = "thrust", FromOwner = true, Scale = 0.28f, X = 0f, Y = -0.225f, Lifetime = 0.4f, Fade = 0.15f, Speed = 1.2f, MaxTilt = 0f },
+            },
+        },
+        new()
+        {
+            Prefab = "Assasin_NormalAttack", Skill = "Assasin_NormalAttack", Windup = MeleeWindup,
+            Effects = new[]
+            {
+                // 두 번 베어 X자 (단검 두 자루), 1.6배속. X 중심이 몸 앞 약 0.85
+                new StrikeFx { Fx = "double-slash", FromOwner = true, Scale = 0.45f, X = 0.02f, Y = -0.36f, Lifetime = 0.5f, Fade = 0.15f, Speed = 1.6f },
+            },
+        },
+    };
+
+    [MenuItem("Tools/pixelfx/평타 이펙트 교체 (전 직업)")]
     public static void Apply()
     {
         if (AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>($"{FxDir}/Animations/fireball.controller") == null)
             PixelFxImporter.ImportAll();
 
-        // 마법사: 사제와 같이 쓰던 Bullet_NormalAttack을 복사해서 분리
-        var magePath = $"{AttackDir}/{Fireball.Prefab}.prefab";
-        if (AssetDatabase.LoadAssetAtPath<GameObject>(magePath) == null)
-            AssetDatabase.CopyAsset($"{AttackDir}/Bullet_NormalAttack.prefab", magePath);
+        // 마법사, 사제: 같이 쓰던 Bullet_NormalAttack을 복사해서 분리
+        foreach (var p in new[] { Fireball, Holy })
+        {
+            var path = $"{AttackDir}/{p.Prefab}.prefab";
+            if (AssetDatabase.LoadAssetAtPath<GameObject>(path) == null)
+                AssetDatabase.CopyAsset($"{AttackDir}/Bullet_NormalAttack.prefab", path);
+        }
 
         SetVisual(Fireball);
-        SetSkill(Fireball, AssetDatabase.LoadAssetAtPath<GameObject>(magePath));
+        SetSkill(Fireball, AssetDatabase.LoadAssetAtPath<GameObject>($"{AttackDir}/{Fireball.Prefab}.prefab"));
 
         // 척후병: 기존 프리팹에 바로 적용 (척후병만 사용)
         SetVisual(Arrow);
         SetSkill(Arrow, null);
 
+        SetVisual(Holy);
+        SetSkill(Holy, AssetDatabase.LoadAssetAtPath<GameObject>($"{AttackDir}/{Holy.Prefab}.prefab"));
+
+        foreach (var s in Strikes) SetStrike(s);
+
         AssetDatabase.SaveAssets();
-        Debug.Log("pixelfx: 마법사 fireball, 척후병 arrow 적용");
+        Debug.Log("pixelfx: 마법사, 척후병, 사제 투사체와 검투사, 군단병, 암살자 근접 이펙트 적용");
+    }
+
+    private static void SetStrike(Strike s)
+    {
+        var prefabPath = $"{AttackDir}/{s.Prefab}.prefab";
+        var root = PrefabUtility.LoadPrefabContents(prefabPath);
+        try
+        {
+            // 기존 PixelAttackFx 그림은 끔 (판정은 InstantTargetProcessor 그대로)
+            // 베이스 Flash 프리팹 일부가 없는 스프라이트를 가리켜서 Missing으로 보이므로 비움
+            foreach (var sr in root.GetComponentsInChildren<SpriteRenderer>(true))
+            {
+                sr.enabled = false;
+                sr.sprite = null;
+            }
+            foreach (var anim in root.GetComponentsInChildren<Animator>(true)) anim.enabled = false;
+
+            if (!root.TryGetComponent<PixelFxStrike>(out var strike)) strike = root.AddComponent<PixelFxStrike>();
+            strike.effects = s.Effects.Select(e =>
+            {
+                var fx = AssetDatabase.LoadAssetAtPath<GameObject>($"{FxDir}/Prefabs/{e.Fx}.prefab");
+                if (fx == null) Debug.LogWarning($"pixelfx: {e.Fx} 프리팹 없음");
+                return new PixelFxStrike.Entry
+                {
+                    effect = fx, fromOwner = e.FromOwner, offset = new Vector2(e.X, e.Y), scale = e.Scale, delay = e.Delay,
+                    lifetime = e.Lifetime, fade = e.Fade, speed = e.Speed, sortingOrder = SortingOrder + 10, maxTilt = e.MaxTilt,
+                };
+            }).ToArray();
+            strike.hits = s.Effects.SelectMany(ReadHits).ToArray();
+            strike.flashMaterial = FlashMaterial();
+
+            PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
+        }
+        finally
+        {
+            PrefabUtility.UnloadPrefabContents(root);
+        }
+
+        var skill = AssetDatabase.LoadAssetAtPath<SkillSO>($"Assets/BattleK/SO/Skills/00_NormalAttack/{s.Skill}.asset");
+        if (skill == null) return;
+        skill.WindupTime = s.Windup;
+        if (s.AnimationIndex >= 0) skill.AnimationIndex = s.AnimationIndex;
+        EditorUtility.SetDirty(skill);
+    }
+
+    // 시트 JSON meta.pixelfx.act.hits (t는 이펙트 시작부터, 재생 속도만큼 당김)
+#pragma warning disable CS0649 // JsonUtility가 채움
+    [System.Serializable] private class SheetJson { public SheetMeta meta; }
+    [System.Serializable] private class SheetMeta { public SheetFx pixelfx; }
+    [System.Serializable] private class SheetFx { public SheetAct act; }
+    [System.Serializable] private class SheetAct { public SheetHit[] hits; }
+    [System.Serializable] private class SheetHit { public float t, freeze, push; }
+#pragma warning restore CS0649
+
+    private static IEnumerable<PixelFxStrike.Hit> ReadHits(StrikeFx e)
+    {
+        var path = $"{FxDir}/Sheets/{e.Fx}.json";
+        if (!File.Exists(path)) yield break;
+        var hits = JsonUtility.FromJson<SheetJson>(File.ReadAllText(path))?.meta?.pixelfx?.act?.hits;
+        if (hits == null) yield break;
+        foreach (var h in hits)
+            yield return new PixelFxStrike.Hit
+            {
+                time = e.Delay + h.t / e.Speed, flash = FlashTime, freeze = h.freeze, push = Mathf.Abs(h.push) * PushPerUnit,
+            };
+    }
+
+    private static Material FlashMaterial()
+    {
+        var path = $"{FxDir}/PixelFxFlash.mat";
+        var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
+        if (mat != null) return mat;
+        var shader = Shader.Find("PixelFx/Flash");
+        if (shader == null)
+        {
+            Debug.LogWarning("pixelfx: PixelFx/Flash 셰이더 없음");
+            return null;
+        }
+        mat = new Material(shader);
+        AssetDatabase.CreateAsset(mat, path);
+        return mat;
     }
 
     private static void SetSkill(Projectile p, GameObject prefab)
@@ -169,6 +336,10 @@ public static class PixelFxProjectileSetup
             impact.depth = p.ImpactDepth;
             impact.height = p.ImpactHeight;
             impact.sortingOrder = SortingOrder + 10;
+            impact.flashMaterial = FlashMaterial();
+            impact.hitFlash = FlashTime;
+            impact.hitFreeze = RangedFreeze;
+            impact.hitPush = p.HitPush;
             if (impact.effect == null) Debug.LogWarning($"pixelfx: {p.Impact} 프리팹 없음");
 
             var move = root.GetComponent<ProjectileBase>();
