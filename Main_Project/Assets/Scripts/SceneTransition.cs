@@ -8,7 +8,8 @@ public class SceneTransition : MonoBehaviour
 
     [SerializeField] private CanvasGroup fade;   // 검은 전체화면 Image + CanvasGroup
     [SerializeField] private float duration = 0.4f;
-    
+    [SerializeField] private LoadingScreen loadingScreen; // 선택: 페이드 중 보이는 로딩 화면(진행 바)
+
     private bool _isBusy = false;
     public bool IsBusy => _isBusy;
 
@@ -32,10 +33,20 @@ public class SceneTransition : MonoBehaviour
     IEnumerator Co(string sceneName)
     {
         fade.blocksRaycasts = true;
+        if (loadingScreen != null) loadingScreen.Begin();
         yield return Fade(0f, 1f);                        // 검게
 
         var op = SceneManager.LoadSceneAsync(sceneName);  // 비동기 로드
-        while (!op.isDone) yield return null;
+        while (!op.isDone)
+        {
+            if (loadingScreen != null) loadingScreen.SetProgress(op.progress / 0.9f);
+            yield return null;
+        }
+        if (loadingScreen != null)
+        {
+            loadingScreen.SetProgress(1f);
+            while (!loadingScreen.IsCaughtUp) yield return null; // 바가 끝까지 찬 뒤 밝게
+        }
 
         yield return Fade(1f, 0f);                        // 밝게
         fade.blocksRaycasts = false;
