@@ -30,6 +30,39 @@ public class SceneTransition : MonoBehaviour
         StartCoroutine(Co(sceneName));
     }
 
+    public void LoadOverCurrentScene(string sceneName, float minimumWait)
+    {
+        if (_isBusy) return;
+        var operation = SceneManager.LoadSceneAsync(sceneName);
+        operation.allowSceneActivation = false;
+        _isBusy = true;
+        StartCoroutine(ShowHudUntilReady(operation, minimumWait));
+    }
+
+    private IEnumerator ShowHudUntilReady(AsyncOperation operation, float minimumWait)
+    {
+        loadingScreen.Begin(overCurrentScene: true);
+        fade.blocksRaycasts = true;
+        fade.alpha = 1f;
+        double earliestActivation = Time.realtimeSinceStartupAsDouble + minimumWait;
+
+        while (true)
+        {
+            loadingScreen.SetProgress(operation.progress / 0.9f);
+            if (operation.progress >= 0.9f && Time.realtimeSinceStartupAsDouble >= earliestActivation && loadingScreen.IsCaughtUp)
+                break;
+            yield return null;
+        }
+
+        operation.completed += _ =>
+        {
+            fade.alpha = 0f;
+            fade.blocksRaycasts = false;
+            _isBusy = false;
+        };
+        operation.allowSceneActivation = true;
+    }
+
     IEnumerator Co(string sceneName)
     {
         fade.blocksRaycasts = true;
