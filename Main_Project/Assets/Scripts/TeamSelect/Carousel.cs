@@ -14,12 +14,18 @@ public class Carousel : MonoBehaviour
     {
         public string familyId;
         public Color color;
+        [Range(0, 9)] public int crestSlot;
     }
 
     [Header("무기고 가문 색상")]
     [SerializeField] private Image armoryAccents;
     [SerializeField] private HouseColor[] houseColors;
     private string displayedFamily;
+    private Material sharedAccentMaterial;
+    private Material accentMaterial;
+    private static readonly int FromCrest = Shader.PropertyToID("_FromCrest");
+    private static readonly int ToCrest = Shader.PropertyToID("_ToCrest");
+    private static readonly int Elapsed = Shader.PropertyToID("_Elapsed");
 
     [Header("가문 전환 효과")]
     [Tooltip("방패·천이 흰색 쪽으로 빛나는 정도")]
@@ -67,7 +73,14 @@ public class Carousel : MonoBehaviour
         Loc.Changed += UpdateExplanation;
     }
 
-    void OnDestroy() => Loc.Changed -= UpdateExplanation;
+    void OnDestroy()
+    {
+        Loc.Changed -= UpdateExplanation;
+        if (accentMaterial == null) return;
+        accentMaterial.DOKill();
+        if (armoryAccents != null) armoryAccents.material = sharedAccentMaterial;
+        Destroy(accentMaterial);
+    }
 
     public void Rotate(int dir) // dir: -1 (왼쪽), +1 (오른쪽)
     {
@@ -162,6 +175,7 @@ public class Carousel : MonoBehaviour
         foreach (var house in houseColors)
         {
             if (house.familyId != familyId) continue;
+            ShowShieldCrest(house.crestSlot, animate);
             armoryAccents.enabled = true;
             if (animate)
             {
@@ -181,6 +195,29 @@ public class Carousel : MonoBehaviour
         Glow(houseHalo, Color.clear, 0f, 0f);
         Glow(lampGlow, Color.clear, 0f, 0f);
         Glow(floorGlow, Color.clear, 0f, 0f);
+    }
+
+    private void ShowShieldCrest(int slot, bool animate)
+    {
+        if (accentMaterial == null)
+        {
+            sharedAccentMaterial = armoryAccents.material;
+            if (!sharedAccentMaterial.HasProperty(Elapsed)) return;
+            accentMaterial = new Material(sharedAccentMaterial);
+            armoryAccents.material = accentMaterial;
+            animate = false;
+        }
+
+        // On a quick second press, start from the crest that is still dominant.
+        int visibleProperty = accentMaterial.GetFloat(Elapsed) < 0.14f ? FromCrest : ToCrest;
+        float previous = accentMaterial.GetFloat(visibleProperty);
+        accentMaterial.DOKill();
+        accentMaterial.SetFloat(FromCrest, animate ? previous : slot);
+        accentMaterial.SetFloat(ToCrest, slot);
+        const float duration = 0.76f;
+        accentMaterial.SetFloat(Elapsed, animate ? 0f : duration);
+        if (animate)
+            accentMaterial.DOFloat(duration, Elapsed, duration).SetEase(Ease.Linear);
     }
 
     private static void Glow(Image glow, Color color, float alpha, float duration)
