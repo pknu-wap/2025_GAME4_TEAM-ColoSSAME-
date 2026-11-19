@@ -98,7 +98,7 @@ Shader "UI/Armory Accents"
             }
 
             // 좌표(p)는 TeamArmory.png를 1280x720으로 본 기준 픽셀값.
-            // 방패 영역: x < 162, y > 515 / 문장 중심 (99, 581), 높이 116.
+            // 방패 영역: x 38~158, y 506~650 / 문장 중심 (99, 581), 높이 116. CrestMotion 타일도 이 영역(120x144) 기준.
             // TeamArmory 그림을 바꾸면 이 숫자들을 다시 재야 한다.
             fixed3 shieldPaint(float2 p, fixed3 wood)
             {

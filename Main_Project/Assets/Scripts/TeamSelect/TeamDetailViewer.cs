@@ -11,16 +11,17 @@ public class TeamDetailViewer : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private GameObject characterDetailsPanel;
     [SerializeField] private List<Image> characterPortraits;
-    [SerializeField] private List<Image> cardImages;       // 가문 공통 배경
-    [SerializeField] private List<Image> teamAttributes;   // 가문 공통 속성
     [SerializeField] private List<TMP_Text> characterName;
     [SerializeField] private List<Button> characterButtons;
     [SerializeField] private TMP_Text characterExplanationText;
     [SerializeField] private TMP_Text familyNameText;
     [SerializeField] private CanvasGroup panelCanvasGroup;
+    [SerializeField] private TMP_Text characterTitleText;   // 구분선 아래 큰 이름
+    [SerializeField] private Sprite selectedCardSprite;     // 선택한 카드 틀 (portrait_selected)
 
 
     private GameObject _selectedCharacterObject;
+    private readonly Dictionary<Image, Sprite> _normalCardSprites = new();
     private readonly List<AsyncOperationHandle<Sprite>> _portraitHandles = new();
 
     private List<CharacterData> shownCharacters;
@@ -43,11 +44,11 @@ public class TeamDetailViewer : MonoBehaviour
     private void RefreshTexts()
     {
         if (shownCharacters == null || shownCharacters.Count == 0) return;
-        this.familyNameText.text = Loc.FamilyName(shownCharacters[0].Family_ID, shownFamilyName);
+        this.familyNameText.text = PanelTitle(shownCharacters[0]);
         for (int i = 0; i < shownCharacters.Count && i < this.characterName.Count; i++)
-            this.characterName[i].text = Loc.UnitName(shownCharacters[i].Unit_ID, shownCharacters[i].Unit_Name);
+            this.characterName[i].text = CardName(shownCharacters[i]);
         if (shownCharacter != null)
-            this.characterExplanationText.text = Loc.UnitDescription(shownCharacter.Unit_ID, shownCharacter.Description);
+            ShowCharacterTexts(shownCharacter);
     }
 
     public void ShowDetails(string familyName)
@@ -88,21 +89,7 @@ public class TeamDetailViewer : MonoBehaviour
 
         shownCharacters = characters;
         shownFamilyName = familyName;
-        this.familyNameText.text = Loc.FamilyName(characters[0].Family_ID, familyName);
-        
-        // 가문 공통 이미지 (Resources)
-        string attributePath = $"TeamAttributes/{familyName}attribute";
-        string cardPath = $"TeamCards/{familyName}card";
-
-        Sprite attributeSprite = Resources.Load<Sprite>(attributePath);
-        Sprite cardSprite = Resources.Load<Sprite>(cardPath);
-
-        foreach (Image img in this.teamAttributes)
-            img.sprite = attributeSprite;
-
-        foreach (Image img in this.cardImages)
-            img.sprite = cardSprite;
-        
+        this.familyNameText.text = PanelTitle(characters[0]);
 
         // =========================
         // 🔹 캐릭터 개별 Portrait (Addressables)
@@ -135,7 +122,7 @@ public class TeamDetailViewer : MonoBehaviour
 
             this._portraitHandles.Add(handle);
 
-            this.characterName[i].text = Loc.UnitName(character.Unit_ID, character.Unit_Name);
+            this.characterName[i].text = CardName(character);
 
             int buttonIndex = i;
             this.characterButtons[i].onClick.RemoveAllListeners();
@@ -151,12 +138,7 @@ public class TeamDetailViewer : MonoBehaviour
         if (this._selectedCharacterObject == null)
             return;
 
-        Image img = this._selectedCharacterObject.GetComponent<Image>();
-        if (img != null && ShaderController.Instance != null)
-        {
-            img.material = ShaderController.Instance.normalOutlineMaterial;
-        }
-
+        SetCardSelected(this._selectedCharacterObject, false);
         this._selectedCharacterObject = null;
     }
 
@@ -174,6 +156,7 @@ public class TeamDetailViewer : MonoBehaviour
             });
 
         this.characterExplanationText.text = string.Empty;
+        if (this.characterTitleText != null) this.characterTitleText.text = string.Empty;
         this.ReleasePortraits();
     }
 
@@ -190,25 +173,45 @@ public class TeamDetailViewer : MonoBehaviour
 
     private void OnCharacterCardClick(CharacterData character, GameObject clickedCardObject)
     {
-        // 이전 선택 해제
         if (this._selectedCharacterObject != null)
-        {
-            Image prevImage = this._selectedCharacterObject.GetComponent<Image>();
-            if (prevImage != null && ShaderController.Instance != null)
-            {
-                prevImage.material = ShaderController.Instance.normalOutlineMaterial;
-            }
-        }
+            SetCardSelected(this._selectedCharacterObject, false);
 
-        // 새로운 선택
-        Image newImage = clickedCardObject.GetComponent<Image>();
-        if (newImage != null && ShaderController.Instance != null)
-        {
-            newImage.material = ShaderController.Instance.cardOutlineMaterial;
-            this._selectedCharacterObject = clickedCardObject;
-        }
+        SetCardSelected(clickedCardObject, true);
+        this._selectedCharacterObject = clickedCardObject;
 
         shownCharacter = character;
+        ShowCharacterTexts(character);
+    }
+
+    private void ShowCharacterTexts(CharacterData character)
+    {
+        if (this.characterTitleText != null)
+            this.characterTitleText.text = Loc.UnitName(character.Unit_ID, character.Unit_Name);
         this.characterExplanationText.text = Loc.UnitDescription(character.Unit_ID, character.Description);
+    }
+
+    // 선택한 카드는 selected 틀로 고정, 나머지는 원래 틀 + Sprite Swap(hover·pressed)
+    private void SetCardSelected(GameObject card, bool selected)
+    {
+        var image = card.GetComponent<Image>();
+        var button = card.GetComponent<Button>();
+        if (image == null) return;
+        if (!this._normalCardSprites.ContainsKey(image))
+            this._normalCardSprites[image] = image.sprite;
+
+        image.sprite = selected && this.selectedCardSprite != null ? this.selectedCardSprite : this._normalCardSprites[image];
+        if (button != null)
+            button.transition = selected ? Selectable.Transition.None : Selectable.Transition.SpriteSwap;
+    }
+
+    private static string PanelTitle(CharacterData character) =>
+        Loc.Get("house_core_title", Loc.FamilyName(character.Family_ID, character.Family_ID));
+
+    // "제피로스 카이루스" → "제피로스\n카이루스"
+    private static string CardName(CharacterData character)
+    {
+        string name = Loc.UnitName(character.Unit_ID, character.Unit_Name) ?? string.Empty;
+        int space = name.LastIndexOf(' ');
+        return space > 0 ? name.Substring(0, space) + "\n" + name.Substring(space + 1) : name;
     }
 }

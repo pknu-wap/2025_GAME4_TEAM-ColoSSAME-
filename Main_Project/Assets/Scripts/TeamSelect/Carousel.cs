@@ -28,7 +28,7 @@ public class Carousel : MonoBehaviour
     private static readonly int FromCrest = Shader.PropertyToID("_FromCrest");
     private static readonly int ToCrest = Shader.PropertyToID("_ToCrest");
     private static readonly int Elapsed = Shader.PropertyToID("_Elapsed");
-    // 방패 문장 바뀜·천 흔들림 전체 길이. ArmoryAccents.shader의 4.6(문장 쓸기), 0.70+0.06(천 흔들림)과 함께 바꿀 것.
+    // 방패 문장 바뀜·천 흔들림 전체 길이. ArmoryAccents.shader의 0.76·0.75(문장 붓질, CrestMotion 24프레임), 0.70+0.06(천 흔들림)과 함께 바꿀 것.
     private const float CrestSwapDuration = 0.76f;
 
     [Header("가문 전환 효과")]
