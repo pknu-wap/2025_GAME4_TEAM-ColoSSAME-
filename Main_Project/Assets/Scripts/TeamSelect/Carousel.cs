@@ -250,7 +250,9 @@ public class Carousel : MonoBehaviour
         }
 
         Team team = leagueManager.league.teams.Find(t => t.id == currentIndex + 1);
-        confirmPopup.Show(Loc.Get("teamselect_confirm", Loc.TeamName(team)), ConfirmTeamSelect);
+        string family = Loc.TeamName(team);
+        var banner = cards[currentIndex].GetComponent<Image>();
+        confirmPopup.Show(family, banner, Loc.Get("teamselect_confirm_q", family), ConfirmTeamSelect);
     }
 
     private void ConfirmTeamSelect()
