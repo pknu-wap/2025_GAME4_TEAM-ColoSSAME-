@@ -36,8 +36,6 @@ public class Carousel : MonoBehaviour
     [SerializeField, Range(0f, 1f)] private float flashAmount = 0.4f;
     [SerializeField] private float flashIn = 0.1f;
     [SerializeField] private float flashOut = 0.3f;
-    [SerializeField] private float punchScale = 1.1f;
-    [SerializeField] private float punchDuration = 0.25f;
     [SerializeField] private Image houseHalo;
     [SerializeField, Range(0f, 1f)] private float haloAlpha = 0.45f;
     [SerializeField] private Image lampGlow;
@@ -90,6 +88,8 @@ public class Carousel : MonoBehaviour
     {
         int index = Mathf.Clamp(currentIndex + dir, 0, cards.Count - 1);
         if (index == currentIndex) return;
+        if (cards[currentIndex].TryGetComponent<BannerCloth>(out var outgoingCloth))
+            outgoingCloth.StopArrival();
         currentIndex = index;
         UpdateCards(instant: false);
         UpdateExplanation();
@@ -131,11 +131,14 @@ public class Carousel : MonoBehaviour
             else
             {
                 card.DOAnchorPos(positions[slot], moveDuration).SetEase(Ease.OutQuad);
-                var grow = DOTween.Sequence().SetTarget(card)
-                    .Append(card.DOScale(scale, moveDuration).SetEase(Ease.OutQuad));
-                if (distance == 0 && punchScale > 1f)   // 새 가운데 깃발: 도착 후 살짝 튀어오름
-                    grow.Append(card.DOScale(scale * punchScale, punchDuration * 0.35f).SetEase(Ease.OutQuad))
-                        .Append(card.DOScale(scale, punchDuration * 0.65f).SetEase(Ease.OutQuad));
+                card.DOScale(scale, moveDuration).SetEase(Ease.OutQuad);
+                float offset = card.anchoredPosition.x - positions[slot].x;
+                if (distance == 0 && !Mathf.Approximately(offset, 0f))
+                {
+                    if (!card.TryGetComponent<BannerCloth>(out var cloth))
+                        cloth = card.gameObject.AddComponent<BannerCloth>();
+                    cloth.PlayArrival(Mathf.Sign(offset));
+                }
                 image.DOColor(color, moveDuration);
             }
         }
