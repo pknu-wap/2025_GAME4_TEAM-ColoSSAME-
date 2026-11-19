@@ -21,6 +21,21 @@ public class Carousel : MonoBehaviour
     [SerializeField] private HouseColor[] houseColors;
     private string displayedFamily;
 
+    [Header("가문 전환 효과")]
+    [Tooltip("방패·천이 흰색 쪽으로 빛나는 정도")]
+    [SerializeField, Range(0f, 1f)] private float flashAmount = 0.4f;
+    [SerializeField] private float flashIn = 0.1f;
+    [SerializeField] private float flashOut = 0.3f;
+    [SerializeField] private float punchScale = 1.1f;
+    [SerializeField] private float punchDuration = 0.25f;
+    [SerializeField] private Image houseHalo;
+    [SerializeField, Range(0f, 1f)] private float haloAlpha = 0.45f;
+    [SerializeField] private Image lampGlow;
+    [SerializeField, Range(0f, 1f)] private float lampAlpha = 0.5f;
+    [SerializeField] private Image floorGlow;
+    [SerializeField, Range(0f, 1f)] private float floorAlpha = 0.5f;
+    [SerializeField] private float lightDuration = 0.2f;
+
     [Header("가문 선택")]
     [SerializeField] private Vector2[] positions;
     [SerializeField] private Button previousButton;
@@ -99,10 +114,16 @@ public class Carousel : MonoBehaviour
             else
             {
                 card.DOAnchorPos(positions[slot], moveDuration).SetEase(Ease.OutQuad);
-                card.DOScale(scale, moveDuration).SetEase(Ease.OutQuad);
+                var grow = DOTween.Sequence().SetTarget(card)
+                    .Append(card.DOScale(scale, moveDuration).SetEase(Ease.OutQuad));
+                if (distance == 0 && punchScale > 1f)   // 새 가운데 깃발: 도착 후 살짝 튀어오름
+                    grow.Append(card.DOScale(scale * punchScale, punchDuration * 0.35f).SetEase(Ease.OutQuad))
+                        .Append(card.DOScale(scale, punchDuration * 0.65f).SetEase(Ease.OutQuad));
                 image.DOColor(color, moveDuration);
             }
         }
+
+        if (houseHalo != null) houseHalo.rectTransform.anchoredPosition = positions[center];
     }
 
     private static float ScaleForHeight(Image image, float targetHeight)
@@ -142,12 +163,33 @@ public class Carousel : MonoBehaviour
         {
             if (house.familyId != familyId) continue;
             armoryAccents.enabled = true;
-            if (animate) armoryAccents.DOColor(house.color, moveDuration).SetEase(Ease.OutQuad);
+            if (animate)
+            {
+                var peak = Color.Lerp(house.color, Color.white, flashAmount);
+                DOTween.Sequence().SetTarget(armoryAccents)
+                    .Append(armoryAccents.DOColor(peak, flashIn).SetEase(Ease.OutQuad))
+                    .Append(armoryAccents.DOColor(house.color, flashOut).SetEase(Ease.OutQuad));
+            }
             else armoryAccents.color = house.color;
+            Glow(houseHalo, house.color, haloAlpha, animate ? moveDuration : 0f);
+            Glow(lampGlow, house.color, lampAlpha, animate ? lightDuration : 0f);
+            Glow(floorGlow, house.color, floorAlpha, animate ? lightDuration : 0f);
             return;
         }
 
         armoryAccents.enabled = false;
+        Glow(houseHalo, Color.clear, 0f, 0f);
+        Glow(lampGlow, Color.clear, 0f, 0f);
+        Glow(floorGlow, Color.clear, 0f, 0f);
+    }
+
+    private static void Glow(Image glow, Color color, float alpha, float duration)
+    {
+        if (glow == null) return;
+        glow.DOKill();
+        color.a = alpha;
+        if (duration > 0f) glow.DOColor(color, duration).SetEase(Ease.OutQuad);
+        else glow.color = color;
     }
 
     // ✓ 버튼: 되돌릴 수 없는 선택이라 확인부터 받는다
