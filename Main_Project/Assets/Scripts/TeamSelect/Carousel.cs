@@ -8,20 +8,55 @@ public class Carousel : MonoBehaviour
 {
     public List<RectTransform> cards;
     public RectTransform backGround;
-    public Vector2[] positions;
-    int currentIndex = 0;
-    int numCards;
 
-    [Header("원근감 (y좌표로 깊이 계산)")]
-    [SerializeField] private float frontScale = 1.5f;                   // 맨 앞 카드 크기
-    [SerializeField] private float backScale = 0.75f;                   // 맨 뒤 카드 크기
-    [SerializeField, Range(0f, 1f)] private float backBrightness = 0.45f; // 맨 뒤 카드 밝기
+    [System.Serializable]
+    private struct HouseColor
+    {
+        public string familyId;
+        public Color color;
+        [Range(0, 9)] public int crestSlot;
+    }
+
+    [Header("무기고 가문 색상")]
+    [SerializeField] private Image armoryAccents;
+    [SerializeField] private HouseColor[] houseColors;
+    private string displayedFamily;
+    private Material sharedAccentMaterial;
+    private Material accentMaterial;
+    private static readonly int FromAge = Shader.PropertyToID("_FromAge");
+    private static readonly int FromOpacity = Shader.PropertyToID("_FromOpacity");
+    private static readonly int FromCrest = Shader.PropertyToID("_FromCrest");
+    private static readonly int ToCrest = Shader.PropertyToID("_ToCrest");
+    private static readonly int Elapsed = Shader.PropertyToID("_Elapsed");
+    // 방패 문장 바뀜·천 흔들림 전체 길이. ArmoryAccents.shader의 0.76·0.75(문장 붓질, CrestMotion 24프레임), 0.70+0.06(천 흔들림)과 함께 바꿀 것.
+    private const float CrestSwapDuration = 0.76f;
+
+    [Header("가문 전환 효과")]
+    [Tooltip("방패·천이 흰색 쪽으로 빛나는 정도")]
+    [SerializeField, Range(0f, 1f)] private float flashAmount = 0.4f;
+    [SerializeField] private float flashIn = 0.1f;
+    [SerializeField] private float flashOut = 0.3f;
+    [SerializeField] private Image houseHalo;
+    [SerializeField, Range(0f, 1f)] private float haloAlpha = 0.45f;
+    [SerializeField] private Image lampGlow;
+    [SerializeField, Range(0f, 1f)] private float lampAlpha = 0.5f;
+    [SerializeField] private Image floorGlow;
+    [SerializeField, Range(0f, 1f)] private float floorAlpha = 0.5f;
+    [SerializeField] private float lightDuration = 0.2f;
+
+    [Header("가문 선택")]
+    [SerializeField] private Vector2[] positions;
+    [SerializeField] private Button previousButton;
+    [SerializeField] private Button nextButton;
+    [SerializeField] private TMP_Text selectionIndex;
     [SerializeField] private float moveDuration = 0.3f;
+    [Tooltip("가운데, ±1, ±2 깃발 높이")]
+    [SerializeField] private float[] bannerHeights = { 310f, 200f, 145f };
+    [Tooltip("가운데, ±1, ±2 깃발 밝기")]
+    [SerializeField] private float[] bannerBrightness = { 1f, 0.85f, 0.74f };
 
-    // 카드 안 그래픽들의 원래 색 (어둡게 할 때 기준)
-    private readonly Dictionary<Graphic, Color> baseColors = new();
+    private int currentIndex;
     public LeagueManager leagueManager;
-    public Image teamImages;
     public TMP_Text teamName;
     public TMP_Text teamText;
     
@@ -35,104 +70,177 @@ public class Carousel : MonoBehaviour
     {
         if (leagueManager == null)
             leagueManager = LeagueManager.Instance;
-        numCards = cards.Count;
         UpdateCards(instant: true);   // 카드 먼저 (설명 쪽이 실패해도 배치는 되도록), 첫 배치는 즉시
         UpdateExplanation();
         Loc.Changed += UpdateExplanation;
     }
 
-    void OnDestroy() => Loc.Changed -= UpdateExplanation;
+    void OnDestroy()
+    {
+        Loc.Changed -= UpdateExplanation;
+        if (accentMaterial == null) return;
+        accentMaterial.DOKill();
+        if (armoryAccents != null) armoryAccents.material = sharedAccentMaterial;
+        Destroy(accentMaterial);
+    }
 
     public void Rotate(int dir) // dir: -1 (왼쪽), +1 (오른쪽)
     {
-        currentIndex = (currentIndex + dir + numCards) % numCards;
+        int index = Mathf.Clamp(currentIndex + dir, 0, cards.Count - 1);
+        if (index == currentIndex) return;
+        if (cards[currentIndex].TryGetComponent<BannerCloth>(out var outgoingCloth))
+            outgoingCloth.StopArrival();
+        currentIndex = index;
         UpdateCards(instant: false);
         UpdateExplanation();
     }
 
-    int PosIndexOf(int cardIndex) => (cardIndex - currentIndex + numCards) % numCards;
-
-    void UpdateCards(bool instant)
+    private void UpdateCards(bool instant)
     {
-        // y가 작을수록 앞(화면 아래), 클수록 뒤
-        float minY = float.MaxValue, maxY = float.MinValue;
-        foreach (var p in positions)
+        int center = positions.Length / 2;
+        if (previousButton != null) previousButton.interactable = currentIndex > 0;
+        if (nextButton != null) nextButton.interactable = currentIndex < cards.Count - 1;
+        if (selectionIndex != null) selectionIndex.text = $"{currentIndex + 1} / {cards.Count}";
+
+        for (int i = 0; i < cards.Count; i++)
         {
-            minY = Mathf.Min(minY, p.y);
-            maxY = Mathf.Max(maxY, p.y);
-        }
-
-        // 1. 그리는 순서: 뒤 카드부터 → 앞 카드가 항상 위에 (선택 카드가 가려지지 않게)
-        int baseSibling = int.MaxValue;
-        foreach (var c in cards) baseSibling = Mathf.Min(baseSibling, c.GetSiblingIndex());
-
-        var order = new List<int>();
-        for (int i = 0; i < numCards; i++) order.Add(i);
-        order.Sort((a, b) => positions[PosIndexOf(b)].y.CompareTo(positions[PosIndexOf(a)].y));
-        for (int s = 0; s < order.Count; s++) cards[order[s]].SetSiblingIndex(baseSibling + s);
-
-        // 2. 위치 / 크기 / 밝기를 깊이에 맞춰 (첫 배치는 즉시, 회전은 애니메이션)
-        for (int i = 0; i < numCards; i++)
-        {
-            int posIndex = PosIndexOf(i);
-            Vector2 pos = positions[posIndex];
-            float depth = Mathf.InverseLerp(minY, maxY, pos.y);   // 0 = 맨 앞, 1 = 맨 뒤
-            Vector3 scale = Vector3.one * Mathf.Lerp(frontScale, backScale, depth);
-
-            cards[i].DOKill();
-            if (instant)
+            var card = cards[i];
+            var image = card.GetComponent<Image>();
+            int distance = Mathf.Abs(i - currentIndex);
+            int slot = i - currentIndex + center;
+            card.DOKill();
+            image.DOKill();
+            if (slot < 0 || slot >= positions.Length)
             {
-                cards[i].anchoredPosition = pos;
-                cards[i].localScale = scale;
+                card.gameObject.SetActive(false);
+                continue;
+            }
+
+            bool snap = instant || !card.gameObject.activeSelf;
+            card.gameObject.SetActive(true);
+            float targetHeight = bannerHeights[Mathf.Min(distance, bannerHeights.Length - 1)];
+            float scale = ScaleForHeight(image, targetHeight);
+            float brightness = bannerBrightness[Mathf.Min(distance, bannerBrightness.Length - 1)];
+            var color = new Color(brightness, brightness, brightness, 1f);
+            if (snap)
+            {
+                card.anchoredPosition = positions[slot];
+                card.localScale = Vector3.one * scale;
+                image.color = color;
             }
             else
             {
-                cards[i].DOAnchorPos(pos, moveDuration).SetEase(Ease.OutQuad);
-                cards[i].DOScale(scale, moveDuration).SetEase(Ease.OutQuad);
+                card.DOAnchorPos(positions[slot], moveDuration).SetEase(Ease.OutQuad);
+                card.DOScale(scale, moveDuration).SetEase(Ease.OutQuad);
+                float offset = card.anchoredPosition.x - positions[slot].x;
+                if (distance == 0 && !Mathf.Approximately(offset, 0f))
+                {
+                    if (!card.TryGetComponent<BannerCloth>(out var cloth))
+                        cloth = card.gameObject.AddComponent<BannerCloth>();
+                    cloth.PlayArrival(Mathf.Sign(offset));
+                }
+                image.DOColor(color, moveDuration);
             }
-            Tint(cards[i], Mathf.Lerp(1f, backBrightness, depth), instant);
-
-            Image cardImage = cards[i].GetComponent<Image>();
-            cardImage.material = posIndex == 0
-                ? ShaderController.Instance.bannerOutlineMaterial   // 선택된 카드
-                : ShaderController.Instance.normalOutlineMaterial;
         }
+
+        if (houseHalo != null) houseHalo.rectTransform.anchoredPosition = positions[center];
     }
 
-    // 카드와 자식 그래픽 전부를 원래 색 × 밝기로
-    void Tint(RectTransform card, float brightness, bool instant)
+    private static float ScaleForHeight(Image image, float targetHeight)
     {
-        foreach (var g in card.GetComponentsInChildren<Graphic>(true))
+        var box = image.rectTransform.rect;
+        var sprite = image.overrideSprite;
+        float fittedHeight = box.height;
+        if (image.preserveAspect && sprite != null && sprite.rect.width > 0f)
         {
-            if (!baseColors.TryGetValue(g, out var baseColor))
-                baseColors[g] = baseColor = g.color;
-
-            var target = new Color(baseColor.r * brightness, baseColor.g * brightness, baseColor.b * brightness, baseColor.a);
-            g.DOKill();
-            if (instant) g.color = target;
-            else g.DOColor(target, moveDuration);
+            float heightAtBoxWidth = box.width * sprite.rect.height / sprite.rect.width;
+            fittedHeight = Mathf.Min(box.height, heightAtBoxWidth);
         }
+        return fittedHeight > 0f ? targetHeight / fittedHeight : 1f;
     }
-    
-    private Sprite GetTeamSprite(int teamId)
+
+    public void ReturnToMainMenu()
     {
-        string path = $"TeamImages/team_{teamId}";
-        Sprite sprite = Resources.Load<Sprite>(path);
-
-        if (sprite == null) 
-        {
-            Debug.LogWarning($"팀 스프라이트를 찾을 수 없습니다: {path}");
-        }
-
-        return sprite;
+        SceneTransition.Instance.Load("MainMenu");
     }
 
     void UpdateExplanation()
     {
         Team myTeam = leagueManager.league.teams.Find(t => t.id == currentIndex+1);
-        teamImages.sprite = GetTeamSprite(myTeam.id);
+        UpdateArmoryColor(myTeam.fid);
         teamName.text = Loc.TeamName(myTeam);
         teamText.text = Loc.TeamDescription(myTeam);
+    }
+
+    private void UpdateArmoryColor(string familyId)
+    {
+        if (armoryAccents == null || houseColors == null || displayedFamily == familyId) return;
+
+        bool animate = armoryAccents.enabled;
+        armoryAccents.DOKill();
+        displayedFamily = familyId;
+        foreach (var house in houseColors)
+        {
+            if (house.familyId != familyId) continue;
+            ShowShieldCrest(house.crestSlot, animate);
+            armoryAccents.enabled = true;
+            if (animate)
+            {
+                var peak = Color.Lerp(house.color, Color.white, flashAmount);
+                DOTween.Sequence().SetTarget(armoryAccents)
+                    .Append(armoryAccents.DOColor(peak, flashIn).SetEase(Ease.OutQuad))
+                    .Append(armoryAccents.DOColor(house.color, flashOut).SetEase(Ease.OutQuad));
+            }
+            else armoryAccents.color = house.color;
+            Glow(houseHalo, house.color, haloAlpha, animate ? moveDuration : 0f);
+            Glow(lampGlow, house.color, lampAlpha, animate ? lightDuration : 0f);
+            Glow(floorGlow, house.color, floorAlpha, animate ? lightDuration : 0f);
+            return;
+        }
+
+        armoryAccents.enabled = false;
+        Glow(houseHalo, Color.clear, 0f, 0f);
+        Glow(lampGlow, Color.clear, 0f, 0f);
+        Glow(floorGlow, Color.clear, 0f, 0f);
+    }
+
+    private void ShowShieldCrest(int slot, bool animate)
+    {
+        if (accentMaterial == null)
+        {
+            sharedAccentMaterial = armoryAccents.material;
+            if (!sharedAccentMaterial.HasProperty(Elapsed)) return;
+            accentMaterial = new Material(sharedAccentMaterial);
+            armoryAccents.material = accentMaterial;
+            animate = false;
+        }
+
+        // Keep only the painted portion when a second arrow press interrupts a stroke.
+        float age = accentMaterial.GetFloat(Elapsed);
+        int selected = Mathf.RoundToInt(accentMaterial.GetFloat(ToCrest));
+        bool useOutgoing = animate && age < 0.14f;
+        float previous = useOutgoing ? accentMaterial.GetFloat(FromCrest) : selected;
+        float previousAge = useOutgoing ? accentMaterial.GetFloat(FromAge) : age;
+        float opacity = useOutgoing
+            ? accentMaterial.GetFloat(FromOpacity) * (1f - Mathf.SmoothStep(0f, 1f, age / 0.15f))
+            : 1f;
+        accentMaterial.DOKill();
+        accentMaterial.SetFloat(FromCrest, animate ? previous : slot);
+        accentMaterial.SetFloat(FromAge, animate ? previousAge : CrestSwapDuration);
+        accentMaterial.SetFloat(FromOpacity, opacity);
+        accentMaterial.SetFloat(ToCrest, slot);
+        accentMaterial.SetFloat(Elapsed, animate ? 0f : CrestSwapDuration);
+        if (animate)
+            accentMaterial.DOFloat(CrestSwapDuration, Elapsed, CrestSwapDuration).SetEase(Ease.Linear);
+    }
+
+    private static void Glow(Image glow, Color color, float alpha, float duration)
+    {
+        if (glow == null) return;
+        glow.DOKill();
+        color.a = alpha;
+        if (duration > 0f) glow.DOColor(color, duration).SetEase(Ease.OutQuad);
+        else glow.color = color;
     }
 
     // ✓ 버튼: 되돌릴 수 없는 선택이라 확인부터 받는다
@@ -145,7 +253,9 @@ public class Carousel : MonoBehaviour
         }
 
         Team team = leagueManager.league.teams.Find(t => t.id == currentIndex + 1);
-        confirmPopup.Show(Loc.Get("teamselect_confirm", Loc.TeamName(team)), ConfirmTeamSelect);
+        string family = Loc.TeamName(team);
+        var banner = cards[currentIndex].GetComponent<Image>();
+        confirmPopup.Show(family, banner, Loc.Get("teamselect_confirm_q", family), ConfirmTeamSelect);
     }
 
     private void ConfirmTeamSelect()
