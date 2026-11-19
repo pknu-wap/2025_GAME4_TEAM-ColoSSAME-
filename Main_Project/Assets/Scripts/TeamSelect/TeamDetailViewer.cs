@@ -200,6 +200,8 @@ public class TeamDetailViewer : MonoBehaviour
             this._normalCardSprites[image] = image.sprite;
 
         image.sprite = selected && this.selectedCardSprite != null ? this.selectedCardSprite : this._normalCardSprites[image];
+        // Sprite Swap은 overrideSprite로 그림을 덮으므로, 남아 있는 상태 그림(selected/pressed)을 지워야 위 sprite가 보인다
+        image.overrideSprite = null;
         if (button != null)
             button.transition = selected ? Selectable.Transition.None : Selectable.Transition.SpriteSwap;
     }
