@@ -19,6 +19,7 @@ public class PixelFxStrike : MonoBehaviour
         public float speed = 1f;    // 재생 속도
         public int sortingOrder = 60;
         public float maxTilt = -1f; // 0 이상이면 이 이펙트만 이 각도까지 기울임 (-1이면 컴포넌트 값)
+        public float skip;          // 이펙트 앞부분을 이만큼 건너뛰고 시작 (초)
     }
 
     // 맞는 반응 (PixelFxHitReact). time은 이펙트 시작부터, push는 월드 거리
@@ -57,9 +58,11 @@ public class PixelFxStrike : MonoBehaviour
         var owner = _logic && OwnerField != null ? OwnerField.GetValue(_logic) as Component : null;
         var target = transform.position;
         var self = owner ? owner.transform.position : target;
+        var victim = _logic && TargetField != null ? TargetField.GetValue(_logic) as Transform : null;
 
         // 상대 쪽으로 기울이되 옆으로 휘두르는 모션과 너무 어긋나지 않게 maxTilt까지만
-        var to = (Vector2)(target - self);
+        // 스킬은 시전자 자리에서 생기므로 방향은 상대 기준
+        var to = (Vector2)((victim ? victim.position : target) - self);
         var dir = to.x < 0f ? -1f : 1f;
         var aim = to.sqrMagnitude > 0.0001f ? Mathf.Atan2(to.y, Mathf.Abs(to.x)) * Mathf.Rad2Deg : 0f;
 
@@ -74,7 +77,6 @@ public class PixelFxStrike : MonoBehaviour
         }
 
         if (hits == null || hits.Length == 0) return;
-        var victim = _logic && TargetField != null ? TargetField.GetValue(_logic) as Transform : null;
         var push = to.sqrMagnitude > 0.0001f ? to.normalized : new Vector2(dir, 0f);
         foreach (var h in hits)
             PixelFxHitReact.Play(victim, push, h.time, h.flash, h.freeze, h.push, flashMaterial);
@@ -91,6 +93,7 @@ public class PixelFxStrike : MonoBehaviour
         // 좌우 반전된 그림은 반대로 돌려야 같은 쪽으로 기울어짐
         var angle = tilt * dir;
         var pos = origin + Quaternion.Euler(0f, 0f, angle) * new Vector3(e.offset.x * dir, e.offset.y, 0f);
-        PixelFxImpact.Spawn(e.effect, pos, e.scale, dir, e.sortingOrder, e.lifetime, e.fade, e.speed, angle);
+        var fx = PixelFxImpact.Spawn(e.effect, pos, e.scale, dir, e.sortingOrder, e.lifetime, e.fade, e.speed, angle);
+        if (e.skip > 0f && fx.TryGetComponent<Animator>(out var anim)) anim.Update(e.skip / Mathf.Max(0.01f, e.speed));
     }
 }
