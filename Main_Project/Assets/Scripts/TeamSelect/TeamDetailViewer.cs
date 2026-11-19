@@ -33,7 +33,12 @@ public class TeamDetailViewer : MonoBehaviour
         Loc.Changed += RefreshTexts;
     }
 
-    private void OnDestroy() => Loc.Changed -= RefreshTexts;
+    private void OnDestroy()
+    {
+        Loc.Changed -= RefreshTexts;
+        shownCharacters = null;
+        ReleasePortraits();
+    }
 
     private void RefreshTexts()
     {
@@ -54,7 +59,10 @@ public class TeamDetailViewer : MonoBehaviour
         }
 
         List<CharacterData> characters =
-            UnitDataManager.Instance.GetFamilyUnits(familyName);
+            UnitDataManager.Instance.GetFamilyUnits(familyName)?.FindAll(unit => !unit.Unit_ID.Contains("_Recruit_"));
+
+        if (characters != null && characters.Count > characterButtons.Count)
+            characters = characters.GetRange(0, characterButtons.Count);
 
         if (characters == null || characters.Count == 0)
         {
@@ -62,6 +70,8 @@ public class TeamDetailViewer : MonoBehaviour
             return;
         }
 
+        this.panelCanvasGroup.DOKill();
+        this.ReleasePortraits();
         this.characterDetailsPanel.SetActive(true);
         this.panelCanvasGroup.alpha = 0f;
         this.panelCanvasGroup.DOFade(1f, 0.25f)
@@ -72,6 +82,9 @@ public class TeamDetailViewer : MonoBehaviour
                     characters[0],
                     this.characterButtons[0].gameObject);
             });
+
+        for (int i = 0; i < characterButtons.Count; i++)
+            characterButtons[i].gameObject.SetActive(i < characters.Count);
 
         shownCharacters = characters;
         shownFamilyName = familyName;
@@ -109,6 +122,7 @@ public class TeamDetailViewer : MonoBehaviour
 
             handle.Completed += op =>
             {
+                if (shownCharacters != characters) return;
                 if (op.Status == AsyncOperationStatus.Succeeded)
                 {
                     this.characterPortraits[index].sprite = op.Result;
@@ -149,7 +163,10 @@ public class TeamDetailViewer : MonoBehaviour
     public void OnCloseButtonClick()
     {
         this.ClearSelection();
-        
+        this.panelCanvasGroup.DOKill();
+        shownCharacters = null;
+        shownCharacter = null;
+
         this.panelCanvasGroup.DOFade(0f, 0.2f)
             .OnComplete(() =>
             {

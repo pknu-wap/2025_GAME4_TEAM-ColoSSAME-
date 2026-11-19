@@ -8,20 +8,28 @@ public class Carousel : MonoBehaviour
 {
     public List<RectTransform> cards;
     public RectTransform backGround;
-    public Vector2[] positions;
-    int currentIndex = 0;
-    int numCards;
 
-    [Header("원근감 (y좌표로 깊이 계산)")]
-    [SerializeField] private float frontScale = 1.5f;                   // 맨 앞 카드 크기
-    [SerializeField] private float backScale = 0.75f;                   // 맨 뒤 카드 크기
-    [SerializeField, Range(0f, 1f)] private float backBrightness = 0.45f; // 맨 뒤 카드 밝기
+    [System.Serializable]
+    private struct HouseColor
+    {
+        public string familyId;
+        public Color color;
+    }
+
+    [Header("무기고 가문 색상")]
+    [SerializeField] private Image armoryAccents;
+    [SerializeField] private HouseColor[] houseColors;
+    private string displayedFamily;
+
+    [Header("가문 선택")]
+    [SerializeField] private Vector2[] positions;
+    [SerializeField] private Button previousButton;
+    [SerializeField] private Button nextButton;
+    [SerializeField] private TMP_Text selectionIndex;
     [SerializeField] private float moveDuration = 0.3f;
 
-    // 카드 안 그래픽들의 원래 색 (어둡게 할 때 기준)
-    private readonly Dictionary<Graphic, Color> baseColors = new();
+    private int currentIndex;
     public LeagueManager leagueManager;
-    public Image teamImages;
     public TMP_Text teamName;
     public TMP_Text teamText;
     
@@ -35,7 +43,6 @@ public class Carousel : MonoBehaviour
     {
         if (leagueManager == null)
             leagueManager = LeagueManager.Instance;
-        numCards = cards.Count;
         UpdateCards(instant: true);   // 카드 먼저 (설명 쪽이 실패해도 배치는 되도록), 첫 배치는 즉시
         UpdateExplanation();
         Loc.Changed += UpdateExplanation;
@@ -45,94 +52,98 @@ public class Carousel : MonoBehaviour
 
     public void Rotate(int dir) // dir: -1 (왼쪽), +1 (오른쪽)
     {
-        currentIndex = (currentIndex + dir + numCards) % numCards;
+        int index = Mathf.Clamp(currentIndex + dir, 0, cards.Count - 1);
+        if (index == currentIndex) return;
+        currentIndex = index;
         UpdateCards(instant: false);
         UpdateExplanation();
     }
 
-    int PosIndexOf(int cardIndex) => (cardIndex - currentIndex + numCards) % numCards;
-
-    void UpdateCards(bool instant)
+    private void UpdateCards(bool instant)
     {
-        // y가 작을수록 앞(화면 아래), 클수록 뒤
-        float minY = float.MaxValue, maxY = float.MinValue;
-        foreach (var p in positions)
+        int center = positions.Length / 2;
+        previousButton.interactable = currentIndex > 0;
+        nextButton.interactable = currentIndex < cards.Count - 1;
+        selectionIndex.text = $"{currentIndex + 1} / {cards.Count}";
+
+        for (int i = 0; i < cards.Count; i++)
         {
-            minY = Mathf.Min(minY, p.y);
-            maxY = Mathf.Max(maxY, p.y);
-        }
-
-        // 1. 그리는 순서: 뒤 카드부터 → 앞 카드가 항상 위에 (선택 카드가 가려지지 않게)
-        int baseSibling = int.MaxValue;
-        foreach (var c in cards) baseSibling = Mathf.Min(baseSibling, c.GetSiblingIndex());
-
-        var order = new List<int>();
-        for (int i = 0; i < numCards; i++) order.Add(i);
-        order.Sort((a, b) => positions[PosIndexOf(b)].y.CompareTo(positions[PosIndexOf(a)].y));
-        for (int s = 0; s < order.Count; s++) cards[order[s]].SetSiblingIndex(baseSibling + s);
-
-        // 2. 위치 / 크기 / 밝기를 깊이에 맞춰 (첫 배치는 즉시, 회전은 애니메이션)
-        for (int i = 0; i < numCards; i++)
-        {
-            int posIndex = PosIndexOf(i);
-            Vector2 pos = positions[posIndex];
-            float depth = Mathf.InverseLerp(minY, maxY, pos.y);   // 0 = 맨 앞, 1 = 맨 뒤
-            Vector3 scale = Vector3.one * Mathf.Lerp(frontScale, backScale, depth);
-
-            cards[i].DOKill();
-            if (instant)
+            var card = cards[i];
+            var image = card.GetComponent<Image>();
+            int distance = Mathf.Abs(i - currentIndex);
+            int slot = i - currentIndex + center;
+            card.DOKill();
+            image.DOKill();
+            if (slot < 0 || slot >= positions.Length)
             {
-                cards[i].anchoredPosition = pos;
-                cards[i].localScale = scale;
+                card.gameObject.SetActive(false);
+                continue;
+            }
+
+            bool snap = instant || !card.gameObject.activeSelf;
+            card.gameObject.SetActive(true);
+            float targetHeight = distance == 0 ? 310f : distance == 1 ? 200f : 145f;
+            float scale = ScaleForHeight(image, targetHeight);
+            float brightness = distance == 0 ? 1f : distance == 1 ? 0.85f : 0.74f;
+            var color = new Color(brightness, brightness, brightness, 1f);
+            if (snap)
+            {
+                card.anchoredPosition = positions[slot];
+                card.localScale = Vector3.one * scale;
+                image.color = color;
             }
             else
             {
-                cards[i].DOAnchorPos(pos, moveDuration).SetEase(Ease.OutQuad);
-                cards[i].DOScale(scale, moveDuration).SetEase(Ease.OutQuad);
+                card.DOAnchorPos(positions[slot], moveDuration).SetEase(Ease.OutQuad);
+                card.DOScale(scale, moveDuration).SetEase(Ease.OutQuad);
+                image.DOColor(color, moveDuration);
             }
-            Tint(cards[i], Mathf.Lerp(1f, backBrightness, depth), instant);
-
-            Image cardImage = cards[i].GetComponent<Image>();
-            cardImage.material = posIndex == 0
-                ? ShaderController.Instance.bannerOutlineMaterial   // 선택된 카드
-                : ShaderController.Instance.normalOutlineMaterial;
         }
     }
 
-    // 카드와 자식 그래픽 전부를 원래 색 × 밝기로
-    void Tint(RectTransform card, float brightness, bool instant)
+    private static float ScaleForHeight(Image image, float targetHeight)
     {
-        foreach (var g in card.GetComponentsInChildren<Graphic>(true))
+        var box = image.rectTransform.rect;
+        var sprite = image.overrideSprite;
+        float fittedHeight = box.height;
+        if (image.preserveAspect && sprite != null && sprite.rect.width > 0f)
         {
-            if (!baseColors.TryGetValue(g, out var baseColor))
-                baseColors[g] = baseColor = g.color;
-
-            var target = new Color(baseColor.r * brightness, baseColor.g * brightness, baseColor.b * brightness, baseColor.a);
-            g.DOKill();
-            if (instant) g.color = target;
-            else g.DOColor(target, moveDuration);
+            float heightAtBoxWidth = box.width * sprite.rect.height / sprite.rect.width;
+            fittedHeight = Mathf.Min(box.height, heightAtBoxWidth);
         }
+        return fittedHeight > 0f ? targetHeight / fittedHeight : 1f;
     }
-    
-    private Sprite GetTeamSprite(int teamId)
+
+    public void ReturnToMainMenu()
     {
-        string path = $"TeamImages/team_{teamId}";
-        Sprite sprite = Resources.Load<Sprite>(path);
-
-        if (sprite == null) 
-        {
-            Debug.LogWarning($"팀 스프라이트를 찾을 수 없습니다: {path}");
-        }
-
-        return sprite;
+        SceneTransition.Instance.Load("MainMenu");
     }
 
     void UpdateExplanation()
     {
         Team myTeam = leagueManager.league.teams.Find(t => t.id == currentIndex+1);
-        teamImages.sprite = GetTeamSprite(myTeam.id);
+        UpdateArmoryColor(myTeam.fid);
         teamName.text = Loc.TeamName(myTeam);
         teamText.text = Loc.TeamDescription(myTeam);
+    }
+
+    private void UpdateArmoryColor(string familyId)
+    {
+        if (armoryAccents == null || houseColors == null || displayedFamily == familyId) return;
+
+        bool animate = armoryAccents.enabled;
+        armoryAccents.DOKill();
+        displayedFamily = familyId;
+        foreach (var house in houseColors)
+        {
+            if (house.familyId != familyId) continue;
+            armoryAccents.enabled = true;
+            if (animate) armoryAccents.DOColor(house.color, moveDuration).SetEase(Ease.OutQuad);
+            else armoryAccents.color = house.color;
+            return;
+        }
+
+        armoryAccents.enabled = false;
     }
 
     // ✓ 버튼: 되돌릴 수 없는 선택이라 확인부터 받는다
