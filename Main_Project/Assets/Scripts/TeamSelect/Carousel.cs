@@ -26,6 +26,8 @@ public class Carousel : MonoBehaviour
     private static readonly int FromCrest = Shader.PropertyToID("_FromCrest");
     private static readonly int ToCrest = Shader.PropertyToID("_ToCrest");
     private static readonly int Elapsed = Shader.PropertyToID("_Elapsed");
+    // 방패 문장 바뀜·천 흔들림 전체 길이. ArmoryAccents.shader의 4.6(문장 쓸기), 0.70+0.06(천 흔들림)과 함께 바꿀 것.
+    private const float CrestSwapDuration = 0.76f;
 
     [Header("가문 전환 효과")]
     [Tooltip("방패·천이 흰색 쪽으로 빛나는 정도")]
@@ -214,10 +216,9 @@ public class Carousel : MonoBehaviour
         accentMaterial.DOKill();
         accentMaterial.SetFloat(FromCrest, animate ? previous : slot);
         accentMaterial.SetFloat(ToCrest, slot);
-        const float duration = 0.76f;
-        accentMaterial.SetFloat(Elapsed, animate ? 0f : duration);
+        accentMaterial.SetFloat(Elapsed, animate ? 0f : CrestSwapDuration);
         if (animate)
-            accentMaterial.DOFloat(duration, Elapsed, duration).SetEase(Ease.Linear);
+            accentMaterial.DOFloat(CrestSwapDuration, Elapsed, CrestSwapDuration).SetEase(Ease.Linear);
     }
 
     private static void Glow(Image glow, Color color, float alpha, float duration)

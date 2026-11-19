@@ -54,6 +54,10 @@ Shader "UI/Armory Accents"
                 return tex2D(_Crests, (cell + float2(local.x, 1.0 - local.y)) / float2(5, 2));
             }
 
+            // 좌표(p)는 TeamArmory.png를 1280x720으로 본 기준 픽셀값.
+            // 방패 영역: x < 162, y > 515 / 문장 중심 (99, 581), 높이 116.
+            // TeamArmory 그림을 바꾸면 이 숫자들을 다시 재야 한다.
+            // 문장 쓸기 속도 4.6은 Carousel.CrestSwapDuration(0.76초) 안에 끝나도록 맞춘 값.
             fixed3 shieldPaint(float2 p, fixed3 wood)
             {
                 float v = (p.y - 581.0) / 116.0;
@@ -82,6 +86,8 @@ Shader "UI/Armory Accents"
                 return tex2D(_RoomTex, downMask <= sideMask ? down : side).rgb;
             }
 
+            // 천 영역: x > 1060, y > 515 (1280x720 기준).
+            // 천 흔들림 길이 0.70초(+시작 지연 0.06초)는 Carousel.CrestSwapDuration(0.76초)와 같이 바꿔야 한다.
             fixed4 frag(Interpolator i) : SV_Target
             {
                 const float2 size = float2(1280, 720);
