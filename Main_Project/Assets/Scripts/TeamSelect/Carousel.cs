@@ -23,6 +23,8 @@ public class Carousel : MonoBehaviour
     private string displayedFamily;
     private Material sharedAccentMaterial;
     private Material accentMaterial;
+    private static readonly int FromAge = Shader.PropertyToID("_FromAge");
+    private static readonly int FromOpacity = Shader.PropertyToID("_FromOpacity");
     private static readonly int FromCrest = Shader.PropertyToID("_FromCrest");
     private static readonly int ToCrest = Shader.PropertyToID("_ToCrest");
     private static readonly int Elapsed = Shader.PropertyToID("_Elapsed");
@@ -210,11 +212,19 @@ public class Carousel : MonoBehaviour
             animate = false;
         }
 
-        // On a quick second press, start from the crest that is still dominant.
-        int visibleProperty = accentMaterial.GetFloat(Elapsed) < 0.14f ? FromCrest : ToCrest;
-        float previous = accentMaterial.GetFloat(visibleProperty);
+        // Keep only the painted portion when a second arrow press interrupts a stroke.
+        float age = accentMaterial.GetFloat(Elapsed);
+        int selected = Mathf.RoundToInt(accentMaterial.GetFloat(ToCrest));
+        bool useOutgoing = animate && age < 0.14f;
+        float previous = useOutgoing ? accentMaterial.GetFloat(FromCrest) : selected;
+        float previousAge = useOutgoing ? accentMaterial.GetFloat(FromAge) : age;
+        float opacity = useOutgoing
+            ? accentMaterial.GetFloat(FromOpacity) * (1f - Mathf.SmoothStep(0f, 1f, age / 0.15f))
+            : 1f;
         accentMaterial.DOKill();
         accentMaterial.SetFloat(FromCrest, animate ? previous : slot);
+        accentMaterial.SetFloat(FromAge, animate ? previousAge : CrestSwapDuration);
+        accentMaterial.SetFloat(FromOpacity, opacity);
         accentMaterial.SetFloat(ToCrest, slot);
         accentMaterial.SetFloat(Elapsed, animate ? 0f : CrestSwapDuration);
         if (animate)
