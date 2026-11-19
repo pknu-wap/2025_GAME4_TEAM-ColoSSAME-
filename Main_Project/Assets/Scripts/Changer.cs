@@ -12,11 +12,17 @@ namespace Battle.Scripts
     {
         [SerializeField] private string sceneToLoad;
         [SerializeField] private float loadingtime;
+        [SerializeField] private bool showHudOverCurrentScene;
         
 
         public void ChangeScene()
         {
             Debug.Log("버튼 눌러짐");
+            if (showHudOverCurrentScene)
+            {
+                SceneTransition.Instance.LoadOverCurrentScene(sceneToLoad, loadingtime);
+                return;
+            }
             StartCoroutine(CleanAndLoad());
         }
 
