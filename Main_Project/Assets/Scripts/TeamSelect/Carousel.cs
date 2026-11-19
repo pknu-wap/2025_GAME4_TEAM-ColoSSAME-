@@ -27,6 +27,10 @@ public class Carousel : MonoBehaviour
     [SerializeField] private Button nextButton;
     [SerializeField] private TMP_Text selectionIndex;
     [SerializeField] private float moveDuration = 0.3f;
+    [Tooltip("가운데, ±1, ±2 깃발 높이")]
+    [SerializeField] private float[] bannerHeights = { 310f, 200f, 145f };
+    [Tooltip("가운데, ±1, ±2 깃발 밝기")]
+    [SerializeField] private float[] bannerBrightness = { 1f, 0.85f, 0.74f };
 
     private int currentIndex;
     public LeagueManager leagueManager;
@@ -62,9 +66,9 @@ public class Carousel : MonoBehaviour
     private void UpdateCards(bool instant)
     {
         int center = positions.Length / 2;
-        previousButton.interactable = currentIndex > 0;
-        nextButton.interactable = currentIndex < cards.Count - 1;
-        selectionIndex.text = $"{currentIndex + 1} / {cards.Count}";
+        if (previousButton != null) previousButton.interactable = currentIndex > 0;
+        if (nextButton != null) nextButton.interactable = currentIndex < cards.Count - 1;
+        if (selectionIndex != null) selectionIndex.text = $"{currentIndex + 1} / {cards.Count}";
 
         for (int i = 0; i < cards.Count; i++)
         {
@@ -82,9 +86,9 @@ public class Carousel : MonoBehaviour
 
             bool snap = instant || !card.gameObject.activeSelf;
             card.gameObject.SetActive(true);
-            float targetHeight = distance == 0 ? 310f : distance == 1 ? 200f : 145f;
+            float targetHeight = bannerHeights[Mathf.Min(distance, bannerHeights.Length - 1)];
             float scale = ScaleForHeight(image, targetHeight);
-            float brightness = distance == 0 ? 1f : distance == 1 ? 0.85f : 0.74f;
+            float brightness = bannerBrightness[Mathf.Min(distance, bannerBrightness.Length - 1)];
             var color = new Color(brightness, brightness, brightness, 1f);
             if (snap)
             {
