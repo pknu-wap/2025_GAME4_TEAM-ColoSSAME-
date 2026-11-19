@@ -26,6 +26,7 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic
 
         public override void StartProcess()
         {
+            _hitTargets.Clear(); // 풀에서 다시 쓸 때 지난번에 맞힌 대상이 남아 있으면 안 맞음
             _filter = new ContactFilter2D
             {
                 useLayerMask = true,

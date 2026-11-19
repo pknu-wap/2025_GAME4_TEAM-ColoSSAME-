@@ -105,6 +105,7 @@ namespace BattleK.Test
             }
 
             _manager.SuppressResultFlow = true;
+            _manager.IsAlreadyDone = false; // 씬에 끝난 상태로 저장돼 있으면 데미지가 전부 무시됨
             if (_actorsRoot) _actorsRoot.SetActive(true);
             yield return null; // 유닛 Start에서 AiManager가 연결될 때까지
 

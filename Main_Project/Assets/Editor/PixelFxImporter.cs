@@ -34,6 +34,17 @@ public static class PixelFxImporter
         Debug.Log($"pixelfx: {jsons.Length}개 가져옴");
     }
 
+    // 시트 하나만 다시 가져오기 (시트를 바꾼 뒤 스킬 메뉴에서 씀)
+    public static void ImportSheet(string name)
+    {
+        EnsureFolder(Root + "/Animations");
+        EnsureFolder(Root + "/Prefabs");
+        var json = $"{Root}/Sheets/{name}.json";
+        var png = $"{Root}/Sheets/{name}.png";
+        if (File.Exists(json) && File.Exists(png)) Import(png, json);
+        else Debug.LogWarning($"pixelfx: {name} 시트 없음");
+    }
+
     private static void Import(string png, string jsonPath)
     {
         var sheet = JsonUtility.FromJson<Sheet>(File.ReadAllText(jsonPath));
