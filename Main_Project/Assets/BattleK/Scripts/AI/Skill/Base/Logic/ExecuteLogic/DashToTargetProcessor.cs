@@ -15,6 +15,7 @@ namespace BattleK.Scripts.AI.Skill.Base.Logic.ExecuteLogic
 
         public override void StartProcess()
         {
+            _hasApplied = false; // 풀에서 다시 쓸 때 지난번 값이 남아 있으면 데미지가 안 들어감
             if (!_owner || !_targetTransform) return;
 
             StartCoroutine(DashRoutine());

@@ -40,7 +40,7 @@ SpriteRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6580374180556037466}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -93,7 +93,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6580374180556037466}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: 1117a6edf01916746816098972882e14, type: 2}
   m_CullingMode: 0
@@ -117,6 +117,7 @@ GameObject:
   - component: {fileID: 4154312416218518510}
   - component: {fileID: 3529681005229850898}
   - component: {fileID: 7065771161074425872}
+  - component: {fileID: 235726466909843386}
   m_Layer: 0
   m_Name: GLD_T3_2_P
   m_TagString: Untagged
@@ -201,6 +202,39 @@ MonoBehaviour:
   _areaSize: {x: 2, y: 2}
   _offset: {x: 0, y: 0}
   _isContinuous: 1
+--- !u!114 &235726466909843386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7496547674212387651}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf7138c6872ce3d4cb74a99fbc1877fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effects:
+  - effect: {fileID: 2397235593717942552, guid: 71f97d1d465367245a3a761793060044, type: 3}
+    fromOwner: 1
+    offset: {x: 0, y: -0.25}
+    scale: 0.55
+    delay: 0
+    lifetime: 0.75
+    fade: 0.25
+    speed: 1
+    sortingOrder: 60
+    maxTilt: 0
+    skip: 0
+  onHit: []
+  hits:
+  - time: 0.17
+    flash: 0.06
+    freeze: 0.12
+    push: 0.030000001
+  flashMaterial: {fileID: 2100000, guid: 8bb6440ce2007174d8ad01c7a8a11515, type: 2}
+  maxTilt: 45
+  reactAll: 1
 --- !u!1 &9147640411079718635
 GameObject:
   m_ObjectHideFlags: 0
@@ -241,7 +275,7 @@ SpriteRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9147640411079718635}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -294,7 +328,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9147640411079718635}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: 994cbe413e7124f41930a550250b73a3, type: 2}
   m_CullingMode: 0

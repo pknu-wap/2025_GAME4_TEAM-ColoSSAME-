@@ -40,7 +40,7 @@ SpriteRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 302789254182302507}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -93,7 +93,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 302789254182302507}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: 6256d7c486eaa9f4a916768e64b57b64, type: 2}
   m_CullingMode: 0
@@ -146,7 +146,7 @@ SpriteRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2323513000958109335}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 0
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -199,7 +199,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2323513000958109335}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: 02606104fcda036418b622c315eacba8, type: 2}
   m_CullingMode: 0
@@ -224,6 +224,9 @@ GameObject:
   - component: {fileID: -7346718949146747584}
   - component: {fileID: 5472727029786073739}
   - component: {fileID: 5294790600990522054}
+  - component: {fileID: 276719543053124405}
+  - component: {fileID: 3670463767410583602}
+  - component: {fileID: 620831605706752384}
   m_Layer: 0
   m_Name: GLD_U_P
   m_TagString: Untagged
@@ -320,8 +323,100 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92b2be1e052990d49a6364a61477f9d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _speed: 10
+  _speed: 8.75
   _lifetime: 3
   _useFlip: 1
   _useRotation: 1
   _baseAngleOffset: 0
+--- !u!114 &276719543053124405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3989703846447012923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf7138c6872ce3d4cb74a99fbc1877fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effects:
+  - effect: {fileID: 3844535040720250801, guid: 6bd9e0030df25254794e4a5f7a9617a4, type: 3}
+    fromOwner: 1
+    offset: {x: 0, y: -0.25}
+    scale: 0.7
+    delay: 0
+    lifetime: 1.45
+    fade: 0.15
+    speed: 1
+    sortingOrder: 60
+    maxTilt: 0
+    skip: 0
+  - effect: {fileID: 8189215090474855241, guid: ff748d2110b46db4b9179615373f9234, type: 3}
+    fromOwner: 1
+    offset: {x: 0, y: -0.25}
+    scale: 0.7
+    delay: 0.7
+    lifetime: 1.35
+    fade: 0.2
+    speed: 1
+    sortingOrder: 60
+    maxTilt: 90
+    skip: 0
+  onHit:
+  - effect: {fileID: 8282779717782063169, guid: 39be608368d60f046a45809ee62f4704, type: 3}
+    fromOwner: 0
+    offset: {x: 0, y: -0.25}
+    scale: 0.35
+    delay: 0
+    lifetime: 0.6
+    fade: 0.25
+    speed: 1
+    sortingOrder: 60
+    maxTilt: 0
+    skip: 0
+  hits:
+  - time: 0.7
+    flash: 0.06
+    freeze: 0.12
+    push: 0.040000003
+  flashMaterial: {fileID: 2100000, guid: 8bb6440ce2007174d8ad01c7a8a11515, type: 2}
+  maxTilt: 45
+  reactAll: 1
+--- !u!114 &3670463767410583602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3989703846447012923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6592f6bf718814646b0dc97ddf37a74d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hold: 0.7
+  pauseAt: 0.13
+  resumeBefore: 0.1
+--- !u!114 &620831605706752384
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3989703846447012923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fec963109fb6d924ca0da18b26e6f01f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shakes:
+  - time: 0.7
+    strength: 0.18
+    duration: 0.4
+  - time: 0.75
+    strength: 0.04
+    duration: 0.8
+  - time: 1.5
+    strength: 0.08
+    duration: 0.25

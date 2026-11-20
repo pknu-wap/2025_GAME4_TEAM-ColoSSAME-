@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using UnityEngine;
 using UnityEngine.Localization.Settings;
 
 public static class Loc
@@ -7,6 +9,8 @@ public static class Loc
 
     private static Action changed;
     private static bool hooked;
+    private static bool pending;
+    private static Runner runner;
 
     public static event Action Changed
     {
@@ -15,12 +19,38 @@ public static class Loc
             if (!hooked)
             {
                 hooked = true;
-                LocalizationSettings.SelectedLocaleChanged += _ => changed?.Invoke();
+                LocalizationSettings.SelectedLocaleChanged += _ => RaiseLater();
             }
             changed += value;
         }
         remove => changed -= value;
     }
+
+    // 로케일 콜백 안에서 바로 문자열을 읽으면 Addressables 재진입 에러가 나서, 표 로드 후 다음 프레임에 알림
+    private static void RaiseLater()
+    {
+        if (runner == null)
+        {
+            var go = new GameObject("LocRunner") { hideFlags = HideFlags.HideInHierarchy };
+            UnityEngine.Object.DontDestroyOnLoad(go);
+            runner = go.AddComponent<Runner>();
+            pending = false;
+        }
+        if (pending) return;
+        pending = true;
+        runner.StartCoroutine(Raise());
+    }
+
+    private static IEnumerator Raise()
+    {
+        yield return LocalizationSettings.InitializationOperation;
+        yield return LocalizationSettings.StringDatabase.GetTableAsync(Table);
+        yield return null;
+        pending = false;
+        changed?.Invoke();
+    }
+
+    private class Runner : MonoBehaviour { }
 
     public static bool IsKorean
     {

@@ -33,7 +33,7 @@ namespace BattleK.Scripts.CharacterCreator
             AttackType.Mage or AttackType.Priest => 4,
             AttackType.Axeman => 5,
             AttackType.Spearman => 6,
-            AttackType.Thief => 7,
+            AttackType.Thief or AttackType.Shieldman => 7, // 방패병은 방패 뒤에서 짧게 찌르기
             _ => 0
         };
         
