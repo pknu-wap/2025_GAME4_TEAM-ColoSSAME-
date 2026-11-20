@@ -25,9 +25,19 @@ public class SceneTransition : MonoBehaviour
 
     public void Load(string sceneName)
     {
+        StartLoad(sceneName, showProgress: true);
+    }
+
+    public void LoadWithFadeOnly(string sceneName)
+    {
+        StartLoad(sceneName, showProgress: false);
+    }
+
+    private void StartLoad(string sceneName, bool showProgress)
+    {
         if (_isBusy) return;     
         _isBusy = true;
-        StartCoroutine(Co(sceneName));
+        StartCoroutine(Co(sceneName, showProgress));
     }
 
     public void LoadOverCurrentScene(string sceneName, float minimumWait)
@@ -63,22 +73,24 @@ public class SceneTransition : MonoBehaviour
         operation.allowSceneActivation = true;
     }
 
-    IEnumerator Co(string sceneName)
+    IEnumerator Co(string sceneName, bool showProgress)
     {
         fade.blocksRaycasts = true;
-        if (loadingScreen != null) loadingScreen.Begin();
+        var progressScreen = showProgress ? loadingScreen : null;
+        if (progressScreen != null) progressScreen.Begin();
+        else if (loadingScreen != null) loadingScreen.ShowBackdropOnly();
         yield return Fade(0f, 1f);                        // 검게
 
         var op = SceneManager.LoadSceneAsync(sceneName);  // 비동기 로드
         while (!op.isDone)
         {
-            if (loadingScreen != null) loadingScreen.SetProgress(op.progress / 0.9f);
+            if (progressScreen != null) progressScreen.SetProgress(op.progress / 0.9f);
             yield return null;
         }
-        if (loadingScreen != null)
+        if (progressScreen != null)
         {
-            loadingScreen.SetProgress(1f);
-            while (!loadingScreen.IsCaughtUp) yield return null; // 바가 끝까지 찬 뒤 밝게
+            progressScreen.SetProgress(1f);
+            while (!progressScreen.IsCaughtUp) yield return null; // 바가 끝까지 찬 뒤 밝게
         }
 
         yield return Fade(1f, 0f);                        // 밝게
