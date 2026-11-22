@@ -41,6 +41,15 @@ public static class PixelFxSkillSetup
         public bool ReactAll; // 범위 스킬: 실제로 맞은 상대 전원에게 맞는 반응
         public float Hold; // 0보다 크면 이만큼 기를 모으는 동안 판정을 묶어 둠 (PixelFxHold)
         public Vector3[] Shakes = { }; // 화면 흔들림 (시점, 세기, 길이) (PixelFxShake)
+
+        // 지속 피해: 맞은 상대 몸에 붙어 도는 이펙트 (PixelFxStatus), 체력바 색 (StatusVisualType)
+        public Fx Status;
+        public float StatusTime;
+        public int DotVisual = -1;
+
+        // 선딜 이펙트: 이 시트로 시전 프리팹을 새로 만들어 SO WindupPrefab에 연결
+        public Fx WindupFx;
+        public string WindupPrefab; // Prefabs/Skills 아래 경로
         public int AnimationIndex = -1; // 0 이상이면 SO 모션도 바꿈 (유닛 ATTACK 목록 순서)
         public float ActiveTime = -1f, Speed = -1f; // 0 이상이면 SO ActiveTime, 프리팹 ProjectileBase 속도도 바꿈
 
@@ -106,13 +115,23 @@ public static class PixelFxSkillSetup
         },
     };
 
+    // 마법사: 불 속성. 시트는 캐릭터와 같은 픽셀 크기로 뽑아 0.7
+    private static readonly SkillFx[] MageSkills =
+    {
+        // 화염 낙인: 1.6초 동안 발밑에 불 마법진이 그려지고 불기둥이 솟으면, 상대가 불꽃에 휩싸여 20초 동안 탐
+        new()
+        {
+            Prefab = "Magician/Magicain_Tier2_Boom", Skill = "1_Magician/MAG_T2_1_S",
+            WindupFx = new Fx { Name = "mage-fire-sigil", Scale = PixelArt }, WindupPrefab = "Magician/MAG_T2_1_W",
+            Effects = new[] { new Fx { Name = "mage-ignite", FromOwner = false, Scale = PixelArt, Lifetime = 0.75f, Fade = 0.25f } },
+            Status = new Fx { Name = "mage-burn", Scale = PixelArt }, StatusTime = 20f, DotVisual = 2, // Burn
+        },
+    };
+
     [MenuItem("Tools/pixelfx/스킬 이펙트 교체 (검투사)")]
     public static void Apply()
     {
-        // 쓰는 시트는 매번 다시 가져옴 (시트를 바꿔도 자르기와 프리팹이 따라오게)
-        foreach (var n in Skills.SelectMany(s => s.Effects.Concat(s.Start).Concat(s.OnHit)).Select(e => e.Name).Distinct())
-            PixelFxImporter.ImportSheet(n);
-        AssetDatabase.SaveAssets();
+        Import(Skills);
 
         // 군단병 T2_2도 검투사 T2_2 프리팹을 같이 쓰고 있어서 군단병 쪽은 복사본으로 분리 (그림 그대로)
         Detach("3_Legionary/LEG_T2_2_S", "Gladiator/GLD_T2_2_P", "Legionary/LEG_T2_2_P");
@@ -121,6 +140,44 @@ public static class PixelFxSkillSetup
 
         AssetDatabase.SaveAssets();
         Debug.Log("pixelfx: 검투사 스킬 이펙트 적용");
+    }
+
+    [MenuItem("Tools/pixelfx/스킬 이펙트 교체 (마법사)")]
+    public static void ApplyMage()
+    {
+        Import(MageSkills);
+        foreach (var s in MageSkills) Set(s);
+        AssetDatabase.SaveAssets();
+        Debug.Log("pixelfx: 마법사 스킬 이펙트 적용");
+    }
+
+    // 쓰는 시트는 매번 다시 가져옴 (시트를 바꿔도 자르기와 프리팹이 따라오게)
+    private static void Import(IEnumerable<SkillFx> list)
+    {
+        foreach (var n in list.SelectMany(s => s.Effects.Concat(s.Start).Concat(s.OnHit).Append(s.Status).Append(s.WindupFx))
+                     .Where(e => e != null).Select(e => e.Name).Distinct())
+            PixelFxImporter.ImportSheet(n);
+        AssetDatabase.SaveAssets();
+    }
+
+    // 시트 하나로 선딜 프리팹 (풀에서 다시 쓰므로 스스로 삭제하지 않게 그림만 복사)
+    private static GameObject MakeWindup(Fx e, string prefab)
+    {
+        var src = AssetDatabase.LoadAssetAtPath<GameObject>($"{FxDir}/Prefabs/{e.Name}.prefab");
+        if (src == null) { Debug.LogWarning($"pixelfx: {e.Name} 프리팹 없음"); return null; }
+        var path = $"{PrefabDir}/{prefab}.prefab";
+        var root = new GameObject(Path.GetFileNameWithoutExtension(path));
+        var art = new GameObject(e.Name);
+        art.transform.SetParent(root.transform, false);
+        art.transform.localPosition = new Vector3(e.X, e.Y, 0f);
+        art.transform.localScale = new Vector3(e.Scale, e.Scale, 1f);
+        var sr = art.AddComponent<SpriteRenderer>();
+        sr.sprite = src.GetComponent<SpriteRenderer>().sprite;
+        sr.sortingOrder = SortingOrder;
+        art.AddComponent<Animator>().runtimeAnimatorController = src.GetComponent<Animator>().runtimeAnimatorController;
+        var saved = PrefabUtility.SaveAsPrefabAsset(root, path);
+        Object.DestroyImmediate(root);
+        return saved;
     }
 
     private static void Detach(string skillPath, string shared, string copy)
@@ -178,6 +235,16 @@ public static class PixelFxSkillSetup
                 hold.resumeBefore = 0.1f; // 환영 검이 천천히 떨어지니 모션도 조금 일찍 휘두름
             }
 
+            if (s.Status != null)
+            {
+                if (!root.TryGetComponent<PixelFxStatus>(out var status)) status = root.AddComponent<PixelFxStatus>();
+                var e = ToEntry(s.Status);
+                status.effect = e.effect;
+                status.duration = s.StatusTime;
+                status.scale = s.Status.Scale;
+                status.offset = new Vector2(s.Status.X, s.Status.Y);
+            }
+
             if (s.Shakes.Length > 0)
             {
                 if (!root.TryGetComponent<PixelFxShake>(out var shake)) shake = root.AddComponent<PixelFxShake>();
@@ -198,13 +265,34 @@ public static class PixelFxSkillSetup
             PrefabUtility.UnloadPrefabContents(root);
         }
 
-        if (s.Windup < 0f && s.AnimationIndex < 0 && s.ActiveTime < 0f) return;
+        if (s.Windup < 0f && s.AnimationIndex < 0 && s.ActiveTime < 0f && s.WindupFx == null && s.DotVisual < 0) return;
         var skill = AssetDatabase.LoadAssetAtPath<SkillSO>($"{SkillDir}/{s.Skill}.asset");
         if (skill == null) return;
         if (s.Windup >= 0f) skill.WindupTime = s.Windup;
+        if (s.WindupFx != null)
+        {
+            var w = MakeWindup(s.WindupFx, s.WindupPrefab);
+            if (w)
+            {
+                skill.WindupPrefab = w;
+                skill.WindupPrefabScale = 1f;
+                skill.FadeWindupPrefab = false; // 시트가 알아서 나타나고 사라짐
+            }
+        }
+        if (s.DotVisual >= 0) SetDotVisual(skill, s.DotVisual);
         if (s.AnimationIndex >= 0) skill.AnimationIndex = s.AnimationIndex;
         if (s.ActiveTime >= 0f) skill.ActiveTime = s.ActiveTime;
         EditorUtility.SetDirty(skill);
+    }
+
+    // DealDotDamageLogic의 체력바 색 (SerializeReference 안이라 SerializedObject로)
+    private static void SetDotVisual(SkillSO skill, int visual)
+    {
+        var so = new SerializedObject(skill);
+        var it = so.GetIterator();
+        while (it.Next(true))
+            if (it.name == "_visualType" && it.propertyType == SerializedPropertyType.Enum) it.enumValueIndex = visual;
+        so.ApplyModifiedPropertiesWithoutUndo();
     }
 
     private static PixelFxStrike.Entry ToEntry(Fx e)
