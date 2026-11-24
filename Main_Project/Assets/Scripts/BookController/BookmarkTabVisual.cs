@@ -36,7 +36,8 @@ namespace BattleK.UI.Book
             if (pageController != null) pageController.OnPageChanged -= HandlePageChanged;
         }
 
-        private void HandlePageChanged(BookPageId previous, BookPageId current) => Apply(current);
+        // OnPageChanged는 (새 페이지, 이전 페이지) 순서로 보낸다.
+        private void HandlePageChanged(BookPageId current, BookPageId previous) => Apply(current);
 
         private void Apply(BookPageId current)
         {
