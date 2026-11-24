@@ -56,6 +56,15 @@ public class HomePageView : MonoBehaviour
         Loc.Changed -= Refresh;
     }
 
+    // 임시: LeagueManager에 리그 갱신 이벤트가 없어서, 치른 경기 수가 바뀌면 다시 그린다.
+    // (페이지를 연 채 라운드 결과가 처리되는 경우. 이벤트가 생기면 이 부분을 이벤트 구독으로 바꾼다)
+    private int shownPlayed = -1;
+
+    private void Update()
+    {
+        if (LeagueQuery.IsReady && LeagueQuery.PlayedCount != shownPlayed) Refresh();
+    }
+
     private void OpenNews()
     {
         if (pageController == null) pageController = FindObjectOfType<BookPageController>();
@@ -65,10 +74,11 @@ public class HomePageView : MonoBehaviour
     public void Refresh()
     {
         if (!LeagueQuery.IsReady) return;
+        shownPlayed = LeagueQuery.PlayedCount;
         Team me = LeagueQuery.PlayerTeam;
         if (me == null) return;
 
-        int played = LeagueQuery.PlayedCount;
+        int played = shownPlayed;
         bool first = played == 0;
 
         // 내 가문 카드
