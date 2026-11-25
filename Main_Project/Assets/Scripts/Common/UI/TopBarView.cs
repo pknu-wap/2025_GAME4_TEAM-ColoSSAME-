@@ -25,7 +25,7 @@ public class TopBarView : MonoBehaviour
     [SerializeField] private Vector2 swayInterval = new Vector2(6f, 9f);
 
     // 임시: 값이 바뀌었다는 이벤트가 없는 항목(레벨·등급·가문)은 바뀌었는지만 비교해서 다시 그린다.
-    private int shownTeam = -1, shownLevel = -1, shownTier = -1;
+    private int shownTeam = -1, shownLevel = -1, shownTier = -1, shownMoney = -1;
     private Coroutine sway;
 
     private void OnEnable()
@@ -48,6 +48,9 @@ public class TopBarView : MonoBehaviour
         var user = UserManager.Instance != null ? UserManager.Instance.user : null;
         if (LeagueQuery.PlayerTeamId != shownTeam || LeagueQuery.Tier != shownTier || (user != null && user.level != shownLevel))
             Refresh();
+        // OnEnable 때 UserManager가 아직 없으면 골드 이벤트를 못 받으므로 값 비교로 한 번 더 확인
+        else if (user != null && user.money != shownMoney)
+            SetGold(user.money);
     }
 
     private void HandleMoneyChanged(int money) => SetGold(money);
@@ -79,7 +82,11 @@ public class TopBarView : MonoBehaviour
         }
     }
 
-    private void SetGold(int money) => gold.text = Loc.Get("topbar_gold", money.ToString("N0"));
+    private void SetGold(int money)
+    {
+        shownMoney = money;
+        gold.text = Loc.Get("topbar_gold", money.ToString("N0"));
+    }
 
     // 배경 깃발: 몇 초마다 한 번씩 천이 흔들린다 (가문 선택 화면과 같은 BannerCloth)
     private IEnumerator Sway()
