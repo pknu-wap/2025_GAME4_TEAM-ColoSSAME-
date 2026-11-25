@@ -261,7 +261,10 @@ public class Carousel : MonoBehaviour
     private void ConfirmTeamSelect()
     {
         TeamSelect();
-        sceneLoader.LoadScene();
+        if (SceneTransition.Instance != null)
+            SceneTransition.Instance.LoadWithFadeOnly(sceneLoader.nextSceneName);
+        else
+            UnityEngine.SceneManagement.SceneManager.LoadScene(sceneLoader.nextSceneName);
     }
 
     public void TeamSelect()
