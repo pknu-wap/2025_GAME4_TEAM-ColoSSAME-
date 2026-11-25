@@ -41,6 +41,11 @@ public static class LeagueQuery
 
     public static int TotalRounds => Current != null ? Current.settings.totalRounds : 0;
 
+    public static int Tier => Current != null ? Current.settings.tier : 0;
+
+    // 리그 등급 이름 (기존 LeagueManager.GetTierName, Localization 적용됨)
+    public static string TierName => LeagueManager.Instance != null ? LeagueManager.Instance.GetTierName(Tier) : "";
+
     // 경기 결과의 점수는 순위용 값(1:0, 2:0)이라 승/무/패 판정에만 쓴다.
     public static Outcome GetOutcome(LeagueMatch match, int teamId)
     {
