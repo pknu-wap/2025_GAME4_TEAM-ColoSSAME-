@@ -322,7 +322,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92b2be1e052990d49a6364a61477f9d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _speed: 6
+  _speed: 4
   _lifetime: 3
   _useFlip: 1
   _useRotation: 1
@@ -340,22 +340,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   effects:
-  - effect: {fileID: 7230129507396871493, guid: e9ed30c9128e3c04bb954a512683c03d, type: 3}
+  - effect: {fileID: 7199610325357496531, guid: 4ac05f5b405c1e74c8e6d7502147c9c9, type: 3}
     fromOwner: 1
     offset: {x: 0, y: -0.25}
-    scale: 0.42
+    scale: 0.7
     delay: 0
-    lifetime: 0.72
+    lifetime: 0.86
     fade: 0.15
     speed: 1
     sortingOrder: 60
     maxTilt: 90
     skip: 0
+    fly: 0
+    family: 0
   onHit:
-  - effect: {fileID: 1944821168124183330, guid: b8e59b3a3f43ff24dab98ce49a1e5ab8, type: 3}
+  - effect: {fileID: 6626709978347744478, guid: 7aa2f779513717449abf2c1914f1953e, type: 3}
     fromOwner: 0
     offset: {x: 0, y: -0.25}
-    scale: 0.32
+    scale: 0.7
     delay: 0
     lifetime: 0
     fade: 0.15
@@ -363,6 +365,8 @@ MonoBehaviour:
     sortingOrder: 60
     maxTilt: 0
     skip: 0
+    fly: 0
+    family: 0
   hits:
   - time: 0.04
     flash: 0.06

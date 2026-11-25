@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &8372499751032945337
+--- !u!1 &8748370402124705527
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,9 +8,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8485853238395781355}
-  - component: {fileID: 1054254476720102659}
-  - component: {fileID: 583304396489515826}
+  - component: {fileID: 5646812181979880727}
+  - component: {fileID: 6247830050233849059}
+  - component: {fileID: 3153319729793764636}
   m_Layer: 0
   m_Name: FxVisual
   m_TagString: Untagged
@@ -18,28 +18,28 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8485853238395781355
+--- !u!4 &5646812181979880727
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8372499751032945337}
+  m_GameObject: {fileID: 8748370402124705527}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.114285715, y: 0.028571429, z: 0}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 1}
+  m_LocalScale: {x: 0.2, y: 0.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8149858737866951204}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &1054254476720102659
+--- !u!212 &6247830050233849059
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8372499751032945337}
+  m_GameObject: {fileID: 8748370402124705527}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -74,28 +74,28 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 50
-  m_Sprite: {fileID: 1248823608, guid: 9c7aa85bb0b605546a63c25a5bfc15e0, type: 3}
+  m_Sprite: {fileID: 834993002, guid: c755199c8da029446bdf15b2aaed0204, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 3.5, y: 1}
+  m_Size: {x: 2.6875, y: 0.625}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!95 &583304396489515826
+--- !u!95 &3153319729793764636
 Animator:
   serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8372499751032945337}
+  m_GameObject: {fileID: 8748370402124705527}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: d2ead264b7c7cc14799afed77d157734, type: 2}
+  m_Controller: {fileID: 9100000, guid: 92581aae938172b4d928fb707579a337, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -183,7 +183,7 @@ PrefabInstance:
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 116019811764862592, guid: 0bc5398bb27deee41af7ee0418f0f057, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 8485853238395781355}
+      addedObject: {fileID: 5646812181979880727}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 683778774867215298, guid: 0bc5398bb27deee41af7ee0418f0f057, type: 3}
       insertIndex: -1
@@ -232,9 +232,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac1914450495d644eb9d3ff0753ee3af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  effect: {fileID: 1944821168124183330, guid: b8e59b3a3f43ff24dab98ce49a1e5ab8, type: 3}
-  point: {fileID: 8485853238395781355}
-  scale: 0.35
+  effect: {fileID: 3158540988468093302, guid: cff5cc52bbc5af049bf89e9f4ce115dd, type: 3}
+  point: {fileID: 5646812181979880727}
+  scale: 0.7
   lifetime: 0
   fade: 0
   sortingOrder: 60
@@ -256,14 +256,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86b422bc0e8fdbc43b9293fc82f52c90, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  visual: {fileID: 8485853238395781355}
+  visual: {fileID: 5646812181979880727}
   startHeight: 0.1
   endHeight: 0.1
   arriveEarly: 0
   fromHand: 0
   growTime: 0.1
-  castEffect: {fileID: 7619386492673323396, guid: 4c64be281f90eb6468a54f62b56ccc31, type: 3}
-  castScale: 0.15
+  castEffect: {fileID: 8737802158039031183, guid: bd48519eaa5c12e46b333b9cbbca8886, type: 3}
+  castScale: 0.7
   castLifetime: 0.25
   castFade: 0.12
   castSortingOrder: 55

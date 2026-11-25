@@ -77,7 +77,7 @@ public class PixelFxDash : MonoBehaviour
             var dir = Facing();
             if (start != null)
                 foreach (var e in start)
-                    if (e.effect) PixelFxStrike.Spawn(e, _owner.transform.position, dir, 0f);
+                    if (e.effect) PixelFxStrike.Spawn(e, _owner.transform.position, dir, 0f, null, _owner);
 
             _lastPos = _owner.transform.position;
             _lastGhost = -ghostInterval;
@@ -153,13 +153,13 @@ public class PixelFxDash : MonoBehaviour
 
         if (onHit == null) yield break;
         foreach (var e in onHit)
-            if (e.effect) StartCoroutine(SpawnLater(e, e.fromOwner ? self : victim.position, dir));
+            if (e.effect) StartCoroutine(SpawnLater(e, e.fromOwner ? self : victim.position, dir, _owner));
     }
 
-    private static IEnumerator SpawnLater(PixelFxStrike.Entry e, Vector3 origin, float dir)
+    private static IEnumerator SpawnLater(PixelFxStrike.Entry e, Vector3 origin, float dir, Component owner)
     {
         if (e.delay > 0f) yield return new WaitForSeconds(e.delay);
-        PixelFxStrike.Spawn(e, origin, dir, 0f);
+        PixelFxStrike.Spawn(e, origin, dir, 0f, null, owner);
     }
 
     private void Subscribe()

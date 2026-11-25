@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 44392625167683245}
   - component: {fileID: 4441090346774289631}
   - component: {fileID: 7133195243101272561}
+  - component: {fileID: 8378969235529351008}
+  - component: {fileID: 2037253674862725667}
   m_Layer: 0
   m_Name: Magician_Tier3_Trinity
   m_TagString: Untagged
@@ -91,6 +93,52 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57697020ecd435b4ebe36b7930b22d39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &8378969235529351008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6542626054411663324}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf7138c6872ce3d4cb74a99fbc1877fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effects:
+  - effect: {fileID: 9071647908444318118, guid: 9671e8b55b5bf6c439165e1422ed2938, type: 3}
+    fromOwner: 0
+    offset: {x: 0, y: -0.25}
+    scale: 0.7
+    delay: 0
+    lifetime: 2.2
+    fade: 0.4
+    speed: 1
+    sortingOrder: 60
+    maxTilt: 0
+    skip: 0.25
+    fly: 0
+  onHit: []
+  hits: []
+  flashMaterial: {fileID: 2100000, guid: 8bb6440ce2007174d8ad01c7a8a11515, type: 2}
+  maxTilt: 45
+  reactAll: 0
+--- !u!114 &2037253674862725667
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6542626054411663324}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fec963109fb6d924ca0da18b26e6f01f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shakes:
+  - time: 0.3
+    strength: 0.06
+    duration: 0.3
 --- !u!1001 &138415299584883632
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -145,6 +193,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 951399195817685469, guid: 4601cbdcd4cae1744b5caafe702f347a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 951399197102121266, guid: 4601cbdcd4cae1744b5caafe702f347a, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 951399197102121267, guid: 4601cbdcd4cae1744b5caafe702f347a, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

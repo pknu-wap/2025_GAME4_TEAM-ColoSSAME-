@@ -49,40 +49,43 @@ public static class PixelFxProjectileSetup
     // 원거리 맞는 반응: 근접보다 짧게 멈춤
     private const float RangedFreeze = 0.08f;
 
+    // 시트는 캐릭터와 같은 픽셀 크기로 다시 뽑은 atk-* (유니티에서 0.7, SPUM 유닛 스케일). 투사체는 크기 그대로, 근접은 1.5배
+    private const float PixelArt = 0.7f;
+
     private static readonly Projectile Fireball = new()
     {
-        Prefab = "Magician_NormalAttack", Skill = "Magician_NormalAttack", Fx = "fireball",
-        Scale = 0.6f, Speed = 6f,
+        Prefab = "Magician_NormalAttack", Skill = "Magician_NormalAttack", Fx = "atk-fireball",
+        Scale = PixelArt, Speed = 6f,
         Windup = 0.22f, // 0_Attack_Magic 0.42초 중 손 내미는 순간
         Height = 0.2f, Forward = 0.3f, EndHeight = 0.05f, // 배 높이에서 상대 발밑으로
-        Cast = "small-explosion", CastScale = 0.1f, CastLifetime = 0.25f, CastFade = 0.1f, // 손앞에서 작게 퍽
-        Impact = "small-explosion", ImpactScale = 0.25f, ImpactLifetime = 0.9f, ImpactFade = 0.3f, // 뒤쪽 연기는 잘라냄
+        Cast = "atk-puff", CastScale = PixelArt, CastLifetime = 0.25f, CastFade = 0.1f, // 손앞에서 작게 퍽
+        Impact = "atk-boom", ImpactScale = PixelArt, ImpactLifetime = 0.9f, ImpactFade = 0.3f, // 뒤쪽 연기는 잘라냄
         ImpactHeight = -0.2f, // 불덩이가 기준점보다 약 0.35 위에 그려짐 -> 중심이 발밑 근처
         HitPush = 0.035f, // 폭발이라 근접만큼
     };
 
     private static readonly Projectile Arrow = new()
     {
-        Prefab = "Skirmisher_NormalAttack", Skill = "Skirmisher_NormalAttack", Fx = "arrow",
-        Scale = 0.35f, Speed = 7f, // 그림 길이 약 0.7 (꼬리 포함)
+        Prefab = "Skirmisher_NormalAttack", Skill = "Skirmisher_NormalAttack", Fx = "atk-arrow",
+        Scale = PixelArt, Speed = 7f, // 그림 길이 약 0.7 (꼬리 포함)
         Windup = 0.35f, // 0_Attack_Bow 0.83초 중 시위 놓는 순간
         Height = 0.1f, Forward = 0.4f, EndHeight = 0.1f, // 몸통 높이로 수평 (쏜 직후 커지는 효과만 씀)
         Penetration = 0.6f, // 상대 중심을 조금 지나서 사라짐
         GrowTime = 0.1f,
-        Cast = "feather-burst", CastScale = 0.15f, CastLifetime = 0.25f, CastFade = 0.12f, // 번쩍 + 깃털 조금
-        Impact = "hit-spark", ImpactScale = 0.35f,
+        Cast = "atk-feather", CastScale = PixelArt, CastLifetime = 0.25f, CastFade = 0.12f, // 번쩍 + 깃털 조금
+        Impact = "atk-spark", ImpactScale = PixelArt,
         ImpactHeight = 0f, // 불꽃이 기준점보다 약 0.24 위 = 몸통
     };
 
     // 사제: plasma-shot을 금색 팔레트로 뽑은 holy-shot (머리가 기준점, 위아래 가운데)
     private static readonly Projectile Holy = new()
     {
-        Prefab = "Priest_NormalAttack", Skill = "Priest_NormalAttack", Fx = "holy-shot",
-        Scale = 0.38f, Speed = 6f, // 길이 약 0.85 (꼬리 포함)
+        Prefab = "Priest_NormalAttack", Skill = "Priest_NormalAttack", Fx = "atk-holy",
+        Scale = PixelArt, Speed = 6f, // 길이 약 0.85 (꼬리 포함)
         Windup = 0.22f, // 마법사와 같은 0_Attack_Magic
         Height = 0.2f, Forward = 0.3f, EndHeight = 0.12f, // 배 높이에서 몸통 아래쪽으로
         GrowTime = 0.15f,
-        Impact = "holy-hit", ImpactScale = 0.27f, ImpactLifetime = 0.6f, ImpactFade = 0.25f, // zap-hit 금색, 번개 매듭이 기준점
+        Impact = "atk-holyhit", ImpactScale = PixelArt, ImpactLifetime = 0.6f, ImpactFade = 0.25f, // zap-hit 금색, 번개 매듭이 기준점
         ImpactHeight = 0.2f,
     };
 
@@ -113,6 +116,7 @@ public static class PixelFxProjectileSetup
     // 0_Attack_Normal, ShotSwordAttack_1 둘 다 0.17초에서 0.25초 사이에 휘두름
     private const float MeleeWindup = 0.17f;
 
+    // 근접은 1.5배로 커진 만큼 X, Y를 당겨서 그림 중심이 예전 자리(몸 쪽)에 오게
     private static readonly Strike[] Strikes =
     {
         new()
@@ -120,7 +124,7 @@ public static class PixelFxProjectileSetup
             Prefab = "Gladiator_NormalAttack", Skill = "Gladiator_NormalAttack", Windup = MeleeWindup,
             Effects = new[]
             {
-                new StrikeFx { Fx = "sword-slash", FromOwner = true, Scale = 0.35f, X = 0.3f, Y = -0.26f, Lifetime = 0.45f, Fade = 0.2f },
+                new StrikeFx { Fx = "atk-slash", FromOwner = true, Scale = PixelArt, X = 0.15f, Y = -0.45f, Lifetime = 0.45f, Fade = 0.2f },
             },
         },
         new()
@@ -130,7 +134,7 @@ public static class PixelFxProjectileSetup
             Effects = new[]
             {
                 // 창 찌르기: 모션대로 바라보는 쪽 수평으로 (상대가 위아래로 어긋나도 기울이지 않음)
-                new StrikeFx { Fx = "thrust", FromOwner = true, Scale = 0.28f, X = 0f, Y = -0.225f, Lifetime = 0.4f, Fade = 0.15f, Speed = 1.2f, MaxTilt = 0f },
+                new StrikeFx { Fx = "atk-thrust", FromOwner = true, Scale = PixelArt, X = -0.15f, Y = -0.32f, Lifetime = 0.4f, Fade = 0.15f, Speed = 1.2f, MaxTilt = 0f },
             },
         },
         new()
@@ -139,7 +143,7 @@ public static class PixelFxProjectileSetup
             Effects = new[]
             {
                 // 두 번 베어 X자 (단검 두 자루), 1.6배속. X 중심이 몸 앞 약 0.85
-                new StrikeFx { Fx = "double-slash", FromOwner = true, Scale = 0.45f, X = 0.02f, Y = -0.36f, Lifetime = 0.5f, Fade = 0.15f, Speed = 1.6f },
+                new StrikeFx { Fx = "atk-double", FromOwner = true, Scale = PixelArt, X = -0.25f, Y = -0.54f, Lifetime = 0.5f, Fade = 0.15f, Speed = 1.6f },
             },
         },
     };
@@ -147,8 +151,11 @@ public static class PixelFxProjectileSetup
     [MenuItem("Tools/pixelfx/평타 이펙트 교체 (전 직업)")]
     public static void Apply()
     {
-        if (AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>($"{FxDir}/Animations/fireball.controller") == null)
-            PixelFxImporter.ImportAll();
+        // 쓰는 시트는 매번 다시 가져옴
+        foreach (var n in new[] { Fireball, Arrow, Holy }.SelectMany(p => new[] { p.Fx, p.Cast, p.Impact })
+                     .Concat(Strikes.SelectMany(st => st.Effects.Select(e => e.Fx))).Where(n => !string.IsNullOrEmpty(n)).Distinct())
+            PixelFxImporter.ImportSheet(n);
+        AssetDatabase.SaveAssets();
 
         // 마법사, 사제: 같이 쓰던 Bullet_NormalAttack을 복사해서 분리
         foreach (var p in new[] { Fireball, Holy })

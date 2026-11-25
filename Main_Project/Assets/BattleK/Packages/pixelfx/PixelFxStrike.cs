@@ -24,6 +24,8 @@ public class PixelFxStrike : MonoBehaviour
         public int sortingOrder = 60;
         public float maxTilt = -1f; // 0 이상이면 이 이펙트만 이 각도까지 기울임 (-1이면 컴포넌트 값)
         public float skip;          // 이펙트 앞부분을 이만큼 건너뛰고 시작 (초)
+        public float fly;           // 0보다 크면 시전자 쪽에서 상대 발밑 쪽으로 이만큼 걸려 날아감 (초)
+        public bool family;         // 켜면 시전자 가문 색으로 칠함 (PixelFxFamilyColors)
     }
 
     // 맞는 반응 (PixelFxHitReact). time은 이펙트 시작부터, push는 월드 거리
@@ -95,16 +97,16 @@ public class PixelFxStrike : MonoBehaviour
         {
             if (!e.effect) continue;
             var at = e.fromOwner ? owner.transform : r.Target.transform;
-            if (wait + e.delay <= 0f) Spawn(e, at.position, dir, 0f);
-            else StartCoroutine(SpawnAt(e, at, wait + e.delay, dir));
+            if (wait + e.delay <= 0f) Spawn(e, at.position, dir, 0f, null, owner);
+            else StartCoroutine(SpawnAt(e, at, wait + e.delay, dir, owner));
         }
     }
 
     // 맞는 반응과 같이 나오게, 그때의 위치에서
-    private static IEnumerator SpawnAt(Entry e, Transform at, float wait, float dir)
+    private static IEnumerator SpawnAt(Entry e, Transform at, float wait, float dir, Component owner)
     {
         if (wait > 0f) yield return new WaitForSeconds(wait);
-        if (at) Spawn(e, at.position, dir, 0f);
+        if (at) Spawn(e, at.position, dir, 0f, null, owner);
     }
 
     // 시전자는 생성 직후 Initialize에서 들어오므로 첫 LateUpdate에서 재생
@@ -132,8 +134,9 @@ public class PixelFxStrike : MonoBehaviour
             var origin = e.fromOwner ? self : target;
             var limit = e.maxTilt >= 0f ? e.maxTilt : maxTilt;
             var tilt = Mathf.Clamp(aim, -limit, limit);
-            if (e.delay > 0f) StartCoroutine(SpawnLater(e, origin, dir, tilt));
-            else Spawn(e, origin, dir, tilt);
+            var dest = victim ? victim.position : target;
+            if (e.delay > 0f) StartCoroutine(SpawnLater(e, origin, dir, tilt, dest, owner));
+            else Spawn(e, origin, dir, tilt, dest, owner);
         }
 
         if (reactAll || hits == null || hits.Length == 0) return;
@@ -142,18 +145,40 @@ public class PixelFxStrike : MonoBehaviour
             PixelFxHitReact.Play(victim, push, h.time, h.flash, h.freeze, h.push, flashMaterial);
     }
 
-    private static IEnumerator SpawnLater(Entry e, Vector3 origin, float dir, float tilt)
+    private static IEnumerator SpawnLater(Entry e, Vector3 origin, float dir, float tilt, Vector3 dest, Component owner)
     {
         yield return new WaitForSeconds(e.delay);
-        Spawn(e, origin, dir, tilt);
+        Spawn(e, origin, dir, tilt, dest, owner);
     }
 
-    public static void Spawn(Entry e, Vector3 origin, float dir, float tilt)
+    public static void Spawn(Entry e, Vector3 origin, float dir, float tilt, Vector3? dest = null, Component owner = null)
     {
         // 좌우 반전된 그림은 반대로 돌려야 같은 쪽으로 기울어짐
         var angle = tilt * dir;
         var pos = origin + Quaternion.Euler(0f, 0f, angle) * new Vector3(e.offset.x * dir, e.offset.y, 0f);
         var fx = PixelFxImpact.Spawn(e.effect, pos, e.scale, dir, e.sortingOrder, e.lifetime, e.fade, e.speed, angle);
         if (e.skip > 0f && fx.TryGetComponent<Animator>(out var anim)) anim.Update(e.skip / Mathf.Max(0.01f, e.speed));
+        if (e.family) PixelFxFamilyColors.Apply(fx, owner);
+        if (e.fly > 0f && dest.HasValue)
+        {
+            var fly = fx.AddComponent<Fly>();
+            fly.from = pos;
+            fly.to = dest.Value + new Vector3(0f, e.offset.y, 0f);
+            fly.time = e.fly;
+        }
+    }
+
+    // 시전자 앞에서 상대 쪽으로 날아감 (도착하면 그 자리에 머묾)
+    public class Fly : MonoBehaviour
+    {
+        public Vector3 from, to;
+        public float time;
+        private float _t;
+
+        private void Update()
+        {
+            _t += Time.deltaTime;
+            transform.position = Vector3.Lerp(from, to, Mathf.Clamp01(_t / time));
+        }
     }
 }

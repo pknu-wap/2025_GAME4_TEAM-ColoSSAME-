@@ -83,7 +83,9 @@ public class PixelFxImpact : MonoBehaviour
         fx.transform.localScale = new Vector3(scale * dir, scale, 1f);
         foreach (var sr in fx.GetComponentsInChildren<SpriteRenderer>()) sr.sortingOrder = sortingOrder;
 
-        if (fx.TryGetComponent<PixelFxAutoDestroy>(out var auto))
+        // 반복 이펙트는 삭제 컴포넌트가 없으므로 수명을 주면 붙임
+        if (!fx.TryGetComponent<PixelFxAutoDestroy>(out var auto) && lifetime > 0f) auto = fx.AddComponent<PixelFxAutoDestroy>();
+        if (auto)
         {
             if (lifetime > 0f) auto.lifetime = lifetime;
             auto.fade = fade;

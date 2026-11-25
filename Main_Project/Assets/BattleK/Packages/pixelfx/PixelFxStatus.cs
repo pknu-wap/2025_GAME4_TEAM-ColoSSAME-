@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using BattleK.Scripts.AI;
@@ -8,6 +9,7 @@ using UnityEngine;
 public class PixelFxStatus : MonoBehaviour
 {
     public GameObject effect; // 반복 재생하는 이펙트
+    public float delay; // 불길이 닿는 순간에 맞춰 늦게 붙임
     public float duration = 3f;
     public float scale = 0.7f;
     public Vector2 offset;
@@ -30,7 +32,18 @@ public class PixelFxStatus : MonoBehaviour
         if (!effect || TargetField == null || !TryGetComponent<LogicProcessor>(out var logic)) return;
         var victim = TargetField.GetValue(logic) as Transform;
         if (!victim) return;
+        if (delay > 0f) StartCoroutine(AttachLater(victim));
+        else Attach(victim);
+    }
 
+    private IEnumerator AttachLater(Transform victim)
+    {
+        yield return new WaitForSeconds(delay);
+        if (victim) Attach(victim);
+    }
+
+    private void Attach(Transform victim)
+    {
         if (Active.TryGetValue(victim, out var on) && on)
         {
             on.until = Time.time + duration;

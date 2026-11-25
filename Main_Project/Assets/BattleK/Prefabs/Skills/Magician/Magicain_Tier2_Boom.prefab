@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 8543994651186567031}
   - component: {fileID: 8166743292710244364}
   - component: {fileID: 910050265408901074}
+  - component: {fileID: 7945358512055920228}
+  - component: {fileID: 6743466226763180806}
   m_Layer: 0
   m_Name: Magicain_Tier2_Boom
   m_TagString: Untagged
@@ -91,6 +93,55 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57697020ecd435b4ebe36b7930b22d39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &7945358512055920228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3002014828463148282}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf7138c6872ce3d4cb74a99fbc1877fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effects:
+  - effect: {fileID: 632389184408795662, guid: e383f8bbd5447b645ba3f14c4bb8f75d, type: 3}
+    fromOwner: 1
+    offset: {x: 0.24, y: -0.04}
+    scale: 0.7
+    delay: 0
+    lifetime: 1.75
+    fade: 0.25
+    speed: 1
+    sortingOrder: 60
+    maxTilt: 90
+    skip: 0
+    fly: 0
+  onHit: []
+  hits: []
+  flashMaterial: {fileID: 2100000, guid: 8bb6440ce2007174d8ad01c7a8a11515, type: 2}
+  maxTilt: 45
+  reactAll: 0
+--- !u!114 &6743466226763180806
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3002014828463148282}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5133516394c70dd4db08bb12ed7716fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effect: {fileID: 3863098754733415956, guid: e5362fee6e5163644be0167c0da16b9b, type: 3}
+  delay: 0.55
+  duration: 20
+  scale: 0.7
+  offset: {x: 0, y: -0.25}
+  fade: 0.3
+  sortingOrder: 61
 --- !u!1001 &1909223540415430258
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -146,6 +197,30 @@ PrefabInstance:
     - target: {fileID: 7994993448127677805, guid: 64f9ca6b53a8fbb4c8a745faa2dc652d, type: 3}
       propertyPath: m_Name
       value: Skill_12
+      objectReference: {fileID: 0}
+    - target: {fileID: 7994993449057250728, guid: 64f9ca6b53a8fbb4c8a745faa2dc652d, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7994993449057250729, guid: 64f9ca6b53a8fbb4c8a745faa2dc652d, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7994993449652089480, guid: 64f9ca6b53a8fbb4c8a745faa2dc652d, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7994993449652089483, guid: 64f9ca6b53a8fbb4c8a745faa2dc652d, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7994993449875202886, guid: 64f9ca6b53a8fbb4c8a745faa2dc652d, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7994993449875202887, guid: 64f9ca6b53a8fbb4c8a745faa2dc652d, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
