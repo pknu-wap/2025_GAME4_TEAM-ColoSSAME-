@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3780965936371038395}
   - component: {fileID: 7101782776811141346}
   - component: {fileID: 1508940527735435513}
+  - component: {fileID: 7024119588760285489}
   m_Layer: 0
   m_Name: Magician_Tier3_Gas
   m_TagString: Untagged
@@ -94,6 +95,36 @@ MonoBehaviour:
   _areaSize: {x: 10, y: 10}
   _offset: {x: 0, y: 0}
   _isContinuous: 1
+--- !u!114 &7024119588760285489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1983043548119578274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf7138c6872ce3d4cb74a99fbc1877fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effects:
+  - effect: {fileID: 3658111645723577356, guid: 207abd184c6b0d3409486a3407d88235, type: 3}
+    fromOwner: 1
+    offset: {x: 0.35, y: -0.25}
+    scale: 0.7
+    delay: 0
+    lifetime: 2.4
+    fade: 0.4
+    speed: 1
+    sortingOrder: 60
+    maxTilt: 0
+    skip: 0
+    fly: 1
+  onHit: []
+  hits: []
+  flashMaterial: {fileID: 2100000, guid: 8bb6440ce2007174d8ad01c7a8a11515, type: 2}
+  maxTilt: 45
+  reactAll: 0
 --- !u!1001 &7214444186216514075
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -102,6 +133,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 3780965936371038395}
     m_Modifications:
+    - target: {fileID: 8453695397032686708, guid: f308fadaf90b39442bfe75814b245392, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8453695397032686709, guid: f308fadaf90b39442bfe75814b245392, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8453695397326314662, guid: f308fadaf90b39442bfe75814b245392, type: 3}
       propertyPath: m_Name
       value: Skill_03
@@ -148,6 +187,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8453695397326314663, guid: f308fadaf90b39442bfe75814b245392, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8453695397566971113, guid: f308fadaf90b39442bfe75814b245392, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8453695397566971114, guid: f308fadaf90b39442bfe75814b245392, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

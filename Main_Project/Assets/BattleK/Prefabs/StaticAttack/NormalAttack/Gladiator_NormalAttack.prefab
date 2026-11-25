@@ -8,9 +8,29 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 8578447339464552184, guid: 5637d824b1b28bf47be1b987c3b2e19e, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578447339464552184, guid: 5637d824b1b28bf47be1b987c3b2e19e, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578447339464552184, guid: 5637d824b1b28bf47be1b987c3b2e19e, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578447339464552185, guid: 5637d824b1b28bf47be1b987c3b2e19e, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8578447339511797204, guid: 5637d824b1b28bf47be1b987c3b2e19e, type: 3}
       propertyPath: m_Name
       value: Gladiator_NormalAttack
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578447339511797206, guid: 5637d824b1b28bf47be1b987c3b2e19e, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8578447339511797207, guid: 5637d824b1b28bf47be1b987c3b2e19e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -52,6 +72,30 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8578447339511797209, guid: 5637d824b1b28bf47be1b987c3b2e19e, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578447339511797209, guid: 5637d824b1b28bf47be1b987c3b2e19e, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578447341043283404, guid: 5637d824b1b28bf47be1b987c3b2e19e, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578447341043283404, guid: 5637d824b1b28bf47be1b987c3b2e19e, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578447341043283404, guid: 5637d824b1b28bf47be1b987c3b2e19e, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578447341043283405, guid: 5637d824b1b28bf47be1b987c3b2e19e, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -59,6 +103,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8578447339511797204, guid: 5637d824b1b28bf47be1b987c3b2e19e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8070615668041708138}
+    - targetCorrespondingSourceObject: {fileID: 8578447339511797204, guid: 5637d824b1b28bf47be1b987c3b2e19e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3574129751995141302}
   m_SourcePrefab: {fileID: 100100000, guid: 5637d824b1b28bf47be1b987c3b2e19e, type: 3}
 --- !u!1 &2053400741336881940 stripped
 GameObject:
@@ -77,3 +124,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57697020ecd435b4ebe36b7930b22d39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3574129751995141302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2053400741336881940}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf7138c6872ce3d4cb74a99fbc1877fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effects:
+  - effect: {fileID: 2529588939504022029, guid: d710e1077d2feac468028c20b30d9e9d, type: 3}
+    fromOwner: 1
+    offset: {x: 0.15, y: -0.45}
+    scale: 0.7
+    delay: 0
+    lifetime: 0.45
+    fade: 0.2
+    speed: 1
+    sortingOrder: 60
+    maxTilt: -1
+    skip: 0
+    fly: 0
+  onHit: []
+  hits:
+  - time: 0.06
+    flash: 0.06
+    freeze: 0.14
+    push: 0.035
+  flashMaterial: {fileID: 2100000, guid: 8bb6440ce2007174d8ad01c7a8a11515, type: 2}
+  maxTilt: 45
+  reactAll: 0
