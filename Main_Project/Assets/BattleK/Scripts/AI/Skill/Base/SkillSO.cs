@@ -135,50 +135,57 @@ namespace BattleK.Scripts.AI.Skill.Base
         
         public IEnumerator ExecuteSkillRoutine(StaticAICore owner, Transform target)
         {
-            GameObject windupInstance = null;
-            List<SpriteFadeTarget> windupFadeTargets = null;
-
-            if (WindupPrefab && WindupTime > 0f)
-            {
-                var windupPos = GetSpawnPosition(owner, target, WindupSpawnAt);
-                windupInstance = PrefabPoolManager.Instance ? PrefabPoolManager.Instance.Spawn(WindupPrefab, windupPos, owner.transform.rotation) : Instantiate(WindupPrefab, windupPos, owner.transform.rotation);
-                ApplyWindupPrefabScale(windupInstance);
-                ApplyOwnerFacingFlip(windupInstance, owner, FlipWindupPrefabByOwnerFacing);
-
-                if (FadeWindupPrefab)
-                {
-                    windupFadeTargets = CaptureSpriteFadeTargets(windupInstance);
-                    SetSpriteFadeAlpha(windupFadeTargets, 0f);
-                }
-            }
-
-            if (windupInstance)
-            {
-                if (FadeWindupPrefab)
-                {
-                    SetSpriteFadeAlpha(windupFadeTargets, 0f);
-                }
-
-                if (PrefabPoolManager.Instance) PrefabPoolManager.Instance.Release(windupInstance);
-                else Destroy(windupInstance);
-            }
-            else
-            {
-                yield return new WaitForSeconds(WindupTime);
-            }
-
-            if (windupInstance)
-            {
-                if (FadeWindupPrefab)
-                {
-                    SetSpriteFadeAlpha(windupFadeTargets, 0f);
-                }
-
-                Destroy(windupInstance);
-            }
+            if (WindupTime > 0f)
+                yield return PlayWindup(owner, target, WindupTime);
 
             yield return SpawnSkillPrefabsRoutine(owner, target);
             yield return new WaitForSeconds(RecoveryTime);
+        }
+
+        private IEnumerator PlayWindup(StaticAICore owner, Transform target, float duration)
+        {
+            if (!WindupPrefab)
+            {
+                yield return new WaitForSeconds(duration);
+                yield break;
+            }
+
+            var position = GetSpawnPosition(owner, target, WindupSpawnAt);
+            var rotation = owner.transform.rotation;
+            var pool = PrefabPoolManager.Instance;
+            var instance = pool
+                ? pool.Spawn(WindupPrefab, position, rotation)
+                : Instantiate(WindupPrefab, position, rotation);
+
+            var originalScale = instance.transform.localScale;
+            ApplyWindupPrefabScale(instance);
+            ApplyOwnerFacingFlip(instance, owner, FlipWindupPrefabByOwnerFacing);
+            var fadeTargets = FadeWindupPrefab ? CaptureSpriteFadeTargets(instance) : null;
+
+            var lifetime = instance.GetComponent<PooledLifetime>() ?? instance.AddComponent<PooledLifetime>();
+            var returned = false;
+            lifetime.ReturnAfter(duration, () =>
+            {
+                returned = true;
+                instance.transform.localScale = originalScale;
+                SetSpriteFadeAlpha(fadeTargets, 1f);
+            });
+
+            var startedAt = Time.time;
+            while (Time.time - startedAt < duration)
+            {
+                if (!returned && instance)
+                {
+                    UpdateWindupFollow(instance, owner, target);
+                    if (fadeTargets != null)
+                        SetSpriteFadeAlpha(fadeTargets, CalculateWindupFadeAlpha(Time.time - startedAt, duration));
+                }
+
+                yield return null;
+            }
+
+            if (!returned && lifetime)
+                lifetime.ReturnNow();
         }
 
         private IEnumerator SpawnSkillPrefabsRoutine(StaticAICore owner, Transform target)

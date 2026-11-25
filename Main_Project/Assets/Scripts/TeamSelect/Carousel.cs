@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using DG.Tweening;
@@ -254,8 +255,9 @@ public class Carousel : MonoBehaviour
 
         Team team = leagueManager.league.teams.Find(t => t.id == currentIndex + 1);
         string family = Loc.TeamName(team);
-        var banner = cards[currentIndex].GetComponent<Image>();
-        confirmPopup.Show(family, banner, Loc.Get("teamselect_confirm_q", family), ConfirmTeamSelect);
+        int houseIndex = System.Array.FindIndex(houseColors, house => house.familyId == team.fid);
+        int crestSlot = houseIndex >= 0 ? houseColors[houseIndex].crestSlot : -1;
+        confirmPopup.Show(family, crestSlot, ConfirmTeamSelect);
     }
 
     private void ConfirmTeamSelect()
@@ -264,7 +266,7 @@ public class Carousel : MonoBehaviour
         if (SceneTransition.Instance != null)
             SceneTransition.Instance.LoadWithFadeOnly(sceneLoader.nextSceneName);
         else
-            UnityEngine.SceneManagement.SceneManager.LoadScene(sceneLoader.nextSceneName);
+            SceneManager.LoadScene(sceneLoader.nextSceneName);
     }
 
     public void TeamSelect()

@@ -1,10 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 
 public class SettingsUI : MonoBehaviour
@@ -52,22 +52,25 @@ public class SettingsUI : MonoBehaviour
 
         SetupDisplayDropdowns(settings);
         SetupLanguageDropdown(settings);
-        LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
+        Loc.Changed += OnLocaleChanged;
 
         initialized = true;
         RefreshUI();
 
         if (!LocalizationSettings.InitializationOperation.IsDone)
-            LocalizationSettings.InitializationOperation.Completed += _ =>
-            {
-                if (this == null) return;
-                OnLocaleChanged(LocalizationSettings.SelectedLocale);
-            };
+            StartCoroutine(RefreshAfterInit());
     }
 
     private void OnDestroy()
     {
-        LocalizationSettings.SelectedLocaleChanged -= OnLocaleChanged;
+        Loc.Changed -= OnLocaleChanged;
+    }
+
+    // 초기화 콜백 안이 아니라 코루틴에서 갱신 (재진입 에러 방지)
+    private IEnumerator RefreshAfterInit()
+    {
+        yield return LocalizationSettings.InitializationOperation;
+        OnLocaleChanged();
     }
 
     private void OnEnable()
@@ -116,7 +119,7 @@ public class SettingsUI : MonoBehaviour
         screenModeDropdown.AddOptions(names);
     }
 
-    private void OnLocaleChanged(Locale locale)
+    private void OnLocaleChanged()
     {
         if (screenModeDropdown != null) FillScreenModeOptions();
         RefreshUI();
