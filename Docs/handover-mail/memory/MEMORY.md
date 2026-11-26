@@ -1,0 +1,6 @@
+- [ColoSSAME UI 적용 작업 방식](colossame-ui-rollout-workflow.md) — PR 묶음 단위, 불러오기 비활성, Unity MCP 스크린샷 주의
+- [Text 색은 배경 Asset에 맞춤](text-color-match-background.md) — 스프라이트 적용 시 글자색·PixelButton labelColor 같이 조정
+- [사용자 담당 작업 범위](user-work-scope.md) — 시설 6개, 팀관리, UI 업데이트(진행 중)
+- [작업 전 방향 제시 후 승인](propose-before-work.md) — 계획 먼저 보여 주고 승인 받은 뒤 시작
+- [시안은 자체 검증 반복 후 제시](mockup-self-review.md) — 공통 UI 기준·빈 공간·중복·상태별 값 점검한 최적안만 보여 주기
+- [답변은 판단에 필요한 핵심만](concise-answers.md) — 결과 2~4줄 + 질문 1~2개, 세부는 시안 표·PR로
