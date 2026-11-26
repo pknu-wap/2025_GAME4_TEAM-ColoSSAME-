@@ -33,6 +33,7 @@ public static class PixelFxSkillSetup
         public float Scale = Size, X, Y = Feet, Delay = 0f, Lifetime, Fade, Speed = 1f, Skip;
         public float MaxTilt = 0f; // 스킬 모션은 옆으로 휘두르므로 기울이지 않음
         public float Fly; // 0보다 크면 시전자 앞에서 상대에게 날아감 (초)
+        public bool AtTarget, Allies, Follow; // 스킬 대상(아군 포함) 발밑, 아군 전원 발밑, 붙은 유닛 따라다님
     }
 
     private class SkillFx
@@ -55,6 +56,7 @@ public static class PixelFxSkillSetup
         public int AnimationIndex = -1; // 0 이상이면 SO 모션도 바꿈 (유닛 ATTACK 목록 순서)
         public float ActiveTime = -1f, Speed = -1f; // 0 이상이면 SO ActiveTime, 프리팹 ProjectileBase 속도도 바꿈
         public bool Family; // 켜면 이펙트를 시전자 가문 색으로 (PixelFxFamilyColors)
+        public bool ClearWindup; // 켜면 예전 선딜 그림을 뺌 (WindupFx가 없을 때)
 
         // 돌진 (PixelFxDash): 달리는 동안 잔상, 실제로 맞힌 순간 OnHit
         public bool Dash;
@@ -195,6 +197,59 @@ public static class PixelFxSkillSetup
         Debug.Log("pixelfx: 마법사 스킬 이펙트 적용");
     }
 
+    // 사제: pixelfx holy 이펙트 (캐릭터에 붙는 것은 대역 몸이 유닛 키에 맞게 0.65, 나머지는 크게). 평타와 같은 마법 모션
+    // 데미지와 회복은 스킬이 생기는 순간 들어가므로 그림도 그때 내리꽂히게 앞부분을 건너뜀
+    private const string PriestDir = "Assets/BattleK/Packages/PixelAttackFx/Prefebs";
+    private static readonly SkillFx[] PriestSkills =
+    {
+        // 정화 (디버프 걸린 아군): 머리 위로 빛이 내려옴. 반복 이펙트라 1.5초에서 끊음
+        new()
+        {
+            Prefab = $"{PriestDir}/Priest_Tier2_Anim1", Skill = "6_Priest/PRI_T2_1_S", AnimationIndex = MagicCast, ClearWindup = true,
+            Effects = new[] { new Fx { Name = "pri-blessing", Scale = PixelArt, AtTarget = true, Follow = true, Lifetime = 1.5f, Fade = 0.4f } },
+        },
+        // 기절 (적): 빛 망치. 표식 0.42초는 건너뛰고 0.09초에 내리꽂힘
+        new()
+        {
+            Prefab = $"{PriestDir}/Priest_Tier2_Anim2", Skill = "6_Priest/PRI_T2_2_S", AnimationIndex = MagicCast, ClearWindup = true,
+            Effects = new[] { new Fx { Name = "pri-smite", FromOwner = false, Scale = PixelArt, AtTarget = true, Skip = 0.45f, Lifetime = 1.6f, Fade = 0.4f } },
+        },
+        // 단일 힐 (체력 낮은 아군): 1초 선딜 마법진 뒤 몸을 훑는 빛
+        new()
+        {
+            Prefab = $"{PriestDir}/Priest_Tier3_Anim1", Skill = "6_Priest/PRI_T3_1_S", AnimationIndex = MagicCast, Windup = 1f,
+            WindupFx = new Fx { Name = "pri-sigil-1", Scale = PixelArt }, WindupPrefab = "Priest/PRI_T3_1_W",
+            Effects = new[] { new Fx { Name = "pri-heal", FromOwner = false, Scale = PixelArt, AtTarget = true, Follow = true, Fade = 0.3f } },
+        },
+        // 도트 (체력 높은 적): 빛 기둥이 3초 동안 대상을 따라감. 해가 열리는 0.3초는 건너뜀
+        new()
+        {
+            Prefab = $"{PriestDir}/Priest_Tier3_Anim2", Skill = "6_Priest/PRI_T3_2_S", AnimationIndex = MagicCast, Windup = 1f,
+            WindupFx = new Fx { Name = "pri-sigil-1", Scale = PixelArt }, WindupPrefab = "Priest/PRI_T3_2_W",
+            Effects = new[] { new Fx { Name = "pri-pillar", FromOwner = false, Scale = PixelArt, AtTarget = true, Follow = true, Skip = 0.3f, Lifetime = 3f, Fade = 0.4f } },
+        },
+        // 궁극기 (아군 전원 회복): 1.6초 선딜 마법진 (마법사 궁과 같게), 시전자에게 빛 날개, 아군마다 힐
+        new()
+        {
+            Prefab = $"{PriestDir}/PriestUltimateAnim", Skill = "6_Priest/PRI_U_S", AnimationIndex = MagicCast, Windup = 1.6f,
+            WindupFx = new Fx { Name = "pri-sigil", Scale = PixelArt }, WindupPrefab = "Priest/PRI_U_W",
+            Effects = new[]
+            {
+                new Fx { Name = "pri-resurrection", Scale = PixelArt, Follow = true, Skip = 0.3f, Lifetime = 3.6f, Fade = 0.5f },
+                new Fx { Name = "pri-heal", FromOwner = false, Scale = PixelArt, Allies = true, Follow = true, Fade = 0.3f },
+            },
+        },
+    };
+
+    [MenuItem("Tools/pixelfx/스킬 이펙트 교체 (사제)")]
+    public static void ApplyPriest()
+    {
+        Import(PriestSkills);
+        foreach (var s in PriestSkills) Set(s);
+        AssetDatabase.SaveAssets();
+        Debug.Log("pixelfx: 사제 스킬 이펙트 적용");
+    }
+
     // 쓰는 시트는 매번 다시 가져옴 (시트를 바꿔도 자르기와 프리팹이 따라오게)
     private static void Import(IEnumerable<SkillFx> list)
     {
@@ -259,7 +314,7 @@ public static class PixelFxSkillSetup
 
     private static void Set(SkillFx s)
     {
-        var prefabPath = $"{PrefabDir}/{s.Prefab}.prefab";
+        var prefabPath = s.Prefab.StartsWith("Assets/") ? $"{s.Prefab}.prefab" : $"{PrefabDir}/{s.Prefab}.prefab"; // 사제는 PixelAttackFx 쪽 프리팹
         if (AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath) == null)
         {
             Debug.LogWarning($"pixelfx: {prefabPath} 없음");
@@ -332,7 +387,7 @@ public static class PixelFxSkillSetup
             PrefabUtility.UnloadPrefabContents(root);
         }
 
-        if (s.Windup < 0f && s.AnimationIndex < 0 && s.ActiveTime < 0f && s.WindupFx == null && s.DotVisual < 0) return;
+        if (s.Windup < 0f && s.AnimationIndex < 0 && s.ActiveTime < 0f && s.WindupFx == null && s.DotVisual < 0 && !s.ClearWindup) return;
         var skill = AssetDatabase.LoadAssetAtPath<SkillSO>($"{SkillDir}/{s.Skill}.asset");
         if (skill == null) return;
         if (s.Windup >= 0f) skill.WindupTime = s.Windup;
@@ -346,6 +401,7 @@ public static class PixelFxSkillSetup
                 skill.FadeWindupPrefab = false; // 시트가 알아서 나타나고 사라짐
             }
         }
+        else if (s.ClearWindup) skill.WindupPrefab = null;
         if (s.DotVisual >= 0) SetDotVisual(skill, s.DotVisual);
         if (s.AnimationIndex >= 0) skill.AnimationIndex = s.AnimationIndex;
         if (s.ActiveTime >= 0f) skill.ActiveTime = s.ActiveTime;
@@ -370,6 +426,7 @@ public static class PixelFxSkillSetup
         {
             effect = fx, fromOwner = e.FromOwner, offset = new Vector2(e.X, e.Y), scale = e.Scale, delay = e.Delay,
             lifetime = e.Lifetime, fade = e.Fade, speed = e.Speed, sortingOrder = SortingOrder, maxTilt = e.MaxTilt, skip = e.Skip, fly = e.Fly,
+            atTarget = e.AtTarget, allies = e.Allies, follow = e.Follow,
         };
     }
 

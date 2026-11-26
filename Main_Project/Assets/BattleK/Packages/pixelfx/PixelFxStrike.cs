@@ -26,6 +26,9 @@ public class PixelFxStrike : MonoBehaviour
         public float skip;          // 이펙트 앞부분을 이만큼 건너뛰고 시작 (초)
         public float fly;           // 0보다 크면 시전자 쪽에서 상대 발밑 쪽으로 이만큼 걸려 날아감 (초)
         public bool family;         // 켜면 시전자 가문 색으로 칠함 (PixelFxFamilyColors)
+        public bool atTarget;       // 켜면 스킬 대상(아군 포함) 발밑 기준
+        public bool allies;         // 켜면 시전자 편 전원 발밑에 하나씩
+        public bool follow;         // 켜면 기준이 된 유닛을 따라다님
     }
 
     // 맞는 반응 (PixelFxHitReact). time은 이펙트 시작부터, push는 월드 거리
@@ -131,10 +134,18 @@ public class PixelFxStrike : MonoBehaviour
         foreach (var e in effects)
         {
             if (!e.effect) continue;
-            var origin = e.fromOwner ? self : target;
             var limit = e.maxTilt >= 0f ? e.maxTilt : maxTilt;
             var tilt = Mathf.Clamp(aim, -limit, limit);
             var dest = victim ? victim.position : target;
+            if (e.allies)
+            {
+                foreach (var ally in Allies(owner)) SpawnOn(e, ally.transform, dir, owner);
+                continue;
+            }
+            // 대상에 붙이거나, 시전자를 따라다니는 것만 유닛 기준 (나머지는 예전처럼 위치 기준)
+            var anchor = e.atTarget ? victim : e.follow && e.fromOwner && owner ? owner.transform : null;
+            if (anchor) { SpawnOn(e, anchor, dir, owner); continue; }
+            var origin = e.fromOwner ? self : target;
             if (e.delay > 0f) StartCoroutine(SpawnLater(e, origin, dir, tilt, dest, owner));
             else Spawn(e, origin, dir, tilt, dest, owner);
         }
@@ -145,13 +156,45 @@ public class PixelFxStrike : MonoBehaviour
             PixelFxHitReact.Play(victim, push, h.time, h.flash, h.freeze, h.push, flashMaterial);
     }
 
+    // 유닛 발밑에 (follow면 따라다니게)
+    private void SpawnOn(Entry e, Transform at, float dir, Component owner)
+    {
+        if (e.delay > 0f) StartCoroutine(SpawnOnLater(e, at, dir, owner));
+        else SpawnOnNow(e, at, dir, owner);
+    }
+
+    private static IEnumerator SpawnOnLater(Entry e, Transform at, float dir, Component owner)
+    {
+        yield return new WaitForSeconds(e.delay);
+        if (at && at.gameObject.activeInHierarchy) SpawnOnNow(e, at, dir, owner);
+    }
+
+    private static void SpawnOnNow(Entry e, Transform at, float dir, Component owner)
+    {
+        var fx = Spawn(e, at.position, dir, 0f, null, owner);
+        if (!e.follow || !fx) return;
+        var follow = fx.AddComponent<Follow>();
+        follow.target = at;
+        follow.offset = fx.transform.position - at.position;
+    }
+
+    // 시전자와 같은 편(레이어)의 살아 있는 유닛 (AllAllyProcessor와 같은 기준)
+    private static List<StaticAICore> Allies(Component owner)
+    {
+        var list = new List<StaticAICore>();
+        if (!owner) return list;
+        foreach (var unit in FindObjectsOfType<StaticAICore>())
+            if (unit.gameObject.layer == owner.gameObject.layer && !unit.IsDead) list.Add(unit);
+        return list;
+    }
+
     private static IEnumerator SpawnLater(Entry e, Vector3 origin, float dir, float tilt, Vector3 dest, Component owner)
     {
         yield return new WaitForSeconds(e.delay);
         Spawn(e, origin, dir, tilt, dest, owner);
     }
 
-    public static void Spawn(Entry e, Vector3 origin, float dir, float tilt, Vector3? dest = null, Component owner = null)
+    public static GameObject Spawn(Entry e, Vector3 origin, float dir, float tilt, Vector3? dest = null, Component owner = null)
     {
         // 좌우 반전된 그림은 반대로 돌려야 같은 쪽으로 기울어짐
         var angle = tilt * dir;
@@ -165,6 +208,19 @@ public class PixelFxStrike : MonoBehaviour
             fly.from = pos;
             fly.to = dest.Value + new Vector3(0f, e.offset.y, 0f);
             fly.time = e.fly;
+        }
+        return fx;
+    }
+
+    // 붙은 유닛을 따라다님 (유닛이 사라지면 그 자리에 머묾)
+    public class Follow : MonoBehaviour
+    {
+        public Transform target;
+        public Vector3 offset;
+
+        private void LateUpdate()
+        {
+            if (target && target.gameObject.activeInHierarchy) transform.position = target.position + offset;
         }
     }
 
