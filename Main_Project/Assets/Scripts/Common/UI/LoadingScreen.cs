@@ -41,9 +41,16 @@ public class LoadingScreen : MonoBehaviour
     /// <summary>바가 목표 진행률까지 다 찼는지</summary>
     public bool IsCaughtUp => shown >= target - 0.001f;
 
+    public void ShowBackdropOnly()
+    {
+        if (backdrop != null) backdrop.canvasRenderer.SetAlpha(1f);
+        if (bottomBand != null) bottomBand.gameObject.SetActive(false);
+    }
+
     public void Begin(bool overCurrentScene = false)
     {
         this.overCurrentScene = overCurrentScene;
+        if (bottomBand != null) bottomBand.gameObject.SetActive(true);
         if (backdrop != null) backdrop.canvasRenderer.SetAlpha(overCurrentScene ? 0f : 1f);
         RefreshLayout();
         target = shown = 0f;
