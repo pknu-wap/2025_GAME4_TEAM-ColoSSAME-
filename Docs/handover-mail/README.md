@@ -11,7 +11,8 @@ git pull
 ```
 - Unity로 `Main_Project` 열기 → 컴파일 확인.
 - Claude Code에게 처음에 이렇게 말하면 됩니다: **"Docs/handover-mail/WORKFLOW.md와 README.md 읽고 소식통 작업 이어서 해"**
-- 작업 규칙을 Claude 메모리로 설치: `bash Docs/handover-mail/install-memory.sh` (작업 방식 전체는 `WORKFLOW.md`)
+- 작업 규칙을 Claude 메모리로 설치: macOS/Linux `bash Docs/handover-mail/install-memory.sh`, Windows `powershell -ExecutionPolicy Bypass -File Docs\handover-mail\install-memory.ps1` (작업 방식 전체는 `WORKFLOW.md`)
+- 데스크탑 세션에 붙여 넣을 프롬프트: `DESKTOP_PROMPT.md`
 
 ## 2. 현재 상태
 - 완료·병합: #170(MainMenu·설정), #171(로딩·팀 선택), #174(가문 확정·페이드), #175("일" 화면 + 상단 바).

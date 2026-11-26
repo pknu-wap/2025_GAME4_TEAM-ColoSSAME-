@@ -38,3 +38,7 @@
 ```bash
 bash Docs/handover-mail/install-memory.sh
 ```
+Windows(PowerShell):
+```powershell
+powershell -ExecutionPolicy Bypass -File Docs\handover-mail\install-memory.ps1
+```
