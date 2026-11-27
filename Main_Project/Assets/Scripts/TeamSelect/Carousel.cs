@@ -256,8 +256,8 @@ public class Carousel : MonoBehaviour
         Team team = leagueManager.league.teams.Find(t => t.id == currentIndex + 1);
         string family = Loc.TeamName(team);
         int houseIndex = System.Array.FindIndex(houseColors, house => house.familyId == team.fid);
-        int crestSlot = houseIndex >= 0 ? houseColors[houseIndex].crestSlot : -1;
-        confirmPopup.Show(family, crestSlot, ConfirmTeamSelect);
+        Color color = houseIndex >= 0 ? houseColors[houseIndex].color : Color.white;
+        confirmPopup.Show(family, team.fid, cards[currentIndex].GetComponent<Image>(), color, ConfirmTeamSelect);
     }
 
     private void ConfirmTeamSelect()

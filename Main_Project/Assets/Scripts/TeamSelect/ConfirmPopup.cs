@@ -11,8 +11,12 @@ public class ConfirmPopup : MonoBehaviour
     [SerializeField] private Button confirmButton;
     [SerializeField] private Button cancelButton;
     [SerializeField] private TMP_Text familyNameText;
-    [SerializeField] private RawImage crestImage;
+    [SerializeField] private Image bannerImage;
+    [SerializeField] private Image strategyKey;
     [SerializeField] private TMP_Text warningText;
+
+    [SerializeField] private Image armoryAccents;
+    [SerializeField] private Image armoryPreview;
 
     private Action onConfirm;
     private GameObject returnFocus;
@@ -23,15 +27,18 @@ public class ConfirmPopup : MonoBehaviour
         cancelButton.onClick.AddListener(Hide);
     }
 
-    public void Show(string familyName, int crestSlot, Action confirm)
+    public void Show(string familyName, string familyId, Image banner, Color houseColor, Action confirm)
     {
         if (root.activeSelf) return;
         familyNameText.text = Loc.Get("command_greeting", familyName);
         messageText.text = Loc.Get("command_brief");
         warningText.text = Loc.Get("teamselect_confirm_warn");
-        crestImage.enabled = crestSlot >= 0 && crestSlot < 10;
-        if (crestImage.enabled)
-            crestImage.uvRect = new Rect((crestSlot % 5) / 5f, 0.5f - (crestSlot / 5) * 0.5f, 0.2f, 0.5f);
+        armoryPreview.sprite = armoryAccents.sprite;
+        armoryPreview.material = armoryAccents.material;
+        armoryPreview.color = houseColor;
+        bannerImage.sprite = banner.overrideSprite;
+        bannerImage.material = banner.material;
+        StrategyRoomKey.Display(strategyKey, familyId);
 
         onConfirm = confirm;
         returnFocus = EventSystem.current != null ? EventSystem.current.currentSelectedGameObject : null;

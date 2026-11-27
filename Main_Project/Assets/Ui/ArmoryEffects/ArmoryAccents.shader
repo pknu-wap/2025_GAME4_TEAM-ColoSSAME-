@@ -149,8 +149,10 @@ Shader "UI/Armory Accents"
                 float2 p = float2(i.uv.x, 1.0 - i.uv.y) * size;
                 fixed4 dye = tex2D(_MainTex, i.uv);
                 fixed4 result = fixed4(dye.rgb * i.color.rgb, dye.a);
-                if (p.x >= 38 && p.x < 158 && p.y >= 506 && p.y < 650)
-                    result.rgb = shieldPaint(p, result.rgb);
+                // Remap the new upper shield face to the existing animated crest atlas.
+                float2 crestPixel = (p - float2(53, 277)) / 0.72 + float2(99, 581);
+                if (all(crestPixel >= float2(38, 506)) && all(crestPixel < float2(158, 650)))
+                    result.rgb = shieldPaint(crestPixel, result.rgb);
 
                 float age = _Elapsed - 0.06;
                 if (p.x > 1060.0 && p.y > 515.0 && age > 0.0 && age < 0.70)
