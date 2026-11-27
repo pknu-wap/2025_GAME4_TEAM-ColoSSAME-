@@ -75,6 +75,7 @@ const NM={ko:["","카이루스","플로라","이그니스","루멘","녹스","�
 const M=[[5,3,45,360,[],"패승패무승","승승무패승",[0,0,1],6,4,["이그니스 가문의 드라코가 한 라운드 만에 부쩍 강해졌다는 소문이 돕니다.","Word is Ignis's Draco grew much stronger in one round."]],
  [2,9,62,400,[],"승승무승패","패무패승패",[1,0,0],2,7,["플로라 가문의 프루누스가 새 기술을 익혔다는 이야기가 들립니다.","They say Flora's Prunus learned a new technique."]],
  [10,4,80,420,[],"승승승승무","패패승패패",[0,0,0],1,9,null],[8,7,49,380,[],"무승패승패","승패승무승",[0,1,0],5,3,["풀게르 가문 훈련장에서 밤늦게까지 함성이 들린다고 합니다.","Shouts are heard late into the night at Fulger's training ground."]]];
+const ROUND_RUMOR=["테라 가문 훈련장에서 밤늦게까지 함성이 들린다고 합니다.","Shouts are heard late at night at Terra's training ground."];
 const LEAGUE_NEWS=["아스트라 가문, 파죽의 4연승으로 선두를 굳혔습니다.","House Astra cements the lead with a 4-win streak."];
 const probs=m=>{const p=m[2]/100,d=0.15-0.12*Math.abs(p-0.5)*2;return [(1-d)*p,d,(1-d)*(1-p)];};
 const odds=m=>probs(m).map((q,i)=>Math.min(0.9/q,i==1?10:5));
@@ -102,7 +103,7 @@ function draw(){
     P(TEAM(mm[0]),L0+8,y+3,10,14,'object-fit:contain');T(L0+22,y+10,`${nm[mm[0]]} vs ${nm[mm[1]]}`,7.6,'ink','lm');
     if(full(i)) T(L1-8,y+10,draft[i].stake+' G',7.6,confirmed?'win':'ink','rm'); else T(L1-8,y+10,EN_?'Open':'베팅 전',7.14,'gray','rm');});
   CL=anim=='card'?'cardin':'';
-  const cy=168;N('COLLO:02_panels/tooltip',L0,cy,222,214,6,'filter:brightness(1.07);outline:1px solid rgba(89,42,22,.55);box-shadow:0 4px 0 rgba(62,17,9,.35),0 -2px 0 rgba(89,42,22,.18)');
+  const cy=168;N('COLLO:02_panels/tooltip',L0,cy,222,140,6,'filter:brightness(1.07);outline:1px solid rgba(89,42,22,.55);box-shadow:0 4px 0 rgba(62,17,9,.35),0 -2px 0 rgba(89,42,22,.18)');
   const DV=y=>BOX(L0+12,y,198,1,'#c49a68');
   const RC={"승":"win","무":"ink","패":"lose"},EK={"승":"W","무":"D","패":"L"};
   const streak=f=>{let k=0;while(k<f.length&&f[k]==f[0]&&f[0]!='무')k++;return k>=2?(EN_?`${k}${f[0]=='승'?'W':'L'} run`:`${k}연${f[0]}`):'';};
@@ -125,13 +126,11 @@ function draw(){
     const lab=res=='a'?`${nm[a]} ${EN_?'W':'승'}`:res=='b'?`${nm[b]} ${EN_?'W':'승'}`:res=='d'?(EN_?'Draw':'무'):now?(EN_?'Today':'오늘'):'—';
     const col=res=='a'||res=='b'?'win':res=='d'?'ink2':now?'ink':'gray';
     T(x+4,y+7.5,(EN_?'R':'')+rd+(EN_?'':'R'),7.14,'ink2','lm');T(x+w-4,y+7.5,lab,7.14,col,'rm');});
-  DV(cy+134);
-  // 4. 소식: 리그 소식 1줄 + 경기장 소문 1줄 (기존 ArenaNews)
-  T(L0+12,cy+141,EN_?'League news':'리그 소식',7.6,'ink2');
-  TW(L0+12,cy+152,198,EN_?LEAGUE_NEWS[1]:LEAGUE_NEWS[0],7.14,'ink',1.25);
-  T(L0+12,cy+174,EN_?'Arena rumor':'경기장 소문',7.6,'ink2');
-  TW(L0+12,cy+185,198,m[10]?`<span class="gray" style="position:static">${EN_?'[Rumor]':'[소문]'}</span> `+(EN_?m[10][1]:m[10][0]):`<span class="gray" style="position:static">${EN_?'No rumors about these houses.':'두 가문에 대한 소문이 없습니다.'}</span>`,7.14,'ink',1.25);
   CL='';
+  // 투기장 소식 (라운드 공통, 기존 ArenaNewsUI 그대로) — 버튼 위
+  N('02_panels/header_ornament',L0,327,222,7,[0,12,0,10]);T(L0+10,317,EN_?'Arena News':'투기장 소식',7.6,'ink2');
+  PC('07_icons_color/stat_agility',L0,337,12,12);TW(L0+16,337,206,`<span class="ink2" style="position:static">${EN_?'League':'리그'}</span> `+(EN_?LEAGUE_NEWS[1]:LEAGUE_NEWS[0]),7.14,'ink',1.2);
+  PC('07_icons_color/fac_mail',L0,360,12,12);TW(L0+16,360,206,`<span class="ink2" style="position:static">${EN_?'Rumor':'소문'}</span> `+(EN_?ROUND_RUMOR[1]:ROUND_RUMOR[0]),7.14,'ink',1.2);
   N('01_buttons/btn_normal_default',L0,391,222,28,10);P('07_icons_color/menu_league',L0+60,397,16,16);T(L0+80,405,EN_?'More in League':'대회에서 자세히 보기',10,'ink','lm');
   // ===== 오른쪽: 클립으로 꽂은 베팅 전표 (높이 축소) + 라운드 확정
   T(421,91,EN_?'Match Prediction':'승부 예측',16,'ink','ma');
