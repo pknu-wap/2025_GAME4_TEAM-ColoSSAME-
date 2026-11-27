@@ -130,9 +130,9 @@ function draw(){
   CL='';
   // 투기장 소식 (라운드 공통, 기존 ArenaNewsUI 그대로) — 버튼 위
   N('02_panels/header_ornament',L0,309,222,7,[0,12,0,10]);T(L0+10,299,EN_?'Arena News':'투기장 소식',7.6,'ink2');
-  PC('07_icons_color/stat_agility',L0,318,12,12);TW(L0+16,318,206,`<span class="ink2" style="position:static">${EN_?'League':'리그'}</span> `+(EN_?LEAGUE_NEWS[1]:LEAGUE_NEWS[0]),7.14,'ink',1.2);
-  PC('07_icons_color/fac_mail',L0,342,12,12);TW(L0+16,342,206,`<span class="ink2" style="position:static">${EN_?'Rumor':'소문'}</span> `+(EN_?ROUND_RUMOR[1]:ROUND_RUMOR[0]),7.14,'ink',1.2);
-  PC('07_icons_color/menu_team',L0,366,12,12);TW(L0+16,366,206,`<span class="ink2" style="position:static">${EN_?'Crowd':'여론'}</span> `+(EN_?OPINION[1]:OPINION[0]),7.14,'ink',1.2);
+  PC('07_icons_color/stat_agility',L0,320,12,12);TW(L0+16,320,206,`<span class="ink2" style="position:static">${EN_?'League':'리그'}</span> `+(EN_?LEAGUE_NEWS[1]:LEAGUE_NEWS[0]),7.14,'ink',1.1);
+  PC('07_icons_color/fac_mail',L0,340,12,12);TW(L0+16,340,206,`<span class="ink2" style="position:static">${EN_?'Rumor':'소문'}</span> `+(EN_?ROUND_RUMOR[1]:ROUND_RUMOR[0]),7.14,'ink',1.1);
+  PC('07_icons_color/menu_team',L0,360,12,12);TW(L0+16,360,206,`<span class="ink2" style="position:static">${EN_?'Crowd':'여론'}</span> `+(EN_?OPINION[1]:OPINION[0]),7.14,'ink',1.1);
   N('01_buttons/btn_normal_default',L0,391,222,28,10);P('07_icons_color/menu_league',L0+60,397,16,16);T(L0+80,405,EN_?'More in League':'대회에서 자세히 보기',10,'ink','lm');
   // ===== 오른쪽: 클립으로 꽂은 베팅 전표 (높이 축소) + 라운드 확정
   T(421,91,EN_?'Match Prediction':'승부 예측',16,'ink','ma');
