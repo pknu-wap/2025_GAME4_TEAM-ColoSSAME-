@@ -116,9 +116,16 @@ function draw(){
     const sk=streak(f);if(sk)T(L1-12,y+6,sk,7.14,f[0]=='승'?'win':'lose','rm');});
   DV(cy+97);
   // 3. 최근 맞대결 (이번 리그)
-  const hh=m[7],hn=hh[0]+hh[1]+hh[2];
-  T(L0+12,cy+104,EN_?'Head-to-head':'최근 맞대결',7.6,'ink2');
-  T(L0+12,cy+121,hn?(EN_?`${nm[a]} ${hh[0]}W ${hh[1]}D ${hh[2]}L · ${hn}/3 this league`:`${nm[a]} 기준 ${hh[0]}승 ${hh[1]}무 ${hh[2]}패 · 이번 리그 ${hn}/3경기`):(EN_?'First meeting this league':'이번 리그 첫 맞대결'),7.14,'ink','lm');
+  // 3칸 일정 칩: [라운드, 결과(a/b/d) 또는 'now' 또는 '']
+  // 같은 두 가문은 9라운드 간격으로 3번 만남(라운드 n, n+9, n+18). 이번 라운드 = 14
+  const H2H=[[5,['b','a','a','d'][mi]],[14,'now'],[23,'']];
+  T(L0+12,cy+104,EN_?'Head-to-head (this league)':'최근 맞대결 (이번 리그)',7.6,'ink2');
+  H2H.forEach(([rd,res],k)=>{const x=L0+12+k*67,y=cy+114,w=62;
+    const now=res=='now',bg=now?'#fff3dc':res?'rgba(252,213,169,.6)':'transparent',bd=now?'#7a4a12':res?'#c49a68':'#c9a476';
+    BOX(x,y,w,15,bg,`border:1px ${res?'solid':'dashed'} ${bd};box-sizing:border-box;border-radius:3px`);
+    const lab=res=='a'?`${nm[a]} ${EN_?'W':'승'}`:res=='b'?`${nm[b]} ${EN_?'W':'승'}`:res=='d'?(EN_?'Draw':'무'):now?(EN_?'Today':'오늘'):'—';
+    const col=res=='a'||res=='b'?'win':res=='d'?'ink2':now?'ink':'gray';
+    T(x+4,y+7.5,(EN_?'R':'')+rd+(EN_?'':'R'),7.14,'ink2','lm');T(x+w-4,y+7.5,lab,7.14,col,'rm');});
   DV(cy+134);
   // 4. 소식: 리그 소식 1줄 + 경기장 소문 1줄 (기존 ArenaNews)
   T(L0+12,cy+141,EN_?'League news':'리그 소식',7.6,'ink2');
