@@ -99,7 +99,7 @@ function draw(){
     N('COLLO:02_panels/tooltip',L0+2,y,218,40,6,`transform:rotate(${[-0.6,0.5,-0.3][k]}deg);box-shadow:0 1px 0 rgba(89,42,22,.35)`);
     H+=`<div class="hit" data-i="${i}" style="left:${L0}px;top:${y}px;width:222px;height:20px"></div>`;
     P(TEAM(mm[0]),L0+8,y+3,10,14,'object-fit:contain');T(L0+22,y+10,`${nm[mm[0]]} vs ${nm[mm[1]]}`,7.6,'ink','lm');
-    if(confirmed&&full(i)){T(L1-12,y+10,(EN_?'Sealed ':'봉인 ')+draft[i].stake+' G',7.14,'win','rm');DOG(L1,y+1);} else if(full(i)) T(L1-8,y+10,(EN_?'Picked ':'담음 ')+draft[i].stake+' G',7.14,'ink','rm'); else if(confirmed) T(L1-8,y+10,EN_?'Closed':'마감',7.14,'gray','rm'); else T(L1-8,y+10,`${q[0]}·${q[1]}·${q[2]}%`,7.14,'ink2','rm');});
+    if(confirmed&&full(i)){T(L1-12,y+10,(EN_?'Sealed ':'봉인 ')+draft[i].stake+' G',7.14,'win','rm');DOG(L1,y+1);} else if(full(i)) T(L1-8,y+10,(EN_?'Picked ':'담음 ')+draft[i].stake+' G',7.14,'ink','rm'); else T(L1-8,y+10,EN_?'Open':'베팅 전',7.14,'gray','rm');});
   CL=anim=='card'?'cardin':'';
   const cy=168;N('COLLO:02_panels/tooltip',L0,cy,222,214,6,'filter:brightness(1.07);outline:1px solid rgba(89,42,22,.55);box-shadow:0 4px 0 rgba(62,17,9,.35),0 -2px 0 rgba(89,42,22,.18)');
   if(bet){DOG(L1,cy);H+=`<div style="left:${L1-34}px;top:${cy+44}px;width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#be4331,#6c291d);box-shadow:inset 0 0 0 2px #a03a2a"></div>`;}
@@ -127,29 +127,31 @@ function draw(){
     BOX(x+4,y+4,4,4,COL[i]);T(x+30,y+9,lab[i],7.14,'ink','mm');T(x+30,y+21,'×'+od[i].toFixed(2),8,'ink','mm','color:#7a4a12');
     if(!lock)H+=`<div class="hit" data-pick="${i}" style="left:${x}px;top:${y}px;width:60px;height:30px"></div>`;
     if(pick==i){const s=H.length;INK(x,y,60,30);if(anim!='ink')H=H.slice(0,s)+H.slice(s).replace('<path','<path style="animation:none"');}});
-  T(R0+16,ty+97,EN_?'Amount':'금액 (G)',7.14,'ink2');
-  [50,100,300,500].forEach((v,i)=>{const x=R0+52+i*40,y=ty+90;const sel=v==stake;
-    H+=`<div class="${CL}" style="left:${x}px;top:${y}px;width:36px;height:21px;border-radius:10px;background:${sel?'#e5a147':'#f0c27a'};border:1px solid #7a4a12;box-sizing:border-box;${lock&&!sel?'opacity:.4':''}"></div>`;
-    T(x+18,y+10.5,v,7.6,'ink','mm');if(!lock)H+=`<div class="hit" data-stake="${v}" style="left:${x}px;top:${y}px;width:36px;height:21px"></div>`;});
+  const LIMIT=500, others=[0,1,2,3].filter(k=>k!=mi&&full(k)).reduce((s,k)=>s+draft[k].stake,0), room=Math.max(0,Math.min(LIMIT,GOLD)-others);
+  T(R0+16,ty+97,EN_?'Bet':'금액',7.14,'ink2');T(R0+44,ty+97,stake+' G',9,stake?'ink':'gray');
+  [['+10',10],['+50',50],['+100',100],[EN_?'Max':'최대','max']].forEach(([lb,v],i)=>{const x=R0+86+i*28,y=ty+90,dis=lock||(v=='max'?stake>=room:stake+v>room);
+    H+=`<div class="${CL}" style="left:${x}px;top:${y}px;width:26px;height:21px;border-radius:10px;background:#f0c27a;border:1px solid #7a4a12;box-sizing:border-box;${dis?'opacity:.4':''}"></div>`;
+    T(x+13,y+10.5,lb,7.14,'ink','mm');if(!dis)H+=`<div class="hit" data-add="${v}" style="left:${x}px;top:${y}px;width:26px;height:21px"></div>`;});
+  if(!lock&&stake){const x=R0+86+4*28+1;H+=`<div style="left:${x}px;top:${ty+93}px;width:15px;height:15px;border-radius:50%;border:1px solid #a88458;box-sizing:border-box"></div>`;T(x+7.5,ty+100.5,'↺',7.14,'ink2','mm');H+=`<div class="hit" data-act="reset" style="left:${x-2}px;top:${ty+90}px;width:19px;height:21px"></div>`;}
   BOX(R0+16,ty+118,150,1,'#c9a476');
   const pay=pick>=0&&stake?Math.round(stake*od[pick]):0;
   if(pay){T(R0+16,ty+125,`${lab[pick]} · ${stake} G`,9,bet?'win':'ink');T(R0+16,ty+139,EN_?`Pays ${pay} G`:`적중 시 ${pay} G`,7.14,'ink2');}
-  else T(R0+16,ty+134,lock?(EN_?'Closed for this round':'이번 라운드 마감'):(pick<0?(EN_?'Circle a result':'결과에 동그라미를 치세요'):(EN_?'Choose an amount':'금액을 고르세요')),7.6,'gray','lm');
+  else T(R0+16,ty+134,lock?(EN_?'Not bet this round':'이번 라운드 베팅 안 함'):(pick<0?(EN_?'Circle a result':'결과에 동그라미를 치세요'):(EN_?'Choose an amount':'금액을 고르세요')),7.6,'gray','lm');
   if(bet){H+=`<div class="${anim=='seal'?'stamp':''}" style="left:${R1-56}px;top:${ty+112}px;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#be4331,#872b1c 60%,#6c291d);box-shadow:0 2px 0 rgba(62,17,9,.5),inset 0 0 0 3px #a03a2a,inset 0 0 0 4px #6c291d;transform:rotate(-12deg)"></div>`;T(R1-39,ty+129,EN_?'SEAL':'봉인',7.14,'cream','mm','transform:translate(-50%,-50%) rotate(-12deg)');}
   else if(pay&&!lock){H+=`<div style="left:${R1-56}px;top:${ty+112}px;width:34px;height:34px;border-radius:50%;border:1.5px dashed #a88458;box-sizing:border-box"></div>`;T(R1-39,ty+129,EN_?'Picked':'담음',7.14,'ink2','mm');}
   CL='';
   CLIP(R0+105,ty-8);
   // 라운드 합계 + 최종 확정
   BOX(R0,300,222,1,'#c9a476');
-  T(R0+6,310,EN_?'Total bet':'총 베팅 금액',8,'ink2');T(R1-6,310,total+' G',10,'ink','ra');
+  T(R0+6,310,EN_?'Total bet':'총 베팅 금액',8,'ink2');T(R1-6,310,`${total} <span class="ink2" style="position:static;font-size:7.14px">/ ${EN_?'limit':'한도'} 500</span> G`,10,'ink','ra');
   T(R0+6,330,EN_?'If all hit':'모두 적중 시',8,'ink2');T(R1-6,330,allWin+' G',10,'win','ra');
-  const short=!confirmed&&total>GOLD;
-  if(confirmed) T(421,372,EN_?`${picked.length} bets sealed · closed for this round`:`${picked.length}건 베팅 확정 · 이번 라운드 마감`,7.6,'win','ma');
+  const short=!confirmed&&total>Math.min(500,GOLD);
+  if(confirmed) T(421,372,EN_?`${picked.length} bets sealed · settled next round`:`${picked.length}건 베팅 확정 · 다음 라운드에 정산`,7.6,'win','ma');
   else if(short) T(421,372,EN_?`Not enough gold · ${total-GOLD} G more needed`:`골드 부족 · ${total-GOLD} G 더 필요`,7.6,'lose','ma');
   else T(421,372,picked.length?(EN_?`Confirm ${picked.length} bets · ${total} G total`:`${picked.length}건 베팅 확정 · 총 ${total} G`):(EN_?'Pick results on the slips':'전표에 결과와 금액을 고르세요'),7.6,picked.length?'ink':'gray','ma');
   const can=!confirmed&&!short&&picked.length>0;
   N(confirmed?'01_buttons/btn_primary_disabled':'01_buttons/btn_primary_default',R0,391,222,28,7,can||confirmed?'':'opacity:.55');
-  T(421,405,confirmed?(EN_?'Closed':'베팅 마감'):(EN_?'Confirm bets':'베팅 확정'),10,'cream','mm');
+  T(421,405,confirmed?(EN_?'Bets placed':'베팅 완료'):(EN_?'Confirm bets':'베팅 확정'),10,'cream','mm');
   if(can)H+=`<div class="hit" data-act="confirm" style="left:${R0}px;top:391px;width:222px;height:28px"></div>`;
   // 책갈피
   [['home','일정','Home'],['news','소식통','News'],['league','대회','League'],['facility','시설','Facility'],['team','팀관리','Team']].forEach((t,i)=>{const sel=i==1,x=566+(sel?4:0),y=118+i*34,f=sel?'':'filter:brightness(.6)';
@@ -166,7 +168,8 @@ function draw(){
   document.querySelectorAll('#bk .hit').forEach(h=>h.onclick=()=>{const d=h.dataset;
     if(d.i!=null){$('mi').value=d.i;anim='card';}
     else if(d.pick!=null&&!confirmed){draft[mi]={...(draft[mi]||{stake:0}),pick:+d.pick};anim='ink';}
-    else if(d.stake!=null&&!confirmed){draft[mi]={...(draft[mi]||{pick:-1}),stake:+d.stake};}
+    else if(d.add!=null&&!confirmed){const cur=draft[mi]||{pick:-1,stake:0},others=[0,1,2,3].filter(k=>k!=mi&&full(k)).reduce((s,k)=>s+draft[k].stake,0),room=Math.max(0,Math.min(500,+$('goldv').value)-others);draft[mi]={...cur,stake:d.add=='max'?room:Math.min(room,cur.stake+(+d.add))};}
+    else if(d.act=='reset'&&!confirmed){draft[mi]={...(draft[mi]||{pick:-1}),stake:0};}
     else if(d.act=='confirm'){confirmed=true;anim='seal';}
     draw();});
   $('crest').style.backgroundImage=`url('${A}/Ui/ArmoryEffects/ShieldCrests.png')`;$('crest').style.backgroundPosition='0 0';
