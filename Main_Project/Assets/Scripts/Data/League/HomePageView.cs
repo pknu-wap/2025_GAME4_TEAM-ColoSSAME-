@@ -32,7 +32,7 @@ public class HomePageView : MonoBehaviour
     [SerializeField] private TMP_Text enemyName;
     [SerializeField] private TMP_Text headToHead;
 
-    [Header("소식통 열기")]
+    [Header("대회 열기 (상대 가문·확인된 용병은 대회 페이지에서 확인)")]
     [SerializeField] private Button newsButton;
     [SerializeField] private BookPageController pageController;
 
@@ -42,7 +42,7 @@ public class HomePageView : MonoBehaviour
 
     private void Awake()
     {
-        if (newsButton != null) newsButton.onClick.AddListener(OpenNews);
+        if (newsButton != null) newsButton.onClick.AddListener(OpenLeague);
     }
 
     private void OnEnable()
@@ -65,10 +65,10 @@ public class HomePageView : MonoBehaviour
         if (LeagueQuery.IsReady && LeagueQuery.PlayedCount != shownPlayed) Refresh();
     }
 
-    private void OpenNews()
+    private void OpenLeague()
     {
         if (pageController == null) pageController = FindObjectOfType<BookPageController>();
-        if (pageController != null) pageController.OpenPage(BookPageId.News);
+        if (pageController != null) pageController.OpenPage(BookPageId.League);
     }
 
     public void Refresh()

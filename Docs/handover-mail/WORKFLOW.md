@@ -1,0 +1,44 @@
+# 작업 방식 (Claude Code용, 이승수 UI 작업)
+
+데스크탑 Claude Code 세션 시작 시: "Docs/handover-mail/WORKFLOW.md와 README.md 읽고 이 방식대로 작업해".
+
+## 대화
+- 한국어. **판단에 필요한 핵심만**: 결과 2~4줄 + 결정할 질문 1~2개. 좌표·에셋·검증 내역은 시안 표나 PR 본문에.
+- 작업 전 방향 제시 → 승인 후 시작. 애매하면 임의 결정 말고 질문.
+- 개선점을 물으면 비판적으로 검토하고, 근거는 실제 코드/데이터로 확인한 것만.
+
+## 진행 순서 (화면 하나)
+1. Notion `Design Collossam UI` 해당 토글 + "공통 UI" 페이지 확인(공통 UI 규칙·톤 2안·예시 좌표).
+2. 해당 씬/프리팹 구조와 참조하는 스크립트 조사(누가 작성했는지 `git log`). **작업 위치·범위·데이터 방식**을 먼저 제안.
+3. HTML 시안(`Docs/.../mockups` 또는 로컬 mockups, 1920×1080, 책 배율 2.1, 글꼴 DNFBitBitv2, PNG 상대 경로).
+   보여 주기 전에 자체 검증 반복: 공통 UI 기준, 빈 공간·정렬, 같은 정보 중복(상단 바 포함), 상태별 값(0경기·값 0·영어), 실제 데이터로 만들 수 있는지, 결과에 안 쓰이는 정보 넣지 않기.
+4. 시안 승인 → 번호 목록 적용 계획 승인 → Unity 적용.
+5. 커밋·푸시·PR. 병합은 사용자 지시 때만.
+
+## Unity 적용
+- Unity MCP `execute_code`로 일회성 에디터 코드 실행(파일 안 남김). 씬이 dirty면 멈추기, 작업 후 원래 열려 있던 씬으로 되돌리기. Play 중이면 손대지 않기.
+- 배치 확인은 **화면 좌표(월드 좌표)로 시안과 비교**(부모 기준 값만 보면 안 됨 — Home의 크기 0 `home` 오브젝트 때문에 50px 밀린 적 있음).
+- 글자는 **Canvas를 붙인 상태로** 칸 높이 ≥ 줄 높이(약 글자 크기 × 1.46) 확인(TMP 말줄임이 줄 전체를 숨긴 적 있음).
+- 9분할 그림은 PPU Multiplier로 배율 맞추고 테두리 합이 칸보다 크지 않게. 크기 고정 패널은 `final9.py`로 전용 그림 생성.
+- BookPage가 켜고 끄는 `content` 안에 새 배치를 둘 것. 다른 팀원 스크립트가 참조하는 기존 오브젝트는 지우지 말고 끄기.
+- MCP가 끊기면 한 번 재시도 → 안 되면 사용자에게 Unity 창 앞으로 요청.
+
+## 코드
+- 새 화면 스크립트는 화면 채우기만, 계산은 `Common/LeagueQuery` 같은 읽기 전용 도우미에.
+- 기존 Manager·다른 팀원 스크립트는 최소 수정, PR 본문에 명시하고 리뷰 요청. 직접 작성한 코드(BookController 일부, Common 등)는 범위 안.
+- 사용자 파일(`Assets/SPUM/`, `Packages/`, 개인 씬 변경) 커밋 금지.
+
+## Git
+- 커밋 `Design:`/`Feat:`/`Fix:`/`Docs:` 한국어 + `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
+- 브랜치 이동·새 브랜치는 사용자 지시 때만. 다른 브랜치와 병합 전 `git merge-tree`로 충돌 미리 계산해 보고.
+- PR 본문: 이름/표/개발한 기능/고친 버그·수정된 코드/에셋/커밋/확인 결과/리뷰 필요·보류/디자인 개선 방안 (#171·#175 참고).
+
+## 메모리
+`memory/` 폴더 = 노트북 Claude 메모리 사본. 데스크탑에 설치하려면 저장소 루트에서:
+```bash
+bash Docs/handover-mail/install-memory.sh
+```
+Windows(PowerShell):
+```powershell
+powershell -ExecutionPolicy Bypass -File Docs\handover-mail\install-memory.ps1
+```
