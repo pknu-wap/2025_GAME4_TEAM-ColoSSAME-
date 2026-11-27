@@ -52,7 +52,7 @@ th{background:#333}
 <div style="width:600px">
 <p style="margin:0 0 8px">
  경기 <select id="mi"><option value="1" selected>2 플로라 vs 테라</option><option value="0">1 녹스 vs 이그니스 (베팅함)</option><option value="2">3</option><option value="3">4</option></select>
- 2번 상태 <select id="state"><option value="pick">안 고름</option><option value="stake" selected>확정 직전</option><option value="done">봉인 후</option></select>
+ 상태 <select id="state"><option value="none">담은 것 없음</option><option value="two" selected>2건 담음 (확정 전)</option><option value="conf">확정 후 (라운드 마감)</option></select> 보유 골드 <select id="goldv"><option value="1250">1,250</option><option value="150">150 (부족)</option></select>
  <label><input type="checkbox" id="settle"> 정산 알림</label> <label><input type="checkbox" id="en"> 영어</label><br>
  왼쪽 카드 머리·오른쪽 결과 칸·금화·버튼을 눌러 볼 수 있음. 클립·잉크·도장·접힌 귀퉁이는 임시 그림(새로 만들 에셋).</p>
 </div>
@@ -79,26 +79,27 @@ const probs=m=>{const p=m[2]/100,d=0.15-0.12*Math.abs(p-0.5)*2;return [(1-d)*p,d
 const odds=m=>probs(m).map((q,i)=>Math.min(0.9/q,i==1?10:5));
 const trip=q=>{const x=Math.round(q[0]*100),y=Math.round(q[1]*100);return [x,y,100-x-y];};
 // 상태
-const draft={}; const bets={0:{pick:0,stake:100}}; let anim='';
-function syncState(){const s=document.getElementById('state').value;delete bets[1];delete draft[1];if(s=='stake')draft[1]={pick:0,stake:100};if(s=='done')bets[1]={pick:0,stake:100};}
+const draft={}; let confirmed=false, anim='';
+const full=i=>!!(draft[i]&&draft[i].pick>=0&&draft[i].stake>0);
+function syncState(){const s=document.getElementById('state').value;for(const k in draft)delete draft[k];confirmed=false;if(s!='none'){draft[0]={pick:0,stake:100};draft[1]={pick:0,stake:100};}if(s=='conf')confirmed=true;}
 const INK=(x,y,w,h)=>{H+=`<svg class="ink" style="position:absolute;left:${x-3}px;top:${y-3}px;overflow:visible" width="${w+6}" height="${h+6}"><path d="M${w*0.1} ${h*0.25} C ${w*0.2} -2, ${w+4} 0, ${w+3} ${h*0.55} S ${w*0.5} ${h+6}, 2 ${h*0.7} S ${w*0.35} 0, ${w*0.75} 1" fill="none" stroke="#592a16" stroke-width="1.4" stroke-linecap="round"/></svg>`;};
 const CLIP=(x,y)=>{H+=`<div style="left:${x}px;top:${y}px;width:9px;height:20px;border:2px solid #8f8a80;border-radius:5px;box-sizing:border-box;box-shadow:inset 0 0 0 1px #d8d2c4"></div><div style="left:${x+2.5}px;top:${y+4}px;width:4px;height:13px;border:1.5px solid #8f8a80;border-radius:3px;box-sizing:border-box"></div>`;};
 const DOG=(x,y)=>{H+=`<div class="${CL}" style="left:${x-9}px;top:${y}px;width:9px;height:9px;background:linear-gradient(225deg,transparent 50%,#d9b98c 50%);box-shadow:-1px 1px 0 #b98a55"></div>`;};
 function draw(){
   H="";const $=id=>document.getElementById(id),EN_=$('en').checked,nm=EN_?NM.en:NM.ko,mi=+$('mi').value;
-  const m=M[mi],[a,b,pp,pw,news]=m,pr=probs(m),od=odds(m),bet=bets[mi],dr=draft[mi]||{pick:-1,stake:0};
-  const pick=bet?bet.pick:dr.pick, stake=bet?bet.stake:dr.stake;
+  const m=M[mi],[a,b,pp,pw,news]=m,pr=probs(m),od=odds(m),dr=draft[mi]||{pick:-1,stake:0},bet=confirmed&&full(mi)?dr:null,GOLD=+$('goldv').value;
+  const pick=dr.pick, stake=dr.stake;
   const lab=[`${nm[a]} ${EN_?'win':'승'}`,EN_?'Draw':'무승부',`${nm[b]} ${EN_?'win':'승'}`];
-  const spent=Object.values(bets).reduce((s,x)=>s+x.stake,0);
+  const picked=[0,1,2,3].filter(full), total=picked.reduce((s,k)=>s+draft[k].stake,0), allWin=picked.reduce((s,k)=>s+Math.round(draft[k].stake*odds(M[k])[draft[k].pick]),0), spent=confirmed?total:0;
   P(A+"/2D Pixel Quest Vol.3 - The UI-GUI/Sprites/Inventory Book/InventoryBook_01.png",0,0,576,477);
   // ===== 왼쪽: 경기 카드 묶음 (페이지 인쇄 = 제목·버튼만)
   T(155,91,EN_?'This Round':'이번 라운드 경기',16,'ink','ma');
   const back=[0,1,2,3].filter(i=>i!=mi);
-  back.forEach((i,k)=>{const y=108+k*20,mm=M[i],bt=bets[i],q=trip(probs(mm));
+  back.forEach((i,k)=>{const y=108+k*20,mm=M[i],q=trip(probs(mm));
     N('COLLO:02_panels/tooltip',L0+2,y,218,40,6,`transform:rotate(${[-0.6,0.5,-0.3][k]}deg);box-shadow:0 1px 0 rgba(89,42,22,.35)`);
     H+=`<div class="hit" data-i="${i}" style="left:${L0}px;top:${y}px;width:222px;height:20px"></div>`;
     P(TEAM(mm[0]),L0+8,y+3,10,14,'object-fit:contain');T(L0+22,y+10,`${nm[mm[0]]} vs ${nm[mm[1]]}`,7.6,'ink','lm');
-    if(bt){T(L1-12,y+10,(EN_?'Sealed ':'봉인 ')+bt.stake+' G',7.14,'win','rm');DOG(L1,y+1);} else T(L1-8,y+10,`${q[0]}·${q[1]}·${q[2]}%`,7.14,'ink2','rm');});
+    if(confirmed&&full(i)){T(L1-12,y+10,(EN_?'Sealed ':'봉인 ')+draft[i].stake+' G',7.14,'win','rm');DOG(L1,y+1);} else if(full(i)) T(L1-8,y+10,(EN_?'Picked ':'담음 ')+draft[i].stake+' G',7.14,'ink','rm'); else if(confirmed) T(L1-8,y+10,EN_?'Closed':'마감',7.14,'gray','rm'); else T(L1-8,y+10,`${q[0]}·${q[1]}·${q[2]}%`,7.14,'ink2','rm');});
   CL=anim=='card'?'cardin':'';
   const cy=168;N('COLLO:02_panels/tooltip',L0,cy,222,214,6,'filter:brightness(1.07);outline:1px solid rgba(89,42,22,.55);box-shadow:0 4px 0 rgba(62,17,9,.35),0 -2px 0 rgba(89,42,22,.18)');
   if(bet){DOG(L1,cy);H+=`<div style="left:${L1-34}px;top:${cy+44}px;width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#be4331,#6c291d);box-shadow:inset 0 0 0 2px #a03a2a"></div>`;}
@@ -115,36 +116,41 @@ function draw(){
     TW(L0+30,y+1,180,(r?`<span class="gray" style="position:static">${EN_?'[Rumor]':'[소문]'}</span> `:'')+(EN_?n[2]:n[1]),7.14);});
   CL='';
   N('01_buttons/btn_normal_default',L0,391,222,28,10);P('07_icons_color/menu_league',L0+60,397,16,16);T(L0+80,405,EN_?'More in League':'대회에서 자세히 보기',10,'ink','lm');
-  // ===== 오른쪽: 클립으로 꽂은 베팅 전표
+  // ===== 오른쪽: 클립으로 꽂은 베팅 전표 (높이 축소) + 라운드 확정
   T(421,91,EN_?'Match Prediction':'승부 예측',16,'ink','ma');
   CL=anim=='card'?'tkin':'';
-  const ty=124;N('COLLO:02_panels/tooltip',R0+4,ty,214,206,6,'transform:rotate(0.6deg);box-shadow:0 2px 0 rgba(89,42,22,.25)');
+  const ty=118, th=150, lock=confirmed;
+  N('COLLO:02_panels/tooltip',R0+4,ty,214,th,6,'transform:rotate(0.6deg);box-shadow:0 2px 0 rgba(89,42,22,.25)');
   T(R0+16,ty+10,(EN_?'BET SLIP · Match ':'베팅 전표 · 경기 ')+(mi+1),7.14,'ink2');
-  P(TEAM(a),R0+50,ty+22,22,30,'object-fit:contain');P(TEAM(b),R1-72,ty+22,22,30,'object-fit:contain');T(421,ty+37,'VS',10,'ink','mm');
-  [0,1,2].forEach(i=>{const x=R0+14+i*66,y=ty+60;BOX(x,y,60,30,'rgba(252,213,169,.55)','border:1px solid #c9a476;box-sizing:border-box');
+  P(TEAM(a),R0+50,ty+20,20,28,'object-fit:contain');P(TEAM(b),R1-70,ty+20,20,28,'object-fit:contain');T(421,ty+34,'VS',10,'ink','mm');
+  [0,1,2].forEach(i=>{const x=R0+14+i*66,y=ty+54;BOX(x,y,60,30,'rgba(252,213,169,.55)','border:1px solid #c9a476;box-sizing:border-box'+(lock&&pick!=i?';opacity:.5':''));
     BOX(x+4,y+4,4,4,COL[i]);T(x+30,y+9,lab[i],7.14,'ink','mm');T(x+30,y+21,'×'+od[i].toFixed(2),8,'ink','mm','color:#7a4a12');
-    H+=`<div class="hit" data-pick="${i}" style="left:${x}px;top:${y}px;width:60px;height:30px"></div>`;
-    if(pick==i){if(anim=='ink')INK(x,y,60,30);else{const s=H.length;INK(x,y,60,30);H=H.slice(0,s)+H.slice(s).replace('class="ink"','class="ink" style2=""').replace('<path','<path style="animation:none"');}}});
-  T(421,ty+96,EN_?'Draw = win picks miss · closes before next match':'무승부 시 승리 예측은 빗나감 · 다음 경기 전 마감',7.14,'ink2','ma');
-  T(R0+16,ty+117,EN_?'Amount':'금액 (G)',7.14,'ink2');
-  [50,100,300,500].forEach((v,i)=>{const x=R0+52+i*40,y=ty+110;const sel=v==stake;
-    H+=`<div class="${CL}" style="left:${x}px;top:${y}px;width:36px;height:21px;border-radius:10px;background:${sel?'#e5a147':'#f0c27a'};border:1px solid #7a4a12;box-sizing:border-box;${bet&&!sel?'opacity:.4':''}"></div>`;
-    T(x+18,y+10.5,v,7.6,'ink','mm');H+=`<div class="hit" data-stake="${v}" style="left:${x}px;top:${y}px;width:36px;height:21px"></div>`;});
-  BOX(R0+16,ty+138,190,1,'#c9a476');
+    if(!lock)H+=`<div class="hit" data-pick="${i}" style="left:${x}px;top:${y}px;width:60px;height:30px"></div>`;
+    if(pick==i){const s=H.length;INK(x,y,60,30);if(anim!='ink')H=H.slice(0,s)+H.slice(s).replace('<path','<path style="animation:none"');}});
+  T(R0+16,ty+97,EN_?'Amount':'금액 (G)',7.14,'ink2');
+  [50,100,300,500].forEach((v,i)=>{const x=R0+52+i*40,y=ty+90;const sel=v==stake;
+    H+=`<div class="${CL}" style="left:${x}px;top:${y}px;width:36px;height:21px;border-radius:10px;background:${sel?'#e5a147':'#f0c27a'};border:1px solid #7a4a12;box-sizing:border-box;${lock&&!sel?'opacity:.4':''}"></div>`;
+    T(x+18,y+10.5,v,7.6,'ink','mm');if(!lock)H+=`<div class="hit" data-stake="${v}" style="left:${x}px;top:${y}px;width:36px;height:21px"></div>`;});
+  BOX(R0+16,ty+118,150,1,'#c9a476');
   const pay=pick>=0&&stake?Math.round(stake*od[pick]):0;
-  if(pick>=0&&stake){T(R0+16,ty+148,`${lab[pick]} · ${stake} G`,10,bet?'win':'ink');T(R0+16,ty+168,EN_?`Pays ${pay} G (profit +${pay-stake} G)`:`적중 시 수령 ${pay} G (순이익 +${pay-stake} G)`,7.14,'ink2');}
-  else T(R0+16,ty+160,pick<0?(EN_?'Circle a result':'결과에 동그라미를 치세요'):(EN_?'Choose an amount':'금액을 고르세요'),8,'gray','lm');
-  if(!bet){H+=`<div style="left:${R1-64}px;top:${ty+146}px;width:44px;height:44px;border-radius:50%;border:1.5px dashed #a88458;box-sizing:border-box"></div>`;T(R1-42,ty+168,EN_?'SEAL':'봉인',7.14,'gray','mm');}
-  if(bet){H+=`<div class="${anim=='seal'?'stamp':''}" style="left:${R1-64}px;top:${ty+146}px;width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#be4331,#872b1c 60%,#6c291d);box-shadow:0 2px 0 rgba(62,17,9,.5),inset 0 0 0 3px #a03a2a,inset 0 0 0 4px #6c291d;transform:rotate(-12deg)"></div>`;T(R1-42,ty+168,EN_?'SEALED':'봉인',8,'cream','mm','transform:translate(-50%,-50%) rotate(-12deg)');}
+  if(pay){T(R0+16,ty+125,`${lab[pick]} · ${stake} G`,9,bet?'win':'ink');T(R0+16,ty+139,EN_?`Pays ${pay} G`:`적중 시 ${pay} G`,7.14,'ink2');}
+  else T(R0+16,ty+134,lock?(EN_?'Closed for this round':'이번 라운드 마감'):(pick<0?(EN_?'Circle a result':'결과에 동그라미를 치세요'):(EN_?'Choose an amount':'금액을 고르세요')),7.6,'gray','lm');
+  if(bet){H+=`<div class="${anim=='seal'?'stamp':''}" style="left:${R1-56}px;top:${ty+112}px;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#be4331,#872b1c 60%,#6c291d);box-shadow:0 2px 0 rgba(62,17,9,.5),inset 0 0 0 3px #a03a2a,inset 0 0 0 4px #6c291d;transform:rotate(-12deg)"></div>`;T(R1-39,ty+129,EN_?'SEAL':'봉인',7.14,'cream','mm','transform:translate(-50%,-50%) rotate(-12deg)');}
+  else if(pay&&!lock){H+=`<div style="left:${R1-56}px;top:${ty+112}px;width:34px;height:34px;border-radius:50%;border:1.5px dashed #a88458;box-sizing:border-box"></div>`;T(R1-39,ty+129,EN_?'Picked':'담음',7.14,'ink2','mm');}
   CL='';
   CLIP(R0+105,ty-8);
-  // 페이지 인쇄: 라운드 합계·지난 전표
-  const keys=Object.keys(bets).map(Number),tot=keys.reduce((s,k)=>s+bets[k].stake,0),mx=keys.reduce((s,k)=>s+Math.round(bets[k].stake*odds(M[k])[bets[k].pick]),0);
-  T(421,342,EN_?`${keys.length} sealed · ${tot} G · pays ${mx} G if all hit`:`봉인 ${keys.length}건 · 베팅액 ${tot} G · 모두 적중 시 수령 ${mx} G`,7.14,'ink2','ma');
-  T(R0,366,EN_?'Past slips ▸':'지난 전표 ▸',7.6,'ink2');T(R1,366,EN_?'Season 1/2 · −76 G':'시즌 적중 1/2 · −76 G',7.14,'ink2','ra');
-  N('COLLO:02_panels/tooltip',R0+70,365,30,11,3,'transform:rotate(-3deg)');N('COLLO:02_panels/tooltip',R0+84,366,30,11,3,'transform:rotate(2deg)');
-  if(bet){N('01_buttons/btn_normal_default',R0,391,222,28,10);T(421,405,EN_?`Break seal · refund ${stake} G`:`봉인 풀기 · ${stake} G 돌려받기`,9,'ink','mm');H+=`<div class="hit" data-act="cancel" style="left:${R0}px;top:391px;width:222px;height:28px"></div>`;}
-  else{const can=!!pay;N('01_buttons/btn_primary_default',R0,391,222,28,7,can?'':'opacity:.55');T(421,405,can?(EN_?`Seal: ${stake} G on ${lab[pick]}`:`${lab[pick]}에 ${stake} G 걸기`):(EN_?'Place Bet':'베팅하기'),10,'cream','mm');if(can)H+=`<div class="hit" data-act="seal" style="left:${R0}px;top:391px;width:222px;height:28px"></div>`;}
+  // 라운드 합계 + 최종 확정
+  BOX(R0,300,222,1,'#c9a476');
+  T(R0+6,310,EN_?'Total bet':'총 베팅 금액',8,'ink2');T(R1-6,310,total+' G',10,'ink','ra');
+  T(R0+6,330,EN_?'If all hit':'모두 적중 시',8,'ink2');T(R1-6,330,allWin+' G',10,'win','ra');
+  const short=!confirmed&&total>GOLD;
+  if(confirmed) T(421,372,EN_?`${picked.length} bets sealed · closed for this round`:`${picked.length}건 베팅 확정 · 이번 라운드 마감`,7.6,'win','ma');
+  else if(short) T(421,372,EN_?`Not enough gold · ${total-GOLD} G more needed`:`골드 부족 · ${total-GOLD} G 더 필요`,7.6,'lose','ma');
+  else T(421,372,picked.length?(EN_?`Confirm ${picked.length} bets · ${total} G total`:`${picked.length}건 베팅 확정 · 총 ${total} G`):(EN_?'Pick results on the slips':'전표에 결과와 금액을 고르세요'),7.6,picked.length?'ink':'gray','ma');
+  const can=!confirmed&&!short&&picked.length>0;
+  N(confirmed?'01_buttons/btn_primary_disabled':'01_buttons/btn_primary_default',R0,391,222,28,7,can||confirmed?'':'opacity:.55');
+  T(421,405,confirmed?(EN_?'Closed':'베팅 마감'):(EN_?'Confirm bets':'베팅 확정'),10,'cream','mm');
+  if(can)H+=`<div class="hit" data-act="confirm" style="left:${R0}px;top:391px;width:222px;height:28px"></div>`;
   // 책갈피
   [['home','일정','Home'],['news','소식통','News'],['league','대회','League'],['facility','시설','Facility'],['team','팀관리','Team']].forEach((t,i)=>{const sel=i==1,x=566+(sel?4:0),y=118+i*34,f=sel?'':'filter:brightness(.6)';
     P(`04_bookmarks_tabs/bookmark_text_round_${sel?'hover':'default'}`,x,y,52,22,f);P(`07_icons_color/menu_${t[0]}`,x+4,y+3,16,16,f);
@@ -159,19 +165,18 @@ function draw(){
   $('bk').innerHTML=H;anim='';
   document.querySelectorAll('#bk .hit').forEach(h=>h.onclick=()=>{const d=h.dataset;
     if(d.i!=null){$('mi').value=d.i;anim='card';}
-    else if(d.pick!=null&&!bets[mi]){draft[mi]={...(draft[mi]||{stake:0}),pick:+d.pick};anim='ink';}
-    else if(d.stake!=null&&!bets[mi]){draft[mi]={...(draft[mi]||{pick:-1}),stake:+d.stake};}
-    else if(d.act=='seal'){bets[mi]={...draft[mi]};delete draft[mi];anim='seal';}
-    else if(d.act=='cancel'){draft[mi]={...bets[mi]};delete bets[mi];}
+    else if(d.pick!=null&&!confirmed){draft[mi]={...(draft[mi]||{stake:0}),pick:+d.pick};anim='ink';}
+    else if(d.stake!=null&&!confirmed){draft[mi]={...(draft[mi]||{pick:-1}),stake:+d.stake};}
+    else if(d.act=='confirm'){confirmed=true;anim='seal';}
     draw();});
   $('crest').style.backgroundImage=`url('${A}/Ui/ArmoryEffects/ShieldCrests.png')`;$('crest').style.backgroundPosition='0 0';
   $('hname').textContent=EN_?'House Caelus':'카이루스 가문';$('hlv').style.left=(96+$('hname').offsetWidth+14)+'px';
   $('tier').innerHTML='<b>★1</b> '+(EN_?'Novice League':'입문 리그');
-  $('gold').textContent=(1250-spent).toLocaleString()+' G';const gw=$('gold').offsetWidth;$('gold').style.left=(1816-gw)+'px';$('coin').style.left=(1816-gw-40)+'px';
+  $('gold').textContent=(GOLD-spent).toLocaleString()+' G';const gw=$('gold').offsetWidth;$('gold').style.left=(1816-gw)+'px';$('coin').style.left=(1816-gw-40)+'px';
   $('bgflag').src=TEAM(1);
 }
-document.getElementById('state').onchange=()=>{syncState();draw();};['mi','settle','en'].forEach(id=>document.getElementById(id).onchange=draw);
-const h=location.hash.slice(1).split(',');if(h[0])document.getElementById('mi').value=h[0];if(h[1])document.getElementById('state').value=h[1];if(h[2]=='1')document.getElementById('settle').checked=true;if(h[3]=='1')document.getElementById('en').checked=true;
+document.getElementById('state').onchange=()=>{syncState();draw();};['mi','settle','en','goldv'].forEach(id=>document.getElementById(id).onchange=draw);
+const h=location.hash.slice(1).split(',');if(h[0])document.getElementById('mi').value=h[0];if(h[1])document.getElementById('state').value=h[1];if(h[2]=='1')document.getElementById('settle').checked=true;if(h[3]=='1')document.getElementById('en').checked=true;if(h[4])document.getElementById('goldv').value=h[4];
 syncState();draw();document.fonts.ready.then(draw);
 </script>
 </body></html>
