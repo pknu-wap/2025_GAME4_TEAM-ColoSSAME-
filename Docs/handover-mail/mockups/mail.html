@@ -101,7 +101,7 @@ function draw(){
   back.forEach((i,k)=>{const y=108+k*20,mm=M[i],q=trip(probs(mm));
     N('COLLO:02_panels/tooltip',L0+2,y,218,40,6,`transform:rotate(${[-0.6,0.5,-0.3][k]}deg);box-shadow:0 1px 0 rgba(89,42,22,.35)`);
     H+=`<div class="hit" data-i="${i}" style="left:${L0}px;top:${y}px;width:222px;height:20px"></div>`;
-    P(TEAM(mm[0]),L0+8,y+3,10,14,'object-fit:contain');T(L0+22,y+10,`${nm[mm[0]]} vs ${nm[mm[1]]}`,7.6,'ink','lm');
+    T(L0+10,y+10,(EN_?'Match ':'경기 ')+(i+1),7.6,'ink','lm');
     if(full(i)) T(L1-8,y+10,draft[i].stake+' G',7.6,confirmed?'win':'ink','rm'); else T(L1-8,y+10,EN_?'Open':'베팅 전',7.14,'gray','rm');});
   CL=anim=='card'?'cardin':'';
   const cy=164;N('COLLO:02_panels/tooltip',L0,cy,222,130,6,'filter:brightness(1.07);outline:1px solid rgba(89,42,22,.55);box-shadow:0 4px 0 rgba(62,17,9,.35),0 -2px 0 rgba(89,42,22,.18)');
@@ -137,36 +137,34 @@ function draw(){
   // ===== 오른쪽: 클립으로 꽂은 베팅 전표 (높이 축소) + 라운드 확정
   T(421,91,EN_?'Match Prediction':'승부 예측',16,'ink','ma');
   CL=anim=='card'?'tkin':'';
-  const ty=114, th=174, lock=confirmed;
+  const ty=114, th=208, lock=confirmed;
   N('COLLO:02_panels/tooltip',R0+4,ty,214,th,6,'transform:rotate(0.6deg);box-shadow:0 2px 0 rgba(89,42,22,.25)');
   T(R0+16,ty+10,(EN_?'BET SLIP · Match ':'베팅 전표 · 경기 ')+(mi+1),7.14,'ink2');
-  P(TEAM(a),R0+44,ty+18,26,36,'object-fit:contain');P(TEAM(b),R1-70,ty+18,26,36,'object-fit:contain');T(421,ty+36,'VS',12,'ink','mm');
-  [0,1,2].forEach(i=>{const x=R0+14+i*66,y=ty+60,sel=pick==i;BOX(x,y,60,34,sel?'#7a4a12':'rgba(252,213,169,.55)','border:1px solid '+(sel?'#3e1f0c':'#c9a476')+';box-sizing:border-box'+(lock&&!sel?';opacity:.5':''));
-    BOX(x+4,y+4,4,4,COL[i]);T(x+30,y+10,lab[i],7.14,sel?'cream':'ink','mm');T(x+30,y+24,'×'+od[i].toFixed(2),8,sel?'cream':'ink','mm',sel?'color:#ffd98a':'color:#7a4a12');
-    if(!lock)H+=`<div class="hit" data-pick="${i}" style="left:${x}px;top:${y}px;width:60px;height:34px"></div>`;});
+  P(TEAM(a),R0+42,ty+18,30,42,'object-fit:contain');P(TEAM(b),R1-72,ty+18,30,42,'object-fit:contain');T(421,ty+39,'VS',12,'ink','mm');
+  [0,1,2].forEach(i=>{const x=R0+14+i*66,y=ty+68,sel=pick==i;BOX(x,y,60,36,sel?'#7a4a12':'rgba(252,213,169,.55)','border:1px solid '+(sel?'#3e1f0c':'#c9a476')+';box-sizing:border-box'+(lock&&!sel?';opacity:.5':''));
+    BOX(x+4,y+4,4,4,COL[i]);T(x+30,y+11,lab[i],7.14,sel?'cream':'ink','mm');T(x+30,y+25,'×'+od[i].toFixed(2),8,sel?'cream':'ink','mm',sel?'color:#ffd98a':'color:#7a4a12');
+    if(!lock)H+=`<div class="hit" data-pick="${i}" style="left:${x}px;top:${y}px;width:60px;height:36px"></div>`;});
   const LIMIT=500, others=[0,1,2,3].filter(k=>k!=mi&&full(k)).reduce((s,k)=>s+draft[k].stake,0), room=Math.max(0,Math.min(LIMIT,GOLD)-others);
   // 금액: 라벨+현재 금액 한 줄, 버튼 5개(+10 +50 +100 최대 초기화)를 전표 안쪽 폭에 균등 배치
-  T(R0+16,ty+104,EN_?'Bet':'금액',7.14,'ink2','lm');
-  [['+10',10],['+50',50],['+100',100],[EN_?'Max':'최대','max'],[EN_?'Reset':'초기화','reset']].forEach(([lb,v],i)=>{const bw=36,gap=2.5,x=R0+16+i*(bw+gap),y=ty+112;
+  T(R0+16,ty+118,EN_?'Bet':'금액',7.14,'ink2','lm');
+  [['+10',10],['+50',50],['+100',100],[EN_?'Max':'최대','max'],[EN_?'Reset':'초기화','reset']].forEach(([lb,v],i)=>{const bw=36,gap=2.5,x=R0+16+i*(bw+gap),y=ty+127;
     const dis=lock||(v=='reset'?!stake:v=='max'?stake>=room:stake+v>room);
     N(dis?'01_buttons/btn_secondary_disabled':'01_buttons/btn_secondary_default',x,y,bw,20,[6,8,6,8]);
     T(x+bw/2,y+10,lb,7.14,dis?'gray':(v=='reset'?'lose':'ink'),'mm');
     if(!dis)H+=v=='reset'?`<div class="hit" data-act="reset" style="left:${x}px;top:${y}px;width:${bw}px;height:20px"></div>`:`<div class="hit" data-add="${v}" style="left:${x}px;top:${y}px;width:${bw}px;height:20px"></div>`;});
-  BOX(R0+16,ty+136,190,1,'#c9a476');
+  BOX(R0+16,ty+158,190,1,'#c9a476');
   const pay=pick>=0&&stake?Math.round(stake*od[pick]):0;
-  if(pay){T(R0+16,ty+143,`${lab[pick]} · ${stake} G`,10,bet?'win':'ink');T(R0+16,ty+159,EN_?`Pays ${pay} G`:`적중 시 ${pay} G`,7.14,'ink2');}
-  else if(stake&&pick<0&&!lock){T(R0+16,ty+143,(EN_?'Bet ':'금액 ')+stake+' G',10,'ink');T(R0+16,ty+159,EN_?'Circle a result':'결과에 동그라미를 치세요',7.14,'gray');}
-  else T(R0+16,ty+154,lock?(EN_?'Not bet this round':'이번 라운드 베팅 안 함'):(pick<0?(EN_?'Circle a result':'결과에 동그라미를 치세요'):(EN_?'Choose an amount':'금액을 고르세요')),7.6,'gray','lm');
+  const SL=(y,k,v,c)=>{T(R0+16,y,k,7.6,'ink2','lm');T(R1-16,y,v,9.5,c,'rm');};
+  if(stake||pay){SL(ty+172,EN_?'Bet amount':'베팅 금액',stake+' G',bet?'win':'ink');SL(ty+190,EN_?'Payout if hit':'적중 금액',pay?pay+' G':(EN_?'pick a result':'결과를 고르세요'),pay?(bet?'win':'ink'):'gray');}
+  else T(421,ty+181,lock?(EN_?'Not bet this round':'이번 라운드 베팅 안 함'):(EN_?'Pick a result and an amount':'결과와 금액을 고르세요'),7.6,'gray','mm');
   CL='';
   CLIP(R0+105,ty-8);
   // 라운드 합계 + 최종 확정
-  BOX(R0,300,222,1,'#c9a476');
-  T(R0+6,312,EN_?'Total bet':'총 베팅 금액',8.5,'ink2');T(R1-6,310,`${total} <span class="ink2" style="position:static;font-size:7.14px">/ ${EN_?'limit':'한도'} 500</span> G`,10,'ink','ra');
-  T(R0+6,334,EN_?'If all hit':'모두 적중 시',8.5,'ink2');T(R1-6,332,allWin+' G',10,'win','ra');
+  BOX(R0,331,222,1,'#c9a476');
+  T(R0+6,341,EN_?'Total bet':'총 베팅 금액',8.5,'ink2');T(R1-6,339,`${total} <span class="ink2" style="position:static;font-size:7.14px">/ ${EN_?'limit':'한도'} 500</span> G`,10,'ink','ra');
+  T(R0+6,362,EN_?'If all hit':'모두 적중 시',8.5,'ink2');T(R1-6,360,allWin+' G',10,'win','ra');
   const short=!confirmed&&total>Math.min(500,GOLD);
-  if(confirmed) T(421,358,EN_?`${picked.length} bets sealed · settled next round`:`${picked.length}건 베팅 확정 · 다음 라운드에 정산`,7.6,'win','ma');
-  else if(short) T(421,358,EN_?`Not enough gold · ${total-GOLD} G more needed`:`골드 부족 · ${total-GOLD} G 더 필요`,7.6,'lose','ma');
-  else T(421,358,picked.length?(EN_?`Confirm ${picked.length} bets · ${total} G total`:`${picked.length}건 베팅 확정 · 총 ${total} G`):(EN_?'Pick results on the slips':'전표에 결과와 금액을 고르세요'),7.6,picked.length?'ink':'gray','ma');
+  if(short) T(421,382,EN_?`Not enough gold · ${total-GOLD} G more`:`골드 부족 · ${total-GOLD} G 더 필요`,7.14,'lose','ma');
   const can=!confirmed&&!short&&picked.length>0;
   N(confirmed?'01_buttons/btn_primary_disabled':'01_buttons/btn_primary_default',R0,391,222,28,7,can||confirmed?'':'opacity:.55');
   T(421,405,confirmed?(EN_?'Bets placed':'베팅 완료'):(EN_?'Confirm bets':'베팅 확정'),10,'cream','mm');
