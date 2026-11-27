@@ -147,7 +147,7 @@ function draw(){
     if(pick==i){const s=H.length;INK(x,y,60,34);if(anim!='ink')H=H.slice(0,s)+H.slice(s).replace('<path','<path style="animation:none"');}});
   const LIMIT=500, others=[0,1,2,3].filter(k=>k!=mi&&full(k)).reduce((s,k)=>s+draft[k].stake,0), room=Math.max(0,Math.min(LIMIT,GOLD)-others);
   // 금액: 라벨+현재 금액 한 줄, 버튼 5개(+10 +50 +100 최대 초기화)를 전표 안쪽 폭에 균등 배치
-  T(R0+16,ty+104,EN_?'Bet':'금액',7.14,'ink2','lm');T(R1-16,ty+104,stake+' G',9,stake?'ink':'gray','rm');
+  T(R0+16,ty+104,EN_?'Bet':'금액',7.14,'ink2','lm');
   [['+10',10],['+50',50],['+100',100],[EN_?'Max':'최대','max'],[EN_?'Reset':'초기화','reset']].forEach(([lb,v],i)=>{const bw=36,gap=2.5,x=R0+16+i*(bw+gap),y=ty+112;
     const dis=lock||(v=='reset'?!stake:v=='max'?stake>=room:stake+v>room);
     N(dis?'01_buttons/btn_secondary_disabled':'01_buttons/btn_secondary_default',x,y,bw,20,[6,8,6,8]);
@@ -156,6 +156,7 @@ function draw(){
   BOX(R0+16,ty+136,190,1,'#c9a476');
   const pay=pick>=0&&stake?Math.round(stake*od[pick]):0;
   if(pay){T(R0+16,ty+143,`${lab[pick]} · ${stake} G`,10,bet?'win':'ink');T(R0+16,ty+159,EN_?`Pays ${pay} G`:`적중 시 ${pay} G`,7.14,'ink2');}
+  else if(stake&&pick<0&&!lock){T(R0+16,ty+143,(EN_?'Bet ':'금액 ')+stake+' G',10,'ink');T(R0+16,ty+159,EN_?'Circle a result':'결과에 동그라미를 치세요',7.14,'gray');}
   else T(R0+16,ty+154,lock?(EN_?'Not bet this round':'이번 라운드 베팅 안 함'):(pick<0?(EN_?'Circle a result':'결과에 동그라미를 치세요'):(EN_?'Choose an amount':'금액을 고르세요')),7.6,'gray','lm');
   CL='';
   CLIP(R0+105,ty-8);
