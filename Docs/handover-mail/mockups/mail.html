@@ -148,9 +148,9 @@ function draw(){
   const LIMIT=500, others=[0,1,2,3].filter(k=>k!=mi&&full(k)).reduce((s,k)=>s+draft[k].stake,0), room=Math.max(0,Math.min(LIMIT,GOLD)-others);
   T(R0+16,ty+113,EN_?'Bet':'금액',7.14,'ink2');T(R0+44,ty+113,stake+' G',9,stake?'ink':'gray');
   [['+10',10],['+50',50],['+100',100],[EN_?'Max':'최대','max']].forEach(([lb,v],i)=>{const x=R0+86+i*28,y=ty+105,dis=lock||(v=='max'?stake>=room:stake+v>room);
-    H+=`<div class="${CL}" style="left:${x}px;top:${y}px;width:26px;height:21px;border-radius:10px;background:#f0c27a;border:1px solid #7a4a12;box-sizing:border-box;${dis?'opacity:.4':''}"></div>`;
-    T(x+13,y+10.5,lb,7.14,'ink','mm');if(!dis)H+=`<div class="hit" data-add="${v}" style="left:${x}px;top:${y}px;width:26px;height:21px"></div>`;});
-  if(!lock&&stake){const x=R0+86+4*28+1;H+=`<div style="left:${x}px;top:${ty+108}px;width:15px;height:15px;border-radius:50%;border:1px solid #a88458;box-sizing:border-box"></div>`;T(x+7.5,ty+115.5,'↺',7.14,'ink2','mm');H+=`<div class="hit" data-act="reset" style="left:${x-2}px;top:${ty+105}px;width:19px;height:21px"></div>`;}
+    N(dis?'01_buttons/btn_normal_disabled':'01_buttons/btn_normal_default',x,y,26,21,[7,10,7,10]);
+    T(x+13,y+10.5,lb,7.14,dis?'gray':'ink','mm');if(!dis)H+=`<div class="hit" data-add="${v}" style="left:${x}px;top:${y}px;width:26px;height:21px"></div>`;});
+  if(!lock&&stake){const x=R0+86+4*28+1;N('01_buttons/btn_icon_default',x,ty+106,18,18,6);T(x+9,ty+115,'↺',7.14,'ink','mm');H+=`<div class="hit" data-act="reset" style="left:${x}px;top:${ty+105}px;width:18px;height:21px"></div>`;}
   BOX(R0+16,ty+136,190,1,'#c9a476');
   const pay=pick>=0&&stake?Math.round(stake*od[pick]):0;
   if(pay){T(R0+16,ty+143,`${lab[pick]} · ${stake} G`,10,bet?'win':'ink');T(R0+16,ty+159,EN_?`Pays ${pay} G`:`적중 시 ${pay} G`,7.14,'ink2');}
