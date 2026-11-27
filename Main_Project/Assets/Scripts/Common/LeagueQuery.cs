@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 // 리그 데이터 읽기 전용 도우미. LeagueManager의 값을 계산해서 돌려주기만 하고 바꾸지 않는다.
@@ -105,6 +106,31 @@ public static class LeagueQuery
         }
         return h;
     }
+
+    // 지금 진행할 라운드 번호 (리그가 끝났으면 마지막 라운드)
+    public static int CurrentRound => TotalRounds > 0 ? Mathf.Min(PlayedCount + 1, TotalRounds) : PlayedCount + 1;
+
+    // 남은 경기 수
+    public static int RemainingMatches => Mathf.Max(0, TotalRounds - PlayedCount);
+
+    // 순위표 순서 (LeagueManager.CalculateRanking이 매긴 rank 순, 같은 순위는 원래 순서 유지)
+    public static List<Team> Standings()
+    {
+        var league = Current;
+        return league == null ? new List<Team>() : league.teams.OrderBy(t => t.rank).ToList();
+    }
+
+    // 한 라운드의 경기 목록 (내 경기를 맨 앞으로)
+    public static List<LeagueMatch> RoundMatches(int round)
+    {
+        var league = Current;
+        var r = league?.schedule.Find(x => x.roundNumber == round);
+        if (r == null) return new List<LeagueMatch>();
+        int me = PlayerTeamId;
+        return r.matches.OrderBy(m => m.teamAId == me || m.teamBId == me ? 0 : 1).ToList();
+    }
+
+    public static int WinRate(Team team) => team == null || team.played == 0 ? 0 : Mathf.RoundToInt(team.win * 100f / team.played);
 
     // 가문 깃발: 기존 LeagueManager.GetTeamSprite를 그대로 쓴다.
     public static Sprite TeamSprite(int teamId) => LeagueManager.Instance != null ? LeagueManager.Instance.GetTeamSprite(teamId) : null;

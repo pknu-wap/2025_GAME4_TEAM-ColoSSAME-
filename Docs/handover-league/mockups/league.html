@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>대회 시안</title>
+<style>
+@font-face{font-family:DNF;src:url("../../Unity_Local/2025_GAME4_TEAM-ColoSSAME-/Main_Project/Assets/Ui/DNFBitBitv2/DNFBitBitv2.ttf")}
+body{margin:0;background:#1a1410;color:#eee;font-family:-apple-system,"Apple SD Gothic Neo",sans-serif;display:flex;gap:20px;padding:16px;align-items:flex-start}
+#wrap{width:960px;height:540px;position:relative;overflow:hidden;flex:none}
+#stage{width:1920px;height:1080px;transform:scale(.5);transform-origin:0 0;position:absolute;left:0;top:0;overflow:hidden;background:#000;font-family:DNF}
+.abs{position:absolute}
+img{image-rendering:pixelated}
+#table{left:-115px;top:-140px;width:2150px;height:1280px;image-rendering:auto}
+/* 책 좌표계: 책 1px = 화면 2.1px, 책은 상단 바 아래로 73 내려가 있음 */
+#bk{left:calc(355.2px + var(--dx,0px));top:17.15px;width:576px;height:477px;transform:scale(2.1);transform-origin:0 0}
+#bk *{position:absolute;white-space:nowrap}
+.t{line-height:1}
+.ink{color:#592a16}.ink2{color:#754b22}.gray{color:#6e6052}.cream{color:#fcd5a9}.win{color:#2e5e22}.lose{color:#7e2020}
+.nine{box-sizing:border-box;border:solid transparent;image-rendering:pixelated}
+/* 상단 바 (Unity 적용값과 같게) */
+#bar{left:0;top:0;width:1920px;height:72px;background:#210101}
+#frame{left:0;top:0;width:1920px;height:72px;box-sizing:border-box;border:solid transparent;border-width:24px 25px;border-image:url("C/jiwon/02_판/plate_dark.png") 24 25 fill / 24px 25px;image-rendering:pixelated}
+#crest{left:32px;top:10px;width:52px;height:52px;background-repeat:no-repeat;background-size:260px 104px;image-rendering:auto}
+#hname{left:96px;top:24px;font-size:24px;color:#f5e6c8;line-height:1;white-space:nowrap}
+#hlv{top:26px;font-size:20px;color:#ffd98a;line-height:1;white-space:nowrap}
+#tier{left:660px;width:600px;top:24px;text-align:center;font-size:24px;color:#f5e6c8;line-height:1}
+#tier b{color:#ffd98a;font-weight:normal}
+#coin{top:20px;width:32px;height:32px}
+#gold{top:26px;font-size:22px;color:#ffd98a;line-height:1;white-space:nowrap}
+#gear{left:1840px;top:10px;width:52px;height:52px;box-sizing:border-box;border:solid transparent;border-width:12px;border-image:url("C/01_buttons/btn_icon_default.png") 6 fill / 12px;image-rendering:pixelated;display:flex;align-items:center;justify-content:center}
+#gear img{width:32px;height:32px;margin:-12px}
+#bgflag{left:60px;top:223px;width:240px;height:400px;object-fit:contain;object-position:top;filter:brightness(.8)}
+table{border-collapse:collapse;font-size:12px}
+td,th{border:1px solid #555;padding:3px 6px;text-align:left;vertical-align:top}
+th{background:#333}
+.sw{display:inline-block;width:11px;height:11px;border:1px solid #888;vertical-align:middle}
+.fd{animation:fd .2s ease-out}@keyframes fd{from{opacity:0}to{opacity:1}}
+.cardin{animation:cardin .25s ease-out}@keyframes cardin{from{transform:translateY(-14px);opacity:.3}to{transform:none;opacity:1}}
+.tkin{animation:tkin .25s ease-out}@keyframes tkin{from{transform:translateY(-10px) rotate(-2deg);opacity:0}to{transform:none;opacity:1}}
+.stamp{animation:stamp .25s cubic-bezier(.3,1.6,.6,1)}@keyframes stamp{from{transform:scale(1.8);opacity:0}to{transform:scale(1);opacity:1}}
+.ink path{stroke-dasharray:300;stroke-dashoffset:0;animation:ink .35s ease-out}@keyframes ink{from{stroke-dashoffset:300}to{stroke-dashoffset:0}}
+#bk .hit{cursor:pointer;pointer-events:auto}
+</style></head><body>
+<div id="wrap"><div id="stage">
+  <img id="table" class="abs" src="A/Ui/ChatGPT Image 2025년 6월 5일 오후 03_08_17.png">
+  <img id="bgflag" class="abs">
+  <div id="bk" class="abs"></div>
+  <div id="bar" class="abs"></div><div id="frame" class="abs"></div>
+  <div id="crest" class="abs"></div><div id="hname" class="abs"></div><div id="hlv" class="abs">Lv.3</div>
+  <div id="tier" class="abs"><b>★1</b> 입문 리그</div>
+  <img id="coin" class="abs" src="C/07_icons_color/item_money.png"><div id="gold" class="abs"></div>
+  <div id="gear" class="abs"><img src="C/07_icons_color/ui_settings.png"></div>
+</div></div>
+
+<div style="width:600px">
+<p style="margin:0 0 8px">
+ 탭 <select id="tab"><option value="rank">리그 순위</option><option value="match">경기 대진</option></select>
+ 경기 <select id="mi"><option value="0">1 우리 경기</option><option value="1">2</option><option value="2">3</option><option value="3">4</option><option value="4">5</option></select>
+ 가문 <select id="side"><option value="0">왼쪽</option><option value="1" selected>오른쪽</option></select><br>
+ 라운드 <select id="rd"><option value="14">14 (중반)</option><option value="1">1 (0경기)</option></select>
+ 본 용병 <select id="seen"><option value="3">3명</option><option value="0">0명</option><option value="9">9명</option></select>
+ 보유 용병 <select id="mine"><option value="7">7명</option><option value="12">12명 (넘침)</option></select>
+ <label><input type="checkbox" id="en"> 영어</label><br>
+ 탭·경기 줄·가문 전환 칸을 눌러 볼 수 있음.</p>
+</div>
+<script>
+const A="../../Unity_Local/2025_GAME4_TEAM-ColoSSAME-/Main_Project/Assets", C=A+"/Ui/Common";
+document.querySelectorAll('style').forEach(s=>s.textContent=s.textContent.replaceAll('url("C/','url("'+C+'/'));
+document.querySelectorAll('img[src]').forEach(i=>{const s=i.getAttribute('src');if(s.startsWith('A/'))i.src=A+s.slice(1);if(s.startsWith('C/'))i.src=C+s.slice(1);});
+const MIN=15/2.1, fs=v=>Math.max(v,MIN);
+let H="";
+const T=(x,y,s,size,cls,anchor='la',extra='')=>{const tx={la:'',ra:'translateX(-100%)',ma:'translateX(-50%)',lm:'translateY(-50%)',mm:'translate(-50%,-50%)',rm:'translate(-100%,-50%)'}[anchor];
+  H+=`<div class="t ${cls}" style="left:${x}px;top:${y}px;font-size:${fs(size)}px;transform:${tx};${extra}">${s}</div>`;};
+const N=(src,x,y,w,h,b,extra='')=>{const bb=Array.isArray(b)?b:[b,b,b,b];H+=`<div class="nine" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;border-width:${bb.join('px ')}px;border-image:url('${C}/${src}.png') ${bb.join(' ')} fill / ${bb.join('px ')}px;${extra}"></div>`;};
+const P=(src,x,y,w,h,extra='')=>{H+=`<img src="${src.startsWith('../')?src:C+'/'+src+'.png'}" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;${extra}">`;};
+const BOX=(x,y,w,h,col,extra='')=>{H+=`<div style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;background:${col};${extra}"></div>`;};
+const HIT=(x,y,w,h,k,v)=>{H+=`<div class="hit" data-${k}="${v}" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px"></div>`;};
+const TEAM=i=>A+"/Resources/TeamImages/team_"+i+".png";
+const L0=44,L1=266,R0=310,R1=532;
+const FID=["","Caelus","Flora","Ignis","Lumen","Nox","Mors","Fulger","Mare","Terra","Astra"];
+const NM={ko:["","카이루스","플로라","이그니스","루멘","녹스","모르스","풀게르","마레","테라","아스트라"],en:["","Caelus","Flora","Ignis","Lumen","Nox","Mors","Fulger","Mare","Terra","Astra"]};
+// 13경기 치른 뒤(14라운드 진행 전) 순위: [id, 승, 무, 패]
+const REC={1:[7,2,4],2:[9,1,3],3:[6,3,4],4:[5,2,6],5:[8,2,3],6:[4,3,6],7:[6,1,6],8:[3,4,6],9:[5,3,5],10:[10,1,2]};
+const MATCH=[[1,2],[10,4],[5,3],[8,7],[9,6]];
+const UNIT={Caelus:["Theon","Aura","Sylva","Tempest","Zephyros","Recruit_Gladiator","Recruit_Assassin","Recruit_Legionary","Recruit_Skirmisher","Recruit_Sorcerer","Recruit_Gladiator","Recruit_Assassin"],
+ Flora:["Prunus","Persephone","Mandragora","Semia","Viva","Recruit_Gladiator","Recruit_Assassin","Recruit_Legionary","Recruit_Sorcerer"]};
+const UKO={Theon:"테온",Aura:"아우라",Sylva:"실바",Tempest:"템페스트",Zephyros:"제피로스",Prunus:"프루누스",Persephone:"페르세포네",Mandragora:"만드라고라",Semia:"세미아",Viva:"비바",Recruit_Gladiator:"검투사",Recruit_Assassin:"암살자",Recruit_Legionary:"군단병",Recruit_Skirmisher:"척후병",Recruit_Sorcerer:"마법사"};
+const LV=[9,8,8,7,7,5,5,4,4,3,3,2];
+let page=0;
+function standings(rd){const t=Object.keys(REC).map(id=>{const [w,d,l]=rd==1?[0,0,0]:REC[id];return {id:+id,w,d,l,pt:w*3+d,pl:w+d+l};});
+  t.sort((a,b)=>b.pt-a.pt||a.id-b.id);t.forEach((x,i)=>x.rank=i>0&&x.pt==t[i-1].pt?t[i-1].rank:i+1);return t;}
+function draw(){
+  H="";const $=id=>document.getElementById(id),EN=$('en').checked,nm=EN?NM.en:NM.ko,tab=$('tab').value,rd=+$('rd').value,mi=+$('mi').value,side=+$('side').value;
+  const st=standings(rd),by={};st.forEach(x=>by[x.id]=x);
+  const rk=id=>EN?'#'+by[id].rank:by[id].rank+'위';
+  P(A+"/2D Pixel Quest Vol.3 - The UI-GUI/Sprites/Inventory Book/InventoryBook_01.png",0,0,576,477);
+  // 페이지 탭 (왼쪽 위) + 진행 회차 (오른쪽 위) : 두 탭 공통
+  [['rank',EN?'Standings':'리그 순위'],['match',EN?'Matches':'경기 대진']].forEach(([k,lb],i)=>{const x=L0+i*113,sel=k==tab;
+    if(sel)BOX(x,84,109,24,'#7a4a12','border:1px solid #3e1f0c;box-sizing:border-box;border-radius:3px;box-shadow:0 2px 0 rgba(62,17,9,.35)');
+    else N('01_buttons/btn_secondary_default',x,84,109,24,[6,8,6,8]);
+    T(x+54.5,96,lb,10,sel?'cream':'ink2','mm');if(!sel)HIT(x,84,109,24,'tab',k);});
+  T(421,96,EN?`Round ${rd} / 27`:`${rd} / 27 라운드`,10,'ink','mm');
+  BOX(R0+40,106,142,3,'rgba(117,75,34,.25)','border-radius:2px');BOX(R0+40,106,142*(rd-1)/27,3,'#754b22','border-radius:2px');
+  if(tab=='rank'){
+    // 머리줄
+    const HY=120, RY=134, RH=25.5, C5=[R0+28,R0+66,R0+104,R0+150,R0+198];
+    T(L0+16,HY,EN?'#':'순위',7.6,'ink2','mm');T(L0+44,HY,EN?'House':'가문',7.6,'ink2','lm');
+    [EN?'W':'승',EN?'D':'무',EN?'L':'패',EN?'Pts':'승점',EN?'Win %':'승률'].forEach((s,i)=>T(C5[i],HY,s,7.6,i==3?'ink':'ink2','mm'));
+    BOX(L0,HY+8,222,1,'#a88458');BOX(R0,HY+8,222,1,'#a88458');
+    st.forEach((x,i)=>{const y=RY+i*RH,me=x.id==1;
+      if(me){[L0,R0].forEach(px=>BOX(px,y,222,RH-2,'rgba(255,243,220,.85)','outline:1.5px solid #592a16;border-radius:2px'));}
+      else if(i%2==0){[L0,R0].forEach(px=>BOX(px,y,222,RH-2,'rgba(117,75,34,.08)'));}
+      const top=x.rank==1&&x.pl>0;
+      T(L0+16,y+RH/2-1,x.pl?x.rank:'—',9,top?'ink':'ink2','mm',top?'color:#a0620f':'');
+      P(TEAM(x.id),L0+30,y+2,14,RH-6,'object-fit:contain');
+      T(L0+50,y+RH/2-1,nm[x.id],8.5,'ink','lm');
+      if(me)T(L1-6,y+RH/2-1,EN?'Us':'우리 가문',7.14,'ink2','rm');
+      if(top)T(L1-6,y+RH/2-1,EN?'Leader':'선두',7.14,'','rm','color:#a0620f');
+      [x.w,x.d,x.l,x.pt].forEach((v,k)=>T(C5[k],y+RH/2-1,v,k==3?9.5:8.5,k==3?'ink':'ink2','mm'));
+      {const mIdx=MATCH.findIndex(m=>m.includes(x.id));H+=`<div class="hit" data-team="${mIdx},${MATCH[mIdx].indexOf(x.id)}" style="left:${L0}px;top:${y}px;width:${R1-L0}px;height:${RH-2}px"></div>`;}
+      T(C5[4],y+RH/2-1,x.pl?Math.round(x.w/x.pl*100)+'%':'—',8,'ink2','mm');});
+    // 맨 아래: 규칙 / 우리 가문 기준 한 줄
+    const me=by[1],lead=st[0],left=27-(rd-1);
+    T(155,404,EN?'1st at league end = champion · tap a house':'리그가 끝날 때 1위면 우승 · 가문을 누르면 경기 대진',7.14,'ink2','ma');
+    T(421,404,rd==1?(EN?'27 matches to play · Win 3 · Draw 1':'남은 27경기 · 승 3점 · 무 1점'):me.rank==1?(EN?`Leading · ${left} left`:`선두 · 남은 ${left}경기`):(EN?`${lead.pt-me.pt} pts behind 1st · ${left} left`:`1위와 승점 ${lead.pt-me.pt}점 차 · 남은 ${left}경기`),7.6,'ink','ma');
+  } else {
+    // ===== 왼쪽: 이번 라운드 5경기
+    T(L0+4,120,EN?'This round':'이번 라운드 경기',8.5,'ink2','lm');
+    MATCH.forEach(([a,b],i)=>{const y=132+i*55,cur=i==mi,ours=i==0,h=49;
+      N(cur?'02_panels/panel_parchment_light':'02_panels/panel_plain_light',L0,y,222,h,8,cur?'outline:1.5px solid #592a16;box-shadow:0 2px 0 rgba(62,17,9,.35)':'');
+      P(TEAM(a),L0+10,y+9,22,31,'object-fit:contain');T(L0+38,y+19,nm[a],9,'ink','lm');T(L0+38,y+33,rd==1?'—':rk(a),7.14,'ink2','lm');
+      P(TEAM(b),L1-32,y+9,22,31,'object-fit:contain');T(L1-38,y+19,nm[b],9,'ink','rm');T(L1-38,y+33,rd==1?'—':rk(b),7.14,'ink2','rm');
+      if(ours){T(155,y+15,EN?'Our match':'우리 경기',7.14,'','mm','color:#a0620f');T(155,y+31,'VS',10,'ink','mm');}
+      else T(155,y+h/2,'VS',10,'ink2','mm');
+      if(!cur)HIT(L0,y,222,h,'mi',i);});
+    T(155,412,EN?'Results appear after the round':'경기 결과는 라운드가 끝나면 순위표에 반영됩니다',7.14,'gray','mm');
+    // ===== 오른쪽: 가문 전환 → 성적 → 용병
+    const [a,b]=MATCH[mi],tid=side?b:a,x0=by[tid],me=tid==1;
+    [a,b].forEach((id,i)=>{const x=R0+i*113,sel=i==side;
+      N(sel?'02_panels/panel_parchment_light':'02_panels/panel_plain_light',x,120,109,44,7,sel?'outline:1.5px solid #592a16':'opacity:.8');
+      P(TEAM(id),x+9,124,24,36,'object-fit:contain');T(x+40,142,nm[id],10,sel?'ink':'ink2','lm');
+      if(id==1)T(x+102,142,EN?'Us':'우리',7.14,'ink2','rm');
+      if(!sel)HIT(x,120,109,44,'side',i);});
+    // 용병 칸 3×3
+    const fid=FID[tid]=='Caelus'?'Caelus':'Flora';
+    const pool=UNIT[fid], cnt=me?+$('mine').value:Math.min(+$('seen').value,pool.length);
+    const pages=Math.max(1,Math.ceil(cnt/9));if(page>=pages)page=0;
+    T(R0+6,182,me?(EN?`Our mercenaries · ${cnt}`:`보유 용병 ${cnt}명`):(EN?`Seen mercenaries · ${cnt}`:`확인한 용병 ${cnt}명`),8.5,'ink','lm');
+    if(!me)T(R1-4,182,EN?'Only ones met in battle':'경기에서 만난 용병만 기록',7.14,'gray','rm');
+    else if(pages>1){T(R1-30,182,`${page+1}/${pages}`,7.6,'ink2','mm');
+      N(page?'01_buttons/btn_icon_default':'01_buttons/btn_icon_disabled',R1-62,174,16,16,6);T(R1-54,182,'◀',6,'ink','mm','font-size:7.14px');if(page)HIT(R1-62,174,16,16,'pg',-1);
+      N(page<pages-1?'01_buttons/btn_icon_default':'01_buttons/btn_icon_disabled',R1-14,174,16,16,6);T(R1-6,182,'▶',6,'ink','mm','font-size:7.14px');if(page<pages-1)HIT(R1-14,174,16,16,'pg',1);}
+    for(let k=0;k<9;k++){const idx=page*9+k,x=R0+(k%3)*75,y=194+Math.floor(k/3)*73,w=72,h=69;
+      if(idx<cnt){const u=pool[idx%pool.length];
+        N('03_slots/slot_empty_light_outlined',x,y,w,h,4);
+        H+=`<div style="left:${x+12}px;top:${y+4}px;width:48px;height:48px;overflow:hidden"><img src="${A}/BattleK/Family/${fid}/Images/${fid}_${u}.png" style="position:absolute;left:-63px;top:-5px;width:174px;height:98px;image-rendering:auto"></div>`;
+        T(x+w/2,y+60,`<span style="position:static;color:#754b22">Lv.${LV[idx%12]}</span> ${EN?u.replace('Recruit_',''):UKO[u]}`,7.14,'ink','mm');
+      } else if(me){BOX(x,y,w,h,'transparent','border:1px dashed rgba(168,132,88,.5);box-sizing:border-box;border-radius:3px');}
+      else {BOX(x,y,w,h,'rgba(117,75,34,.06)','border:1px dashed #a88458;box-sizing:border-box;border-radius:3px');P('03_slots/slot_unknown',x+w/2-14,y+14,28,28);T(x+w/2,y+57,EN?'Unknown':'미확인',7.14,'gray','mm');}}
+  }
+  // 책갈피 (대회 선택)
+  [['home','일정','Home'],['news','소식통','News'],['league','대회','League'],['facility','시설','Facility'],['team','팀관리','Team']].forEach((t,i)=>{const sel=i==2,x=566+(sel?4:0),y=118+i*34,f=sel?'':'filter:brightness(.6)';
+    P(`04_bookmarks_tabs/bookmark_text_round_${sel?'hover':'default'}`,x,y,52,22,f);P(`07_icons_color/menu_${t[0]}`,x+4,y+3,16,16,f);
+    H+=`<div class="t" style="left:${x+22}px;top:${y+11}px;font-size:8px;color:#fcd5a9;transform:translateY(-50%);${f}">${EN?t[2]:t[1]}</div>`;});
+  $('bk').innerHTML=H;
+  document.querySelectorAll('#bk .hit').forEach(h=>h.onclick=()=>{const d=h.dataset;
+    if(d.tab)$('tab').value=d.tab;if(d.team){const [m,sd]=d.team.split(',');$('tab').value='match';$('mi').value=m;$('side').value=sd;page=0;}if(d.mi!=null){$('mi').value=d.mi;$('side').value=d.mi==0?1:0;page=0;}if(d.side!=null){$('side').value=d.side;page=0;}if(d.pg)page+=+d.pg;draw();});
+  $('crest').style.backgroundImage=`url('${A}/Ui/ArmoryEffects/ShieldCrests.png')`;$('crest').style.backgroundPosition='0 0';
+  $('hname').textContent=EN?'House Caelus':'카이루스 가문';$('hlv').style.left=(96+$('hname').offsetWidth+14)+'px';
+  $('tier').innerHTML='<b>★1</b> '+(EN?'Novice League':'입문 리그');
+  $('gold').textContent='1,250 G';const gw=$('gold').offsetWidth;$('gold').style.left=(1816-gw)+'px';$('coin').style.left=(1816-gw-40)+'px';
+  $('bgflag').src=TEAM(1);
+}
+['tab','mi','side','rd','seen','mine','en'].forEach(id=>document.getElementById(id).onchange=()=>{page=0;draw();});
+const h=location.hash.slice(1).split(',');['tab','mi','side','rd','seen','mine'].forEach((id,i)=>{if(h[i])document.getElementById(id).value=h[i];});if(h[6]=='1')document.getElementById('en').checked=true;if(h[7])page=+h[7];
+draw();document.fonts.ready.then(draw);
+</script>
