@@ -72,9 +72,9 @@ const BOX=(x,y,w,h,col,extra='')=>{H+=`<div class="${CL}" style="left:${x}px;top
 const TEAM=i=>A+"/Resources/TeamImages/team_"+i+".png";
 const L0=44,L1=266,R0=310,R1=532, COL=['#e5a147','#b8a58c','#8a5a2b'];
 const NM={ko:["","카이루스","플로라","이그니스","루멘","녹스","모르스","풀게르","마레","테라","아스트라"],en:["","Caelus","Flora","Ignis","Lumen","Nox","Mors","Fulger","Mare","Terra","Astra"]};
-const M=[[5,3,45,360,[["news","이그니스 – 드라코, 한 라운드에 레벨 3 상승","Ignis – Draco jumped 3 levels"]]],
- [2,9,62,400,[["news","플로라 – 프루누스, 한 라운드에 레벨 2 상승","Flora – Prunus jumped 2 levels"],["rumor","테라 가문이 새 용병을 영입했다는 이야기","Terra may have recruited a mercenary"]]],
- [10,4,80,420,[]],[8,7,49,380,[["rumor","풀게르 가문이 새 용병을 영입했다는 이야기","Fulger may have recruited a mercenary"]]]];
+const M=[[5,3,45,360,[["lv",1,"드라코 Lv.11 → 14","Draco Lv.11 → 14",12]]],
+ [2,9,62,400,[["lv",0,"프루누스 Lv.12 → 14","Prunus Lv.12 → 14",8],["rec",1,"새 용병 영입 (Lv.10)","New recruit (Lv.10)",40]]],
+ [10,4,80,420,[]],[8,7,49,380,[["rec",1,"새 용병 영입 (Lv.8)","New recruit (Lv.8)",32],["lv",0,"세렌 Lv.9 → 11","Seren Lv.9 → 11",8]]]];
 const probs=m=>{const p=m[2]/100,d=0.15-0.12*Math.abs(p-0.5)*2;return [(1-d)*p,d,(1-d)*(1-p)];};
 const odds=m=>probs(m).map((q,i)=>Math.min(0.9/q,i==1?10:5));
 const trip=q=>{const x=Math.round(q[0]*100),y=Math.round(q[1]*100);return [x,y,100-x-y];};
@@ -99,10 +99,9 @@ function draw(){
     N('COLLO:02_panels/tooltip',L0+2,y,218,40,6,`transform:rotate(${[-0.6,0.5,-0.3][k]}deg);box-shadow:0 1px 0 rgba(89,42,22,.35)`);
     H+=`<div class="hit" data-i="${i}" style="left:${L0}px;top:${y}px;width:222px;height:20px"></div>`;
     P(TEAM(mm[0]),L0+8,y+3,10,14,'object-fit:contain');T(L0+22,y+10,`${nm[mm[0]]} vs ${nm[mm[1]]}`,7.6,'ink','lm');
-    if(confirmed&&full(i)){T(L1-12,y+10,(EN_?'Sealed ':'봉인 ')+draft[i].stake+' G',7.14,'win','rm');DOG(L1,y+1);} else if(full(i)) T(L1-8,y+10,(EN_?'Picked ':'담음 ')+draft[i].stake+' G',7.14,'ink','rm'); else T(L1-8,y+10,EN_?'Open':'베팅 전',7.14,'gray','rm');});
+    if(full(i)) T(L1-8,y+10,draft[i].stake+' G',7.6,confirmed?'win':'ink','rm'); else T(L1-8,y+10,EN_?'Open':'베팅 전',7.14,'gray','rm');});
   CL=anim=='card'?'cardin':'';
   const cy=168;N('COLLO:02_panels/tooltip',L0,cy,222,214,6,'filter:brightness(1.07);outline:1px solid rgba(89,42,22,.55);box-shadow:0 4px 0 rgba(62,17,9,.35),0 -2px 0 rgba(89,42,22,.18)');
-  if(bet){DOG(L1,cy);H+=`<div style="left:${L1-34}px;top:${cy+44}px;width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#be4331,#6c291d);box-shadow:inset 0 0 0 2px #a03a2a"></div>`;}
   P(TEAM(a),L0+10,cy+10,20,28,'object-fit:contain');T(L0+34,cy+18,nm[a],9,'ink');
   P(TEAM(b),L1-30,cy+10,20,28,'object-fit:contain');T(L1-34,cy+18,nm[b],9,'ink','ra');T(155,cy+23,'vs',8,'ink2','mm');
   N('02_panels/divider_h_ornament',L0+8,cy+44,206,5,[0,28,0,28]);
@@ -110,10 +109,12 @@ function draw(){
   let bx=L0+12;pr.forEach((q,i)=>{const w=198*q;BOX(bx,cy+68,w,10,COL[i]);bx+=w;});
   const tr=trip(pr);T(L0+12,cy+82,`${nm[a]} ${tr[0]}%`,8,'ink');T(155,cy+83,`${EN_?'Draw':'무'} ${tr[1]}%`,7.14,'ink2','ma');T(L1-12,cy+82,`${tr[2]}% ${nm[b]}`,8,'ink','ra');
   const pA=Math.round(pw*pp/100/4)*4;T(155,cy+98,EN_?`Power ${pA} : ${pw-pA} (unit levels)`:`전력 ${pA} : ${pw-pA} (용병 레벨 합)`,7.14,'ink2','ma');
-  N('02_panels/header_ornament',L0+12,cy+124,198,7,[0,12,0,10]);T(L0+22,cy+114,EN_?'Power changes':'전력 변화',8,'ink2');
-  if(!news.length) T(155,cy+144,EN_?'No power changes.':'두 가문 모두 전력 변화가 없습니다.',7.14,'gray','ma');
-  news.slice(0,2).forEach((n,i)=>{const y=cy+136+i*24,r=n[0]=='rumor';PC('07_icons_color/'+(r?'fac_mail':'stat_agility'),L0+12,y,14,14);
-    TW(L0+30,y+1,180,(r?`<span class="gray" style="position:static">${EN_?'[Rumor]':'[소문]'}</span> `:'')+(EN_?n[2]:n[1]),7.14);});
+  N('02_panels/header_ornament',L0+12,cy+124,198,7,[0,12,0,10]);T(L0+22,cy+114,EN_?'Power changes (last round)':'전력 변화 (지난 라운드)',8,'ink2');
+  if(!news.length) T(155,cy+144,EN_?'No changes last round.':'지난 라운드 변화가 없습니다.',7.14,'gray','ma');
+  news.slice(0,3).forEach((n,i)=>{const y=cy+136+i*22,tm=n[1]?b:a;
+    PC('07_icons_color/'+(n[0]=='rec'?'menu_team':'ui_stat_up'),L0+12,y,13,13);
+    T(L0+30,y+7,`<span style="position:static;color:#592a16">${nm[tm]}</span> · ${EN_?n[3]:n[2]}`,7.14,'ink2','lm');
+    T(L1-12,y+7,(EN_?'Power ':'전력 ')+'+'+n[4],7.14,'win','rm');});
   CL='';
   N('01_buttons/btn_normal_default',L0,391,222,28,10);P('07_icons_color/menu_league',L0+60,397,16,16);T(L0+80,405,EN_?'More in League':'대회에서 자세히 보기',10,'ink','lm');
   // ===== 오른쪽: 클립으로 꽂은 베팅 전표 (높이 축소) + 라운드 확정
@@ -137,8 +138,6 @@ function draw(){
   const pay=pick>=0&&stake?Math.round(stake*od[pick]):0;
   if(pay){T(R0+16,ty+125,`${lab[pick]} · ${stake} G`,9,bet?'win':'ink');T(R0+16,ty+139,EN_?`Pays ${pay} G`:`적중 시 ${pay} G`,7.14,'ink2');}
   else T(R0+16,ty+134,lock?(EN_?'Not bet this round':'이번 라운드 베팅 안 함'):(pick<0?(EN_?'Circle a result':'결과에 동그라미를 치세요'):(EN_?'Choose an amount':'금액을 고르세요')),7.6,'gray','lm');
-  if(bet){H+=`<div class="${anim=='seal'?'stamp':''}" style="left:${R1-56}px;top:${ty+112}px;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#be4331,#872b1c 60%,#6c291d);box-shadow:0 2px 0 rgba(62,17,9,.5),inset 0 0 0 3px #a03a2a,inset 0 0 0 4px #6c291d;transform:rotate(-12deg)"></div>`;T(R1-39,ty+129,EN_?'SEAL':'봉인',7.14,'cream','mm','transform:translate(-50%,-50%) rotate(-12deg)');}
-  else if(pay&&!lock){H+=`<div style="left:${R1-56}px;top:${ty+112}px;width:34px;height:34px;border-radius:50%;border:1.5px dashed #a88458;box-sizing:border-box"></div>`;T(R1-39,ty+129,EN_?'Picked':'담음',7.14,'ink2','mm');}
   CL='';
   CLIP(R0+105,ty-8);
   // 라운드 합계 + 최종 확정
