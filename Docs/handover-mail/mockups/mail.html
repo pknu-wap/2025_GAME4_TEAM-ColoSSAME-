@@ -112,8 +112,7 @@ function draw(){
   DV(cy+42);
   // 2. 최근 5경기 + 연승/연패 (왼쪽이 최근)
   T(L0+12,cy+49,EN_?'Last 5':'최근 5경기',7.6,'ink2');
-  [[a,m[5],cy+61],[b,m[6],cy+77]].forEach(([tm,f,y])=>{T(L0+12,y+6,nm[tm],7.14,'ink','lm');[...f].forEach((r,k)=>{const x=L0+64+k*22;N('02_panels/tag_result',x,y,20,13,4);T(x+10,y+6.5,EN_?EK[r]:r,7.14,RC[r],'mm');});
-    const sk=streak(f);if(sk)T(L1-12,y+6,sk,7.14,f[0]=='승'?'win':'lose','rm');});
+  [[a,m[5],cy+61],[b,m[6],cy+77]].forEach(([tm,f,y])=>{T(L0+12,y+6,nm[tm],7.14,'ink','lm');[...f].forEach((r,k)=>{const x=L0+64+k*22;N('02_panels/tag_result',x,y,20,13,4);T(x+10,y+6.5,EN_?EK[r]:r,7.14,RC[r],'mm');});});
   DV(cy+97);
   // 3. 최근 맞대결 (이번 리그)
   // 3칸 일정 칩: [라운드, 결과(a/b/d) 또는 'now' 또는 '']
